@@ -1,0 +1,318 @@
+%%
+%% This is file `KITdefs.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% KITgeneral.dtx  (with options: `definitions')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2008, 2010, 2011, 2012 by Klaus Braune <klaus.braune@kit.edu>,
+%% Steinbuch Centre for Computing (SCC) at Karlsruhe Institute of Technology (KIT)
+%% 
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\RequirePackage{rcs}
+\RCS $Date: 2012/06/06 10:15:33 $
+\RCS $Revision: 1.4 $
+\ProvidesPackage{KITdefs}
+    [\RCSRawDate\space v\RCSRevision\space Common KIT specific definitions]
+\RequirePackage{tikz}
+\newcommand{\KIT@Name@D}{Karlsruher Institut f\"ur Technologie (KIT)}
+\newcommand{\KIT@Name@E}{Karlsruhe Institute of Technology (KIT)}
+\newcommand{\KIT@Text@D}{KIT -- Universit\"at des Landes Baden-W\"urttemberg
+  und nationales Forschungszentrum in der Helmholtz-Gemeinschaft}
+\newcommand{\KIT@Text@E}{KIT -- University of the State of Baden-Wuerttemberg
+  and National Research Center of the Helmholtz Association}
+\gdef\KIT@Street{Kaiserstra\ss{}e 12}
+\gdef\KIT@Place{76131 Karlsruhe}
+\gdef\KIT@CntryD{Deutschland}
+\gdef\KIT@CntryE{Germany}
+\let\KIT@Cntry=\KIT@CntryD
+\let\KIT@Str=\relax
+\expandafter\ifx\csname KIT@State\endcsname\relax\else
+  \newcommand{\Street}[1]{\gdef\KIT@Str{{#1}}}
+\fi
+\let\Strasse=\Street
+\let\KIT@Ort=\relax
+\expandafter\ifx\csname KIT@State\endcsname\relax\else
+  \newcommand{\Place}[1]{\gdef\KIT@Ort{{#1}}}
+\fi
+\let\place=\Place
+\let\Ort=\Place
+\gdef\KIT@Web{www.kit.edu}
+\let\KIT@www=\KIT@Web
+\newcommand{\KITURL}[1]{\gdef\KIT@Web{{#1}}}
+\let\KIT@WebTxt=\relax
+\gdef\KIT@wtext@D{Web}
+\gdef\KIT@wtext@E{Web}
+\expandafter\ifx\csname KIT@State\endcsname\relax\else
+  \newcommand{\WWW}[1]{\gdef\KIT@PWWW{{#1}}}
+\fi
+\let\KIT@PWWW=\KIT@Web
+\gdef\KIT@EmlDomain{@kit.edu}
+\expandafter\ifx\csname KIT@State\endcsname\relax\else
+  \newcommand{\EmailDomain}[1]{\gdef\KIT@EmlDomain{{#1}}}
+\fi
+\expandafter\ifx\csname KIT@State\endcsname\relax\else
+  \newcommand{\EmailName}[1]{\gdef\KIT@EmlName{{#1}}}
+\fi
+\let\KIT@EmlTxt=\relax
+\let\KIT@EmlName=\relax
+\AtBeginDocument{%
+  \expandafter\ifx\csname labelitemi\endcsname\relax\else
+    \expandafter\ifx\csname KIT@State\endcsname\relax\else
+      \let\labelitemiv=\labelitemiii
+      \let\labelitemiii=\labelitemii
+      \let\labelitemii=\labelitemi
+      \ifKIT@bw
+        \def\labelitemi{\resizebox{1ex}{1ex}{\KIT@marksymbol[KITblack]}}
+      \else
+        \def\labelitemi{\makebox[.65em][l]{\KIT@mark}}
+      \fi
+      \addtolength{\leftmargini}{.1em}
+      \addtolength{\leftmarginii}{.2em}
+      \addtolength{\leftmarginiii}{.3em}
+      \addtolength{\leftmarginiv}{.4em}
+    \fi
+  \fi}
+\newsavebox{\KIT@titimg}
+\newlength{\KIT@titimgwd}
+\newcommand{\KIT@pgftext}[5][KITblack]{%
+  \textcolor{#1}{\fontfamily{\KIT@fam}\fontsize{#2}{#3}%
+    \fontseries{#4}\upshape#5}%
+}
+\newcommand{\KITtitleimage}[2][\relax]{%
+  \ifx#1\relax
+    \sbox{\KIT@titimg}{\includegraphics[width=\KIT@titimgwd]{#2}}
+  \else
+    \sbox{\KIT@titimg}{\includegraphics[#1,width=\KIT@titimgwd]{#2}}
+  \fi}
+\let\KITtitelbild=\KITtitleimage
+\newcommand{\TitleImage}[2][\relax]{%
+  \ifx#1\relax
+    \sbox{\KIT@titimg}{\includegraphics{#2}}
+  \else
+    \sbox{\KIT@titimg}{\includegraphics[#1]{#2}}
+  \fi}
+\gdef\KIT@today@TD{\number\day.\space\ifcase\month\or Januar\or Februar\or
+  {M\"arz}\or April\or Mai\or Juni\or Juli\or August\or September\or Oktober\or
+  November\or Dezember\fi\space\number\year}
+\gdef\KIT@today@TE{\ifcase\month\or January\or February\or March\or April\or
+  May\or June\or July\or August\or September\or October\or November\or
+  December\fi\space\number\day,\space\number\year}
+\let\ttoday=\KIT@today@TD
+\gdef\KIT@today@ND{%
+  \ifnum\number\day<10{0}\fi\number\day.%
+  \ifnum\number\month<10{0}\fi\number\month.%
+  \ifnum\number\year<10{0}\fi\number\year}
+\gdef\KIT@today@NE{%
+  \ifnum\number\year<10{0}\fi\number\year-%
+  \ifnum\number\month<10{0}\fi\number\month-%
+  \ifnum\number\day<10{0}\fi\number\day}
+\let\ntoday=\KIT@today@ND
+\gdef\@date{\phantom{0}}
+\gdef\KIT@date{\ttoday}
+\let\KIT@DatTxt=\relax
+\gdef\DateNumbers{\gdef\KIT@date{\ntoday}}
+\gdef\DateText{\gdef\KIT@date{\ttoday}}
+\gdef\date#1{\gdef\KIT@date{#1}}
+\let\Datum=\date
+\newcommand{\KIT@German}{%
+  \let\KIT@Cntry=\KIT@CntryD
+  \let\KIT@Name=\KIT@Name@D
+  \let\KIT@name=\KIT@Name@D
+  \let\KIT@Text=\KIT@Text@D
+  \let\KIT@text=\KIT@Text@D
+  \let\KIT@WebTxt=\KIT@wtext@D
+  \let\ntoday=\KIT@today@ND
+  \let\ttoday=\KIT@today@TD
+  }
+\newcommand{\KIT@English}{%
+  \let\KIT@Cntry=\KIT@CntryE
+  \let\KIT@Name=\KIT@Name@E
+  \let\KIT@name=\KIT@Name@E
+  \let\KIT@Text=\KIT@Text@E
+  \let\KIT@text=\KIT@Text@E
+  \let\KIT@WebTxt=\KIT@wtext@E
+  \let\ntoday=\KIT@today@NE
+  \let\ttoday=\KIT@today@TE
+  }
+\KIT@German
+\newlength{\KIT@Framewd}
+\newlength{\KIT@RFramewd}
+\newlength{\KIT@Linewd}
+\newlength{\KIT@MFllx}
+\newlength{\KIT@MFlly}
+\newlength{\KIT@MFurx}
+\newlength{\KIT@MFury}
+\newcommand{\KIT@MFrame}[1][0mm]{%
+  \fill[KITmframe] (\KIT@MFllx,\KIT@MFury)
+    -- (\KIT@MFllx,\KIT@MFlly) -- (\KIT@MFurx,\KIT@MFlly)
+    -- (\KIT@MFurx,\KIT@MFury) -- (\KIT@MFllx,\KIT@MFury)
+    -- (\KIT@MFllx+\KIT@Framewd,\KIT@MFury-\KIT@Framewd)
+    -- (\KIT@MFurx-2\KIT@Framewd,\KIT@MFury-\KIT@Framewd)
+    arc( 90:  0:\KIT@Framewd)
+    -- (\KIT@MFurx-\KIT@Framewd,\KIT@MFlly+\KIT@Framewd+#1)
+    -- (2\KIT@Framewd,\KIT@MFlly+\KIT@Framewd+#1)
+    arc(270:180:\KIT@Framewd)
+    -- (\KIT@MFllx+\KIT@Framewd,\KIT@MFury-\KIT@Framewd) -- cycle;
+  }
+\newcommand{\KIT@MFrameMOD}[1][0mm]{%
+  \fill[KITmframe] (0mm,\paperheight)
+    -- (0mm,0mm) -- (\paperwidth,0mm)
+    -- (\paperwidth,\paperheight) -- (0mm,\paperheight)
+    -- (\KIT@Framewd,\paperheight-\KIT@Framewd)
+    -- (\paperwidth-2\KIT@Framewd,\paperheight-\KIT@Framewd)
+    arc( 90:  0:\KIT@Framewd)
+    -- (\paperwidth-\KIT@Framewd,\KIT@Framewd+#1)
+    -- (2\KIT@Framewd,\KIT@Framewd+#1)
+    arc(270:180:\KIT@Framewd)
+    -- (\KIT@Framewd,\paperheight-\KIT@Framewd) -- cycle;
+  }
+\newcommand{\KIT@MFrameRA}[1][0mm]{%
+  \draw[KITrframe,line width=\KIT@RFramewd] (\KIT@MFllx+#1,\KIT@MFury)
+    -- (\KIT@MFllx+#1,\KIT@MFlly+\KIT@Framewd)
+    arc(180:270:\KIT@Framewd)
+    -- (\KIT@MFurx+#1,\KIT@MFlly)
+    -- (\KIT@MFurx+#1,\KIT@MFury-\KIT@Framewd)
+    arc(  0: 90:\KIT@Framewd) -- cycle;
+  }
+\newcommand{\KIT@MFhdr}[5][0mm]{%
+  \fill[KITheadbg] (#2+#1,#5)
+    -- (#2+#1,#5-\KIT@MFHdh)
+    -- (#4+#1,#5-\KIT@MFHdh)
+    -- (#4+#1,#5-\KIT@Framewd)
+    arc(0:90:\KIT@Framewd) -- cycle;
+  }
+\newcommand{\KIT@marksymbol}[1][KITgreen]{%
+  \tikz \filldraw[#1] (0cm,7cm)
+    -- (0cm,2cm) arc(180:270:2cm) -- (7cm,0cm)
+    -- (7cm,5cm) arc(  0: 90:2cm) -- cycle;}
+\let\KITmark=\KIT@marksymbol
+\newcommand{\KIT@mark}[1][KITgreen]{\resizebox{1ex}{1ex}{\KIT@marksymbol[#1]}}
+\newsavebox{\KIT@sbx}
+\newlength{\vgdist}
+\setlength{\vgdist}{0mm}
+\newlength{\KIT@tlen}
+\newlength{\KIT@tlenA}
+\newcommand{\KIT@Box}[1][\relax]{%
+  \KIT@tlen=\ht\KIT@sbx%
+  \KIT@tlenA=\dp\KIT@sbx%
+  \addtolength{\KIT@tlen}{\KIT@tlenA}%   height of image
+  \addtolength{\KIT@tlen}{2\vgdist}%     height of image + distance
+  \KIT@tlenA=\wd\KIT@sbx%                width of image
+  \addtolength{\KIT@tlenA}{2\vgdist}%    width of image + distance
+  \begin{tikzpicture}
+     \clip (0pt,\KIT@tlen+2\KIT@Linewd)
+       -- (0pt,\KIT@Framewd+.5\KIT@Linewd)
+       arc(180:270:\KIT@Framewd+.5\KIT@Linewd)
+       -- (\KIT@tlenA+2\KIT@Linewd,0pt)
+       -- (\KIT@tlenA+2\KIT@Linewd,\KIT@tlen-\KIT@Framewd+1.5\KIT@Linewd)
+       arc(0:90:\KIT@Framewd+.5\KIT@Linewd) -- cycle;
+     \ifx#1\relax\relax\else
+       \fill[KITblack15] (.5\KIT@Linewd,.5\KIT@Linewd)
+         rectangle (\KIT@tlenA+1.5\KIT@Linewd,\KIT@tlen+1.5\KIT@Linewd);
+     \fi
+     \pgftext[at=\pgfpoint{\vgdist+\KIT@Linewd}{\vgdist+\KIT@Linewd},left,bottom]{%
+       \usebox{\KIT@sbx}}
+     \draw[KITblack50,line width=\KIT@Linewd]
+       (.5\KIT@Linewd,\KIT@tlen+1.5\KIT@Linewd)
+       -- (.5\KIT@Linewd,\KIT@Framewd+.5\KIT@Linewd)
+       arc(180:270:\KIT@Framewd)
+       -- (\KIT@tlenA+1.5\KIT@Linewd,.5\KIT@Linewd)
+       -- (\KIT@tlenA+1.5\KIT@Linewd,\KIT@tlen-\KIT@Framewd+1.5\KIT@Linewd)
+       arc(0:90:\KIT@Framewd) -- cycle;
+  \end{tikzpicture}%
+}
+\def\KIT@mcolmain{%
+  \let\KIT@WF@warning=\WF@collision
+  \setcounter{collectmore}{-8}
+  \renewenvironment{figure}[1][\relax]{%
+    \gdef\KIT@wrap@opt{L}
+    \ifx##1\relax \relax
+     \else
+      \expandafter\KIT@search{h}{##1}
+      \ifKIT@match\gdef\KIT@wrap@opt{l}\fi
+     \fi
+    \begin{wrapfigure}{\KIT@wrap@opt}{\columnwidth}
+   }{%
+    \end{wrapfigure}
+    \let\WF@collision=\relax
+    \begin{wrapfigure}[0]{\KIT@wrap@opt}{\columnwidth}
+    \end{wrapfigure}
+    \rule{0pt}{0pt}%
+    \let\WF@collision=\KIT@WF@warning
+    \vspace{\KITintextsep}
+    \par
+   }
+  \renewenvironment{table}[1][\relax]{%
+    \gdef\KIT@wrap@opt{L}
+    \ifx##1\relax \relax
+     \else
+      \expandafter\KIT@search{h}{##1}
+      \ifKIT@match\gdef\KIT@wrap@opt{l}\fi
+     \fi
+    \begin{wraptable}{\KIT@wrap@opt}{\columnwidth}
+   }{%
+    \end{wraptable}
+    \let\WF@collision=\relax
+    \begin{wraptable}[0]{\KIT@wrap@opt}{\columnwidth}
+    \end{wraptable}
+    \rule{0pt}{0pt}
+    \let\WF@collision=\KIT@WF@warning
+    \vspace{\KITintextsep}
+    \par
+   }
+}
+\def\KIT@mtwocol{%
+  \KIT@mcolmain%
+  \renewcommand{\onecolumn}{\end{multicols}\clearpage}
+  \renewcommand{\twocolumn}[1][\relax]{\clearpage
+    \if##1\relax\begin{multicols}{2}\else\begin{multicols}{2}[##1]\fi}
+  \AtBeginDocument{\begin{multicols}{2}}
+  \AtEndDocument{\end{multicols}}
+}
+\newlength{\KITintextsep}
+\setlength{\KITintextsep}{-1.2\baselineskip}
+\newcommand{\KITimage}[2][\relax]{%
+  \ifx#1\relax
+    \sbox{\KIT@sbx}{\includegraphics{#2}}
+  \else
+    \sbox{\KIT@sbx}{\includegraphics[#1]{#2}}
+  \fi
+  \KIT@Box%
+}
+\let\KITbild=\KITimage
+\newcommand{\KITvectorgraphics}[2][\relax]{%
+  \ifx#1\relax
+    \sbox{\KIT@sbx}{\includegraphics{#2}}
+  \else
+    \sbox{\KIT@sbx}{\includegraphics[#1]{#2}}
+  \fi
+  \KIT@Box[bg]%
+}
+\let\KITvektorgrafik=\KITvectorgraphics
+\newcommand{\KITframe}[2][\relax]{%
+  \sbox{\KIT@sbx}{#2}
+  \ifx#1\relax
+    \KIT@Box%
+  \else
+    \KIT@Box[bg]%
+  \fi%
+}
+\let\KITrahmen=\KITframe
+\endinput
+%%
+%% End of file `KITdefs.sty'.

@@ -1,0 +1,255 @@
+%%
+%% This is file `KITcolors.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% KITgeneral.dtx  (with options: `colors')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2008, 2010, 2011, 2012 by Klaus Braune <klaus.braune@kit.edu>,
+%% Steinbuch Centre for Computing (SCC) at Karlsruhe Institute of Technology (KIT)
+%% 
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\RequirePackage{rcs}
+\RCS $Date: 2012/06/06 10:15:33 $
+\RCS $Revision: 1.4 $
+\ProvidesPackage{KITcolors}
+    [\RCSRawDate\space v\RCSRevision\space KIT specific color definitions]
+\newif\ifKIT@cmyk\KIT@cmyktrue
+\DeclareOption{cmyk}{\KIT@cmyktrue}
+\DeclareOption{rgb}{\KIT@cmykfalse}
+\ProcessOptions
+\RequirePackage{xcolor}
+\ifKIT@cmyk
+  \definecolor{KITgreen}  {cmyk}{  1,0,.60,0} % 100% green
+  \definecolor{KITgreen70}{cmyk}{.70,0,.42,0} %  70% green
+  \definecolor{KITgreen50}{cmyk}{.50,0,.30,0} %  50% green
+  \definecolor{KITgreen30}{cmyk}{.30,0,.18,0} %  30% green
+  \definecolor{KITgreen15}{cmyk}{.15,0,.09,0} %  15% green
+\else
+  \definecolor{KITgreen}  {RGB}{  0,150,130} % 100% green
+  \definecolor{KITgreen70}{RGB}{ 76,181,167} %  70% green
+  \definecolor{KITgreen50}{RGB}{127,202,192} %  50% green
+  \definecolor{KITgreen30}{RGB}{178,223,217} %  30% green
+  \definecolor{KITgreen15}{RGB}{217,239,236} %  15% green
+\fi
+\colorlet{KIT-Gruen}{KITgreen}
+\colorlet{KIT-Gruen70}{KITgreen70}
+\colorlet{KIT-Gruen50}{KITgreen50}
+\colorlet{KIT-Gruen30}{KITgreen30}
+\colorlet{KIT-Gruen15}{KITgreen15}
+\ifKIT@cmyk
+  \definecolor{KITblue}  {cmyk}{.80,.500,0,0} % 100% blue
+  \definecolor{KITblue70}{cmyk}{.56,.350,0,0} %  70% blue
+  \definecolor{KITblue50}{cmyk}{.40,.250,0,0} %  50% blue
+  \definecolor{KITblue30}{cmyk}{.24,.150,0,0} %  30% blue
+  \definecolor{KITblue15}{cmyk}{.12,.075,0,0} %  15% blue
+\else
+  \definecolor{KITblue}  {RGB}{ 70,100,170} % 100% blue
+  \definecolor{KITblue70}{RGB}{125,146,195} %  70% blue
+  \definecolor{KITblue50}{RGB}{162,177,212} %  50% blue
+  \definecolor{KITblue30}{RGB}{199,208,229} %  30% blue
+  \definecolor{KITblue15}{RGB}{227,232,242} %  15% blue
+\fi
+\colorlet{KIT-Blau}{KITblue}
+\colorlet{KIT-Blau70}{KITblue70}
+\colorlet{KIT-Blau50}{KITblue50}
+\colorlet{KIT-Blau30}{KITblue30}
+\colorlet{KIT-Blau15}{KITblue15}
+\ifKIT@cmyk
+  \definecolor{KITblack}  {cmyk}{0,0,0,  1} % 100% black
+  \definecolor{KITblack70}{cmyk}{0,0,0,.70} %  70% black
+  \definecolor{KITblack50}{cmyk}{0,0,0,.50} %  50% black
+  \definecolor{KITblack30}{cmyk}{0,0,0,.30} %  30% black
+  \definecolor{KITblack15}{cmyk}{0,0,0,.15} %  15% black
+\else
+  \definecolor{KITblack}  {RGB}{  0,  0,  0} % 100% black
+  \definecolor{KITblack70}{RGB}{ 77, 77, 77} %  70% black
+  \definecolor{KITblack50}{RGB}{128,128,128} %  50% black
+  \definecolor{KITblack30}{RGB}{179,179,179} %  30% black
+  \definecolor{KITblack15}{RGB}{217,217,217} %  15% black
+\fi
+\ifKIT@cmyk
+  \definecolor{KITpalegreen}{cmyk}{.6,0,1,0}
+\else
+  \definecolor{KITpalegreen}{RGB}{130,190,60}
+\fi
+\colorlet{KITpalegreen70}{KITpalegreen!70}
+\colorlet{KITpalegreen50}{KITpalegreen!50}
+\colorlet{KITpalegreen30}{KITpalegreen!30}
+\colorlet{KITpalegreen15}{KITpalegreen!15}
+\colorlet{KIT-Maigruen}{KITpalegreen}
+\colorlet{KIT-Maigruen70}{KITpalegreen70}
+\colorlet{KIT-Maigruen50}{KITpalegreen50}
+\colorlet{KIT-Maigruen30}{KITpalegreen30}
+\colorlet{KIT-Maigruen15}{KITpalegreen15}
+\ifKIT@cmyk
+  \definecolor{KITyellow}{cmyk}{0,.05,1,0}
+\else
+  \definecolor{KITyellow}{RGB}{250,230,20}
+\fi
+\colorlet{KITyellow70}{KITyellow!70}
+\colorlet{KITyellow50}{KITyellow!50}
+\colorlet{KITyellow30}{KITyellow!30}
+\colorlet{KITyellow15}{KITyellow!15}
+\colorlet{KIT-Gelb}{KITyellow}
+\colorlet{KIT-Gelb70}{KITyellow70}
+\colorlet{KIT-Gelb50}{KITyellow50}
+\colorlet{KIT-Gelb30}{KITyellow30}
+\colorlet{KIT-Gelb15}{KITyellow15}
+\ifKIT@cmyk
+  \definecolor{KITorange}{cmyk}{0,.45,1,0}
+\else
+  \definecolor{KITorange}{RGB}{220,160,30}
+\fi
+\colorlet{KITorange70}{KITorange!70}
+\colorlet{KITorange50}{KITorange!50}
+\colorlet{KITorange30}{KITorange!30}
+\colorlet{KITorange15}{KITorange!15}
+\colorlet{KIT-Orange}{KITorange}
+\colorlet{KIT-Orange70}{KITorange70}
+\colorlet{KIT-Orange50}{KITorange50}
+\colorlet{KIT-Orange30}{KITorange30}
+\colorlet{KIT-Orange15}{KITorange15}
+\ifKIT@cmyk
+  \definecolor{KITbrown}{cmyk}{.35,.5,1,0}
+\else
+  \definecolor{KITbrown}{RGB}{160,130,50}
+\fi
+\colorlet{KITbrown70}{KITbrown!70}
+\colorlet{KITbrown50}{KITbrown!50}
+\colorlet{KITbrown30}{KITbrown!30}
+\colorlet{KITbrown15}{KITbrown!15}
+\colorlet{KIT-Braun}{KITbrown}
+\colorlet{KIT-Braun70}{KITbrown70}
+\colorlet{KIT-Braun50}{KITbrown50}
+\colorlet{KIT-Braun30}{KITbrown30}
+\colorlet{KIT-Braun15}{KITbrown15}
+\ifKIT@cmyk
+  \definecolor{KITred}{cmyk}{.25,1,1,0}
+\else
+  \definecolor{KITred}{RGB}{160,30,40}
+\fi
+\colorlet{KITred70}{KITred!70}
+\colorlet{KITred50}{KITred!50}
+\colorlet{KITred30}{KITred!30}
+\colorlet{KITred15}{KITred!15}
+\colorlet{KIT-Rot}{KITred}
+\colorlet{KIT-Rot70}{KITred70}
+\colorlet{KIT-Rot50}{KITred50}
+\colorlet{KIT-Rot30}{KITred30}
+\colorlet{KIT-Rot15}{KITred15}
+\ifKIT@cmyk
+  \definecolor{KITlilac}{cmyk}{.25,1,0,0}
+\else
+  \definecolor{KITlilac}{RGB}{160,0,120}
+\fi
+\colorlet{KITlilac70}{KITlilac!70}
+\colorlet{KITlilac50}{KITlilac!50}
+\colorlet{KITlilac30}{KITlilac!30}
+\colorlet{KITlilac15}{KITlilac!15}
+\colorlet{KIT-Lila}{KITlilac}
+\colorlet{KIT-Lila70}{KITlilac70}
+\colorlet{KIT-Lila50}{KITlilac50}
+\colorlet{KIT-Lila30}{KITlilac30}
+\colorlet{KIT-Lila15}{KITlilac15}
+\ifKIT@cmyk
+  \definecolor{KITcyanblue}{cmyk}{.9,.05,0,0}
+\else
+  \definecolor{KITcyanblue}{RGB}{80,170,230}
+\fi
+\colorlet{KITcyanblue70}{KITcyanblue!70}
+\colorlet{KITcyanblue50}{KITcyanblue!50}
+\colorlet{KITcyanblue30}{KITcyanblue!30}
+\colorlet{KITcyanblue15}{KITcyanblue!15}
+\colorlet{KIT-Cyan-Blau}{KITcyanblue}
+\colorlet{KIT-Cyan-Blau70}{KITcyanblue70}
+\colorlet{KIT-Cyan-Blau50}{KITcyanblue50}
+\colorlet{KIT-Cyan-Blau30}{KITcyanblue30}
+\colorlet{KIT-Cyan-Blau15}{KITcyanblue15}
+\colorlet{KITolive}{KITpalegreen}
+\colorlet{KITmagenta}{KITlilac}
+\colorlet{KITcyan}{KITcyanblue}
+\ifKIT@cmyk
+  \definecolor{KITseablue}{cmyk}{.35294,.23529,0,.45097}
+\else
+  \definecolor{KITseablue}{RGB}{50,80,140}
+\fi
+\colorlet{KITrframe}{KITblack50}
+\colorlet{KITmframe}{KITblack15}
+\newif\ifKIT@bw\KIT@bwtrue
+\newif\ifKIT@De
+\newcommand{\BW}{%
+  \KIT@bwtrue
+  \colorlet{KITheadbg}{KITblack50}
+  \ifKIT@De\let\KIT@logo=\KIT@logo@bwD
+    \else\let\KIT@logo=\KIT@logo@bwE
+    \fi
+  \expandafter\ifx\csname labelitemi\endcsname\relax\else
+    \renewcommand{\labelitemi}{\resizebox{1ex}{1ex}{\KIT@marksymbol[KITblack]}}
+    \fi
+}
+\let\SW=\BW
+\newcommand{\Color}{%
+  \KIT@bwfalse
+  \colorlet{KITheadbg}{KITblue}
+  \ifKIT@De\let\KIT@logo=\KIT@logo@clrD
+    \else\let\KIT@logo=\KIT@logo@clrE
+    \fi
+  \expandafter\ifx\csname labelitemi\endcsname\relax\else
+    \let\labelitemi=\KIT@mark
+    \fi
+}
+\let\Farbe=\Color
+\ifKIT@cmyk
+  \gdef\KIT@logo@clrD{kit_logo_de_4c_positiv}
+  \gdef\KIT@logo@iclrD{kit_logo_de_4c_negativ}
+  \gdef\KIT@logo@clrE{kit_logo_en_4c_positiv}
+  \gdef\KIT@logo@iclrE{kit_logo_en_4c_negativ}
+\else
+  \gdef\KIT@logo@clrD{kit_logo_de_4c_positiv-rgb}
+  \gdef\KIT@logo@iclrD{kit_logo_de_4c_negativ-rgb}
+  \gdef\KIT@logo@clrE{kit_logo_en_4c_positiv-rgb}
+  \gdef\KIT@logo@iclrE{kit_logo_en_4c_negativ-rgb}
+\fi
+\gdef\KIT@logo@bwD{kit_logo_de_1c_schwarz}
+\gdef\KIT@logo@ibwD{kit_logo_de_1c_weiss}
+\gdef\KIT@logo@bwE{kit_logo_en_1c_schwarz}
+\gdef\KIT@logo@ibwE{kit_logo_en_1c_weiss}
+\gdef\KIT@logo{KITlogo_RGB_frutiger_RGB}
+\gdef\KIT@logos{KITlogo_sw_frutiger_CMYK}
+\gdef\KIT@logow{KITlogo_weiss_frutiger_CMYK}
+\gdef\KIT@logowg{KITlogo_weiss_gruen_frutiger_CMYK}
+\ifKIT@cmyk
+  \gdef\KIT@logo@clrOZ{KITlogo_4c_frutiger_CMYK-OZ}
+  \gdef\KIT@logo@iclrOZ{KITlogo_4c_weiss_frutiger_CMYK-OZ}
+\else
+  \gdef\KIT@logo@clrOZ{KITlogo_4c_frutiger_RGB-OZ}
+  \gdef\KIT@logo@iclrOZ{KITlogo_4c_weiss_frutiger_RGB-OZ}
+\fi
+\let\KIT@logoOZ=\KIT@logo@clrOZ
+\gdef\KIT@logo@bwOZ{KITlogo_sw_frutiger_CMYK-OZ}
+\let\KIT@logoOZs=\KIT@logo@bwOZ
+\gdef\KIT@logo@ibwOZ{KITlogo_weiss_frutiger_CMYK-OZ}
+\let\KIT@logoOZw=\KIT@logo@ibwOZ
+\gdef\FZK@logo{FZK-logo-re-SW}
+\gdef\UKA@logo{Wortbildmarke_schwarz}
+\let\FZKlogo=\FZK@logo
+\let\KITlogo=\KIT@logo
+\let\UKAlogo=\UKA@logo
+\endinput
+%%
+%% End of file `KITcolors.sty'.

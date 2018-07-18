@@ -1,0 +1,8 @@
+several hashes (increasing normalization)
+against order-invariance: reproducibility
+
+
+query?name=value
+
+resolve/<hash>
+resolve/<hash>?name1&name2
