@@ -1,23 +1,37 @@
 # gbd (Global Benchmark Database)
 A tool for collaborative benchmark meta-data management
 
-**Programming Language**
+### Programming Language
 Python 3
 
-**Python Packages (Requirements)**
+### Python Packages (Requirements)
 - tatsu
 - setuptools
 - flask
 
-**Getting Started**
+### Getting Started
 - setup python3
 - setup pip and install required packages
 - clone repository
 - make sure path in gbd.py is correct (default: #!/usr/bin/python3)
-- type ==gbd.py --help== for basic commands
-- type ==gbd.py [command] --help== for specific help on command
-- start with ==gbd.py init -p [path]==
 
-**Documenation**
-At the moment there is only the paper in ==doc/== and the presentation in ==presentation/== that was published / held at POS Workshop 2018 in Oxford, UK.
+### Usage
+By default gbd works with a local database *local.db* which (if not present) is created in the current working directory. To use another database it can be specified with a commandline parameter.
 
+##### Help on basic commands
+	./gbd.py -h
+
+##### Help on specific command
+	./gbd.py [command] -h
+
+##### Initialize local database
+	./gbd.py init -p [path]
+
+### Documenation
+GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus, two resources can now be used as documentation of the system. 
+
+###### doc/
+The directory contains the Latex source of the original paper published at POS 2018.
+
+###### presentation/ 
+The directory contains the Latex source of the presentation slides as presented at POS 2018.
