@@ -1,0 +1,88 @@
+%%
+%% This is file `KITmcfloat.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% KITgeneral.dtx  (with options: `scfloats')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright (C) 2008, 2010, 2011, 2012 by Klaus Braune <klaus.braune@kit.edu>,
+%% Steinbuch Centre for Computing (SCC) at Karlsruhe Institute of Technology (KIT)
+%% 
+%% 
+%% This file may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License, either version 1.2 of this license
+%% or (at your option) any later version.  The latest version of this
+%% license is in:
+%% 
+%%    http://www.latex-project.org/lppl.txt
+%% 
+%% and version 1.2 or later is part of all distributions of LaTeX version
+%% 1999/12/01 or later.
+%% 
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\RequirePackage{rcs}
+\RCS $Date: 2012/06/06 10:15:33 $
+\RCS $Revision: 1.4 $
+\ProvidesPackage{KITmcfloat}
+    [\RCSRawDate\space v\RCSRevision\space KIT specific support of user defined (single column) floats with multicols environments]
+\RequirePackage{multicol}
+\RequirePackage{float}
+\RequirePackage{wrapfig}
+\RequirePackage{KITdefs}
+\KIT@mtwocol
+\def\KIT@nflwithin#1[#2]{%
+  \expandafter\gdef\csname KIT@#1@hook\endcsname{%
+    \expandafter\gdef\csname the#1\endcsname{%
+      \csname the#2\endcsname.\arabic{#1}}%
+    }%
+  }
+\let\KIT@newfloat=\newfloat
+\renewcommand\newfloat[3]{%
+  \KIT@newfloat{#1}{#2}{#3}
+  \expandafter\let\csname KIT@#1@hook\endcsname=\relax
+  \renewenvironment{#1}[1][\relax]{%
+    \csname KIT@#1@hook\endcsname
+    \expandafter\let\csname KIT@#1@hook\endcsname=\relax
+    \gdef\KIT@wrap@opt{L}
+    \ifx##1\relax \relax
+     \else
+      \expandafter\KIT@search{h}{##1}
+      \ifKIT@match\gdef\KIT@wrap@opt{l}\fi
+     \fi
+    \begin{wrap#1}{\KIT@wrap@opt}{\columnwidth}
+  }{%
+    \end{wrap#1}
+    \let\WF@collision=\relax
+    \begin{wrap#1}[0]{\KIT@wrap@opt}{\columnwidth}
+    \end{wrap#1}
+    \rule{0pt}{0pt}%
+    \let\WF@collision=\KIT@WF@warning
+    \vspace{\KITintextsep}
+    \par
+  }%
+  \@ifnextchar[{\KIT@nflwithin{#1}}{\relax}
+}%
+\newif\ifKIT@match
+\def\KIT@eos{;}
+\def\KIT@search#1#2{\KIT@matchfalse
+  \expandafter\expandafter\expandafter\KIT@se@rch
+    \expandafter#1#2\KIT@eos}
+\def\KIT@se@rch#1{\bgroup
+  \def\KIT@target{#1}\KIT@nextchar}
+\def\KIT@nextchar#1{%
+  \let\KIT@next=\KIT@nextchar
+  \if#1\KIT@target
+    \global\KIT@matchtrue
+  \else
+    \if#1\KIT@eos
+      \let\KIT@next=\KIT@finished
+    \fi
+  \fi
+  \KIT@next}
+\def\KIT@finished{\egroup}
+\endinput
+%%
+%% End of file `KITmcfloat.sty'.
