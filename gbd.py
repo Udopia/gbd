@@ -23,10 +23,20 @@ def iface_hash(args):
 
 def init(args):
   if (args.path is not None):
-    eprint('Registering Benchmarks From Path: {}'.format(args.path))
+    eprint('Removing invalid benchmarks from path: {}'.format(args.path))
+    remove_benchmarks(args.db)
+    eprint('Registering benchmarks from path: {}'.format(args.path))
     register_benchmarks(args.db, args.path, HASH_VERSION)
   else:
     Database(args.db)
+
+def remove_benchmarks(db):
+  with Database(db) as database:
+    paths = database.value_query("SELECT value FROM benchmarks")
+    for p in paths:
+      if not isfile(p):
+        eprint("Problem '{}' not found. Removing...".format(p))
+        database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
 
 def register_benchmarks(db, benchmark_root, hash_version):
   for root, dirnames, filenames in os.walk(benchmark_root):
@@ -34,6 +44,11 @@ def register_benchmarks(db, benchmark_root, hash_version):
       path = os.path.join(root, filename)
       eprint('Found {}'.format(path))
       try:
+        with Database(db) as database:
+          hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
+          if len(hashes) is not 0:
+            eprint('Problem {} already hashed'.format(path))
+            continue
         hashvalue = gbd_hash(path, hash_version)
         with Database(db) as database:
           tags.add_benchmark(database, hashvalue, path)
@@ -194,6 +209,7 @@ def main():
 
   parser_init = subparsers.add_parser('init', help='Initialize Database')
   parser_init.add_argument('-p', '--path', type=directory_type, help="Path to benchmarks")
+  parser_init.add_argument('-r', '--remove', help='Remove all problems with invalid path', action='store_true')
   parser_init.set_defaults(func=init)
 
   parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
