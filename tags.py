@@ -1,10 +1,9 @@
 import db
 import groups
 import os
-from util import *
 
 def add_tag(database, cat, tag, hash):
-  info = groups.reflect_group(database, cat)
+  info = groups.reflect(database, cat)
   if (info[0]['unique']):
     database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
   else:
@@ -20,7 +19,7 @@ def add_benchmark(database, hash, path):
   database.submit('INSERT INTO benchmarks (hash, value) VALUES ("{}", "{}")'.format(hash, path))
   g = groups.reflect(database)
   for group in g:
-    info = groups.reflect_group(database, group)
+    info = groups.reflect(database, group)
     dval = info[1]['default_value']
     if (dval is not None):
       database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))

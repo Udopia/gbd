@@ -14,33 +14,33 @@ def remove(database, cat):
 def clear(database, cat):
   database.submit('DELETE FROM {}'.format(cat))
 
-def reflect(database):
-  lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table'")
-  groups = [x[0] for x in lst]
-  return groups
+def reflect(database, cat=None):
+  if cat is None:
+    lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+    groups = [x[0] for x in lst]
+    return groups
+  else:
+    lst = database.query("PRAGMA table_info({})".format(cat))
+    columns = ( 'index', 'name', 'type', 'notnull', 'default_value', 'pk' )
+    table_infos = [dict(zip(columns, values)) for values in lst]
 
-def reflect_group(database, cat):
-  lst = database.query("PRAGMA table_info({})".format(cat))
-  columns = ( 'index', 'name', 'type', 'notnull', 'default_value', 'pk' )
-  table_infos = [dict(zip(columns, values)) for values in lst]
+    lst = database.query("PRAGMA index_list({})".format(cat))
+    columns = ( 'seq', 'name', 'unique', 'origin', 'partial' )
+    index_list = [dict(zip(columns, values)) for values in lst]
 
-  lst = database.query("PRAGMA index_list({})".format(cat))
-  columns = ( 'seq', 'name', 'unique', 'origin', 'partial' )
-  index_list = [dict(zip(columns, values)) for values in lst]
+    # create key default
+    for info in table_infos:
+      info['unique'] = 0
 
-  # create key default
-  for info in table_infos:
-    info['unique'] = 0
+    # determine unique columns
+    for values in index_list:
+      tup = database.query("PRAGMA index_info({})".format(values['name']))
+      columns = ( 'index_rank', 'table_rank', 'name' )
+      index_info = dict(zip(columns, tup[0]))
+      colid = index_info['table_rank']
+      table_infos[colid]['unique'] = values['unique']
 
-  # determine unique columns
-  for values in index_list:
-    tup = database.query("PRAGMA index_info({})".format(values['name']))
-    columns = ( 'index_rank', 'table_rank', 'name' )
-    index_info = dict(zip(columns, tup[0]))
-    colid = index_info['table_rank']
-    table_infos[colid]['unique'] = values['unique']
-
-  return table_infos
+    return table_infos
 
 def reflect_tags(database, cat):
   return database.value_query('SELECT DISTINCT value FROM {}'.format(cat))
@@ -49,13 +49,13 @@ def reflect_size(database, cat):
   return database.value_query('SELECT count(*) FROM {}'.format(cat))
 
 def reflect_unique(database, cat):
-  info = reflect_group(database, cat)
+  info = reflect(database, cat)
   return info[0]['unique']
 
 def reflect_default(database, cat):
-  info = reflect_group(database, cat)
+  info = reflect(database, cat)
   return info[1]['default_value']
 
 def reflect_type(database, cat):
-  info = reflect_group(database, cat)
+  info = reflect(database, cat)
   return info[1]['type']
