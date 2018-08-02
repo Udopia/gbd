@@ -1,6 +1,6 @@
 import sqlite3
 import re
-from util import *
+from util import eprint
 from os.path import isfile
 
 VERSION = 0
@@ -12,20 +12,19 @@ class DatabaseException(Exception):
 class Database:
 
   def __init__(self, path):
-    if not isfile(path):
-      self.full_initialization = True
-    else:
-      self.full_initialization = False
+    self.create_mode = not isfile(path)
+    # init connections
     self.connection = sqlite3.connect(path)
     self.inlining_connection = sqlite3.connect(path)
     self.inlining_connection.row_factory = lambda cursor, row: row[0]
-    if not self.full_initialization:
-      self.version_check()
-      if not self.has_table('benchmarks'):
-        raise DatabaseException('Table benchmarks is missing in db {}, initialiization error?'.format(path))
-    else:
+    # create mode
+    if self.create_mode:
       self.init(VERSION, HASH_VERSION)
-
+    # version check
+    self.version_check()
+    if not self.has_table('benchmarks'):
+      raise DatabaseException('Table benchmarks is missing in db {}, initialiization error?'.format(path))
+    
   def __enter__(self):
     return self
 
@@ -36,7 +35,7 @@ class Database:
   def init(self, version, hash_version):
     self.submit("CREATE TABLE IF NOT EXISTS __version (entry UNIQUE, version, hash_version)")
     self.submit("INSERT OR IGNORE INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
-    self.submit('CREATE TABLE IF NOT EXISTS benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)'.format('benchmarks', 'text'))
+    self.submit("CREATE TABLE IF NOT EXISTS benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
   def has_table(self, name):
     return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0

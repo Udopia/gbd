@@ -67,9 +67,9 @@ def query(args):
 
   with Database(args.db) as database:
     if (args.query is None):
-      hashes = search.find_hashes(database, 'benchmarks')
+      hashes = search.find_hashes(database)
     else:
-      hashes = search.find_hashes_by_query(database, args.query)
+      hashes = search.find_hashes(database, args.query)
 
   if (args.union):
     inp = read_hashes_from_stdin()
@@ -133,9 +133,6 @@ def reflection(args):
       print('default value: {}'.format(groups.reflect_default(database, args.name)))
       print('number of entries: {}'.format(*groups.reflect_size(database, args.name)))
   else:
-    if not database.has_version_entry():
-      print("DB '{}' has no version entry".format(args.db))
-
     print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(), database.get_hash_version()))
     print("Found tables:")
     print(*groups.reflect(database))
