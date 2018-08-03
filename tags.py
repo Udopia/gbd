@@ -1,6 +1,7 @@
 import db
 import groups
 import os
+import csv
 
 def add_tag(database, cat, tag, hash):
   info = groups.reflect(database, cat)
@@ -23,3 +24,9 @@ def add_benchmark(database, hash, path):
     dval = info[1]['default_value']
     if (dval is not None):
       database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))
+
+def import_csv(database, file, column_prefix="", key_column="instance"):
+  with open(file, newline='') as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=',', quotechar='\'')
+    for row in csvreader:
+      print(', '.join(row))

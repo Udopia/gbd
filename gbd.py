@@ -21,6 +21,15 @@ def iface_hash(args):
   eprint('Hashing Benchmark: {}'.format(args.path))
   print(gbd_hash(args.path, HASH_VERSION))
 
+def iface_import(args):
+  eprint('Importing Data from CSV-File: {}'.format(args.path))
+  prefix = args.name or ""
+  key = args.key or "instance"
+  with Database(args.db) as database:
+    if args.create:
+      groups.create_groups(database, args.path, prefix, key)
+    tags.import_csv(database, args.path, prefix, key)
+
 def init(args):
   if (args.path is not None):
     eprint('Removing invalid benchmarks from path: {}'.format(args.path))
@@ -92,7 +101,7 @@ def query(args):
   elif (args.intersection):
     inp = read_hashes_from_stdin()
     hashes.intersection_update(inp)
-
+  
   print(*hashes, sep='\n')
 
 # associate a tag with a hash-value
@@ -215,6 +224,13 @@ def main():
   parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
   parser_hash.add_argument('-p', '--path', type=file_type, help="Path to one benchmark", required=True)
   parser_hash.set_defaults(func=iface_hash)
+
+  parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
+  parser_import.add_argument('-p', '--path', type=file_type, help="Path to csv-file", required=True)
+  parser_import.add_argument('-n', '--name', type=column_type, help="Use a prefix for header names in order to create groups")
+  parser_import.add_argument('-c', '--create', action='store_true', help="Automatically create groups if column does not exist")
+  parser_import.add_argument('-k', '--key', type=column_type, help="Name of key column (where the hash-value of the problem instance is given)", default="instance")
+  parser_import.set_defaults(func=iface_import)
 
   # define reflection
   parser_reflect = subparsers.add_parser('reflect', help='Reflection, Display Groups')
