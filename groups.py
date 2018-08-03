@@ -1,4 +1,4 @@
-
+import csv
 import db
 
 def add(database, cat, unique=False, type='text', default=None):
@@ -59,3 +59,9 @@ def reflect_default(database, cat):
 def reflect_type(database, cat):
   info = reflect(database, cat)
   return info[1]['type']
+
+def create_groups(database, file, column_prefix="", key_column="instance"):
+  with open(file, newline='') as csvfile:
+    csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
+    for field in csvreader.fieldnames:
+      print(field)
