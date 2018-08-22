@@ -1,5 +1,3 @@
-import csv
-import re
 import db
 
 def add(database, cat, unique=False, type='text', default=None):
@@ -60,32 +58,3 @@ def reflect_default(database, cat):
 def reflect_type(database, cat):
   info = reflect(database, cat)
   return info[1]['type']
-
-def exists(database, cat):
-  groups = reflect(database)
-  return (cat in groups)
-
-def determine_type(database, values):
-  real = False
-  rint = re.compile('[0-9]+')
-  rdouble = re.compile('[0-9]+\.[0-9]+')
-  for value in values:
-    value = value.strip()
-    if rint.fullmatch(value) is None:
-      real = True
-      if rdouble.fullmatch(value) is None:
-        return "text"
-  return "integer" if not real else "real"
-
-def create_groups(database, file, column_prefix="", key_column="instance"):
-  fieldnames = []
-  with open(file, newline='') as csvfile:
-    csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
-    fieldnames = [field for field in csvreader.fieldnames if field != key_column]
-  for field in fieldnames:
-    with open(file, newline='') as csvfile:
-      csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
-      if not exists(database, field):
-        values = [line[field] for line in csvreader]
-        sqltype = determine_type(database, values)
-        print('Column {} has type {} [values: {}, {}, {}, ...]'.format(field, sqltype, values[0], values[1], values[2]))

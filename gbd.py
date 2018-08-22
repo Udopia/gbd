@@ -8,68 +8,39 @@ import hashlib
 import argparse
 import re
 
-from db import Database, DatabaseException, HASH_VERSION
 import groups
 import search
 import tags
-from util import *
+import import_csv
+
+from db import Database, DatabaseException
+from gbd_hash import gbd_hash
+from util import eprint, read_hashes, confirm
 
 from os.path import realpath, dirname, join, isfile
+
 DEFAULT_DATABASE = join(dirname(realpath(__file__)), 'local.db')
 
-def iface_hash(args):
+def cli_hash(args):
   eprint('Hashing Benchmark: {}'.format(args.path))
-  print(gbd_hash(args.path, HASH_VERSION))
+  print(gbd_hash(args.path))
 
-def iface_import(args):
+def cli_import(args):
   eprint('Importing Data from CSV-File: {}'.format(args.path))
-  prefix = args.name or ""
-  key = args.key or "instance"
   with Database(args.db) as database:
-    if args.create:
-      groups.create_groups(database, args.path, prefix, key)
-    tags.import_csv(database, args.path, prefix, key)
+    import_csv.import_csv(database, args.path, args.prefix or "", args.key or "instance")
 
-def init(args):
+def cli_init(args):
   if (args.path is not None):
     eprint('Removing invalid benchmarks from path: {}'.format(args.path))
-    remove_benchmarks(args.db)
+    tags.remove_benchmarks(args.db)
     eprint('Registering benchmarks from path: {}'.format(args.path))
-    register_benchmarks(args.db, args.path, HASH_VERSION)
+    tags.register_benchmarks(args.db, args.path)
   else:
     Database(args.db)
 
-def remove_benchmarks(db):
-  with Database(db) as database:
-    paths = database.value_query("SELECT value FROM benchmarks")
-    for p in paths:
-      if not isfile(p):
-        eprint("Problem '{}' not found. Removing...".format(p))
-        database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
-
-def register_benchmarks(db, benchmark_root, hash_version):
-  for root, dirnames, filenames in os.walk(benchmark_root):
-    for filename in filenames:
-      path = os.path.join(root, filename)
-      eprint('Found {}'.format(path))
-      try:
-        with Database(db) as database:
-          hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
-          if len(hashes) is not 0:
-            eprint('Problem {} already hashed'.format(path))
-            continue
-        hashvalue = gbd_hash(path, hash_version)
-        with Database(db) as database:
-          tags.add_benchmark(database, hashvalue, path)
-      except DatabaseException as e:
-        eprint(e)
-        return
-      except UnicodeDecodeError as e:
-        eprint('Skipping file due to decoding error: {}'.format(e))
-        continue
-
 # entry for modify command
-def group(args):
+def cli_group(args):
   if args.name.startswith("__"):
     eprint("Names starting with '__' are reserved for system tables")
     return
@@ -86,7 +57,7 @@ def group(args):
       groups.add(database, args.name, args.unique, args.type, args.value)
 
 # entry for query command
-def query(args):
+def cli_query(args):
   hashes = {}
 
   with Database(args.db) as database:
@@ -96,17 +67,17 @@ def query(args):
       hashes = search.find_hashes(database, args.query)
 
   if (args.union):
-    inp = read_hashes_from_stdin()
+    inp = read_hashes()
     hashes.update(inp)
   elif (args.intersection):
-    inp = read_hashes_from_stdin()
+    inp = read_hashes()
     hashes.intersection_update(inp)
   
   print(*hashes, sep='\n')
 
 # associate a tag with a hash-value
-def tag(args):
-  hashes = read_hashes_from_stdin()
+def cli_tag(args):
+  hashes = read_hashes()
   with Database(args.db) as database:
     if args.remove and confirm("Delete tag '{}' from '{}'?".format(args.value, args.name)):
       for hash in hashes:
@@ -115,8 +86,8 @@ def tag(args):
       for hash in hashes:
         tags.add_tag(database, args.name, args.value, hash)
 
-def resolve(args):
-  hashes = read_hashes_from_stdin()
+def cli_resolve(args):
+  hashes = read_hashes()
   with Database(args.db) as database:
     for hash in hashes:
       out = []
@@ -133,19 +104,7 @@ def resolve(args):
             out.append(' '.join(resultset))
       print(','.join(out))
 
-def read_hashes_from_stdin():
-  hashes = set()
-  try:
-    while True:
-      line = sys.stdin.readline()
-      if len(line.strip()) == 0:
-        return hashes
-      hashes.add(line.strip())
-  except KeyboardInterrupt:
-    return hashes
-  return hashes
-
-def reflection(args):
+def cli_reflection(args):
   database = Database(args.db)
   if (args.name is not None):
     if (args.values):
@@ -160,31 +119,6 @@ def reflection(args):
     print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(), database.get_hash_version()))
     print("Found tables:")
     print(*groups.reflect(database))
-
-def confirm(prompt=None, resp=False):
-    """
-    prompts for yes or no response from the user. Returns True for yes and False for no.
-    'resp' should be set to the default value assumed by the caller when user simply types ENTER.
-    """
-    if prompt is None:
-        prompt = 'Confirm'
-
-    if resp:
-        prompt = '%s [%s]|%s: ' % (prompt, 'y', 'n')
-    else:
-        prompt = '%s [%s]|%s: ' % (prompt, 'n', 'y')
-
-    while True:
-        ans = input(prompt)
-        if not ans:
-            return resp
-        if ans not in ['y', 'Y', 'n', 'N']:
-            print('please enter y or n.')
-            continue
-        if ans == 'y' or ans == 'Y':
-            return True
-        if ans == 'n' or ans == 'N':
-            return False
 
 # define directory type for argparse
 def directory_type(dir):
@@ -204,7 +138,7 @@ def file_type(path):
     raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
 
 def column_type(s):
-  pat = re.compile(r"[a-zA-Z][a-f0-9A-F_]*")
+  pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
   if not pat.match(s):
     raise argparse.ArgumentTypeError('group-name:{0} does not match regular expression {1}'.format(s, pat.pattern))
   return s
@@ -217,26 +151,25 @@ def main():
   subparsers = parser.add_subparsers(help='Available Commands:')
 
   parser_init = subparsers.add_parser('init', help='Initialize Database')
-  parser_init.add_argument('-p', '--path', type=directory_type, help="Path to benchmarks")
-  parser_init.add_argument('-r', '--remove', help='Remove all problems with invalid path', action='store_true')
-  parser_init.set_defaults(func=init)
+  parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
+  parser_init.add_argument('-r', '--remove', help='Remove hashes with invalid paths from benchmark table', action='store_true')
+  parser_init.set_defaults(func=cli_init)
 
   parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-  parser_hash.add_argument('-p', '--path', type=file_type, help="Path to one benchmark", required=True)
-  parser_hash.set_defaults(func=iface_hash)
+  parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
+  parser_hash.set_defaults(func=cli_hash)
 
   parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
-  parser_import.add_argument('-p', '--path', type=file_type, help="Path to csv-file", required=True)
-  parser_import.add_argument('-n', '--name', type=column_type, help="Use a prefix for header names in order to create groups")
-  parser_import.add_argument('-c', '--create', action='store_true', help="Automatically create groups if column does not exist")
+  parser_import.add_argument('path', type=file_type, help="Path to csv-file")
+  parser_import.add_argument('-p', '--prefix', type=column_type, help="Append prefix to csv-header names in order to create group-names in database")
   parser_import.add_argument('-k', '--key', type=column_type, help="Name of key column (where the hash-value of the problem instance is given)", default="instance")
-  parser_import.set_defaults(func=iface_import)
+  parser_import.set_defaults(func=cli_import)
 
   # define reflection
   parser_reflect = subparsers.add_parser('reflect', help='Reflection, Display Groups')
   parser_reflect.add_argument('name', type=column_type, help='Display Details on Group', nargs='?')
   parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group')
-  parser_reflect.set_defaults(func=reflection)
+  parser_reflect.set_defaults(func=cli_reflection)
 
   # define create command sub-structure
   parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
@@ -246,32 +179,33 @@ def main():
   parser_group.add_argument('-t', '--type', help='Specify the value type of the group (default: text)', default="text", choices=['text', 'integer', 'real'])
   parser_group.add_argument('-r', '--remove', action='store_true', help='If group exists: remove the group with the specified name')
   parser_group.add_argument('-c', '--clear', action='store_true', help='If group exists: remove all values in the group with the specified name')
-  parser_group.set_defaults(func=group)
+  parser_group.set_defaults(func=cli_group)
 
   # define set command sub-structure
   parser_tag = subparsers.add_parser('tag', help='Associate attribues with benchmarks (hashes read line-wise from stdin)')
   parser_tag.add_argument('name', type=column_type, help='Name of attribute group')
   parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
   parser_tag.add_argument('-r', '--remove', action='store_true', help='Remove attribute from hashes if present, instead of adding it')
-  parser_tag.set_defaults(func=tag)
+  parser_tag.set_defaults(func=cli_tag)
 
   # define find command sub-structure
   parser_query = subparsers.add_parser('query', help='Query the benchmark database')
   parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
   parser_query.add_argument('-u', '--union', help='Read hashes from stdin and create union with query results', action='store_true')
   parser_query.add_argument('-i', '--intersection', help='Read hashes from stdin and create intersection with query results', action='store_true')
-  parser_query.set_defaults(func=query)
+  parser_query.set_defaults(func=cli_query)
 
   # define resolve command
   parser_resolve = subparsers.add_parser('resolve', help='Resolve Hashes')
   parser_resolve.add_argument('name', type=column_type, help='Name of group to resolve against', default=["benchmarks"], nargs='*')
   parser_resolve.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
   parser_resolve.add_argument('-p', '--pattern', help='Substring that must occur in path')
-  parser_resolve.set_defaults(func=resolve)
+  parser_resolve.set_defaults(func=cli_resolve)
 
   # evaluate arguments
   if (len(sys.argv) > 1):
     args = parser.parse_args()
+    eprint("Using Database {}".format(args.db))
     args.func(args)
   else:
     parser.print_help()
