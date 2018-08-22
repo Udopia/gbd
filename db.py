@@ -1,10 +1,9 @@
 import sqlite3
 import re
-from util import eprint
+from gbd_hash import HASH_VERSION
 from os.path import isfile
 
 VERSION = 0
-HASH_VERSION = 1
 
 class DatabaseException(Exception):
   pass
@@ -62,7 +61,6 @@ class Database:
     return cur.execute(q).fetchall()
 
   def submit(self, q):
-    eprint(q)
     cur = self.connection.cursor()
     cur.execute(q)
     self.connection.commit()
