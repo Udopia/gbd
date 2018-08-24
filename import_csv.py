@@ -36,7 +36,7 @@ def create_group(database, csv_file, db_column, csv_column):
     print('Column {} has type {} [values: {}, {}, {}, ...]'.format(csv_column, sqltype, values[0], values[1], values[2]))
     groups.add(database, db_column, unique=True, type=sqltype, default=None)
 
-def import_csv(database, csv_file, column_prefix="imported_", key_column="instance"):
+def import_csv(database, csv_file, column_prefix="", key_column="instance"):
   # create group
   csv_columns = get_header(csv_file, key_column)
   for csv_column in csv_columns:
