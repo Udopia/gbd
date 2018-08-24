@@ -34,9 +34,9 @@ class Database:
     self.inlining_connection.close()
 
   def init(self, version, hash_version):
-    self.submit("CREATE TABLE IF NOT EXISTS __version (entry UNIQUE, version, hash_version)")
-    self.submit("INSERT OR IGNORE INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
-    self.submit("CREATE TABLE IF NOT EXISTS benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
+    self.submit("CREATE TABLE __version (entry UNIQUE, version, hash_version)")
+    self.submit("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
+    self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
   def has_table(self, name):
     return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
