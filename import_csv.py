@@ -34,7 +34,7 @@ def create_group(database, csv_file, db_column, csv_column):
     values = [line[csv_column] for line in csvreader]
     sqltype = determine_type(database, values)
     print('Column {} has type {} [values: {}, {}, {}, ...]'.format(csv_column, sqltype, values[0], values[1], values[2]))
-    groups.add(database, db_column, unique=False, type=sqltype, default=None)
+    groups.add(database, db_column, unique=True, type=sqltype, default=None)
 
 def import_csv(database, csv_file, column_prefix="imported_", key_column="instance"):
   # create group
@@ -47,10 +47,8 @@ def import_csv(database, csv_file, column_prefix="imported_", key_column="instan
         raise ValueError("Column name {} does not match regular expression".format(db_column))
       create_group(database, csv_file, db_column, csv_column)
     with open(csv_file, newline='') as csvfile:
+      print("Inserting into table {} ... ".format(db_column))
       csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
-      for row in csvreader:
-        if row[csv_column].strip():
-          instance = row[key_column]
-          value = row[csv_column]
-          print("Inserting into table {}: instance {} value {}".format(db_column, instance, value))
-          tags.add_tag(database, db_column, instance, value)
+      lst = [(row[key_column], row[csv_column]) for row in csvreader if row[csv_column].strip()]
+      print("Inserting {} values into table {}".format(len(lst), db_column))
+      database.bulk_insert(db_column, lst)
