@@ -25,7 +25,7 @@ By default gbd works with a local database *local.db* which (if not present) is 
 	./gbd.py [command] -h
 
 ##### Initialize local database
-	./gbd.py init -p [path]
+	./gbd.py init [path]
 
 ### Documenation
 GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus, two resources can now be used as documentation of the system. 
