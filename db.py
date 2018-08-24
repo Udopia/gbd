@@ -14,6 +14,7 @@ class Database:
     self.create_mode = not isfile(path)
     # init connections
     self.connection = sqlite3.connect(path)
+    self.cursor = self.connection.cursor()
     self.inlining_connection = sqlite3.connect(path)
     self.inlining_connection.row_factory = lambda cursor, row: row[0]
     # create mode
@@ -28,6 +29,7 @@ class Database:
     return self
 
   def __exit__(self, exception_type, exception_value, traceback):
+    self.connection.commit()
     self.connection.close()
     self.inlining_connection.close()
 
@@ -57,13 +59,13 @@ class Database:
     return set(lst)
 
   def query(self, q):
-    cur = self.connection.cursor()
-    return cur.execute(q).fetchall()
+    return self.cursor.execute(q).fetchall()
 
   def submit(self, q):
-    cur = self.connection.cursor()
-    cur.execute(q)
-    self.connection.commit()
+    self.cursor.execute(q)
+
+  def bulk_insert(self, table, lst):
+    self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
 
   def version_check(self):
     if self.get_version() != VERSION:
