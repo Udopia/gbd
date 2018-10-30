@@ -2,6 +2,7 @@ import sqlite3
 import re
 from gbd_hash import HASH_VERSION
 from os.path import isfile
+from util import eprint
 
 VERSION = 0
 
@@ -19,6 +20,7 @@ class Database:
     self.inlining_connection.row_factory = lambda cursor, row: row[0]
     # create mode
     if self.create_mode:
+      eprint("Initializing DB with version {} and hash-version {}".format(VERSION, HASH_VERSION))
       self.init(VERSION, HASH_VERSION)
     # version check
     self.version_check()
@@ -34,7 +36,7 @@ class Database:
     self.inlining_connection.close()
 
   def init(self, version, hash_version):
-    self.submit("CREATE TABLE __version (entry UNIQUE, version, hash_version)")
+    self.submit("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
     self.submit("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
     self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
