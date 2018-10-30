@@ -19,7 +19,8 @@ from util import eprint, read_hashes, confirm
 
 from os.path import realpath, dirname, join, isfile
 
-DEFAULT_DATABASE = join(dirname(realpath(__file__)), 'local.db')
+local_db = join(dirname(realpath(__file__)), 'local.db')
+DEFAULT_DATABASE = os.environ.get('GBD_DEFAULT_DATABASE', local_db)
 
 def cli_hash(args):
   eprint('Hashing Benchmark: {}'.format(args.path))
