@@ -206,7 +206,6 @@ def main():
   # evaluate arguments
   if (len(sys.argv) > 1):
     args = parser.parse_args()
-    eprint("Using Database {}".format(args.db))
     args.func(args)
   else:
     parser.print_help()
