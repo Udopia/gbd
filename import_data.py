@@ -21,7 +21,7 @@ def determine_type(database, values):
         return "text"
   return "integer" if not is_real else "real"
 
-def get_header(csv_file, key_column="instance"):
+def get_header(csv_file, key_column):
   fieldnames = []
   with open(csv_file, newline='') as csvfile:
     csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
@@ -36,19 +36,17 @@ def create_group(database, csv_file, db_column, csv_column):
     print('Column {} has type {} [values: {}, {}, {}, ...]'.format(csv_column, sqltype, values[0], values[1], values[2]))
     groups.add(database, db_column, unique=True, type=sqltype, default=None)
 
-def import_csv(database, csv_file, column_prefix="", key_column="instance"):
-  # create group
-  csv_columns = get_header(csv_file, key_column)
-  for csv_column in csv_columns:
-    db_column = "{}{}".format(column_prefix, csv_column)
+def import_csv(database, csv_file, key_column, column_names, column_prefix=""):
+  for column in column_names:
+    db_column = "{}{}".format(column_prefix, column)
     if not exists(database, db_column):
       pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
       if not pat.match(db_column):
         raise ValueError("Column name {} does not match regular expression".format(db_column))
-      create_group(database, csv_file, db_column, csv_column)
+      create_group(database, csv_file, db_column, column)
     with open(csv_file, newline='') as csvfile:
       print("Inserting into table {} ... ".format(db_column))
-      csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='\'')
-      lst = [(row[key_column], row[csv_column]) for row in csvreader if row[csv_column].strip()]
+      csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
+      lst = [(row[key_column], row[column]) for row in csvreader if row[column].strip()]
       print("Inserting {} values into table {}".format(len(lst), db_column))
       database.bulk_insert(db_column, lst)

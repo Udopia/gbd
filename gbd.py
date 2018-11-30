@@ -11,7 +11,7 @@ import re
 import groups
 import search
 import tags
-import import_csv
+import import_data
 
 from db import Database, DatabaseException
 from gbd_hash import gbd_hash
@@ -29,7 +29,7 @@ def cli_hash(args):
 def cli_import(args):
   eprint('Importing Data from CSV-File: {}'.format(args.path))
   with Database(args.db) as database:
-    import_csv.import_csv(database, args.path, args.prefix or "", args.key or "instance")
+    import_data.import_csv(database, args.path, args.key, args.columns, args.prefix or "") 
 
 def cli_init(args):
   if (args.path is not None):
@@ -162,8 +162,9 @@ def main():
 
   parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
   parser_import.add_argument('path', type=file_type, help="Path to csv-file")
-  parser_import.add_argument('-p', '--prefix', type=column_type, help="Append prefix to csv-header names in order to create group-names in database")
-  parser_import.add_argument('-k', '--key', type=column_type, help="Name of key column (where the hash-value of the problem instance is given)", default="instance")
+  parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (the hash-value of the problem)", required=True)
+  parser_import.add_argument('-c', '--columns', help="Names of columns to import", nargs='+')
+  parser_import.add_argument('-p', '--prefix', type=column_type, help="Use prefix to derive attribute names from column names")
   parser_import.set_defaults(func=cli_import)
 
   # define reflection
