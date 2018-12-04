@@ -5,10 +5,22 @@ from util import eprint
 from gbd_hash import gbd_hash
 from os.path import isfile
 
-def add_tag(database, cat, tag, hash):
+def add_tag(database, cat, tag, hash, force=False):
   info = groups.reflect(database, cat)
   if (info[0]['unique']):
-    database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+    if force:
+      database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+    else:
+      res = database.query("SELECT value FROM {} WHERE hash='{}'".format(cat, hash))
+      if (len(res) == 0):
+        database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+      else:
+        value=res[0][0]
+        if value == info[1]['default_value']:
+          eprint("Overwriting default-value {} with new value {} for hash {}".format(value, tag, hash))
+          database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+        elif value != tag:
+          eprint("Unable to insert tag ({}, {}) into unique '{}' as a different value is already set: '{}'".format(hash, tag, cat, value))
   else:
     res = database.value_query("SELECT hash FROM {} WHERE hash='{}' AND value='{}'".format(cat, hash, tag))
     if (len(res) == 0):
