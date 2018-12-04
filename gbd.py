@@ -20,7 +20,7 @@ from util import eprint, read_hashes, confirm
 from os.path import realpath, dirname, join, isfile
 
 local_db = join(dirname(realpath(__file__)), 'local.db')
-DEFAULT_DATABASE = os.environ.get('GBD_DEFAULT_DATABASE', local_db)
+DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db)
 
 def cli_hash(args):
   eprint('Hashing Benchmark: {}'.format(args.path))
@@ -29,7 +29,7 @@ def cli_hash(args):
 def cli_import(args):
   eprint('Importing Data from CSV-File: {}'.format(args.path))
   with Database(args.db) as database:
-    import_data.import_csv(database, args.path, args.key, args.columns, args.prefix or "") 
+    import_data.import_csv(database, args.path, args.key, args.source, args.target) 
 
 def cli_init(args):
   if (args.path is not None):
@@ -80,12 +80,12 @@ def cli_query(args):
 def cli_tag(args):
   hashes = read_hashes()
   with Database(args.db) as database:
-    if args.remove and confirm("Delete tag '{}' from '{}'?".format(args.value, args.name)):
+    if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
       for hash in hashes:
         tags.remove_tag(database, args.name, args.value, hash)
     else:
       for hash in hashes:
-        tags.add_tag(database, args.name, args.value, hash)
+        tags.add_tag(database, args.name, args.value, hash, args.force)
 
 def cli_resolve(args):
   hashes = read_hashes()
@@ -163,8 +163,8 @@ def main():
   parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
   parser_import.add_argument('path', type=file_type, help="Path to csv-file")
   parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (the hash-value of the problem)", required=True)
-  parser_import.add_argument('-c', '--columns', help="Names of columns to import", nargs='+')
-  parser_import.add_argument('-p', '--prefix', type=column_type, help="Use prefix to derive attribute names from column names")
+  parser_import.add_argument('-s', '--source', type=column_type, help="Source name of column to import (in csv-file)", required=True)
+  parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in database)", required=True)
   parser_import.set_defaults(func=cli_import)
 
   # define reflection
@@ -188,6 +188,7 @@ def main():
   parser_tag.add_argument('name', type=column_type, help='Name of attribute group')
   parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
   parser_tag.add_argument('-r', '--remove', action='store_true', help='Remove attribute from hashes if present, instead of adding it')
+  parser_tag.add_argument('-f', '--force', action='store_true', help='Overwrite existing values')
   parser_tag.set_defaults(func=cli_tag)
 
   # define find command sub-structure
