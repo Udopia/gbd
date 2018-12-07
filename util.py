@@ -2,20 +2,23 @@ import sys
 
 __all__ = ['eprint', 'read_hashes', 'confirm']
 
+
 def eprint(*args, **kwargs):
-  print(*args, file=sys.stderr, **kwargs)
+    print(*args, file=sys.stderr, **kwargs)
+
 
 def read_hashes():
-  hashes = set()
-  try:
-    while True:
-      line = sys.stdin.readline()
-      if len(line.strip()) == 0:
+    hashes = set()
+    try:
+        while True:
+            line = sys.stdin.readline()
+            if len(line.strip()) == 0:
+                return hashes
+            hashes.add(line.strip())
+    except KeyboardInterrupt:
         return hashes
-      hashes.add(line.strip())
-  except KeyboardInterrupt:
     return hashes
-  return hashes
+
 
 def confirm(prompt='Confirm', resp=False):
     """
