@@ -42,6 +42,7 @@ class Database:
         self.submit(
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        self.connection.commit()
 
     def has_table(self, name):
         return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
