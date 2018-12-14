@@ -19,8 +19,8 @@ from util import eprint, read_hashes, confirm
 
 from os.path import realpath, dirname, join, isfile
 
-local_db = join(dirname(realpath(__file__)), 'local.db')
-DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db)
+local_db_path = join(dirname(realpath(__file__)), 'local.db')
+DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 
 def cli_hash(args):
@@ -45,22 +45,37 @@ def cli_init(args):
 
 
 # entry for modify command
+#TODO: Redo if-statements for better issue catching
 def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
     with Database(args.db) as database:
         if (args.name in groups.reflect(database)):
-            eprint("Group {} does already exist".format(args.name))
-            return
-        if args.remove and confirm("Delete group '{}'?".format(args.name)):
-            groups.remove(database, args.name)
-        elif args.clear and confirm("Clear group '{}'?".format(args.name)):
-            groups.clear(database, args.name)
-        else:
-            eprint("Adding or modifying group {}, unique {}, type {}, default-value {}".format(args.name, args.unique,
+            if not args.remove and not args.clear:
+                eprint("Group {} does already exist".format(args.name))
+                return
+            if args.remove and args.clear:
+                eprint("Cannot remove '{}' and clear '{}' at once".format(args.name, args.name))
+                return
+        elif not args.remove and not args.clear:
+            eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique,
                                                                                                args.type, args.value))
             groups.add(database, args.name, args.unique, args.type, args.value)
+            return
+        if args.remove and args.name in groups.reflect(database):
+            if confirm("Delete group '{}'?".format(args.name)):
+                groups.remove(database, args.name)
+                return
+            else:
+                return
+        if args.clear and args.name in groups.reflect(database):
+            if confirm("Clear group '{}'?".format(args.name)):
+                groups.clear(database, args.name)
+                return
+            else:
+                return
+        eprint("Group '{}' does not exist".format(args.name))
 
 
 # entry for query command
