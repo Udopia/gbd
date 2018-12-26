@@ -45,7 +45,6 @@ def cli_init(args):
 
 
 # entry for modify command
-#TODO: Redo if-statements for better issue catching
 def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
