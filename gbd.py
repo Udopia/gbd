@@ -50,31 +50,22 @@ def cli_group(args):
         eprint("Names starting with '__' are reserved for system tables")
         return
     with Database(args.db) as database:
-        if (args.name in groups.reflect(database)):
-            if not args.remove and not args.clear:
+        if (args.name in groups.reflect(database) and not args.remove and not args.clear):
                 eprint("Group {} does already exist".format(args.name))
-                return
-            if args.remove and args.clear:
-                eprint("Cannot remove '{}' and clear '{}' at once".format(args.name, args.name))
-                return
         elif not args.remove and not args.clear:
             eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique,
                                                                                                args.type, args.value))
             groups.add(database, args.name, args.unique, args.type, args.value)
             return
-        if args.remove and args.name in groups.reflect(database):
-            if confirm("Delete group '{}'?".format(args.name)):
-                groups.remove(database, args.name)
-                return
-            else:
-                return
-        if args.clear and args.name in groups.reflect(database):
-            if confirm("Clear group '{}'?".format(args.name)):
+        if not (args.name in groups.reflect(database)):
+            eprint("Group '{}' does not exist".format(args.name))
+            return
+        if args.remove and confirm("Delete group '{}'?".format(args.name)):
+            groups.remove(database, args.name)
+        else:
+            if args.clear and confirm("Clear group '{}'?".format(args.name)):
                 groups.clear(database, args.name)
-                return
-            else:
-                return
-        eprint("Group '{}' does not exist".format(args.name))
+        return
 
 
 # entry for query command
