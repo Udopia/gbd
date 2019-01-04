@@ -33,7 +33,7 @@ class Database:
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        self.connection.commit()
+        self.commit()
         self.connection.close()
         self.inlining_connection.close()
 
@@ -42,7 +42,6 @@ class Database:
         self.submit(
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
-        self.connection.commit()
 
     def has_table(self, name):
         return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
@@ -69,6 +68,7 @@ class Database:
 
     def submit(self, q):
         self.cursor.execute(q)
+        self.commit()
 
     def bulk_insert(self, table, lst):
         self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
@@ -81,3 +81,6 @@ class Database:
             raise DatabaseException(
                 "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}".format(
                     self.get_hash_version(), HASH_VERSION))
+
+    def commit(self):
+        self.connection.commit()
