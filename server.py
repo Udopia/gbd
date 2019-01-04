@@ -35,7 +35,7 @@ def query():
     result = ""
     with Database(DATABASE) as database:
         if ("query" in param):
-            hashes = search.find_hashes_by_query(database, param["query"])
+            hashes = search.find_hashes(database, param["query"])
             for h in hashes:
                 result += "{}\n".format(h)
         elif (len(param.keys()) == 0):
@@ -45,7 +45,7 @@ def query():
         else:
             for attribute, value in param.items():
                 if (attribute is not None and value is not None):
-                    hashes = search.find_hash(database, attribute, value)
+                    hashes = search.find_hashes(database, attribute, value)
                     for h in hashes:
                         result += "{}\n".format(h)
     return result
