@@ -53,9 +53,10 @@ def cli_group(args):
         if (args.name in groups.reflect(database) and not args.remove and not args.clear):
                 eprint("Group {} does already exist".format(args.name))
         elif not args.remove and not args.clear:
-            eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique,
-                                                                                               args.type, args.value))
-            groups.add(database, args.name, args.unique, args.type, args.value)
+            eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique
+                                                                                                 is not None,
+                                                                                               args.type, args.unique))
+            groups.add(database, args.name, args.unique is not None, args.type, args.unique)
             return
         if not (args.name in groups.reflect(database)):
             eprint("Group '{}' does not exist".format(args.name))
@@ -199,9 +200,9 @@ def main():
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
     parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
-    parser_group.add_argument('-v', '--value', help='Specify a default value for the group (default: None)')
-    parser_group.add_argument('-u', '--unique', action='store_true',
-                              help='Specify if the group stores unique or several attributes per benchmark (default: false)')
+    parser_group.add_argument('-u', '--unique', help='Specify if the group stores unique or '
+                              '(by default) several attributes per benchmark (expects default value which has to match '
+                              'type if set)')
     parser_group.add_argument('-t', '--type', help='Specify the value type of the group (default: text)',
                               default="text", choices=['text', 'integer', 'real'])
     parser_group.add_argument('-r', '--remove', action='store_true',
