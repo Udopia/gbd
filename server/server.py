@@ -1,13 +1,11 @@
-import groups
-import search
-from db import Database
-import optparse
+from main import groups, search
+from main.database.db import Database
 
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-from os.path import realpath, dirname, join, isfile
+from os.path import realpath, dirname, join
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
 
@@ -24,13 +22,14 @@ def resolve(hash):
     with Database(DATABASE) as database:
         if len(param.keys()) == 0:
             attributes = groups.reflect(database)
+
         for name in param.keys():
             value = search.resolve(database, name, hash)
             result += "{} {}\n".format(name, *value)
     return result
 
 
-@app.route("/query", methods=['GET', 'POST'])
+@app.route("/query", methods=['GET', 'POST'])   # query string über post
 def query():
     param = dict()
     if request.method == 'POST':

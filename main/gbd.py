@@ -1,23 +1,18 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import sqlite3 as lite
 import sys
 import os
-import hashlib
 import argparse
 import re
 
-import groups
-import search
-import tags
-import import_data
+from main import groups, import_data, search, tags
 
-from db import Database, DatabaseException
-from gbd_hash import gbd_hash
-from util import eprint, read_hashes, confirm
+from main.database.db import Database
+from main.hashing.gbd_hash import gbd_hash
+from main.util import eprint, read_hashes, confirm
 
-from os.path import realpath, dirname, join, isfile
+from os.path import realpath, dirname, join
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
