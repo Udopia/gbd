@@ -1,6 +1,3 @@
-import db
-
-
 def add(database, cat, unique=False, type='text', default=None):
     ustr = "UNIQUE" if unique else ""
     dstr = "DEFAULT {}".format(default) if default is not None else ""

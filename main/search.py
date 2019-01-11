@@ -1,9 +1,4 @@
-import db
-import groups
-import re
-
 from tatsu import parse
-from tatsu.util import asjson
 
 
 def find_hashes(database, query=None):

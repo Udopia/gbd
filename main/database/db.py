@@ -1,8 +1,7 @@
 import sqlite3
-import re
-from gbd_hash import HASH_VERSION
+from main.hashing.gbd_hash import HASH_VERSION
 from os.path import isfile
-from util import eprint
+from main.util import eprint
 
 VERSION = 0
 
