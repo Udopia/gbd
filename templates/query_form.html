@@ -6,7 +6,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 <body>
 <main>
+    <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
     <div class="container">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <h1>Query</h1>
         <div class="container">
         <form action="http://localhost:5000/query" method="post" id="args">
