@@ -29,6 +29,9 @@ def resolve(hash):
             result += "{} {}\n".format(name, *value)
     return result
 
+@app.route("/test", methods=['GET'])
+def test():
+    return render_template('test.html')
 
 @app.route("/query_form", methods=['GET'])
 def query_form():
