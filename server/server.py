@@ -54,3 +54,12 @@ def query():
                     for h in hashes:
                         result += "{}\n".format(h)
     return result
+
+
+@app.route("/test", methods={'POST'})
+def test():
+    response = "A: "
+    query = request.values
+    for k in query.values():
+        response += k
+    return response
