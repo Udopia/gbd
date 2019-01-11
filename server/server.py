@@ -1,3 +1,4 @@
+import main
 from main import groups, search
 from main.database.db import Database
 
