@@ -4,18 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <body>
 <main>
-    <div class="center-div-grey" align="center">
+    <div class="container">
         <h1>Query</h1>
-        <div class="center-div" align="center" >
+        <div class="container">
         <form action="http://localhost:5000/query" method="post" id="args">
-            <label class="h2" form="Query"></label>
-            <label for="squery">Query-Command</label>
-            <input type="text" name="query" id="query">
-            <button type="submit">Submit</button>
-            <button type="reset">Reset</button>
+            <div class="form-group">
+                <label for="query">Query-Command</label>
+                <input type="text" name="query" class="form-control" id="query" placeholder="Enter command">
+            </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
         </form>
         </div>
     </div>
