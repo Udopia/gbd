@@ -33,8 +33,7 @@ def resolve(hash):
 @app.route("/query", methods=['POST'])   # query string über post
 def query():
     response = ""
-    dict = request.values.to_dict()
-    query = dict["query"]
+    query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
         try:
             list = search.find_hashes(database, query)
@@ -44,4 +43,3 @@ def query():
             path = search.resolve(database, "benchmarks", hash)
             response += "<div>{} on path {}</div>\n".format(hash, path)
     return response
-    #TODO: form
