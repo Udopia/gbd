@@ -3,13 +3,18 @@ import search
 from db import Database
 import optparse
 
-from flask import Flask, request
+from flask import Flask, flash, redirect, render_template, request, session, abort
 
 app = Flask(__name__)
 
 from os.path import realpath, dirname, join, isfile
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
+
+
+@app.route("/", methods={'GET'})
+def welcome():
+    return render_template('start.html')  # file is found at runtime
 
 
 @app.route("/resolve/<hash>", methods=['GET'])
