@@ -3,55 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0;" />
-  <link rel="stylesheet" media="screen" href="./Beispiel:SELFHTML-Beispiel-Grundlayout.css" />
-  <style>
-form {
-  width: 20em;
-}
-
-label.h2 {
-  font-weight: bold;
-  font-size: 150%;	
-  width: 100%;
-  margin-bottom: 1em;
-}
-
-input, label {
-  float: left;
-  width: 40%;
-}
-input {
-  margin: 0 0 1em .2em;
-  padding: .2em .5em; 
-  background-color: #fffbf0; 
-  border: 1px solid #e7c157;  
-}
-label.input { 
-  text-align: right;
-  line-height: 1.5;
-}
-label.input::after {
-  content: ": ";
-}
-button {
-  margin-top: 1.5em;
-  width: 30%;
-}
-</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <body>
-  <h1>Query</h1>
-  <main> 
-    <form action="http://localhost:5000/query" method="post" id="args">
-	  <div>
-		<label class="h2" form="Query"></label>
-		<label for="squery">Query-Command</label> 
-		<input type="text" name="query" id="query" style="width=1000px">
-	  </div>
-
-      <button type="submit">Submit</button>
-      <button type="reset">Reset</button>
-  </form>
-</main>  
-  
+<main>
+    <div class="center-div">
+        <h1>Query</h1>
+        <div class="center-div">
+        <form action="http://localhost:5000/query" method="post" id="args">
+            <label class="h2" form="Query"></label>
+            <label for="squery">Query-Command</label>
+            <input type="text" name="query" id="query">
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+        </form>
+        </div>
+    </div>
+</main>
 </body>
 </html>
