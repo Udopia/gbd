@@ -6,11 +6,11 @@ import os
 import argparse
 import re
 
-from main import tags, groups, search, import_data
+from server.core import tags, groups, search, import_data
 
-from main.database.db import Database
-from main.hashing.gbd_hash import gbd_hash
-from main.util import eprint, read_hashes, confirm
+from server.core.database.db import Database
+from server.core.hashing.gbd_hash import gbd_hash
+from server.core.util import eprint, read_hashes, confirm
 
 from os.path import realpath, dirname, join
 

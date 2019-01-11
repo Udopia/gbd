@@ -1,7 +1,7 @@
 import sqlite3
-from main.hashing.gbd_hash import HASH_VERSION
+from server.core.hashing.gbd_hash import HASH_VERSION
 from os.path import isfile
-from main.util import eprint
+from server.core.util import eprint
 
 VERSION = 0
 

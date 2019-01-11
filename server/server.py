@@ -1,6 +1,5 @@
-import main
-from main import groups, search
-from main.database.db import Database
+from server.core import groups, search
+from server.core.database.db import Database
 
 from flask import Flask, render_template, request
 
