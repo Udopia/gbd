@@ -14,7 +14,7 @@ DATABASE = join(dirname(realpath(__file__)), 'local.db')
 
 @app.route("/", methods={'GET'})
 def welcome():
-    return render_template('start.html')  # file is found at runtime
+    return render_template('home.html')  # file is found at runtime
 
 
 @app.route("/resolve/<hash>", methods=['GET'])
