@@ -30,6 +30,11 @@ def resolve(hash):
     return result
 
 
+@app.route("/query_form", methods=['GET'])
+def query_form():
+    return render_template('query_form.html')
+
+
 @app.route("/query", methods=['POST'])   # query string über post
 def query():
     response = ""
