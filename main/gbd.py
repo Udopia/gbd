@@ -6,7 +6,7 @@ import os
 import argparse
 import re
 
-from main import groups, import_data, search, tags
+from main import tags, groups, search, import_data
 
 from main.database.db import Database
 from main.hashing.gbd_hash import gbd_hash

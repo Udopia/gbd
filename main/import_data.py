@@ -1,6 +1,6 @@
 import csv
 import re
-from main import groups, tags
+from main import tags, groups
 
 
 def exists(database, cat):
