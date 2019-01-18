@@ -1,8 +1,11 @@
+import htmlGenerator
+
 from tatsu import exceptions
 from core.main import groups, search
 from core.database.db import Database
 
-from flask import Flask, render_template, request
+
+from flask import Flask, render_template, request, url_for
 
 app = Flask(__name__)
 
@@ -29,9 +32,11 @@ def resolve(hash):
             result += "{} {}\n".format(name, *value)
     return result
 
+
 @app.route("/test", methods=['GET'])
 def test():
     return render_template('test.html')
+
 
 @app.route("/query_form", methods=['GET'])
 def query_form():
@@ -40,14 +45,15 @@ def query_form():
 
 @app.route("/query", methods=['POST'])   # query string über post
 def query():
-    response = ""
+    response = htmlGenerator.generate_html_header("en")
+    response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
         try:
             list = search.find_hashes(database, query)
         except exceptions.FailedParse:
             return "Not a valid query argument"
-        for hash in list:
-            path = search.resolve(database, "benchmarks", hash)
-            response += "<div>{} on path {}</div>\n".format(hash, path)
+        response += htmlGenerator.generate_table_div(list)
+
     return response
+

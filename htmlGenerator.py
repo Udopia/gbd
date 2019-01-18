@@ -9,22 +9,7 @@ def generate_html_header(language):
                "    <link rel=\"stylesheet\" " \
                "href=\"{}\">\n" \
                "</head>\n".format(language, css)
-    print(response)
     return response
-
-
-def generate_nav_bar(url, title):
-    response = "<div class=\"navbar navbar-default navbar-static-top\" role=\"navigation\">\n" \
-               "    <div class=\"container-fluid\">\n" \
-               "        <div class=\"navbar-header\">\n" \
-               "            <a class=\"navbar-brand\" href=\"#\">GBD</a>\n" \
-               "        </div>\n" \
-               "        <ul class=\"active\"><a href=\"{}\">{}</a></li>\n" \
-               "        </ul>" \
-               "    </div>\n" \
-               "</div>".format(url, title)
-    return response
-
 
 
 def generate_head(title):
