@@ -19,6 +19,34 @@
             </div>
         <button type="submit" class="btn btn-primary form-group">Search</button>
         </form>
+        <div class="row">
+            <div class="col">
+                <div class="container form-group">
+                    <div class="card" style="width: 50rem;">
+                        <div class="card-header text-dark">
+                            Help
+                        </div>
+                        <div class="card-body bg-dark text-white">
+                            <h5 class="card-title">Query Syntax</h5>
+                            <p class="card-text">
+                                Context free language: <br>
+                                S -> (S) | S and S | S or S | C <br>
+                                C -> NOV <br>
+                                N -> L([a-zA-z0-9_]+) (L(R) language resulting of regular expression R) <br>
+                                O -> - (nothing) | < | > | <= | >= | like <br>
+                                V -> L([a-zA-Z0-9_\-\%]+) <br>
+
+                                If your are searching for Strings, use for example "benchmarks like %graph%" <br>
+                                and if you are searching for numbers use "clauses > 100" <br>
+                                Example of intersection of two conditions: <br>
+                                    "clauses > 100 and variables < 50" <br>
+                            </p>
+                            <a href="#" class="btn btn-primary">OK</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </div>
     </div>
 </main>
