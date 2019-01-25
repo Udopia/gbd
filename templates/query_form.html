@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <title></title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
 <body>
-<main style="background : dimgrey">
-    <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
-    <div class="container">
+<main>
+    <div class="container bg-dark text-white">
+        <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
         <h1>Query</h1>
-        <div class="container">
+        <div class="container-fluid">
         <form action="http://localhost:5000/query" method="post" id="args">
             <div class="form-group">
                 <label for="query">Query-Command</label>
                 <input type="text" name="query" class="form-control" id="query" placeholder="Enter command">
             </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary form-group">Search</button>
         </form>
         </div>
     </div>
 </main>
+<script>
+
+</script>
 </body>
 </html>

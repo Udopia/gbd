@@ -19,7 +19,7 @@ def generate_head(title):
     return response
 
 
-def generate_table_div(entries):
+def generate_num_table_div(entries):
     counter = 0
     response = "<div style=\"display: block; max-height: 600px; overflow-y: auto; " \
                "-ms-overflow-style: -ms-autohiding-scrollbar;\">\n" \
@@ -41,3 +41,31 @@ def generate_table_div(entries):
                 "   <table>\n" \
                 "</div>\n"
     return response
+
+
+def generate_resolve_table_div(entries):
+    response = "<div style=\"display: block; max-height: 600px; overflow-y: auto; " \
+               "-ms-overflow-style: -ms-autohiding-scrollbar;\">\n" \
+               "    <table class=\"table table-bordered table-dark table-striped\">\n" \
+               "        <thead>\n" \
+               "            <tr>" \
+               "                <th scope=\"col\">Group</th>\n" \
+               "                <th scope=\"col\">Value</th>\n" \
+               "            </tr>\n" \
+               "        </thead>\n"
+    response += "       <tbody>\n"
+    for entry in entries:
+        response += "           <tr>" \
+                    "               <th scope=\"row\">{}</th>\n" \
+                    "               <td>{}</td>\n" \
+                    "           </tr>\n".format(entry[0], *entry[1])
+    response += "       </tbody>\n" \
+                "   <table>\n" \
+                "</div>\n"
+    return response
+
+
+def generate_warning(text):
+    return "<div class=\"alert alert-warning\"> " \
+                "<strong>Warning!</strong> {}" \
+                "</div>".format(text)
