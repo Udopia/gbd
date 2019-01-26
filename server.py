@@ -22,6 +22,37 @@ def welcome():
     return render_template('home.html')
 
 
+@app.route("/query/form", methods=['GET'])
+def query_form():
+    return render_template('query_form.html')
+
+
+@app.route("/query", methods=['POST'])   # query string über post
+def query():
+    response = htmlGenerator.generate_html_header("en")
+    response += htmlGenerator.generate_head("Results")
+    query = request.values.to_dict()["query"]
+    with ZipFile('benchmarks.zip', 'w', ZIP_DEFLATED) as myzip:
+        with Database(DATABASE) as database:
+            try:
+                list = search.find_hashes(database, query)
+                for hash in list:
+                    myzip.write(*search.resolve(database, "benchmarks", hash))
+                response += htmlGenerator.generate_num_table_div(list)
+                response += htmlGenerator.generate_zip_download("benchmarks.zip")
+            except exceptions.FailedParse:
+                response += htmlGenerator.generate_warning("Non-valid query")
+            except OperationalError:
+                response += htmlGenerator.generate_warning("Group not found")
+
+    return response
+
+
+@app.route("/resolve/form", methods=['GET'])
+def resolve_form():
+    return render_template('resolve_form.html')
+
+
 @app.route("/resolve", methods=['POST'])
 def resolve():
     hashed = request.values.to_dict()["hash"]
@@ -49,40 +80,14 @@ def resolve():
     return result
 
 
-@app.route("/query_form", methods=['GET'])
-def query_form():
-    return render_template('query_form.html')
-
-
-@app.route("/query", methods=['POST'])   # query string über post
-def query():
-    response = htmlGenerator.generate_html_header("en")
-    response += htmlGenerator.generate_head("Results")
-    query = request.values.to_dict()["query"]
-    with ZipFile('benchmarks.zip', 'w', ZIP_DEFLATED) as myzip:
-        with Database(DATABASE) as database:
-            try:
-                list = search.find_hashes(database, query)
-                for hash in list:
-                    myzip.write(*search.resolve(database, "benchmarks", hash))
-                response += htmlGenerator.generate_num_table_div(list)
-                response += htmlGenerator.generate_zip_download("benchmarks.zip")
-            except exceptions.FailedParse:
-                response += htmlGenerator.generate_warning("Non-valid query")
-            except OperationalError:
-                response += htmlGenerator.generate_warning("Group not found")
-
-    return response
-
-
-@app.route("/reflectAll", methods=['GET'])
+@app.route("/groups/all", methods=['GET'])
 def reflect():
     with Database(DATABASE) as database:
         list = groups.reflect(database)
         return list.__str__()
 
 
-@app.route("/reflect/<group>", methods=['GET'])
+@app.route("/groups/reflect/<group>", methods=['GET'])
 def reflect_group(group):
     with Database(DATABASE) as database:
         try:
