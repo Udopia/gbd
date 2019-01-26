@@ -8,9 +8,12 @@ from sqlite3 import OperationalError
 
 from flask import Flask, render_template, request, url_for
 
-app = Flask(__name__)
-
+from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import realpath, dirname, join
+
+import io
+
+app = Flask(__name__)
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
 
@@ -47,11 +50,6 @@ def resolve():
     return result
 
 
-@app.route("/resolve_form", methods=['GET'])
-def test():
-    return render_template('resolve_form.html')
-
-
 @app.route("/query_form", methods=['GET'])
 def query_form():
     return render_template('query_form.html')
@@ -62,14 +60,30 @@ def query():
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
-    with Database(DATABASE) as database:
-        try:
-            list = search.find_hashes(database, query)
-            response += htmlGenerator.generate_num_table_div(list)
-        except exceptions.FailedParse:
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += htmlGenerator.generate_warning("Group not found")
+    with ZipFile('benchmarks.zip', 'w', ZIP_DEFLATED) as myzip:
+        with Database(DATABASE) as database:
+            try:
+                list = search.find_hashes(database, query)
+                for hash in list:
+                    myzip.write(*search.resolve(database, "benchmarks", hash))
+                response += htmlGenerator.generate_num_table_div(list)
+                response += htmlGenerator.generate_zip_download("benchmarks.zip")
+            except exceptions.FailedParse:
+                response += htmlGenerator.generate_warning("Non-valid query")
+            except OperationalError:
+                response += htmlGenerator.generate_warning("Group not found")
 
     return response
 
+
+@app.route("/reflect", methods=['GET'])
+def reflect():
+    with Database(DATABASE) as database:
+        list = groups.reflect(database)
+
+    return None
+
+
+@app.route("/benchmarks.zip", methods=['GET'])
+def download():
+    return
