@@ -11,7 +11,6 @@ from flask import Flask, render_template, request, url_for
 from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import realpath, dirname, join
 
-import io
 
 app = Flask(__name__)
 
@@ -76,12 +75,26 @@ def query():
     return response
 
 
-@app.route("/reflect", methods=['GET'])
+@app.route("/reflectAll", methods=['GET'])
 def reflect():
     with Database(DATABASE) as database:
         list = groups.reflect(database)
+        return list.__str__()
 
-    return None
+
+@app.route("/reflect/<group>", methods=['GET'])
+def reflect_group(group):
+    with Database(DATABASE) as database:
+        try:
+            trimmed = group.strip('<>')
+            list = ["Name: {}".format(trimmed),
+                    "Type: {}".format(groups.reflect_type(database, trimmed)),
+                    "Unique: {}".format(groups.reflect_unique(database, trimmed)),
+                    "Default: {}".format(groups.reflect_default(database, trimmed)),
+                    "Size: {}".format(groups.reflect_size(database, trimmed))]
+            return list.__str__()
+        except IndexError:
+            return "Group not found"
 
 
 @app.route("/benchmarks.zip", methods=['GET'])
