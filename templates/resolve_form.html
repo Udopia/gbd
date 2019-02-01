@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+</head>
+<body>
+<main>
+    <div class="container bg-dark text-white">
+        <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
+        <h1>Resolve</h1>
+        <div class="container">
+        <form action="http://localhost:5000/resolve" method="post" id="args">
+            <div class="form-group">
+                <label for="hash">Hash</label>
+                <input type="text" name="hash" class="form-control" id="hash" placeholder="Enter hash">
+                <label for="group">Group</label>
+                <input type="text" name="group" class="form-control" id="group" placeholder="Enter group (optional)">
+                <p id="g"></p>
+            </div>
+        <button type="submit" class="btn btn-primary form-group">Search</button>
+        </form>
+        </div>
+    </div>
+</main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js</script"></script>
+</body>
+</html>
