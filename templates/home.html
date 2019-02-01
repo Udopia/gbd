@@ -1,0 +1,90 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+<h1 id="gbd-global-benchmark-database">
+    gbd (Global Benchmark Database)
+</h1>
+<p>
+    A tool for collaborative benchmark meta-data management
+</p>
+<h3 id="programming-language">
+    Programming Language
+</h3>
+<p>
+    Python 3
+</p>
+<h3 id="python-packages-requirements">
+    Python Packages (Requirements)
+</h3>
+<ul>
+    <li>
+        tatsu
+    </li>
+    <li>
+        setuptools
+    </li>
+    <li>
+        flask
+    </li>
+</ul>
+<h3 id="getting-started">
+    Getting Started
+</h3>
+<ul>
+    <li>
+        setup python3
+    </li>
+    <li>
+        setup pip and install required packages
+    </li>
+    <li>
+        clone repository
+    </li>
+    <li>
+        make sure path in gbd.py is correct (default: #!/usr/bin/python3)
+    </li>
+</ul>
+<h3 id="usage">
+    Usage
+</h3>
+<p>
+    By default gbd works with a local database
+    <em>
+        local.db
+    </em>
+    which (if not present) is created in the current working directory. To use another database it can be specified with
+    a commandline parameter.
+</p>
+<h5 id="help-on-basic-commands">
+    Help on basic commands
+</h5>
+<pre><code>./gbd.py -h
+</code></pre>
+<h5 id="help-on-specific-command">
+    Help on specific command
+</h5>
+<pre><code>./gbd.py [command] -h
+</code></pre>
+<h5 id="initialize-local-database">
+    Initialize local database
+</h5>
+<pre><code>./gbd.py init [path]
+</code></pre>
+<h3 id="documenation">
+    Documenation
+</h3>
+<p>
+    GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus,
+    two resources can now be used as documentation of the system.
+</p>
+<h6 id="doc">
+    doc/
+</h6>
+<p>
+    The directory contains the Latex source of the original paper published at POS 2018.
+</p>
+<h6 id="presentation">
+    presentation/
+</h6>
+<p>
+    The directory contains the Latex source of the presentation slides as presented at POS 2018.
+</p>
