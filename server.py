@@ -1,5 +1,4 @@
-import random
-import string
+from io import BytesIO
 
 from tatsu import exceptions
 
@@ -9,10 +8,10 @@ from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 
-from zipfile import ZipFile, ZIP_DEFLATED
-from os.path import realpath, dirname, join
+from zipfile import ZipFile
+from os.path import realpath, dirname, join, basename
 
 
 app = Flask(__name__)
@@ -39,14 +38,29 @@ def query():
         try:
             hashlist = search.find_hashes(database, query)
             response += htmlGenerator.generate_num_table_div(hashlist)
+        except exceptions.FailedParse:
+            response += htmlGenerator.generate_warning("Non-valid query")
+        except OperationalError:
+            response += htmlGenerator.generate_warning("Group not found")
+    return response
+
+
+@app.route("/queryzip", methods=['POST'])
+def queryzip():
+    response = htmlGenerator.generate_html_header("en")
+    query = request.values.to_dict()["query"]
+    with Database(DATABASE) as database:
+        try:
+            hashlist = search.find_hashes(database, query)
             if len(hashlist) != 0:
-                name = 'serverstore/'
-                name += ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
-                name += '.zip'
-                with ZipFile(name, 'w', ZIP_DEFLATED) as myzip:
+                memory_file = BytesIO()
+                with ZipFile(memory_file, 'w') as zf:
                     for h in hashlist:
-                        myzip.write(*search.resolve(database, "benchmarks", h))
-                response += htmlGenerator.generate_zip_download(name)
+                        file = search.resolve(database, "benchmarks", h)
+                        zf.write(*file, basename(*file))
+                zf.close()
+                memory_file.seek(0)
+                return send_file(memory_file, attachment_filename='benchmarks.zip', as_attachment=True)
         except exceptions.FailedParse:
             response += htmlGenerator.generate_warning("Non-valid query")
         except OperationalError:
