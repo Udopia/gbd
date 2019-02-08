@@ -1,11 +1,16 @@
 <!doctype html>
 <html lang="en">
-    <header>
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-    </header>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
     <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">GBD</a>
+        <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"></a>
+    <a class="navbar-brand" href="#"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -18,6 +23,7 @@
       </div>
     </nav>
     <hr>
+    <main>
     <div class=""></div>
     <div class="container">
         <div class="container" id="header">
@@ -133,5 +139,6 @@
             </div>
         </div>
     </div>
+    </main>
     </body>
 </html>

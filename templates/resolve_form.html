@@ -8,7 +8,8 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">GBD</a>
+        <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"></a>
+    <a class="navbar-brand" href="/"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -23,7 +24,9 @@
     <hr>
 <main>
     <div class="container bg-dark text-white">
-        <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
+        <div class="container mx-auto text-center">
+            <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" class="img-responsive" alt="Logo">
+        </div>
         <h1>Resolve</h1>
         <div class="container">
         <form action="http://localhost:5000/resolve" method="post" id="args">
@@ -39,6 +42,5 @@
         </div>
     </div>
 </main>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js</script"></script>
 </body>
 </html>

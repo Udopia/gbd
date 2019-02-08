@@ -62,8 +62,10 @@ def queryzip():
                 memory_file.seek(0)
                 return send_file(memory_file, attachment_filename='benchmarks.zip', as_attachment=True)
         except exceptions.FailedParse:
+            response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
         except OperationalError:
+            response += '<hr>'
             response += htmlGenerator.generate_warning("Group not found")
     return response
 
