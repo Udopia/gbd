@@ -1,3 +1,6 @@
+import random
+import string
+
 from tatsu import exceptions
 
 from main import htmlGenerator
@@ -32,19 +35,22 @@ def query():
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
-    with ZipFile('benchmarks.zip', 'w', ZIP_DEFLATED) as myzip:
-        with Database(DATABASE) as database:
-            try:
-                list = search.find_hashes(database, query)
-                for hash in list:
-                    myzip.write(*search.resolve(database, "benchmarks", hash))
-                response += htmlGenerator.generate_num_table_div(list)
-                response += htmlGenerator.generate_zip_download("benchmarks.zip")
-            except exceptions.FailedParse:
-                response += htmlGenerator.generate_warning("Non-valid query")
-            except OperationalError:
-                response += htmlGenerator.generate_warning("Group not found")
-
+    with Database(DATABASE) as database:
+        try:
+            hashlist = search.find_hashes(database, query)
+            response += htmlGenerator.generate_num_table_div(hashlist)
+            if len(hashlist) != 0:
+                name = 'serverstore/'
+                name += ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10))
+                name += '.zip'
+                with ZipFile(name, 'w', ZIP_DEFLATED) as myzip:
+                    for h in hashlist:
+                        myzip.write(*search.resolve(database, "benchmarks", h))
+                response += htmlGenerator.generate_zip_download(name)
+        except exceptions.FailedParse:
+            response += htmlGenerator.generate_warning("Non-valid query")
+        except OperationalError:
+            response += htmlGenerator.generate_warning("Group not found")
     return response
 
 
@@ -100,8 +106,3 @@ def reflect_group(group):
             return list.__str__()
         except IndexError:
             return "Group not found"
-
-
-@app.route("/benchmarks.zip", methods=['GET'])
-def download():
-    return
