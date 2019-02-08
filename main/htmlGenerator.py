@@ -13,15 +13,16 @@ def generate_html_header(language):
 
 
 def generate_head(title):
-    response = "<div class=\"page-header\">\n" \
+    response = "<hr>" \
+               "<div class=\"container\"><div class=\"page-header\">\n" \
                "    <h1>{}</h1>\n" \
-               "</div>\n".format(title)
+               "</div></div>\n".format(title)
     return response
 
 
 def generate_num_table_div(entries):
     counter = 0
-    response = "<div style=\"display: block; max-height: 600px; overflow-y: auto; " \
+    response = "<div class=\"container\"style=\"display: block; max-height: 600px; overflow-y: auto; " \
                "-ms-overflow-style: -ms-autohiding-scrollbar;\">\n" \
                "    <table class=\"table table-bordered table-dark table-striped\">\n" \
                "        <thead>\n" \
@@ -44,7 +45,8 @@ def generate_num_table_div(entries):
 
 
 def generate_resolve_table_div(entries):
-    response = "<div style=\"display: block; max-height: 600px; overflow-y: auto; " \
+    response = "<div class=\"container\" style=\"display: block; max-height: 600px; " \
+               "overflow-y: auto; " \
                "-ms-overflow-style: -ms-autohiding-scrollbar;\">\n" \
                "    <table class=\"table table-bordered table-dark table-striped\">\n" \
                "        <thead>\n" \
@@ -66,7 +68,7 @@ def generate_resolve_table_div(entries):
 
 
 def generate_warning(text):
-    return "<div class=\"alert alert-warning\"> " \
+    return "<div class=\"container alert alert-warning\"> " \
                 "<strong>Warning!</strong> {}" \
                 "</div>".format(text)
 
