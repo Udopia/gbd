@@ -1,12 +1,12 @@
-import htmlGenerator
-
 from tatsu import exceptions
-from core.main import groups, search
-from core.database.db import Database
+
+from main import htmlGenerator
+from main.core.main import groups, search
+from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request
 
 from zipfile import ZipFile, ZIP_DEFLATED
 from os.path import realpath, dirname, join
