@@ -71,7 +71,3 @@ def generate_warning(text):
     return "<div class=\"container alert alert-warning\"> " \
                 "<strong>Warning!</strong> {}" \
                 "</div>".format(text)
-
-
-def generate_zip_download(path):
-    return "<div class=\"container\"><a href=\"{}\" download>Download zip</a></div>".format(path)
