@@ -104,6 +104,7 @@ def resolve():
 
 @app.route("/groups/all", methods=['GET'])
 def reflect():
+    htmlGenerator.generate_html_header('en')
     with Database(DATABASE) as database:
         list = groups.reflect(database)
         return list.__str__()
