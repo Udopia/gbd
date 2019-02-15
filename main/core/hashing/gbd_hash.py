@@ -177,5 +177,5 @@ def eprint(*args, **kwargs):
 def hash_hashlist(hashlist):
     hash_md5 = hashlib.md5()
     for entry in hashlist:
-        hash_md5.update(entry)
+        hash_md5.update(entry.encode('utf-8'))
     return hash_md5.hexdigest()
