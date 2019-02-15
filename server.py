@@ -1,15 +1,17 @@
-import htmlGenerator
+from io import BytesIO
 
 from tatsu import exceptions
-from core.main import groups, search
-from core.database.db import Database
+
+from main import htmlGenerator
+from main.core.main import groups, search
+from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, send_file
 
-from zipfile import ZipFile, ZIP_DEFLATED
-from os.path import realpath, dirname, join
+from zipfile import ZipFile
+from os.path import realpath, dirname, join, basename
 
 
 app = Flask(__name__)
@@ -32,19 +34,39 @@ def query():
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
-    with ZipFile('benchmarks.zip', 'w', ZIP_DEFLATED) as myzip:
-        with Database(DATABASE) as database:
-            try:
-                list = search.find_hashes(database, query)
-                for hash in list:
-                    myzip.write(*search.resolve(database, "benchmarks", hash))
-                response += htmlGenerator.generate_num_table_div(list)
-                response += htmlGenerator.generate_zip_download("benchmarks.zip")
-            except exceptions.FailedParse:
-                response += htmlGenerator.generate_warning("Non-valid query")
-            except OperationalError:
-                response += htmlGenerator.generate_warning("Group not found")
+    with Database(DATABASE) as database:
+        try:
+            hashlist = search.find_hashes(database, query)
+            response += htmlGenerator.generate_num_table_div(hashlist)
+        except exceptions.FailedParse:
+            response += htmlGenerator.generate_warning("Non-valid query")
+        except OperationalError:
+            response += htmlGenerator.generate_warning("Group not found")
+    return response
 
+
+@app.route("/queryzip", methods=['POST'])
+def queryzip():
+    response = htmlGenerator.generate_html_header("en")
+    query = request.values.to_dict()["query"]
+    with Database(DATABASE) as database:
+        try:
+            hashlist = search.find_hashes(database, query)
+            if len(hashlist) != 0:
+                memory_file = BytesIO()
+                with ZipFile(memory_file, 'w') as zf:
+                    for h in hashlist:
+                        file = search.resolve(database, "benchmarks", h)
+                        zf.write(*file, basename(*file))
+                zf.close()
+                memory_file.seek(0)
+                return send_file(memory_file, attachment_filename='benchmarks.zip', as_attachment=True)
+        except exceptions.FailedParse:
+            response += '<hr>'
+            response += htmlGenerator.generate_warning("Non-valid query")
+        except OperationalError:
+            response += '<hr>'
+            response += htmlGenerator.generate_warning("Group not found")
     return response
 
 
@@ -82,6 +104,14 @@ def resolve():
 
 @app.route("/groups/all", methods=['GET'])
 def reflect():
+    response = htmlGenerator.generate_html_header('en')
+    response += "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
+                "<a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{{ url_for('static'," \
+                "filename='resources/gbd_logo_small.png') }}\"></a>" \
+                "<a class=\"navbar-brand\" href=\"#\"></a>" \
+                "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
+                "data-target=\"#navbarNavAltMarkup\"" \
+                ""
     with Database(DATABASE) as database:
         list = groups.reflect(database)
         return list.__str__()
@@ -100,8 +130,3 @@ def reflect_group(group):
             return list.__str__()
         except IndexError:
             return "Group not found"
-
-
-@app.route("/benchmarks.zip", methods=['GET'])
-def download():
-    return
