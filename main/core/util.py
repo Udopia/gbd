@@ -1,4 +1,5 @@
 import sys
+import os
 
 __all__ = ['eprint', 'read_hashes', 'confirm']
 
@@ -41,3 +42,9 @@ def confirm(prompt='Confirm', resp=False):
             return True
         if ans == 'n' or ans == 'N':
             return False
+
+
+def assure_path_exists(path):
+    directory = os.path.dirname(path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
