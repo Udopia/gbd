@@ -119,8 +119,8 @@ def reflect():
                 "   </button>" \
                 "   <div class=\"collapse navbar-collapse\" id=\"navbarNavAltMarkup\">" \
                 "       <div class=\"navbar-nav\">" \
-                "           <a class=\"nav-item nav-link active\" href=\"/\">Home</a>" \
-                "           <a class=\"nav-item nav-link\" href=\"#\">Groups" \
+                "           <a class=\"nav-item nav-link\" href=\"/\">Home</a>" \
+                "           <a class=\"nav-item nav-link active\" href=\"#\">Groups" \
                 "                   <span class=\"sr-only\">(current)</span></a>" \
                 "           <a class=\"nav-item nav-link\" href=\"/query/form\">Search</a>" \
                 "           <a class=\"nav-item nav-link\" href=\"/resolve/form\">Resolve</a>" \
