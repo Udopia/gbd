@@ -3,7 +3,7 @@ from io import BytesIO
 from tatsu import exceptions
 
 from main import htmlGenerator
-from main.core.main import groups, search
+from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
 
