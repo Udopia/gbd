@@ -1,8 +1,8 @@
-from core.database.db import Database, DatabaseException
-from core.main import groups
+from main.core.database.db import Database, DatabaseException
+from main.core.main import groups
 import os
-from core.main.util import eprint
-from core.hashing.gbd_hash import gbd_hash
+from main.core.main.util import eprint
+from main.core.hashing.gbd_hash import gbd_hash
 from os.path import isfile
 
 
