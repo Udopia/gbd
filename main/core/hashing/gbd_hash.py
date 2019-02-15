@@ -172,3 +172,10 @@ def gbd_hash(fname, version=HASH_VERSION):
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def hash_hashlist(hashlist):
+    hash_md5 = hashlib.md5()
+    for entry in hashlist:
+        hash_md5.update(entry)
+    return hash_md5.hexdigest()
