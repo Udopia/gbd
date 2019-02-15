@@ -1,22 +1,26 @@
-from io import BytesIO
+import os
+from threading import Thread
 
 from tatsu import exceptions
 
 from main import htmlGenerator
+import zipper
 from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 
-from flask import Flask, render_template, request, send_file, url_for
+from flask import Flask, render_template, request, send_file
 
-from zipfile import ZipFile
-from os.path import realpath, dirname, join, basename
+from os.path import realpath, dirname, join, isfile
 
+from main.core.hashing import gbd_hash
 
 app = Flask(__name__)
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
+ZIPCACHE_PATH = '/zipcache'
+ZIP_BUSY_PREFIX = '_'
 
 
 @app.route("/", methods={'GET'})
@@ -53,14 +57,24 @@ def queryzip():
         try:
             hashlist = search.find_hashes(database, query)
             if len(hashlist) != 0:
-                memory_file = BytesIO()
-                with ZipFile(memory_file, 'w') as zf:
+                if not os.path.isdir('zipcache'):
+                    os.makedirs('zipcache')
+                result_hash = gbd_hash.hash_hashlist(hashlist)
+                zipfile = ''.join('zipcache/_{}.zip'.format(result_hash))
+                if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
+                    return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''),
+                                     attachment_filename='benchmarks.zip',
+                                     as_attachment=True)
+                elif not isfile(zipfile):
+                    files = []
                     for h in hashlist:
-                        file = search.resolve(database, "benchmarks", h)
-                        zf.write(*file, basename(*file))
-                zf.close()
-                memory_file.seek(0)
-                return send_file(memory_file, attachment_filename='benchmarks.zip', as_attachment=True)
+                        files.append(search.resolve(database, 'benchmarks', h))
+                    thread = Thread(target=zipper.create_zip_with_marker, args=(zipfile,
+                                                                                files, ZIP_BUSY_PREFIX))
+                    thread.start()
+                    return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
+                else:
+                    return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
         except exceptions.FailedParse:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
@@ -134,16 +148,25 @@ def reflect():
         return response
 
 
-@app.route("/groups/reflect/<group>", methods=['GET'])
-def reflect_group(group):
+@app.route("/groups/reflect", methods=['GET'])
+def reflect_group():
     with Database(DATABASE) as database:
         try:
-            trimmed = group.strip('<>')
-            list = ["Name: {}".format(trimmed),
-                    "Type: {}".format(groups.reflect_type(database, trimmed)),
-                    "Unique: {}".format(groups.reflect_unique(database, trimmed)),
-                    "Default: {}".format(groups.reflect_default(database, trimmed)),
-                    "Size: {}".format(groups.reflect_size(database, trimmed))]
+            group = request.args.get('group')
+            list = ["Name: {}".format(group),
+                    "Type: {}".format(groups.reflect_type(database, group)),
+                    "Unique: {}".format(groups.reflect_unique(database, group)),
+                    "Default: {}".format(groups.reflect_default(database, group)),
+                    "Size: {}".format(groups.reflect_size(database, group))]
             return list.__str__()
         except IndexError:
             return "Group not found"
+
+
+@app.route("/zips/busy", methods=['GET'])
+def get_zip():
+    zipfile = request.args.get('file')
+    if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
+        return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
+    elif not isfile('_{}'.format(zipfile)):
+        return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
