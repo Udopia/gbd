@@ -104,7 +104,14 @@ def resolve():
 
 @app.route("/groups/all", methods=['GET'])
 def reflect():
-    htmlGenerator.generate_html_header('en')
+    response = htmlGenerator.generate_html_header('en')
+    response += "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
+                "<a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{{ url_for('static'," \
+                "filename='resources/gbd_logo_small.png') }}\"></a>" \
+                "<a class=\"navbar-brand\" href=\"#\"></a>" \
+                "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
+                "data-target=\"#navbarNavAltMarkup\"" \
+                ""
     with Database(DATABASE) as database:
         list = groups.reflect(database)
         return list.__str__()
