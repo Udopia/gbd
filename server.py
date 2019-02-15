@@ -8,7 +8,7 @@ from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, url_for
 
 from zipfile import ZipFile
 from os.path import realpath, dirname, join, basename
@@ -105,16 +105,33 @@ def resolve():
 @app.route("/groups/all", methods=['GET'])
 def reflect():
     response = htmlGenerator.generate_html_header('en')
-    response += "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
-                "<a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{{ url_for('static'," \
-                "filename='resources/gbd_logo_small.png') }}\"></a>" \
-                "<a class=\"navbar-brand\" href=\"#\"></a>" \
-                "<button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
-                "data-target=\"#navbarNavAltMarkup\"" \
-                ""
+    url = '/static/resources/gbd_logo_small.png'
+    response += "<body>" \
+                "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
+                "   <a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{}\"></a>" \
+                "   <a class=\"navbar-brand\" href=\"#\"></a>" \
+                "   <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
+                "       data-target=\"#navbarNavAltMarkup\"" \
+                "       aria-controls=\"navbarNavAltMarkup\" " \
+                "       aria-expanded=\"false\"" \
+                "       aria-label=\"Toggle navigation\">" \
+                "       <span class=\"navbar-toggler-icon\"></span>" \
+                "   </button>" \
+                "   <div class=\"collapse navbar-collapse\" id=\"navbarNavAltMarkup\">" \
+                "       <div class=\"navbar-nav\">" \
+                "           <a class=\"nav-item nav-link active\" href=\"/\">Home</a>" \
+                "           <a class=\"nav-item nav-link\" href=\"#\">Groups" \
+                "                   <span class=\"sr-only\">(current)</span></a>" \
+                "           <a class=\"nav-item nav-link\" href=\"/query/form\">Search</a>" \
+                "           <a class=\"nav-item nav-link\" href=\"/resolve/form\">Resolve</a>" \
+                "       </div>" \
+                "   </div>" \
+                "</nav>" \
+                "<hr>".format(url)
     with Database(DATABASE) as database:
         list = groups.reflect(database)
-        return list.__str__()
+        response += htmlGenerator.generate_num_table_div(list)
+        return response
 
 
 @app.route("/groups/reflect/<group>", methods=['GET'])
