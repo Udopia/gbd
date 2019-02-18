@@ -1,6 +1,6 @@
 \documentclass{easychair}
 
-\pagestyle{headings}
+%\pagestyle{headings}
 
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -10,9 +10,9 @@
 \usepackage{todonotes}
 \usepackage{tabto}
 \usepackage{url}
+\usepackage[utf8]{inputenc}
 \usepackage{csquotes}
 \usepackage[T1]{fontenc} 
-\usepackage[utf8]{inputenc}
 \usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -28,6 +28,8 @@
 
 \title{A Problem Meta-Data Library\\for Research in SAT}
 \author{Markus Iser, Carsten Sinz}
+\titlerunning{A Problem Meta-Data Library}
+\authorrunning{Markus Iser, Carsten Sinz}
 \institute{Institute for Theoretical Informatics (ITI) \\ Karlsruhe Institute of Technology (KIT) \\
   Karlsruhe, Germany}
 
@@ -223,7 +225,7 @@ If not specified otherwise the default database ``local.db'' in the GBD director
   \sf -c, --clear           &If group exists: remove all values in the group with
                         the specified name
 \end{tabular}
-\caption{The parameters of the group command of the GBD Command-line Interface}
+\caption{Parameters of the group command of the GBD Command-line Interface}
 \label{fig:cli:group}
 \end{table}
 
@@ -253,7 +255,7 @@ The \emph{reflect} command prints information about existing groups. If a specif
 \label{cli:tag}
 
 \begin{table}[ht]
-\begin{tabular}{p{.23\linewidth}|p{.73\linewidth}}
+\begin{tabular}{p{.21\linewidth}|p{.71\linewidth}}
 \multicolumn{2}{l}{\bf Usage: \textsf{gbd tag [-h] -v VALUE [-r] name}}\\
 
 \hline
@@ -267,7 +269,7 @@ The \emph{reflect} command prints information about existing groups. If a specif
   \sf -r, --remove          &Remove attribute from hashes if present, instead of
                         adding it
 \end{tabular}
-\caption{The parameters of the tag command of the GBD Command-line Interface}
+\caption{Parameters of the tag command of the GBD Command-line Interface}
 \label{fig:cli:tag}
 \end{table}
 
@@ -291,7 +293,7 @@ echo $hash | gbd tag -n smallest_tracked_proofsize -v 123
 \label{cli:query}
 
 \begin{table}[ht]
-\begin{tabular}{p{.23\linewidth}|p{.73\linewidth}}
+\begin{tabular}{p{.21\linewidth}|p{.71\linewidth}}
 \multicolumn{2}{l}{\bf Usage: \textsf{gbd query [-h] [-v VALUE]
                     [-o {union,intersection,difference,symdiff}]
                     [name]}}\\
@@ -311,7 +313,7 @@ echo $hash | gbd tag -n smallest_tracked_proofsize -v 123
   			            &Optionally specify how to combine with hashes read
                         from \textsf{stdin}. \mbox{\textsf{TYPE $\in$ \{``union'', ``intersection'', ``difference'', ``symdiff''\}}}
 \end{tabular}
-\caption{The parameters of the query command of the GBD Command-line Interface}
+\caption{Parameters of the query command of the GBD Command-line Interface}
 \label{fig:cli:query}
 \end{table}
 
