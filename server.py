@@ -9,7 +9,6 @@ from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
 
-
 from flask import Flask, render_template, request, send_file
 
 from os.path import realpath, dirname, join, isfile
@@ -33,7 +32,7 @@ def query_form():
     return render_template('query_form.html')
 
 
-@app.route("/query", methods=['POST'])   # query string über post
+@app.route("/query", methods=['POST'])  # query string über post
 def query():
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
@@ -72,9 +71,7 @@ def queryzip():
                     thread = Thread(target=zipper.create_zip_with_marker, args=(zipfile,
                                                                                 files, ZIP_BUSY_PREFIX))
                     thread.start()
-                    return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
-                else:
-                    return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
+                    return htmlGenerator.generate_zip_busy_page(zipfile)
         except exceptions.FailedParse:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
@@ -169,4 +166,4 @@ def get_zip():
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
-        return '<a href=\"/zips/busy?file={}\">Busy. Check if zip has been created yet</a>'.format(zipfile)
+        return htmlGenerator.generate_zip_busy_page(zipfile)
