@@ -71,3 +71,46 @@ def generate_warning(text):
     return "<div class=\"container alert alert-warning\"> " \
                 "<strong>Warning!</strong> {}" \
                 "</div>".format(text)
+
+
+def generate_zip_busy_page(zipfile):
+        url = '/static/resources/gbd_logo_small.png'
+
+        response = generate_html_header("en")
+        response += "<body>" \
+                    "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
+                    "   <a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{}\"></a>" \
+                    "   <a class=\"navbar-brand\" href=\"#\"></a>" \
+                    "   <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
+                    "       data-target=\"#navbarNavAltMarkup\"" \
+                    "       aria-controls=\"navbarNavAltMarkup\" " \
+                    "       aria-expanded=\"false\"" \
+                    "       aria-label=\"Toggle navigation\">" \
+                    "       <span class=\"navbar-toggler-icon\"></span>" \
+                    "   </button>" \
+                    "   <div class=\"collapse navbar-collapse\" id=\"navbarNavAltMarkup\">" \
+                    "       <div class=\"navbar-nav\">" \
+                    "           <a class=\"nav-item nav-link\" href=\"/\">Home</a>" \
+                    "           <a class=\"nav-item nav-link\" href=\"/groups/all\">Groups" \
+                    "           <a class=\"nav-item nav-link active\" href=\"/query/form\">Search</a>" \
+                    "                   <span class=\"sr-only\">(current)</span></a>" \
+                    "           <a class=\"nav-item nav-link\" href=\"/resolve/form\">Resolve</a>" \
+                    "       </div>" \
+                    "   </div>" \
+                    "</nav>" \
+                    "<hr>".format(url)
+        response += '<div class=\"container bg-dark text-white\">' \
+                    '   <div class="container mx-auto text-center">' \
+                    '       <img src=\"{}\"' \
+                    '       class=\"img-responsive\" alt=\"Logo\">' \
+                    '   </div>' \
+                    '   <h1>Query</h1>'.format(url)
+        response += "<div class=\"container\">" \
+                    "<a href=\"/zips/busy?file={}\">Creating ZIP for you. " \
+                    "Click to check if zip has been created yet</a>" \
+                    "<hr>" \
+                    "<progress value=\"0\" max=\"100\"></progress>" \
+                    "</div>" \
+                    "<hr>" \
+                    "</div>".format(zipfile)
+        return response
