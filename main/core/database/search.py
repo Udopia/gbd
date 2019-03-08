@@ -32,7 +32,7 @@ GRAMMAR = r'''
         | constraint
         ;
 
-    constraint = attr:name op:('=' | '<' | '>' | '<=' | '>=' | 'like') val:value ;
+    constraint = attr:name op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ;
 
     value
         =
