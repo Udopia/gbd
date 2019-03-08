@@ -73,7 +73,7 @@ def generate_warning(text):
                 "</div>".format(text)
 
 
-def generate_zip_busy_page(zipfile):
+def generate_zip_busy_page(zipfile, size):
         url = '/static/resources/gbd_logo_small.png'
 
         response = generate_html_header("en")
@@ -109,8 +109,10 @@ def generate_zip_busy_page(zipfile):
                     "<a href=\"/zips/busy?file={}\">Creating ZIP for you. " \
                     "Click to check if zip has been created yet</a>" \
                     "<hr>" \
+                    "<a>The size is approximately {} MB." \
+                    "<hr>" \
                     "<progress value=\"0\" max=\"100\"></progress>" \
                     "</div>" \
                     "<hr>" \
-                    "</div>".format(zipfile)
+                    "</div>".format(zipfile, size)
         return response
