@@ -4,7 +4,7 @@ from threading import Thread
 from tatsu import exceptions
 
 from main import htmlGenerator
-import zipper
+from main.core import zipper, util
 from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
@@ -18,8 +18,10 @@ from main.core.hashing import gbd_hash
 app = Flask(__name__)
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
-ZIPCACHE_PATH = '/zipcache'
+ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
+MAX_HOURS_ZIP_FILES = None
+MAX_MIN_ZIP_FILES = 30
 
 
 @app.route("/", methods={'GET'})
@@ -54,24 +56,29 @@ def queryzip():
     query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
         try:
-            hashlist = search.find_hashes(database, query)
-            if len(hashlist) != 0:
-                if not os.path.isdir('zipcache'):
-                    os.makedirs('zipcache')
-                result_hash = gbd_hash.hash_hashlist(hashlist)
-                zipfile = ''.join('zipcache/_{}.zip'.format(result_hash))
-                if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
-                    return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''),
+            sorted_hash_set = sorted(search.find_hashes(database, query))
+            if len(sorted_hash_set) != 0:
+                if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
+                    os.makedirs('{}'.format(ZIPCACHE_PATH))
+                result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
+                zipfile_busy = ''.join('{}/_{}.zip'.format(ZIPCACHE_PATH, result_hash))
+                zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
+                if isfile(zipfile_ready):
+                    with open(zipfile_ready, 'a'):
+                        os.utime(zipfile_ready, None)
+                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                    return send_file(zipfile_ready,
                                      attachment_filename='benchmarks.zip',
                                      as_attachment=True)
-                elif not isfile(zipfile):
+                elif not isfile(zipfile_busy):
+                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                     files = []
-                    for h in hashlist:
+                    for h in sorted_hash_set:
                         files.append(search.resolve(database, 'benchmarks', h))
-                    thread = Thread(target=zipper.create_zip_with_marker, args=(zipfile,
-                                                                                files, ZIP_BUSY_PREFIX))
+                    thread = Thread(target=zipper.create_zip_with_marker,
+                                    args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                     thread.start()
-                    return htmlGenerator.generate_zip_busy_page(zipfile)
+                    return htmlGenerator.generate_zip_busy_page(zipfile_busy)
         except exceptions.FailedParse:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
