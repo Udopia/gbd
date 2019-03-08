@@ -83,7 +83,6 @@ def queryzip():
                                      as_attachment=True)
                 elif not isfile(zipfile_busy):
                     util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
-                    check_zips_semaphore.release()
                     files = []
                     for h in sorted_hash_set:
                         files.append(search.resolve(database, 'benchmarks', h))
@@ -96,6 +95,7 @@ def queryzip():
                         thread = threading.Thread(target=zipper.create_zip_with_marker,
                                                   args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                         thread.start()
+                        check_zips_semaphore.release()
                         request_semaphore.release()
                         return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
                     else:
