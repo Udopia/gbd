@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+from zipfile import ZipInfo
 
 from tatsu import exceptions
 
@@ -20,8 +21,9 @@ app = Flask(__name__)
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
-MAX_HOURS_ZIP_FILES = None
-MAX_MIN_ZIP_FILES = 30
+MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
+MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
+THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 
 
 @app.route("/", methods={'GET'})
@@ -75,10 +77,20 @@ def queryzip():
                     files = []
                     for h in sorted_hash_set:
                         files.append(search.resolve(database, 'benchmarks', h))
-                    thread = Thread(target=zipper.create_zip_with_marker,
-                                    args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
-                    thread.start()
-                    return htmlGenerator.generate_zip_busy_page(zipfile_busy)
+                    size = 0
+                    for file in files:
+                        zf = ZipInfo.from_file(*file, arcname=None)
+                        size += zf.file_size
+                    divisor = 1024 << 10
+                    if size/divisor < THRESHOLD_ZIP_SIZE:
+                        thread = Thread(target=zipper.create_zip_with_marker,
+                                        args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
+                        thread.start()
+                        return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size/divisor, 2)))
+                    else:
+                        response += '<hr>' \
+                                    '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
+                                                .format(THRESHOLD_ZIP_SIZE))
         except exceptions.FailedParse:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
