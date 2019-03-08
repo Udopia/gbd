@@ -28,7 +28,7 @@ THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 
 request_semaphore = threading.Semaphore(10)
-check_zips_semaphore = threading.Semaphore(1)  # shall stay a mutex - don't edit
+check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
 @app.route("/", methods={'GET'})
@@ -71,12 +71,12 @@ def queryzip():
                 result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
                 zipfile_busy = ''.join('{}/_{}.zip'.format(ZIPCACHE_PATH, result_hash))
                 zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
-                check_zips_semaphore.acquire()
+                check_zips_mutex.acquire()
                 if isfile(zipfile_ready):
                     with open(zipfile_ready, 'a'):
                         os.utime(zipfile_ready, None)
                     util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
-                    check_zips_semaphore.release()
+                    check_zips_mutex.release()
                     request_semaphore.release()
                     return send_file(zipfile_ready,
                                      attachment_filename='benchmarks.zip',
@@ -95,10 +95,11 @@ def queryzip():
                         thread = threading.Thread(target=zipper.create_zip_with_marker,
                                                   args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                         thread.start()
-                        check_zips_semaphore.release()
+                        check_zips_mutex.release()
                         request_semaphore.release()
                         return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
                     else:
+                        check_zips_mutex.release()
                         response += '<hr>' \
                                     '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
                                                 .format(THRESHOLD_ZIP_SIZE))
