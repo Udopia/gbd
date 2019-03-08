@@ -1,11 +1,12 @@
 import os
-from threading import Thread
+import threading
 from zipfile import ZipInfo
 
 from tatsu import exceptions
 
 from main import htmlGenerator
-from main.core import zipper, util
+from main.core import util
+import zipper
 from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
@@ -24,6 +25,10 @@ ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
 MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
+ZIP_SEMAPHORE = threading.Semaphore(4)
+
+request_semaphore = threading.Semaphore(10)
+check_zips_semaphore = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
 @app.route("/", methods={'GET'})
@@ -54,26 +59,31 @@ def query():
 
 @app.route("/queryzip", methods=['POST'])
 def queryzip():
+    request_semaphore.acquire()
+    input_query = request.values.to_dict()["query"]
     response = htmlGenerator.generate_html_header("en")
-    query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
         try:
-            sorted_hash_set = sorted(search.find_hashes(database, query))
+            sorted_hash_set = sorted(search.find_hashes(database, input_query))
             if len(sorted_hash_set) != 0:
                 if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
                     os.makedirs('{}'.format(ZIPCACHE_PATH))
                 result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
                 zipfile_busy = ''.join('{}/_{}.zip'.format(ZIPCACHE_PATH, result_hash))
                 zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
+                check_zips_semaphore.acquire()
                 if isfile(zipfile_ready):
                     with open(zipfile_ready, 'a'):
                         os.utime(zipfile_ready, None)
                     util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                    check_zips_semaphore.release()
+                    request_semaphore.release()
                     return send_file(zipfile_ready,
                                      attachment_filename='benchmarks.zip',
                                      as_attachment=True)
                 elif not isfile(zipfile_busy):
                     util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                    check_zips_semaphore.release()
                     files = []
                     for h in sorted_hash_set:
                         files.append(search.resolve(database, 'benchmarks', h))
@@ -82,11 +92,12 @@ def queryzip():
                         zf = ZipInfo.from_file(*file, arcname=None)
                         size += zf.file_size
                     divisor = 1024 << 10
-                    if size/divisor < THRESHOLD_ZIP_SIZE:
-                        thread = Thread(target=zipper.create_zip_with_marker,
-                                        args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
+                    if size / divisor < THRESHOLD_ZIP_SIZE:
+                        thread = threading.Thread(target=zipper.create_zip_with_marker,
+                                                  args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                         thread.start()
-                        return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size/divisor, 2)))
+                        request_semaphore.release()
+                        return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
                     else:
                         response += '<hr>' \
                                     '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
@@ -97,6 +108,7 @@ def queryzip():
         except OperationalError:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Group not found")
+    request_semaphore.release()
     return response
 
 
@@ -185,4 +197,4 @@ def get_zip():
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
-        return htmlGenerator.generate_zip_busy_page(zipfile)
+        return htmlGenerator.generate_zip_busy_page(zipfile, 0)
