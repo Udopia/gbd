@@ -1,4 +1,7 @@
 # gbd (Global Benchmark Database)
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ce00ab947c6341dca3001607d4ca99f3)](https://app.codacy.com/app/luca_springer/gbd?utm_source=github.com&utm_medium=referral&utm_content=Weitspringer/gbd&utm_campaign=Badge_Grade_Settings)
+
 A tool for collaborative benchmark meta-data management
 
 ### Programming Language
