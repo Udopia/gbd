@@ -69,7 +69,7 @@ def queryzip():
                 if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
                     os.makedirs('{}'.format(ZIPCACHE_PATH))
                 result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
-                zipfile_busy = ''.join('{}/_{}.zip'.format(ZIPCACHE_PATH, result_hash))
+                zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
                 zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
                 check_zips_mutex.acquire()
                 if isfile(zipfile_ready):
