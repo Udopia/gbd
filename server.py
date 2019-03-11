@@ -43,6 +43,7 @@ def query_form():
 
 @app.route("/query", methods=['POST'])  # query string über post
 def query():
+    request_semaphore.acquire()
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
@@ -54,6 +55,7 @@ def query():
             response += htmlGenerator.generate_warning("Non-valid query")
         except OperationalError:
             response += htmlGenerator.generate_warning("Group not found")
+    request_semaphore.release()
     return response
 
 
@@ -120,6 +122,7 @@ def resolve_form():
 
 @app.route("/resolve", methods=['POST'])
 def resolve():
+    request_semaphore.acquire()
     hashed = request.values.to_dict()["hash"]
     group = request.values.to_dict()["group"]
     result = htmlGenerator.generate_html_header("en")
@@ -142,11 +145,13 @@ def resolve():
                 result += htmlGenerator.generate_warning("Group not found")
             except IndexError:
                 result += htmlGenerator.generate_warning("Hash not found in our database")
+    request_semaphore.release()
     return result
 
 
 @app.route("/groups/all", methods=['GET'])
 def reflect():
+    request_semaphore.acquire()
     response = htmlGenerator.generate_html_header('en')
     url = '/static/resources/gbd_logo_small.png'
     response += "<body>" \
@@ -172,13 +177,15 @@ def reflect():
                 "</nav>" \
                 "<hr>".format(url)
     with Database(DATABASE) as database:
-        list = groups.reflect(database)
-        response += htmlGenerator.generate_num_table_div(list)
-        return response
+        reflection = groups.reflect(database)
+        response += htmlGenerator.generate_num_table_div(reflection)
+    request_semaphore.release()
+    return response
 
 
 @app.route("/groups/reflect", methods=['GET'])
 def reflect_group():
+    request_semaphore.acquire()
     with Database(DATABASE) as database:
         try:
             group = request.args.get('group')
@@ -187,15 +194,20 @@ def reflect_group():
                     "Unique: {}".format(groups.reflect_unique(database, group)),
                     "Default: {}".format(groups.reflect_default(database, group)),
                     "Size: {}".format(groups.reflect_size(database, group))]
+            request_semaphore.release()
             return list.__str__()
         except IndexError:
+            request_semaphore.release()
             return "Group not found"
 
 
 @app.route("/zips/busy", methods=['GET'])
 def get_zip():
+    request_semaphore.acquire()
     zipfile = request.args.get('file')
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
+        request_semaphore.release()
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
+        request_semaphore.release()
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
