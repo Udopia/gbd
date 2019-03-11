@@ -1,5 +1,4 @@
 # gbd (Global Benchmark Database)
-A tool for collaborative benchmark meta-data management
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/38208424784e4789a683bd597d58081b)](https://www.codacy.com/app/luca_springer/gbd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Weitspringer/gbd&amp;utm_campaign=Badge_Grade)
 
 ### Programming Language
