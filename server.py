@@ -26,6 +26,7 @@ MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
 MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
+USER_AGENT_CLI = 'gbd'
 
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
@@ -44,17 +45,23 @@ def query_form():
 @app.route("/query", methods=['POST'])  # query string über post
 def query():
     request_semaphore.acquire()
-    response = htmlGenerator.generate_html_header("en")
-    response += htmlGenerator.generate_head("Results")
-    query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
-        try:
-            hashlist = search.find_hashes(database, query)
-            response += htmlGenerator.generate_num_table_div(hashlist)
-        except exceptions.FailedParse:
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += htmlGenerator.generate_warning("Group not found")
+        query = request.values.to_dict()["query"]
+        if request.headers.get('User-Agent') == USER_AGENT_CLI:
+            response = search.find_hashes(database, query)
+        else:
+            response = htmlGenerator.generate_html_header("en")
+            response += htmlGenerator.generate_head("Results")
+            try:
+                if query is not None:
+                    hashlist = search.find_hashes(database, query)
+                else:
+                    hashlist = search.find_hashes(database)
+                response += htmlGenerator.generate_num_table_div(hashlist)
+            except exceptions.FailedParse:
+                response += htmlGenerator.generate_warning("Non-valid query")
+            except OperationalError:
+                response += htmlGenerator.generate_warning("Group not found")
     request_semaphore.release()
     return response
 
