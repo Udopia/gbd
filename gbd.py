@@ -117,21 +117,21 @@ def cli_resolve(args):
 
 
 def cli_reflection(args):
-    database = Database(args.db)
-    if (args.name is not None):
-        if (args.values):
-            print(*groups.reflect_tags(database, args.name), sep='\n')
+    with Database(args.db) as database:
+        if args.name is not None:
+            if args.values:
+                print(*groups.reflect_tags(database, args.name), sep='\n')
+            else:
+                print('name: {}'.format(args.name))
+                print('type: {}'.format(groups.reflect_type(database, args.name)))
+                print('uniqueness: {}'.format(groups.reflect_unique(database, args.name)))
+                print('default value: {}'.format(groups.reflect_default(database, args.name)))
+                print('number of entries: {}'.format(*groups.reflect_size(database, args.name)))
         else:
-            print('name: {}'.format(args.name))
-            print('type: {}'.format(groups.reflect_type(database, args.name)))
-            print('uniqueness: {}'.format(groups.reflect_unique(database, args.name)))
-            print('default value: {}'.format(groups.reflect_default(database, args.name)))
-            print('number of entries: {}'.format(*groups.reflect_size(database, args.name)))
-    else:
-        print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(),
-                                                                                 database.get_hash_version()))
-        print("Found tables:")
-        print(*groups.reflect(database))
+            print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(),
+                                                                                     database.get_hash_version()))
+            print("Found tables:")
+            print(*groups.reflect(database))
 
 
 # define directory type for argparse
