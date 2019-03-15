@@ -1,9 +1,11 @@
 import os
-from threading import Thread
+import threading
+from zipfile import ZipInfo
 
 from tatsu import exceptions
 
 from main import htmlGenerator
+from main.core import util
 import zipper
 from main.core.database import groups, search
 from main.core.database.db import Database
@@ -18,8 +20,15 @@ from main.core.hashing import gbd_hash
 app = Flask(__name__)
 
 DATABASE = join(dirname(realpath(__file__)), 'local.db')
-ZIPCACHE_PATH = '/zipcache'
+ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
+MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
+MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
+THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
+ZIP_SEMAPHORE = threading.Semaphore(4)
+
+request_semaphore = threading.Semaphore(10)
+check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
 @app.route("/", methods={'GET'})
@@ -34,6 +43,7 @@ def query_form():
 
 @app.route("/query", methods=['POST'])  # query string über post
 def query():
+    request_semaphore.acquire()
     response = htmlGenerator.generate_html_header("en")
     response += htmlGenerator.generate_head("Results")
     query = request.values.to_dict()["query"]
@@ -45,39 +55,63 @@ def query():
             response += htmlGenerator.generate_warning("Non-valid query")
         except OperationalError:
             response += htmlGenerator.generate_warning("Group not found")
+    request_semaphore.release()
     return response
 
 
 @app.route("/queryzip", methods=['POST'])
 def queryzip():
+    request_semaphore.acquire()
+    input_query = request.values.to_dict()["query"]
     response = htmlGenerator.generate_html_header("en")
-    query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
         try:
-            hashlist = search.find_hashes(database, query)
-            if len(hashlist) != 0:
-                if not os.path.isdir('zipcache'):
-                    os.makedirs('zipcache')
-                result_hash = gbd_hash.hash_hashlist(hashlist)
-                zipfile = ''.join('zipcache/_{}.zip'.format(result_hash))
-                if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
-                    return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''),
+            sorted_hash_set = sorted(search.find_hashes(database, input_query))
+            if len(sorted_hash_set) != 0:
+                if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
+                    os.makedirs('{}'.format(ZIPCACHE_PATH))
+                result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
+                zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
+                zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
+                check_zips_mutex.acquire()
+                if isfile(zipfile_ready):
+                    with open(zipfile_ready, 'a'):
+                        os.utime(zipfile_ready, None)
+                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                    check_zips_mutex.release()
+                    request_semaphore.release()
+                    return send_file(zipfile_ready,
                                      attachment_filename='benchmarks.zip',
                                      as_attachment=True)
-                elif not isfile(zipfile):
+                elif not isfile(zipfile_busy):
+                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                     files = []
-                    for h in hashlist:
+                    for h in sorted_hash_set:
                         files.append(search.resolve(database, 'benchmarks', h))
-                    thread = Thread(target=zipper.create_zip_with_marker, args=(zipfile,
-                                                                                files, ZIP_BUSY_PREFIX))
-                    thread.start()
-                    return htmlGenerator.generate_zip_busy_page(zipfile)
+                    size = 0
+                    for file in files:
+                        zf = ZipInfo.from_file(*file, arcname=None)
+                        size += zf.file_size
+                    divisor = 1024 << 10
+                    if size / divisor < THRESHOLD_ZIP_SIZE:
+                        thread = threading.Thread(target=zipper.create_zip_with_marker,
+                                                  args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
+                        thread.start()
+                        check_zips_mutex.release()
+                        request_semaphore.release()
+                        return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
+                    else:
+                        check_zips_mutex.release()
+                        response += '<hr>' \
+                                    '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
+                                                .format(THRESHOLD_ZIP_SIZE))
         except exceptions.FailedParse:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Non-valid query")
         except OperationalError:
             response += '<hr>'
             response += htmlGenerator.generate_warning("Group not found")
+    request_semaphore.release()
     return response
 
 
@@ -88,6 +122,7 @@ def resolve_form():
 
 @app.route("/resolve", methods=['POST'])
 def resolve():
+    request_semaphore.acquire()
     hashed = request.values.to_dict()["hash"]
     group = request.values.to_dict()["group"]
     result = htmlGenerator.generate_html_header("en")
@@ -110,11 +145,13 @@ def resolve():
                 result += htmlGenerator.generate_warning("Group not found")
             except IndexError:
                 result += htmlGenerator.generate_warning("Hash not found in our database")
+    request_semaphore.release()
     return result
 
 
 @app.route("/groups/all", methods=['GET'])
 def reflect():
+    request_semaphore.acquire()
     response = htmlGenerator.generate_html_header('en')
     url = '/static/resources/gbd_logo_small.png'
     response += "<body>" \
@@ -140,13 +177,15 @@ def reflect():
                 "</nav>" \
                 "<hr>".format(url)
     with Database(DATABASE) as database:
-        list = groups.reflect(database)
-        response += htmlGenerator.generate_num_table_div(list)
-        return response
+        reflection = groups.reflect(database)
+        response += htmlGenerator.generate_num_table_div(reflection)
+    request_semaphore.release()
+    return response
 
 
 @app.route("/groups/reflect", methods=['GET'])
 def reflect_group():
+    request_semaphore.acquire()
     with Database(DATABASE) as database:
         try:
             group = request.args.get('group')
@@ -155,15 +194,20 @@ def reflect_group():
                     "Unique: {}".format(groups.reflect_unique(database, group)),
                     "Default: {}".format(groups.reflect_default(database, group)),
                     "Size: {}".format(groups.reflect_size(database, group))]
+            request_semaphore.release()
             return list.__str__()
         except IndexError:
+            request_semaphore.release()
             return "Group not found"
 
 
 @app.route("/zips/busy", methods=['GET'])
 def get_zip():
+    request_semaphore.acquire()
     zipfile = request.args.get('file')
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
+        request_semaphore.release()
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
-        return htmlGenerator.generate_zip_busy_page(zipfile)
+        request_semaphore.release()
+        return htmlGenerator.generate_zip_busy_page(zipfile, 0)
