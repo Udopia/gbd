@@ -15,6 +15,8 @@ from main.core.util import eprint, read_hashes, confirm
 
 from os.path import realpath, dirname, join
 
+from urllib.parse import urlparse
+
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
@@ -68,19 +70,21 @@ def cli_group(args):
 # entry for query command
 def cli_query(args):
     hashes = {}
+    if is_url(args.db):
+        url = urlparse(args.db)
+    else:
+        with Database(args.db) as database:
+            if (args.query is None):
+                hashes = search.find_hashes(database)
+            else:
+                hashes = search.find_hashes(database, args.query)
 
-    with Database(args.db) as database:
-        if (args.query is None):
-            hashes = search.find_hashes(database)
-        else:
-            hashes = search.find_hashes(database, args.query)
-
-    if (args.union):
-        inp = read_hashes()
-        hashes.update(inp)
-    elif (args.intersection):
-        inp = read_hashes()
-        hashes.intersection_update(inp)
+        if (args.union):
+            inp = read_hashes()
+            hashes.update(inp)
+        elif (args.intersection):
+            inp = read_hashes()
+            hashes.intersection_update(inp)
 
     print(*hashes, sep='\n')
 
@@ -242,6 +246,14 @@ def main():
         args.func(args)
     else:
         parser.print_help()
+
+
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 
 
 if __name__ == '__main__':
