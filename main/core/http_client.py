@@ -3,14 +3,16 @@ from urllib.parse import urlparse
 
 
 def establish_connection(url):
+    # TODO: replace magic numbers and strings
     try:
         if is_url(url):
+            print(urlparse(url))
             parsed_url = urlparse(url)
             if parsed_url.scheme == 'https':
-                connection = client.HTTPSConnection(parsed_url.netloc, parsed_url.port)
+                connection = client.HTTPSConnection("localhost", 5000)
                 connection.connect()
             else:
-                connection = client.HTTPConnection(parsed_url.netloc, parsed_url.port)
+                connection = client.HTTPConnection("localhost", 5000)
                 connection.connect()
             return connection
     except client.HTTPException:
@@ -26,6 +28,7 @@ def get_request(host, url):
 
 
 def post_request(host, url, params, headers):
+    print("{}{}".format(host, url))
     connection = establish_connection(host)
     connection.request("POST", url, params, headers)
     response = connection.getresponse()
@@ -35,7 +38,7 @@ def post_request(host, url, params, headers):
 
 def is_url(url):
     try:
-        result = urlparse(url)
-        return all([result.scheme, result.netloc])
+        urlparse(url)
+        return True
     except ValueError:
         return False
