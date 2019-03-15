@@ -15,7 +15,7 @@ Python 3
 - setup pip (pip3) and install required packages
 - clone repository
 - make sure path for python 3 in gbd.py is correct (default: #!/usr/bin/python3)
-- make sure Python was compiled with SSL supportk
+- make sure Python was compiled with SSL support
 
 ## Usage
 - By default gbd works with a local database *local.db* which (if not present) is created in the current working directory. To use another database it can be specified with a commandline parameter
