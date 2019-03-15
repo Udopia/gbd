@@ -5,6 +5,7 @@ import sys
 import os
 import argparse
 import re
+
 import server
 
 from main.core.database import groups, tags, search
@@ -15,6 +16,7 @@ from main.core.hashing.gbd_hash import gbd_hash
 from main.core.util import eprint, read_hashes, confirm
 from os.path import realpath, dirname, join
 from main.core.http_client import post_request, is_url
+from urllib import parse
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
@@ -69,7 +71,8 @@ def cli_group(args):
 # entry for query command
 def cli_query(args):
     if is_url(args.db):
-        hashes = post_request(args.db, "/query", {'query': args.query}, {'User-Agent': server.USER_AGENT_CLI})
+        params = parse.urlencode({'query': args.query})
+        hashes = post_request(args.db, "/query", params, {'User-Agent': server.USER_AGENT_CLI})
     else:
         with Database(args.db) as database:
             if args.query is None:
