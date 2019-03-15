@@ -47,8 +47,9 @@ def query():
     request_semaphore.acquire()
     with Database(DATABASE) as database:
         query = request.values.to_dict()["query"]
-        if request.headers.get('User-Agent') == USER_AGENT_CLI:
-            response = search.find_hashes(database, query)
+        if request.headers.get('User-Agent') is not None:
+            if request.headers.get('User-Agent') == USER_AGENT_CLI:
+                response = search.find_hashes(database, query)
         else:
             response = htmlGenerator.generate_html_header("en")
             response += htmlGenerator.generate_head("Results")
