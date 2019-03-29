@@ -6,14 +6,16 @@ import os
 import argparse
 import re
 
+import server
+
 from main.core.database import groups, tags, search
 from main.core import import_data
 
 from main.core.database.db import Database
 from main.core.hashing.gbd_hash import gbd_hash
 from main.core.util import eprint, read_hashes, confirm
-
 from os.path import realpath, dirname, join
+from main.core.http_client import post_request, is_url
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
@@ -31,7 +33,7 @@ def cli_import(args):
 
 
 def cli_init(args):
-    if (args.path is not None):
+    if args.path is not None:
         eprint('Removing invalid benchmarks from path: {}'.format(args.path))
         tags.remove_benchmarks(args.db)
         eprint('Registering benchmarks from path: {}'.format(args.path))
@@ -67,21 +69,24 @@ def cli_group(args):
 
 # entry for query command
 def cli_query(args):
-    hashes = {}
+    if is_url(args.db):
+        query_data = {'query': args.query}
+        hashes = post_request("{}/query".format(args.db), query_data, {'User-Agent': server.USER_AGENT_CLI})
+        print(hashes)
+        return
+    else:
+        with Database(args.db) as database:
+            if args.query is None:
+                hashes = search.find_hashes(database)
+            else:
+                hashes = search.find_hashes(database, args.query)
 
-    with Database(args.db) as database:
-        if (args.query is None):
-            hashes = search.find_hashes(database)
-        else:
-            hashes = search.find_hashes(database, args.query)
-
-    if (args.union):
+    if args.union:
         inp = read_hashes()
         hashes.update(inp)
-    elif (args.intersection):
+    elif args.intersection:
         inp = read_hashes()
         hashes.intersection_update(inp)
-
     print(*hashes, sep='\n')
 
 
@@ -237,7 +242,7 @@ def main():
     parser_resolve.set_defaults(func=cli_resolve)
 
     # evaluate arguments
-    if (len(sys.argv) > 1):
+    if len(sys.argv) > 1:
         args = parser.parse_args()
         args.func(args)
     else:
