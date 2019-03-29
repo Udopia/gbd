@@ -1,41 +1,27 @@
-from http import client
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
+from urllib.request import Request, urlopen
 
 
-def establish_connection(url):
-    # TODO: replace magic numbers and strings
-    try:
-        if is_url(url):
-            print(urlparse(url))
-            parsed_url = urlparse(url)
-            if parsed_url.scheme == 'https':
-                connection = client.HTTPSConnection("localhost", 5000)
-                connection.connect()
-            else:
-                connection = client.HTTPConnection("localhost", 5000)
-                connection.connect()
-            return connection
-    except client.HTTPException:
-        return None
+# Get url, and dictionaries of parameters and headers with which then form a get request
+def get_request(url, params, headers):
+    params = urlencode(params).encode()
+    parsed_url = urlparse(url)
+    if parsed_url.scheme != 'https' or parsed_url.scheme != 'http':
+        url = 'http://{}?{}'.format(url, params)
+    request = Request(url, data=None, headers=headers, method='GET')
+    return urlopen(request).read().decode()
 
 
-def get_request(host, url):
-    connection = establish_connection(host)
-    connection.request("GET", url)
-    response = connection.getresponse()
-    connection.close()
-    return response.read()
+# Get url and dictionaries of parameters and headers with which then form a post request
+def post_request(url, params, headers):
+    parsed_url = urlparse(url)
+    if parsed_url.scheme != 'https' or parsed_url.scheme != 'http':
+        url = 'http://{}'.format(url)
+    request = Request(url, data=urlencode(params).encode(), headers=headers, method='POST')
+    return urlopen(request).read().decode()
 
 
-def post_request(host, url, params, headers):
-    print("{}{}".format(host, url))
-    connection = establish_connection(host)
-    connection.request("POST", url, params, headers)
-    response = connection.getresponse()
-    connection.close()
-    return response.read()
-
-
+# return true if given string represents a valid URL
 def is_url(url):
     try:
         urlparse(url)
