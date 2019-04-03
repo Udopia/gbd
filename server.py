@@ -49,7 +49,10 @@ def query():
         query = request.values.get('query')
         ua = request.headers.get('User-Agent')
         if ua == USER_AGENT_CLI:
-            hashset = search.find_hashes(database)
+            if query == 'None':
+                hashset = search.find_hashes(database, None)
+            else :
+                hashset = search.find_hashes(database)
             response = ""
             for hash in hashset:
                 response += "{}\n".format(hash)
