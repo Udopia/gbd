@@ -62,7 +62,6 @@ def query():
             response += htmlGenerator.generate_head("Results")
             try:
                 if query is not None:
-                    print(query)
                     hashlist = search.find_hashes(database, query)
                 else:
                     hashlist = search.find_hashes(database)
