@@ -49,11 +49,7 @@ def query():
         query = request.values.get('query')
         ua = request.headers.get('User-Agent')
         if ua == USER_AGENT_CLI:
-            if query is not None:
-                print(query)
-                hashset = search.find_hashes(database, query)
-            else :
-                hashset = search.find_hashes(database)
+            hashset = search.find_hashes(database)
             response = ""
             for hash in hashset:
                 response += "{}\n".format(hash)
@@ -61,10 +57,7 @@ def query():
             response = htmlGenerator.generate_html_header("en")
             response += htmlGenerator.generate_head("Results")
             try:
-                if query is not None:
-                    hashlist = search.find_hashes(database, query)
-                else:
-                    hashlist = search.find_hashes(database)
+                hashlist = search.find_hashes(database)
                 response += htmlGenerator.generate_num_table_div(hashlist)
             except exceptions.FailedParse:
                 response += htmlGenerator.generate_warning("Non-valid query")
