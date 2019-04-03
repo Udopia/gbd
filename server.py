@@ -46,10 +46,14 @@ def query_form():
 def query():
     request_semaphore.acquire()
     with Database(DATABASE) as database:
+        query = request.values.get('query')
         ua = request.headers.get('User-Agent')
-        query = request.args.get('query')
         if ua == USER_AGENT_CLI:
-            hashset = search.find_hashes(database, query)
+            if query is not None:
+                print(query)
+                hashset = search.find_hashes(database, query)
+            else :
+                hashset = search.find_hashes(database)
             response = ""
             for hash in hashset:
                 response += "{}\n".format(hash)
@@ -58,6 +62,7 @@ def query():
             response += htmlGenerator.generate_head("Results")
             try:
                 if query is not None:
+                    print(query)
                     hashlist = search.find_hashes(database, query)
                 else:
                     hashlist = search.find_hashes(database)
