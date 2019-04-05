@@ -61,17 +61,18 @@ def group(args):
 
 # entry for query command
 def query_search(database, query=None, union=None, intersection=None):
-    try:
-        hashes = search.find_hashes(database, query)
-    except sqlite3.OperationalError:
-        raise ValueError("Cannot open database file")
-    if union:
-        inp = read_hashes()
-        hashes.update(inp)
-    elif intersection:
-        inp = read_hashes()
-        hashes.intersection_update(inp)
-    return hashes
+    with Database(database) as database:
+        try:
+            hashes = search.find_hashes(database, query)
+        except sqlite3.OperationalError:
+            raise ValueError("Cannot open database file")
+        if union:
+            inp = read_hashes()
+            hashes.update(inp)
+        elif intersection:
+            inp = read_hashes()
+            hashes.intersection_update(inp)
+        return hashes
 
 
 def query_request(host, query, useragent):
@@ -93,23 +94,24 @@ def cli_tag(args):
                 tags.add_tag(database, args.name, args.value, hash, args.force)
 
 
-def cli_resolve(args):
-    hashes = read_hashes()
-    with Database(args.db) as database:
+def resolve(database, hashes, group_names, pattern, collapse):
+    with Database(database) as database:
+        result = []
         for hash in hashes:
             out = []
-            for name in args.name:
+            for name in group_names:
                 resultset = sorted(search.resolve(database, name, hash))
                 resultset = [str(element) for element in resultset]
-                if (name == 'benchmarks' and args.pattern is not None):
-                    res = [k for k in resultset if args.pattern in k]
+                if name == 'benchmarks' and pattern is not None:
+                    res = [k for k in resultset if pattern in k]
                     resultset = res
-                if (len(resultset) > 0):
-                    if (args.collapse):
+                if len(resultset) > 0:
+                    if collapse:
                         out.append(resultset[0])
                     else:
                         out.append(' '.join(resultset))
-            print(','.join(out))
+            result.append(out)
+        return result
 
 
 def cli_reflection(args):
