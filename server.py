@@ -52,7 +52,7 @@ def query():
             if query == 'None':
                 hashset = search.find_hashes(database, None)
             else :
-                hashset = search.find_hashes(database)
+                hashset = search.find_hashes(database, query)
             response = ""
             for hash in hashset:
                 response += "{}\n".format(hash)
