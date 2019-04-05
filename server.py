@@ -17,6 +17,7 @@ from flask import Flask, render_template, request, send_file, json
 from os.path import realpath, dirname, join, isfile
 
 from main.core.hashing import gbd_hash
+from main.interface import gbd_api
 
 app = Flask(__name__)
 
@@ -46,87 +47,85 @@ def query_form():
 @app.route("/query", methods=['POST'])  # query string über post
 def query():
     request_semaphore.acquire()
-    with Database(DATABASE) as database:
-        query = request.values.get('query')
-        ua = request.headers.get('User-Agent')
-        if ua == USER_AGENT_CLI:
-            if query == 'None':
-                hashset = search.find_hashes(database, None)
-            else:
-                try:
-                    hashset = search.find_hashes(database, query)
-                except tatsu.exceptions.FailedParse:
-                    return "Illegal query"
-            response = []
-            for hash in hashset:
-                response.append(hash)
-            return json.dumps(response)
+    query = request.values.get('query')
+    ua = request.headers.get('User-Agent')
+    if ua == USER_AGENT_CLI:
+        if query == 'None':
+            hashset = gbd_api.query_search(DATABASE)
         else:
-            response = htmlGenerator.generate_html_header("en")
-            response += htmlGenerator.generate_head("Results")
             try:
-                hashlist = search.find_hashes(database)
-                response += htmlGenerator.generate_num_table_div(hashlist)
-            except exceptions.FailedParse:
-                response += htmlGenerator.generate_warning("Non-valid query")
-            except OperationalError:
-                response += htmlGenerator.generate_warning("Group not found")
-        request_semaphore.release()
-        return response
+                hashset = gbd_api.query_search(DATABASE, query)
+            except tatsu.exceptions.FailedParse:
+                return "Illegal query"
+        response = []
+        for hash in hashset:
+            response.append(hash)
+        return json.dumps(response)
+    else:
+        response = htmlGenerator.generate_html_header("en")
+        response += htmlGenerator.generate_head("Results")
+        try:
+            hashset = gbd_api.query_search(DATABASE)
+            response += htmlGenerator.generate_num_table_div(hashset)
+        except exceptions.FailedParse:
+            response += htmlGenerator.generate_warning("Non-valid query")
+        except OperationalError:
+            response += htmlGenerator.generate_warning("Group not found")
+    request_semaphore.release()
+    return response
 
 
 @app.route("/queryzip", methods=['POST'])
 def queryzip():
     request_semaphore.acquire()
-    input_query = request.values.to_dict()["query"]
+    query = request.values.to_dict()["query"]
     response = htmlGenerator.generate_html_header("en")
-    with Database(DATABASE) as database:
-        try:
-            sorted_hash_set = sorted(search.find_hashes(database, input_query))
-            if len(sorted_hash_set) != 0:
-                if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
-                    os.makedirs('{}'.format(ZIPCACHE_PATH))
-                result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
-                zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
-                zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
-                check_zips_mutex.acquire()
-                if isfile(zipfile_ready):
-                    with open(zipfile_ready, 'a'):
-                        os.utime(zipfile_ready, None)
-                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+    try:
+        sorted_hash_set = sorted(gbd_api.query_search(DATABASE, query))
+        if len(sorted_hash_set) != 0:
+            if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
+                os.makedirs('{}'.format(ZIPCACHE_PATH))
+            result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
+            zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
+            zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
+            check_zips_mutex.acquire()
+            if isfile(zipfile_ready):
+                with open(zipfile_ready, 'a'):
+                    os.utime(zipfile_ready, None)
+                util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                check_zips_mutex.release()
+                request_semaphore.release()
+                return send_file(zipfile_ready,
+                                 attachment_filename='benchmarks.zip',
+                                 as_attachment=True)
+            elif not isfile(zipfile_busy):
+                util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
+                files = []
+                for h in sorted_hash_set:
+                    files.append(gbd_api.resolve(DATABASE, [h], ['benchmarks'])[0])
+                size = 0
+                for file in files:
+                    zf = ZipInfo.from_file(*file, arcname=None)
+                    size += zf.file_size
+                divisor = 1024 << 10
+                if size / divisor < THRESHOLD_ZIP_SIZE:
+                    thread = threading.Thread(target=zipper.create_zip_with_marker,
+                                              args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
+                    thread.start()
                     check_zips_mutex.release()
                     request_semaphore.release()
-                    return send_file(zipfile_ready,
-                                     attachment_filename='benchmarks.zip',
-                                     as_attachment=True)
-                elif not isfile(zipfile_busy):
-                    util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
-                    files = []
-                    for h in sorted_hash_set:
-                        files.append(search.resolve(database, 'benchmarks', h))
-                    size = 0
-                    for file in files:
-                        zf = ZipInfo.from_file(*file, arcname=None)
-                        size += zf.file_size
-                    divisor = 1024 << 10
-                    if size / divisor < THRESHOLD_ZIP_SIZE:
-                        thread = threading.Thread(target=zipper.create_zip_with_marker,
-                                                  args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
-                        thread.start()
-                        check_zips_mutex.release()
-                        request_semaphore.release()
-                        return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
-                    else:
-                        check_zips_mutex.release()
-                        response += '<hr>' \
-                                    '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
-                                                .format(THRESHOLD_ZIP_SIZE))
-        except exceptions.FailedParse:
-            response += '<hr>'
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += '<hr>'
-            response += htmlGenerator.generate_warning("Group not found")
+                    return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
+                else:
+                    check_zips_mutex.release()
+                    response += '<hr>' \
+                                '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
+                                            .format(THRESHOLD_ZIP_SIZE))
+    except exceptions.FailedParse:
+        response += '<hr>'
+        response += htmlGenerator.generate_warning("Non-valid query")
+    except OperationalError:
+        response += '<hr>'
+        response += htmlGenerator.generate_warning("Group not found")
     request_semaphore.release()
     return response
 
@@ -143,24 +142,24 @@ def resolve():
     group = request.values.to_dict()["group"]
     result = htmlGenerator.generate_html_header("en")
     result += htmlGenerator.generate_head("Results")
-    with Database(DATABASE) as database:
-        entries = []
-        if group == "":
-            allgroups = groups.reflect(database)
-            for attribute in allgroups:
-                if attribute != "__version":
-                    value = search.resolve(database, attribute, hashed)
-                    entries.append([attribute, value])
+    entries = []
+    if group == "":
+        allgroups = gbd_api.get_all_tables(DATABASE)
+        for attribute in allgroups:
+            if not attribute.startswith("__"):
+                value = gbd_api.resolve(DATABASE, [hashed], [attribute])
+                for word in value:
+                    entries.append([attribute, word])
+        result += htmlGenerator.generate_resolve_table_div(entries)
+    else:
+        try:
+            value = gbd_api.resolve(DATABASE, [hashed], [group])
+            entries.append([group, value[0]])
             result += htmlGenerator.generate_resolve_table_div(entries)
-        else:
-            try:
-                value = search.resolve(database, group, hashed)
-                entries.append([group, value])
-                result += htmlGenerator.generate_resolve_table_div(entries)
-            except OperationalError:
-                result += htmlGenerator.generate_warning("Group not found")
-            except IndexError:
-                result += htmlGenerator.generate_warning("Hash not found in our database")
+        except OperationalError:
+            result += htmlGenerator.generate_warning("Group not found")
+        except IndexError:
+            result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
     request_semaphore.release()
     return result
 
@@ -192,9 +191,8 @@ def reflect():
                 "   </div>" \
                 "</nav>" \
                 "<hr>".format(url)
-    with Database(DATABASE) as database:
-        reflection = groups.reflect(database)
-        response += htmlGenerator.generate_num_table_div(reflection)
+    reflection = gbd_api.get_all_tables(DATABASE)
+    response += htmlGenerator.generate_num_table_div(reflection)
     request_semaphore.release()
     return response
 
@@ -202,19 +200,22 @@ def reflect():
 @app.route("/groups/reflect", methods=['GET'])
 def reflect_group():
     request_semaphore.acquire()
-    with Database(DATABASE) as database:
-        try:
-            group = request.args.get('group')
-            list = ["Name: {}".format(group),
-                    "Type: {}".format(groups.reflect_type(database, group)),
-                    "Unique: {}".format(groups.reflect_unique(database, group)),
-                    "Default: {}".format(groups.reflect_default(database, group)),
-                    "Size: {}".format(groups.reflect_size(database, group))]
+    try:
+        group = request.args.get('group')
+        if not group.startswith("__"):
+            info = gbd_api.get_group_info(DATABASE, group)
+            list = ["Name: {}".format(info.get('name')),
+                    "Type: {}".format(info.get('type')),
+                    "Unique: {}".format(info.get('unique')),
+                    "Default: {}".format(info.get('default')),
+                    "Size: {}".format(info.get('entries'))]
             request_semaphore.release()
             return list.__str__()
-        except IndexError:
-            request_semaphore.release()
-            return "Group not found"
+        else:
+            return "__ is reserved for system tables"
+    except IndexError:
+        request_semaphore.release()
+        return "Group not found"
 
 
 @app.route("/zips/busy", methods=['GET'])
