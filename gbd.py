@@ -14,7 +14,7 @@ from main.core import import_data
 from main.core.database.db import Database
 from main.core.hashing.gbd_hash import gbd_hash
 from main.core.util import eprint, read_hashes, confirm
-from os.path import realpath, dirname, join
+from os.path import realpath, dirname, join, exists
 from main.core.http_client import post_request, is_url
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
@@ -69,7 +69,7 @@ def cli_group(args):
 
 # entry for query command
 def cli_query(args):
-    if is_url(args.db):
+    if is_url(args.db) and not exists(args.db):
         query_data = {'query': args.query}
         hashes = post_request("{}/query".format(args.db), query_data, {'User-Agent': server.USER_AGENT_CLI})
         print(hashes)
