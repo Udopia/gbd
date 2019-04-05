@@ -2,6 +2,7 @@ import os
 import threading
 from zipfile import ZipInfo
 
+import tatsu
 from tatsu import exceptions
 
 from main import htmlGenerator
@@ -51,8 +52,11 @@ def query():
         if ua == USER_AGENT_CLI:
             if query == 'None':
                 hashset = search.find_hashes(database, None)
-            else :
-                hashset = search.find_hashes(database, query)
+            else:
+                try:
+                    hashset = search.find_hashes(database, query)
+                except tatsu.exceptions.FailedParse:
+                    return "Illegal query"
             response = ""
             for hash in hashset:
                 response += "{}\n".format(hash)
