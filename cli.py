@@ -108,21 +108,9 @@ def cli_tag(args):
 
 def cli_resolve(args):
     hashes = read_hashes()
-    with Database(args.db) as database:
-        for hash in hashes:
-            out = []
-            for name in args.name:
-                resultset = sorted(search.resolve(database, name, hash))
-                resultset = [str(element) for element in resultset]
-                if name == 'benchmarks' and args.pattern is not None:
-                    res = [k for k in resultset if args.pattern in k]
-                    resultset = res
-                if len(resultset) > 0:
-                    if args.collapse:
-                        out.append(resultset[0])
-                    else:
-                        out.append(' '.join(resultset))
-            print(','.join(out))
+    result = gbd.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
+    for element in result:
+        print(','.join(element))
 
 
 def cli_reflection(args):
