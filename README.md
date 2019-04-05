@@ -21,7 +21,7 @@ Python 3
 - By default gbd works with a local database *local.db* which (if not present) is created in the current working directory. To use another database it can be specified with a commandline parameter
 - After setting up the GBD it can be used either for personal purposes or public usage by starting the shell script:
 	```console
-	./ssh run_server.sh
+	sh run_server.sh
 	```
 - Flask will run at localhost:5000 by default, but this is only recommended for deployment. For changes modyify *server.sh*
 - Fetching data from other databases is planned
