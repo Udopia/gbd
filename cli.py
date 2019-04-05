@@ -22,7 +22,7 @@ DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 def cli_hash(args):
     eprint('Hashing Benchmark: {}'.format(args.path))
-    print(gbd.hash_path(args.path))
+    print(gbd.hash_file(args.path))
 
 
 def cli_import(args):
@@ -105,20 +105,20 @@ def cli_resolve(args):
         print(','.join(element))
 
 
-def cli_reflection(args):
+def cli_info(args):
     if args.name is not None:
         if args.values:
-            val = gbd.reflect_group_values(args.db, args.name)
-            print(*val, sep='\n')
+            info = gbd.get_group_values(args.db, args.name)
+            print(*info, sep='\n')
         else:
-            val = gbd.reflect_group(args.db, args.name)
-            print('name: {}'.format(val.get('name')))
-            print('type: {}'.format(val.get('type')))
-            print('uniqueness: {}'.format(val.get('uniqueness')))
-            print('default value: {}'.format(val.get('default')))
-            print('number of entries: {}'.format(*val.get('entries')))
+            info = gbd.get_group_info(args.db, args.name)
+            print('name: {}'.format(info.get('name')))
+            print('type: {}'.format(info.get('type')))
+            print('uniqueness: {}'.format(info.get('uniqueness')))
+            print('default value: {}'.format(info.get('default')))
+            print('number of entries: {}'.format(*info.get('entries')))
     else:
-        result = gbd.reflect_database(args.db)
+        result = gbd.get_database_info(args.db)
         print("DB '{}' was created with version: {} and HASH version: {}".format(result.get('name'),
                                                                                  result.get('version'),
                                                                                  result.get('hash-version')))
@@ -179,10 +179,11 @@ def main():
                                required=True)
     parser_import.set_defaults(func=cli_import)
 
-    # define reflection
-    parser_reflect = subparsers.add_parser('reflect', help='Reflection, Display Groups')
-    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group', nargs='?')
-    parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group')
+    # define info
+    parser_reflect = subparsers.add_parser('info', help='Get information, Display Groups')
+    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of database if none',
+                                nargs='?')
+    parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
     parser_reflect.set_defaults(func=cli_reflection)
 
     # define create command sub-structure
