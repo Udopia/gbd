@@ -78,7 +78,7 @@ def query_search(database, query=None, union=None, intersection=None):
 
 def query_request(host, query, useragent):
     try:
-        post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent})
+        return post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent})
     except URLError:
         raise ValueError('Cannot send request to host')
 

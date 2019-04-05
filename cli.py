@@ -75,7 +75,7 @@ def cli_query(args):
             elif args.intersection:
                 inp = read_hashes()
                 hashes.intersection_update(inp)
-            print(*hashes, sep='\n')
+            print(hashes)
         except ValueError:
             print("Path does not exist or cannot connect")
         return
