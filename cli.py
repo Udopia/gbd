@@ -9,7 +9,7 @@ import sys
 from main import gbd
 import server
 
-from main.core.database import groups, tags, search
+from main.core.database import groups, tags
 
 from main.core.database.db import Database
 from main.core.util import eprint, read_hashes, confirm
