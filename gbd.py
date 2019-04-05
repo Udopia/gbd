@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
+import sqlite3
 import sys
 import os
 import argparse
 import re
+from urllib.error import URLError
 
 import server
 
@@ -71,15 +72,22 @@ def cli_group(args):
 def cli_query(args):
     if is_url(args.db) and not exists(args.db):
         query_data = {'query': args.query}
-        hashes = post_request("{}/query".format(args.db), query_data, {'User-Agent': server.USER_AGENT_CLI})
-        print(hashes)
+        try:
+            hashes = post_request("{}/query".format(args.db), query_data, {'User-Agent': server.USER_AGENT_CLI})
+            print(hashes)
+        except URLError:
+            print("Path does not exist or failed to connect")
         return
     else:
-        with Database(args.db) as database:
-            if args.query is None:
-                hashes = search.find_hashes(database)
-            else:
-                hashes = search.find_hashes(database, args.query)
+        try:
+            with Database(args.db) as database:
+                if args.query is None:
+                    hashes = search.find_hashes(database)
+                else:
+                    hashes = search.find_hashes(database, args.query)
+        except sqlite3.OperationalError:
+            print("Can't open database file")
+            return
 
     if args.union:
         inp = read_hashes()
