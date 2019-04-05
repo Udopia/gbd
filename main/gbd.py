@@ -40,12 +40,12 @@ def check_group_exists(database, name):
             return False
 
 
-def add_group(database, name, type, unique):
+def add_attribute_group(database, name, type, unique):
     with Database(database) as database:
         groups.add(database, name, unique is not None, type, unique)
 
 
-def remove_group(database, name):
+def remove_attribute_group(database, name):
     with Database(database) as database:
         groups.remove(database, name)
 
@@ -80,14 +80,14 @@ def query_request(host, query, useragent):
         raise ValueError('Cannot send request to host')
 
 
-# associate a tag with a hash-value
-def add_tag(database, name, value, hashes, force):
+# associate a  with a hash-value
+def set_attribute(database, name, value, hashes, force):
     with Database(database) as database:
         for h in hashes:
             tags.add_tag(database, name, value, h, force)
 
 
-def remove_tag(database, name, value, hashes):
+def remove_attribute(database, name, value, hashes):
     with Database(database) as database:
         for h in hashes:
             tags.remove_tag(database, name, value, h)

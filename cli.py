@@ -48,13 +48,13 @@ def cli_group(args):
                                                                                              is not None,
                                                                                              args.type,
                                                                                              args.unique))
-        gbd.add_group(args.db, args.name, args.type, args.unique)
+        gbd.add_attribute_group(args.db, args.name, args.type, args.unique)
         return
     if not gbd.check_group_exists(args.db, args.name):
         eprint("Group '{}' does not exist".format(args.name))
         return
     if args.remove and confirm("Delete group '{}'?".format(args.name)):
-        gbd.remove_group(args.db, args.name)
+        gbd.remove_attribute_group(args.db, args.name)
     else:
         if args.clear and confirm("Clear group '{}'?".format(args.name)):
             gbd.clear_group(args.db, args.name)
@@ -62,7 +62,7 @@ def cli_group(args):
 
 
 # entry for query command
-def cli_query(args):
+def cli_get(args):
     if is_url(args.db) and not exists(args.db):
         try:
             hashes = gbd.query_request(args.db, args.query, server.USER_AGENT_CLI)
@@ -91,13 +91,13 @@ def cli_query(args):
             return
 
 
-# associate a tag with a hash-value
-def cli_tag(args):
+# associate an attribute with a hash and a value
+def cli_set(args):
     hashes = read_hashes()
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-        gbd.remove_tag(args.db, args.name, args.value, hashes)
+        gbd.remove_attribute(args.db, args.name, args.value, hashes)
     else:
-        gbd.add_tag(args.db, args.name, args.value, hashes, args.force)
+        gbd.set_attribute(args.db, args.name, args.value, hashes, args.force)
 
 
 def cli_resolve(args):
@@ -203,17 +203,17 @@ def main():
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure
-    parser_tag = subparsers.add_parser('tag',
+    parser_tag = subparsers.add_parser('set',
                                        help='Associate attribues with benchmarks (hashes read line-wise from stdin)')
     parser_tag.add_argument('name', type=column_type, help='Name of attribute group')
     parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
     parser_tag.add_argument('-r', '--remove', action='store_true',
                             help='Remove attribute from hashes if present, instead of adding it')
     parser_tag.add_argument('-f', '--force', action='store_true', help='Overwrite existing values')
-    parser_tag.set_defaults(func=cli_tag)
+    parser_tag.set_defaults(func=cli_set)
 
     # define find command sub-structure
-    parser_query = subparsers.add_parser('query', help='Query the benchmark database')
+    parser_query = subparsers.add_parser('get', help='Query the benchmark database')
     parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")',
                               nargs='?')
     parser_query.add_argument('-u', '--union', help='Read hashes from stdin and create union with query results',
@@ -221,7 +221,7 @@ def main():
     parser_query.add_argument('-i', '--intersection',
                               help='Read hashes from stdin and create intersection with query results',
                               action='store_true')
-    parser_query.set_defaults(func=cli_query)
+    parser_query.set_defaults(func=cli_get)
 
     # define resolve command
     parser_resolve = subparsers.add_parser('resolve', help='Resolve Hashes')
