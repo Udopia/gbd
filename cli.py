@@ -6,16 +6,15 @@ import argparse
 import re
 import sys
 
+from main import gbd
 import server
 
 from main.core.database import groups, tags, search
-from main.core import import_data
 
 from main.core.database.db import Database
-from main.core.hashing.gbd_hash import gbd_hash
 from main.core.util import eprint, read_hashes, confirm
-from os.path import realpath, dirname, join
-from main.core.http_client import post_request, is_url
+from os.path import realpath, dirname, join, exists
+from main.core.http_client import is_url
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
@@ -23,23 +22,21 @@ DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 def cli_hash(args):
     eprint('Hashing Benchmark: {}'.format(args.path))
-    print(gbd_hash(args.path))
+    print(gbd.hash_path(args.path))
 
 
 def cli_import(args):
     eprint('Importing Data from CSV-File: {}'.format(args.path))
-    with Database(args.db) as database:
-        import_data.import_csv(database, args.path, args.key, args.source, args.target)
+    gbd.import_file(args.db, args.path, args.key, args.source, args.target)
 
 
 def cli_init(args):
     if args.path is not None:
         eprint('Removing invalid benchmarks from path: {}'.format(args.path))
-        tags.remove_benchmarks(args.db)
         eprint('Registering benchmarks from path: {}'.format(args.path))
-        tags.register_benchmarks(args.db, args.path)
+        gbd.init_database(args.db, args.path)
     else:
-        Database(args.db)
+        gbd.init_database(args.db)
 
 
 # entry for modify command
@@ -69,25 +66,32 @@ def cli_group(args):
 
 # entry for query command
 def cli_query(args):
-    if is_url(args.db):
-        query_data = {'query': args.query}
-        hashes = post_request("{}/query".format(args.db), query_data, {'User-Agent': server.USER_AGENT_CLI})
-        print(hashes)
+    if is_url(args.db) and not exists(args.db):
+        try:
+            hashes = gbd.query_request(args.db, args.query, server.USER_AGENT_CLI)
+            if args.union:
+                inp = read_hashes()
+                hashes.update(inp)
+            elif args.intersection:
+                inp = read_hashes()
+                hashes.intersection_update(inp)
+            print(*hashes, sep='\n')
+        except ValueError:
+            print("Path does not exist or cannot connect")
         return
     else:
-        with Database(args.db) as database:
-            if args.query is None:
-                hashes = search.find_hashes(database)
-            else:
-                hashes = search.find_hashes(database, args.query)
-
-    if args.union:
-        inp = read_hashes()
-        hashes.update(inp)
-    elif args.intersection:
-        inp = read_hashes()
-        hashes.intersection_update(inp)
-    print(*hashes, sep='\n')
+        try:
+            hashes = gbd.query_search(args.db, args.query)
+            if args.union:
+                inp = read_hashes()
+                hashes.update(inp)
+            elif args.intersection:
+                inp = read_hashes()
+                hashes.intersection_update(inp)
+            print(*hashes, sep='\n')
+        except ValueError as e:
+            print(e)
+            return
 
 
 # associate a tag with a hash-value
@@ -110,11 +114,11 @@ def cli_resolve(args):
             for name in args.name:
                 resultset = sorted(search.resolve(database, name, hash))
                 resultset = [str(element) for element in resultset]
-                if (name == 'benchmarks' and args.pattern is not None):
+                if name == 'benchmarks' and args.pattern is not None:
                     res = [k for k in resultset if args.pattern in k]
                     resultset = res
-                if (len(resultset) > 0):
-                    if (args.collapse):
+                if len(resultset) > 0:
+                    if args.collapse:
                         out.append(resultset[0])
                     else:
                         out.append(' '.join(resultset))
