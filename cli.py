@@ -81,13 +81,7 @@ def cli_query(args):
         return
     else:
         try:
-            hashes = gbd.query_search(args.db, args.query)
-            if args.union:
-                inp = read_hashes()
-                hashes.update(inp)
-            elif args.intersection:
-                inp = read_hashes()
-                hashes.intersection_update(inp)
+            hashes = gbd.query_search(args.db, args.query, args.union, args.intersection)
             print(*hashes, sep='\n')
         except ValueError as e:
             print(e)
