@@ -2,6 +2,7 @@ import os
 import threading
 from zipfile import ZipInfo
 
+import tatsu
 from tatsu import exceptions
 
 from main import htmlGenerator
@@ -26,6 +27,7 @@ MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
 MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
+USER_AGENT_CLI = 'gbd-cli'
 
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
@@ -44,19 +46,32 @@ def query_form():
 @app.route("/query", methods=['POST'])  # query string über post
 def query():
     request_semaphore.acquire()
-    response = htmlGenerator.generate_html_header("en")
-    response += htmlGenerator.generate_head("Results")
-    query = request.values.to_dict()["query"]
     with Database(DATABASE) as database:
-        try:
-            hashlist = search.find_hashes(database, query)
-            response += htmlGenerator.generate_num_table_div(hashlist)
-        except exceptions.FailedParse:
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += htmlGenerator.generate_warning("Group not found")
-    request_semaphore.release()
-    return response
+        query = request.values.get('query')
+        ua = request.headers.get('User-Agent')
+        if ua == USER_AGENT_CLI:
+            if query == 'None':
+                hashset = search.find_hashes(database, None)
+            else:
+                try:
+                    hashset = search.find_hashes(database, query)
+                except tatsu.exceptions.FailedParse:
+                    return "Illegal query"
+            response = ""
+            for hash in hashset:
+                response += "{}\n".format(hash)
+        else:
+            response = htmlGenerator.generate_html_header("en")
+            response += htmlGenerator.generate_head("Results")
+            try:
+                hashlist = search.find_hashes(database)
+                response += htmlGenerator.generate_num_table_div(hashlist)
+            except exceptions.FailedParse:
+                response += htmlGenerator.generate_warning("Non-valid query")
+            except OperationalError:
+                response += htmlGenerator.generate_warning("Group not found")
+        request_semaphore.release()
+        return response
 
 
 @app.route("/queryzip", methods=['POST'])
