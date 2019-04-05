@@ -5,7 +5,7 @@ import argparse
 import re
 import sys
 
-from main import gbd
+from main.interface import gbd_api
 import server
 
 from main.core.util import eprint, read_hashes, confirm
@@ -18,21 +18,21 @@ DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 def cli_hash(args):
     eprint('Hashing Benchmark: {}'.format(args.path))
-    print(gbd.hash_file(args.path))
+    print(gbd_api.hash_file(args.path))
 
 
 def cli_import(args):
     eprint('Importing Data from CSV-File: {}'.format(args.path))
-    gbd.import_file(args.db, args.path, args.key, args.source, args.target)
+    gbd_api.import_file(args.db, args.path, args.key, args.source, args.target)
 
 
 def cli_init(args):
     if args.path is not None:
         eprint('Removing invalid benchmarks from path: {}'.format(args.path))
         eprint('Registering benchmarks from path: {}'.format(args.path))
-        gbd.init_database(args.db, args.path)
+        gbd_api.init_database(args.db, args.path)
     else:
-        gbd.init_database(args.db)
+        gbd_api.init_database(args.db)
 
 
 # entry for modify command
@@ -40,7 +40,7 @@ def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    if gbd.check_group_exists(args.db, args.name):
+    if gbd_api.check_group_exists(args.db, args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
         eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name,
@@ -48,16 +48,16 @@ def cli_group(args):
                                                                                              is not None,
                                                                                              args.type,
                                                                                              args.unique))
-        gbd.add_attribute_group(args.db, args.name, args.type, args.unique)
+        gbd_api.add_attribute_group(args.db, args.name, args.type, args.unique)
         return
-    if not gbd.check_group_exists(args.db, args.name):
+    if not gbd_api.check_group_exists(args.db, args.name):
         eprint("Group '{}' does not exist".format(args.name))
         return
     if args.remove and confirm("Delete group '{}'?".format(args.name)):
-        gbd.remove_attribute_group(args.db, args.name)
+        gbd_api.remove_attribute_group(args.db, args.name)
     else:
         if args.clear and confirm("Clear group '{}'?".format(args.name)):
-            gbd.clear_group(args.db, args.name)
+            gbd_api.clear_group(args.db, args.name)
     return
 
 
@@ -65,26 +65,26 @@ def cli_group(args):
 def cli_get(args):
     if is_url(args.db) and not exists(args.db):
         try:
-            hashes = gbd.query_request(args.db, args.query, server.USER_AGENT_CLI)
+            hashes = gbd_api.query_request(args.db, args.query, server.USER_AGENT_CLI)
             if args.union:
                 inp = read_hashes()
-                gbd.hash_union(hashes, inp)
+                gbd_api.hash_union(hashes, inp)
             elif args.intersection:
                 inp = read_hashes()
-                gbd.hash_intersection(hashes, inp)
+                gbd_api.hash_intersection(hashes, inp)
             print(*hashes, sep='\n')
         except ValueError:
             print("Path does not exist or cannot connect")
         return
     else:
         try:
-            hashes = gbd.query_search(args.db, args.query)
+            hashes = gbd_api.query_search(args.db, args.query)
             if args.union:
                 inp = read_hashes()
-                gbd.hash_union(hashes, inp)
+                gbd_api.hash_union(hashes, inp)
             elif args.intersection:
                 inp = read_hashes()
-                gbd.hash_intersection(hashes, inp)
+                gbd_api.hash_intersection(hashes, inp)
             print(*hashes, sep='\n')
         except ValueError as e:
             print(e)
@@ -95,14 +95,14 @@ def cli_get(args):
 def cli_set(args):
     hashes = read_hashes()
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-        gbd.remove_attribute(args.db, args.name, args.value, hashes)
+        gbd_api.remove_attribute(args.db, args.name, args.value, hashes)
     else:
-        gbd.set_attribute(args.db, args.name, args.value, hashes, args.force)
+        gbd_api.set_attribute(args.db, args.name, args.value, hashes, args.force)
 
 
 def cli_resolve(args):
     hashes = read_hashes()
-    result = gbd.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
+    result = gbd_api.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
     for element in result:
         print(','.join(element))
 
@@ -110,17 +110,17 @@ def cli_resolve(args):
 def cli_info(args):
     if args.name is not None:
         if args.values:
-            info = gbd.get_group_values(args.db, args.name)
+            info = gbd_api.get_group_values(args.db, args.name)
             print(*info, sep='\n')
         else:
-            info = gbd.get_group_info(args.db, args.name)
+            info = gbd_api.get_group_info(args.db, args.name)
             print('name: {}'.format(info.get('name')))
             print('type: {}'.format(info.get('type')))
             print('uniqueness: {}'.format(info.get('uniqueness')))
             print('default value: {}'.format(info.get('default')))
             print('number of entries: {}'.format(*info.get('entries')))
     else:
-        result = gbd.get_database_info(args.db)
+        result = gbd_api.get_database_info(args.db)
         print("DB '{}' was created with version: {} and HASH version: {}".format(result.get('name'),
                                                                                  result.get('version'),
                                                                                  result.get('hash-version')))
