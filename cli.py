@@ -93,11 +93,9 @@ def cli_tag(args):
     hashes = read_hashes()
     with Database(args.db) as database:
         if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-            for hash in hashes:
-                tags.remove_tag(database, args.name, args.value, hash)
+            gbd.remove_tag(database, args.name, args.value, hashes)
         else:
-            for hash in hashes:
-                tags.add_tag(database, args.name, args.value, hash, args.force)
+            gbd.add_tag(database, args.name, args.value, hashes, args.force)
 
 
 def cli_resolve(args):
@@ -108,21 +106,24 @@ def cli_resolve(args):
 
 
 def cli_reflection(args):
-    with Database(args.db) as database:
-        if args.name is not None:
-            if args.values:
-                print(*groups.reflect_tags(database, args.name), sep='\n')
-            else:
-                print('name: {}'.format(args.name))
-                print('type: {}'.format(groups.reflect_type(database, args.name)))
-                print('uniqueness: {}'.format(groups.reflect_unique(database, args.name)))
-                print('default value: {}'.format(groups.reflect_default(database, args.name)))
-                print('number of entries: {}'.format(*groups.reflect_size(database, args.name)))
+    if args.name is not None:
+        if args.values:
+            val = gbd.reflect_group_values(args.db, args.name)
+            print(*val, sep='\n')
         else:
-            print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(),
-                                                                                     database.get_hash_version()))
-            print("Found tables:")
-            print(*groups.reflect(database))
+            val = gbd.reflect_group(args.db, args.name)
+            print('name: {}'.format(val.get('name')))
+            print('type: {}'.format(val.get('type')))
+            print('uniqueness: {}'.format(val.get('uniqueness')))
+            print('default value: {}'.format(val.get('default')))
+            print('number of entries: {}'.format(*val.get('entries')))
+    else:
+        result = gbd.reflect_database(args.db)
+        print("DB '{}' was created with version: {} and HASH version: {}".format(result.get('name'),
+                                                                                 result.get('version'),
+                                                                                 result.get('hash-version')))
+        print("Found tables:")
+        print(*result.get('tables'))
 
 
 # define directory type for argparse
