@@ -12,7 +12,7 @@ from main.core.database import groups, search
 from main.core.database.db import Database
 from sqlite3 import OperationalError
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, json
 
 from os.path import realpath, dirname, join, isfile
 
@@ -57,9 +57,10 @@ def query():
                     hashset = search.find_hashes(database, query)
                 except tatsu.exceptions.FailedParse:
                     return "Illegal query"
-            response = ""
+            response = []
             for hash in hashset:
-                response += "{}\n".format(hash)
+                response.append(hash)
+            return json.dumps(response)
         else:
             response = htmlGenerator.generate_html_header("en")
             response += htmlGenerator.generate_head("Results")

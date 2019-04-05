@@ -8,7 +8,6 @@ from main.core import import_data
 from main.core.database.db import Database
 from main.core.hashing.gbd_hash import gbd_hash
 from main.core.http_client import post_request
-from main.core.util import eprint, read_hashes, confirm
 from os.path import realpath, dirname, join
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
@@ -25,58 +24,58 @@ def import_file(database, path, key, source, target):
 
 
 def init_database(database, path=None):
-    if path is not None:
-        tags.remove_benchmarks(database)
-        tags.register_benchmarks(database, path)
-    else:
-        Database(database)
-
-
-# TODO: refactor
-# entry for modify command
-def group(args):
-    if args.name.startswith("__"):
-        eprint("Names starting with '__' are reserved for system tables")
-        return
-    with Database(args.db) as database:
-        if args.name in groups.reflect(database) and not args.remove and not args.clear:
-            eprint("Group {} does already exist".format(args.name))
-        elif not args.remove and not args.clear:
-            eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique
-                                                                                                 is not None,
-                                                                                               args.type, args.unique))
-            groups.add(database, args.name, args.unique is not None, args.type, args.unique)
-            return
-        if not (args.name in groups.reflect(database)):
-            eprint("Group '{}' does not exist".format(args.name))
-            return
-        if args.remove and confirm("Delete group '{}'?".format(args.name)):
-            groups.remove(database, args.name)
+    with Database(database) as database:
+        if path is not None:
+            tags.remove_benchmarks(database)
+            tags.register_benchmarks(database, path)
         else:
-            if args.clear and confirm("Clear group '{}'?".format(args.name)):
-                groups.clear(database, args.name)
-        return
+            Database(database)
+
+
+def check_group_exists(database, name):
+    with Database(database) as database:
+        if name in groups.reflect(database):
+            return True
+        else:
+            return False
+
+
+def add_group(database, name, type, unique):
+    with Database(database) as database:
+        groups.add(database, name, unique is not None, type, unique)
+
+
+def remove_group(database, name):
+    with Database(database) as database:
+        groups.remove(database, name)
+
+
+def clear_group(database, name):
+    with Database(database) as database:
+        groups.remove(database, name)
+
+
+def hash_union(hashes, hashes_to_add):
+    return hashes.update(hashes_to_add)
+
+
+def hash_intersection(hashes, hashes_to_compare):
+    return hashes.intersection_update(hashes_to_compare)
 
 
 # entry for query command
-def query_search(database, query=None, union=None, intersection=None):
+def query_search(database, query=None):
     with Database(database) as database:
         try:
             hashes = search.find_hashes(database, query)
         except sqlite3.OperationalError:
             raise ValueError("Cannot open database file")
-        if union:
-            inp = read_hashes()
-            hashes.update(inp)
-        elif intersection:
-            inp = read_hashes()
-            hashes.intersection_update(inp)
         return hashes
 
 
 def query_request(host, query, useragent):
     try:
-        return post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent})
+        return set(post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent}))
     except URLError:
         raise ValueError('Cannot send request to host')
 
@@ -127,7 +126,8 @@ def get_group_info(database, name):
 
 def get_group_values(database, name):
     if name is not None:
-        return query_search(database, '{} like %%%%'.format(name))
+        with Database(database) as database:
+            return query_search(database, '{} like %%%%'.format(name))
     else:
         raise ValueError('No group given')
 
