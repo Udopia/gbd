@@ -72,8 +72,7 @@ def cli_query(args):
             elif args.intersection:
                 inp = read_hashes()
                 gbd.hash_intersection(hashes, inp)
-            for h in hashes:
-                print(h)
+            print(*hashes, sep='\n')
         except ValueError:
             print("Path does not exist or cannot connect")
         return
