@@ -34,6 +34,7 @@ def init_database(database, path=None):
         Database(database)
 
 
+# TODO: refactor
 # entry for modify command
 def group(args):
     if args.name.startswith("__"):
@@ -82,6 +83,7 @@ def query_request(host, query, useragent):
         raise ValueError('Cannot send request to host')
 
 
+# TODO: refactor
 # associate a tag with a hash-value
 def cli_tag(args):
     hashes = read_hashes()
@@ -114,6 +116,7 @@ def resolve(database, hashes, group_names, pattern, collapse):
         return result
 
 
+# TODO: refactor
 def cli_reflection(args):
     with Database(args.db) as database:
         if args.name is not None:
