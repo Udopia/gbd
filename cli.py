@@ -8,9 +8,6 @@ import sys
 from main import gbd
 import server
 
-from main.core.database import groups
-
-from main.core.database.db import Database
 from main.core.util import eprint, read_hashes, confirm
 from os.path import realpath, dirname, join, exists
 from main.core.http_client import is_url
@@ -43,24 +40,25 @@ def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    with Database(args.db) as database:
-        if (args.name in groups.reflect(database) and not args.remove and not args.clear):
-                eprint("Group {} does already exist".format(args.name))
-        elif not args.remove and not args.clear:
-            eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name, args.unique
-                                                                                                 is not None,
-                                                                                               args.type, args.unique))
-            groups.add(database, args.name, args.unique is not None, args.type, args.unique)
-            return
-        if not (args.name in groups.reflect(database)):
-            eprint("Group '{}' does not exist".format(args.name))
-            return
-        if args.remove and confirm("Delete group '{}'?".format(args.name)):
-            groups.remove(database, args.name)
-        else:
-            if args.clear and confirm("Clear group '{}'?".format(args.name)):
-                groups.clear(database, args.name)
+    if gbd.check_group_exists(args.db, args.name):
+        eprint("Group {} does already exist".format(args.name))
+    elif not args.remove and not args.clear:
+        eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name,
+                                                                                             args.unique
+                                                                                             is not None,
+                                                                                             args.type,
+                                                                                             args.unique))
+        gbd.add_group(args.db, args.name, args.type, args.unique)
         return
+    if not gbd.check_group_exists(args.db, args.name):
+        eprint("Group '{}' does not exist".format(args.name))
+        return
+    if args.remove and confirm("Delete group '{}'?".format(args.name)):
+        gbd.remove_group(args.db, args.name)
+    else:
+        if args.clear and confirm("Clear group '{}'?".format(args.name)):
+            gbd.clear_group(args.db, args.name)
+    return
 
 
 # entry for query command
@@ -70,17 +68,24 @@ def cli_query(args):
             hashes = gbd.query_request(args.db, args.query, server.USER_AGENT_CLI)
             if args.union:
                 inp = read_hashes()
-                hashes.update(inp)
+                gbd.hash_union(hashes, inp)
             elif args.intersection:
                 inp = read_hashes()
-                hashes.intersection_update(inp)
-            print(hashes)
+                gbd.hash_intersection(hashes, inp)
+            for h in hashes:
+                print(h)
         except ValueError:
             print("Path does not exist or cannot connect")
         return
     else:
         try:
-            hashes = gbd.query_search(args.db, args.query, args.union, args.intersection)
+            hashes = gbd.query_search(args.db, args.query)
+            if args.union:
+                inp = read_hashes()
+                gbd.hash_union(hashes, inp)
+            elif args.intersection:
+                inp = read_hashes()
+                gbd.hash_intersection(hashes, inp)
             print(*hashes, sep='\n')
         except ValueError as e:
             print(e)
@@ -90,11 +95,10 @@ def cli_query(args):
 # associate a tag with a hash-value
 def cli_tag(args):
     hashes = read_hashes()
-    with Database(args.db) as database:
-        if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-            gbd.remove_tag(database, args.name, args.value, hashes)
-        else:
-            gbd.add_tag(database, args.name, args.value, hashes, args.force)
+    if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
+        gbd.remove_tag(args.db, args.name, args.value, hashes)
+    else:
+        gbd.add_tag(args.db, args.name, args.value, hashes, args.force)
 
 
 def cli_resolve(args):
@@ -174,13 +178,13 @@ def main():
                                help="Name of the key column (the hash-value of the problem)", required=True)
     parser_import.add_argument('-s', '--source', type=column_type, help="Source name of column to import (in csv-file)",
                                required=True)
-    parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in database)",
+    parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)",
                                required=True)
     parser_import.set_defaults(func=cli_import)
 
     # define info
     parser_reflect = subparsers.add_parser('info', help='Get information, Display Groups')
-    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of database if none',
+    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of Database if none',
                                 nargs='?')
     parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
     parser_reflect.set_defaults(func=cli_info)
