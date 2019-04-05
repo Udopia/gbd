@@ -64,9 +64,10 @@ def delete_old_cached_files(directory, max_hours, max_minutes):
         current_datetime = datetime.datetime.now()
         diff_year = current_datetime.year - accessed_on_datetime.year
         diff_month = current_datetime.month - accessed_on_datetime.month
+        timedelta = current_datetime - accessed_on_datetime
         diff_hour = current_datetime.hour - accessed_on_datetime.hour
         diff_minute = current_datetime.minute - accessed_on_datetime.minute
-        if diff_year != 0 or diff_month != 0:
+        if diff_year != 0 or diff_month != 0 or timedelta.days != 0:
             os.remove(path)
         elif (max_hours is not None) and (diff_hour >= max_hours) and (max_minutes is None):
             os.remove(path)

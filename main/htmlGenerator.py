@@ -3,12 +3,15 @@ from flask import url_for
 
 def generate_html_header(language):
     css = url_for('static', filename='bootstrap/css/bootstrap.min.css')
+    custom_css = url_for('static', filename='css/style.css')
     response = "<!DOCTYPE html>\n<html lang=\"{}\">\n" \
                "<head>\n    <meta charset=\"utf-8\">\n" \
                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n" \
                "    <link rel=\"stylesheet\" " \
                "href=\"{}\">\n" \
-               "</head>\n".format(language, css)
+               "    <link rel=\"stylesheet\" " \
+               "href=\"{}\">\n" \
+               "</head>\n".format(language, css, custom_css)
     return response
 
 
