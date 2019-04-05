@@ -83,26 +83,26 @@ def query_request(host, query, useragent):
         raise ValueError('Cannot send request to host')
 
 
-# TODO: refactor
 # associate a tag with a hash-value
-def cli_tag(args):
-    hashes = read_hashes()
-    with Database(args.db) as database:
-        if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-            for hash in hashes:
-                tags.remove_tag(database, args.name, args.value, hash)
-        else:
-            for hash in hashes:
-                tags.add_tag(database, args.name, args.value, hash, args.force)
+def add_tag(database, name, value, hashes, force):
+    with Database(database) as database:
+        for h in hashes:
+            tags.add_tag(database, name, value, h, force)
+
+
+def remove_tag(database, name, value, hashes):
+    with Database(database) as database:
+        for h in hashes:
+            tags.remove_tag(database, name, value, h)
 
 
 def resolve(database, hashes, group_names, pattern, collapse):
     with Database(database) as database:
         result = []
-        for hash in hashes:
+        for h in hashes:
             out = []
             for name in group_names:
-                resultset = sorted(search.resolve(database, name, hash))
+                resultset = sorted(search.resolve(database, name, h))
                 resultset = [str(element) for element in resultset]
                 if name == 'benchmarks' and pattern is not None:
                     res = [k for k in resultset if pattern in k]
@@ -116,20 +116,25 @@ def resolve(database, hashes, group_names, pattern, collapse):
         return result
 
 
-# TODO: refactor
-def cli_reflection(args):
-    with Database(args.db) as database:
-        if args.name is not None:
-            if args.values:
-                print(*groups.reflect_tags(database, args.name), sep='\n')
-            else:
-                print('name: {}'.format(args.name))
-                print('type: {}'.format(groups.reflect_type(database, args.name)))
-                print('uniqueness: {}'.format(groups.reflect_unique(database, args.name)))
-                print('default value: {}'.format(groups.reflect_default(database, args.name)))
-                print('number of entries: {}'.format(*groups.reflect_size(database, args.name)))
-        else:
-            print("DB '{}' was created with version: {} and HASH version: {}".format(args.db, database.get_version(),
-                                                                                     database.get_hash_version()))
-            print("Found tables:")
-            print(*groups.reflect(database))
+def reflect_group(database, name):
+    with Database(database) as database:
+        entries = {}
+        if name is not None:
+            entries.update({'name': name, 'type': groups.reflect_type(database, name),
+                            'uniqueness': groups.reflect_unique(database, name),
+                            'default': groups.reflect_default(database, name),
+                            'entries': groups.reflect_size(database, name)})
+        return entries
+
+
+def reflect_group_values(database, name):
+    if name is not None:
+        return query_search(database, '{} like %%%%'.format(name))
+    else:
+        raise ValueError('No group given')
+
+
+def reflect_database(database):
+    with Database(database) as database:
+        return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version(),
+                'tables': groups.reflect(database)}
