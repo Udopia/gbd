@@ -17,7 +17,7 @@ local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 
-def hash_path(path):
+def hash_file(path):
     return gbd_hash(path)
 
 
@@ -116,25 +116,25 @@ def resolve(database, hashes, group_names, pattern, collapse):
         return result
 
 
-def reflect_group(database, name):
-    with Database(database) as database:
-        entries = {}
-        if name is not None:
-            entries.update({'name': name, 'type': groups.reflect_type(database, name),
-                            'uniqueness': groups.reflect_unique(database, name),
-                            'default': groups.reflect_default(database, name),
-                            'entries': groups.reflect_size(database, name)})
-        return entries
+def get_group_info(database, name):
+    if name is not None:
+        with Database(database) as database:
+            return {'name': name, 'type': groups.reflect_type(database, name),
+                    'uniqueness': groups.reflect_unique(database, name),
+                    'default': groups.reflect_default(database, name),
+                    'entries': groups.reflect_size(database, name)}
+    else:
+        raise ValueError('No group given')
 
 
-def reflect_group_values(database, name):
+def get_group_values(database, name):
     if name is not None:
         return query_search(database, '{} like %%%%'.format(name))
     else:
         raise ValueError('No group given')
 
 
-def reflect_database(database):
+def get_database_info(database):
     with Database(database) as database:
         return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version(),
                 'tables': groups.reflect(database)}
