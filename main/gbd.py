@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
 import os
 import sqlite3
 from urllib.error import URLError

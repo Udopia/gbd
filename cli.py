@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
 import os
 import argparse
 import re
@@ -9,7 +8,7 @@ import sys
 from main import gbd
 import server
 
-from main.core.database import groups, tags
+from main.core.database import groups
 
 from main.core.database.db import Database
 from main.core.util import eprint, read_hashes, confirm
@@ -184,7 +183,7 @@ def main():
     parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of database if none',
                                 nargs='?')
     parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
-    parser_reflect.set_defaults(func=cli_reflection)
+    parser_reflect.set_defaults(func=cli_info)
 
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
