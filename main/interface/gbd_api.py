@@ -55,12 +55,12 @@ def clear_group(database, name):
         groups.remove(database, name)
 
 
-def hash_union(hashes, hashes_to_add):
-    return hashes.update(hashes_to_add)
+def hash_union(hash_list, other_hash_list):
+    return hash_list.update(other_hash_list)
 
 
-def hash_intersection(hashes, hashes_to_compare):
-    return hashes.intersection_update(hashes_to_compare)
+def hash_intersection(hash_list, other_hash_list):
+    return hash_list.intersection_update(other_hash_list)
 
 
 # entry for query command
@@ -81,26 +81,27 @@ def query_request(host, query, useragent):
 
 
 # associate a  with a hash-value
-def set_attribute(database, name, value, hashes, force):
+def set_attribute(database, name, value, hash_list, force):
     with Database(database) as database:
-        for h in hashes:
+        for h in hash_list:
             tags.add_tag(database, name, value, h, force)
 
 
-def remove_attribute(database, name, value, hashes):
+def remove_attribute(database, name, value, hash_list):
     with Database(database) as database:
-        for h in hashes:
+        for h in hash_list:
             tags.remove_tag(database, name, value, h)
 
 
-def resolve(database, hashes, group_names, pattern, collapse):
+def resolve(database, hash_list, group_list, pattern=None, collapse=False):
     with Database(database) as database:
         result = []
-        for h in hashes:
+        for h in hash_list:
             out = []
-            for name in group_names:
-                resultset = sorted(search.resolve(database, name, h))
-                resultset = [str(element) for element in resultset]
+            for name in group_list:
+                if not name.startswith("__"):
+                    resultset = sorted(search.resolve(database, name, h))
+                    resultset = [str(element) for element in resultset]
                 if name == 'benchmarks' and pattern is not None:
                     res = [k for k in resultset if pattern in k]
                     resultset = res
@@ -134,5 +135,9 @@ def get_group_values(database, name):
 
 def get_database_info(database):
     with Database(database) as database:
-        return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version(),
-                'tables': groups.reflect(database)}
+        return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version()}
+
+
+def get_all_tables(database):
+    with Database(database) as database:
+        return groups.reflect(database)

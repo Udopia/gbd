@@ -125,7 +125,7 @@ def cli_info(args):
                                                                                  result.get('version'),
                                                                                  result.get('hash-version')))
         print("Found tables:")
-        print(*result.get('tables'))
+        print(*gbd_api.get_all_tables(args.db))
 
 
 # define directory type for argparse
