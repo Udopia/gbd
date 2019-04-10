@@ -127,8 +127,7 @@ def get_group_info(database, name):
 
 def get_group_values(database, name):
     if name is not None:
-        with Database(database) as database:
-            return query_search(database, '{} like %%%%'.format(name))
+        return query_search(database, '{} like %%%%'.format(name))
     else:
         raise ValueError('No group given')
 
