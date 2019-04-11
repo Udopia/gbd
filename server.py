@@ -136,7 +136,7 @@ def resolve_form():
 @app.route("/resolve", methods=['POST'])
 def resolve():
     request_semaphore.acquire()
-    hashed = request.values.get("hash")
+    hashed = request.values.get("hashes")
     group = request.values.get("group")
     ua = request.headers.get('User-Agent')
     result = htmlGenerator.generate_html_header("en")
