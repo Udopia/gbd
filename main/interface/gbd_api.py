@@ -114,6 +114,13 @@ def resolve(database, hash_list, group_list, pattern=None, collapse=False):
         return result
 
 
+def resolve_request(host, hashes, group, useragent):
+    try:
+        return set(post_request("{}/resolve".format(host), {'hash': hashes, 'group': group}, {'User-Agent': useragent}))
+    except URLError:
+        raise ValueError('Cannot send request to host')
+
+
 def get_group_info(database, name):
     if name is not None:
         with Database(database) as database:
