@@ -8,8 +8,6 @@ from tatsu import exceptions
 from main import htmlGenerator
 from main.core import util
 import zipper
-from main.core.database import groups, search
-from main.core.database.db import Database
 from sqlite3 import OperationalError
 
 from flask import Flask, render_template, request, send_file, json
@@ -138,18 +136,42 @@ def resolve_form():
 @app.route("/resolve", methods=['POST'])
 def resolve():
     request_semaphore.acquire()
-    hashed = request.values.to_dict()["hash"]
-    group = request.values.to_dict()["group"]
+    hashed = request.values.get("hash")
+    group = request.values.get("group")
+    ua = request.headers.get('User-Agent')
     result = htmlGenerator.generate_html_header("en")
     result += htmlGenerator.generate_head("Results")
+
+    allgroups = gbd_api.get_all_tables(DATABASE)
     entries = []
     if group == "":
-        allgroups = gbd_api.get_all_tables(DATABASE)
         for attribute in allgroups:
             if not attribute.startswith("__"):
-                value = gbd_api.resolve(DATABASE, [hashed], [attribute])
-                for word in value:
-                    entries.append([attribute, word])
+                try:
+                    value = gbd_api.resolve(DATABASE, [hashed], [attribute])
+                    for word in value:
+                        entries.append([attribute, word])
+                except IndexError:
+                    if ua != USER_AGENT_CLI:
+                        result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
+                        return result
+                    else:
+                        return "Hash not found in our DATABASE"
+
+    if ua == USER_AGENT_CLI:
+        if group != "":
+            try:
+                value = gbd_api.resolve(DATABASE, [hashed], [group])
+                entries.append([group, value[0]])
+                return entries
+            except OperationalError:
+                return "Group not found"
+            except IndexError:
+                return "Hash not found in our DATABASE"
+        else:
+            return entries
+
+    if group == "":
         result += htmlGenerator.generate_resolve_table_div(entries)
     else:
         try:
