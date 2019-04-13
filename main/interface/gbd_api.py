@@ -1,14 +1,13 @@
 import os
 import sqlite3
+from os.path import realpath, dirname, join
 from urllib.error import URLError
 
-from main.core.database import groups, tags, search
 from main.core import import_data
-
+from main.core.database import groups, tags, search
 from main.core.database.db import Database
 from main.core.hashing.gbd_hash import gbd_hash
 from main.core.http_client import post_request
-from os.path import realpath, dirname, join
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
@@ -114,9 +113,10 @@ def resolve(database, hash_list, group_list, pattern=None, collapse=False):
         return result
 
 
-def resolve_request(host, hashes, group, useragent):
+def resolve_request(host, hashes, group, collapse, pattern, useragent):
     try:
-        return set(post_request("{}/resolve".format(host), {'hash': hashes, 'group': group}, {'User-Agent': useragent}))
+        return set(post_request("{}/resolve".format(host), {'hash': hashes, 'group': group, 'collapse': collapse,
+                                                            'pattern': pattern}, {'User-Agent': useragent}))
     except URLError:
         raise ValueError('Cannot send request to host')
 

@@ -1,16 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import os
 import argparse
+import os
 import re
 import sys
-
-from main.interface import gbd_api
-import server
-
-from main.core.util import eprint, read_hashes, confirm
 from os.path import realpath, dirname, join, exists
+
+import server
 from main.core.http_client import is_url
+from main.core.util import eprint, read_hashes, confirm
+from main.interface import gbd_api
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
@@ -104,7 +103,8 @@ def cli_resolve(args):
     hashes = read_hashes()
     if is_url(args.db) and not exists(args.db):
         try:
-            return gbd_api.resolve_request(args.db, hashes, args.name, server.USER_AGENT_CLI)
+            return gbd_api.resolve_request(args.db, hashes, args.name, server.USER_AGENT_CLI, args.collapse,
+                                           args.pattern)
         except ValueError:
             print("Path does not exist or cannot connect")
         return
