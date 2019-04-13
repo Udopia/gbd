@@ -1,19 +1,16 @@
 import os
 import threading
+from os.path import realpath, dirname, join, isfile
+from sqlite3 import OperationalError
 from zipfile import ZipInfo
 
 import tatsu
+from flask import Flask, render_template, request, send_file, json
 from tatsu import exceptions
 
+import zipper
 from main import htmlGenerator
 from main.core import util
-import zipper
-from sqlite3 import OperationalError
-
-from flask import Flask, render_template, request, send_file, json
-
-from os.path import realpath, dirname, join, isfile
-
 from main.core.hashing import gbd_hash
 from main.interface import gbd_api
 
@@ -138,6 +135,8 @@ def resolve():
     request_semaphore.acquire()
     hashed = request.values.get("hashes")
     group = request.values.get("group")
+    collapse = request.values.get("collapse")
+    pattern = request.values.get("pattern")
     ua = request.headers.get('User-Agent')
     result = htmlGenerator.generate_html_header("en")
     result += htmlGenerator.generate_head("Results")
