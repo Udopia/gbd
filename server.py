@@ -147,7 +147,10 @@ def resolve():
         for attribute in allgroups:
             if not attribute.startswith("__"):
                 try:
-                    value = gbd_api.resolve(DATABASE, [hashed], [attribute])
+                    if collapse == "True":
+                        value = gbd_api.resolve(DATABASE, [hashed], [attribute], collapse=True, pattern=pattern)
+                    else:
+                        value = gbd_api.resolve(DATABASE, [hashed], [attribute], collapse=False, pattern=pattern)
                     for word in value:
                         entries.append([attribute, word])
                 except IndexError:
@@ -160,7 +163,10 @@ def resolve():
     if ua == USER_AGENT_CLI:
         if group != "":
             try:
-                value = gbd_api.resolve(DATABASE, [hashed], [group])
+                if collapse == "True":
+                    value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=True, pattern=pattern)
+                else:
+                    value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=False, pattern=pattern)
                 entries.append([group, value[0]])
                 return entries
             except OperationalError:
@@ -174,7 +180,10 @@ def resolve():
         result += htmlGenerator.generate_resolve_table_div(entries)
     else:
         try:
-            value = gbd_api.resolve(DATABASE, [hashed], [group])
+            if collapse == "True":
+                value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=True, pattern=pattern)
+            else:
+                value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=False, pattern=pattern)
             entries.append([group, value[0]])
             result += htmlGenerator.generate_resolve_table_div(entries)
         except OperationalError:
