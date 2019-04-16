@@ -65,29 +65,28 @@ def cli_get(args):
     if is_url(args.db) and not exists(args.db):
         try:
             hashes = gbd_api.query_request(args.db, args.query, server.USER_AGENT_CLI)
-            if args.union:
-                inp = read_hashes()
-                gbd_api.hash_union(hashes, inp)
-            elif args.intersection:
-                inp = read_hashes()
-                gbd_api.hash_intersection(hashes, inp)
-            print(*hashes, sep='\n')
         except ValueError:
             print("Path does not exist or cannot connect")
-        return
+            return
     else:
         try:
             hashes = gbd_api.query_search(args.db, args.query)
-            if args.union:
-                inp = read_hashes()
-                gbd_api.hash_union(hashes, inp)
-            elif args.intersection:
-                inp = read_hashes()
-                gbd_api.hash_intersection(hashes, inp)
-            print(*hashes, sep='\n')
         except ValueError as e:
             print(e)
             return
+    process_hashes(hashes, args.union, args.intersection)
+    print(*hashes, sep='\n')
+    return
+
+
+def process_hashes(hashes, union, intersection):
+    if union:
+        inp = read_hashes()
+        gbd_api.hash_union(hashes, inp)
+    elif intersection:
+        inp = read_hashes()
+        gbd_api.hash_intersection(hashes, inp)
+    return
 
 
 # associate an attribute with a hash and a value
