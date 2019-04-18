@@ -102,10 +102,10 @@ def cli_resolve(args):
     hashes = read_hashes()
     if is_url(args.db) and not exists(args.db):
         try:
-            return gbd_api.resolve_request(args.db, hashes, args.name, server.USER_AGENT_CLI, args.collapse,
-                                           args.pattern)
-        except ValueError:
-            print("Path does not exist or cannot connect")
+            print(gbd_api.resolve_request(args.db, list(hashes), args.name, args.collapse,
+                                          args.pattern, server.USER_AGENT_CLI))
+        except ValueError as e:
+            print(e)
         return
     result = gbd_api.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
     for element in result:
