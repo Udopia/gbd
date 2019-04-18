@@ -133,65 +133,74 @@ def resolve_form():
 @app.route("/resolve", methods=['POST'])
 def resolve():
     request_semaphore.acquire()
-    hashed = request.values.get("hashes")
-    group = request.values.get("group")
-    collapse = request.values.get("collapse")
-    pattern = request.values.get("pattern")
     ua = request.headers.get('User-Agent')
+    if ua == USER_AGENT_CLI:
+        result = handle_cli_resolve_request(request)
+    else:
+        result = handle_normal_resolve_request(request)
+    request_semaphore.release()
+    return result
+
+
+def handle_normal_resolve_request(req):
+    request_semaphore.acquire()
+    hashed = req.values.get("hashes")
+    group = req.values.get("group")
+    shall_collapse = req.values.get("collapse") == "True"
+    pattern = req.values.get("pattern")
     result = htmlGenerator.generate_html_header("en")
     result += htmlGenerator.generate_head("Results")
 
-    allgroups = gbd_api.get_all_tables(DATABASE)
     entries = []
-    if group == "":
-        for attribute in allgroups:
+    if group is None:
+        all_groups = gbd_api.get_all_tables(DATABASE)
+        for attribute in all_groups:
             if not attribute.startswith("__"):
                 try:
-                    if collapse == "True":
-                        value = gbd_api.resolve(DATABASE, [hashed], [attribute], collapse=True, pattern=pattern)
-                    else:
-                        value = gbd_api.resolve(DATABASE, [hashed], [attribute], collapse=False, pattern=pattern)
+                    value = gbd_api.resolve(DATABASE, [hashed], [attribute],
+                                            collapse=shall_collapse,
+                                            pattern=pattern)
                     for word in value:
                         entries.append([attribute, word])
                 except IndexError:
-                    if ua != USER_AGENT_CLI:
-                        result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-                        return result
-                    else:
-                        return "Hash not found in our DATABASE"
-
-    if ua == USER_AGENT_CLI:
-        if group != "":
-            try:
-                if collapse == "True":
-                    value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=True, pattern=pattern)
-                else:
-                    value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=False, pattern=pattern)
-                entries.append([group, value[0]])
-                return entries
-            except OperationalError:
-                return "Group not found"
-            except IndexError:
-                return "Hash not found in our DATABASE"
-        else:
-            return entries
-
-    if group == "":
+                    result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
         result += htmlGenerator.generate_resolve_table_div(entries)
+        return result
     else:
         try:
-            if collapse == "True":
-                value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=True, pattern=pattern)
-            else:
-                value = gbd_api.resolve(DATABASE, [hashed], [group], collapse=False, pattern=pattern)
+            value = gbd_api.resolve(DATABASE, [hashed], [group],
+                                    collapse=shall_collapse,
+                                    pattern=pattern)
             entries.append([group, value[0]])
             result += htmlGenerator.generate_resolve_table_div(entries)
         except OperationalError:
             result += htmlGenerator.generate_warning("Group not found")
         except IndexError:
             result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-    request_semaphore.release()
-    return result
+        return result
+
+
+def handle_cli_resolve_request(req):
+    request_semaphore.acquire()
+    hashed = json.loads(req.values.get("hashes"))
+    print(hashed)
+    groups = json.loads(req.values.get("group"))
+    shall_collapse = req.values.get("collapse") == "True"
+    pattern = req.values.get("pattern")
+
+    entries = []
+    try:
+        value = gbd_api.resolve(DATABASE, hashed, groups,
+                                collapse=shall_collapse,
+                                pattern=pattern)
+        for word in value:
+            entries.append([groups, word])
+    except OperationalError:
+        return json.dumps("Group not found")
+    except IndexError:
+        return json.dumps("Hash not found in our DATABASE")
+    print(json.dumps(entries))
+    return json.dumps(entries)
 
 
 @app.route("/groups/all", methods=['GET'])

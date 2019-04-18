@@ -3,6 +3,8 @@ import sqlite3
 from os.path import realpath, dirname, join
 from urllib.error import URLError
 
+from flask import json
+
 from main.core import import_data
 from main.core.database import groups, tags, search
 from main.core.database.db import Database
@@ -113,10 +115,12 @@ def resolve(database, hash_list, group_list, pattern=None, collapse=False):
         return result
 
 
-def resolve_request(host, hashes, group, collapse, pattern, useragent):
+def resolve_request(host, hash_list, group_list, collapse, pattern, useragent):
     try:
-        return set(post_request("{}/resolve".format(host), {'hash': hashes, 'group': group, 'collapse': collapse,
-                                                            'pattern': pattern}, {'User-Agent': useragent}))
+        hash_list = json.dumps(hash_list)
+        group_list = json.dumps(group_list)
+        return post_request("{}/resolve".format(host), {'hashes': hash_list, 'group': group_list, 'collapse': collapse,
+                                                        'pattern': pattern}, {'User-Agent': useragent})
     except URLError:
         raise ValueError('Cannot send request to host')
 
