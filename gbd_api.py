@@ -134,7 +134,7 @@ def query_search(database, query=None):
 # Send a query search request to a running GBD server
 def query_request(host, query, useragent):
     try:
-        return benchmark_administration(post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent}))
+        return set(post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent}))
     except URLError:
         raise ValueError('Cannot send request to host')
 
