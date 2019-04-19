@@ -1,6 +1,7 @@
 import sqlite3
-from main.core.hashing.gbd_hash import HASH_VERSION
 from os.path import isfile
+
+from main.core.hashing.gbd_hash import HASH_VERSION
 from main.core.util import eprint
 
 VERSION = 0
@@ -26,7 +27,7 @@ class Database:
         # version check
         self.version_check()
         if not self.has_table('benchmarks'):
-            raise DatabaseException('Table benchmarks is missing in db {}, initialiization error?'.format(path))
+            raise DatabaseException('Table benchmarks is missing in db {}, initialization error?'.format(path))
 
     def __enter__(self):
         return self
