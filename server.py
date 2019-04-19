@@ -55,6 +55,7 @@ def query():
         response = []
         for hash in hashset:
             response.append(hash)
+        request_semaphore.release()
         return json.dumps(response)
     else:
         response = htmlGenerator.generate_html_header("en")
