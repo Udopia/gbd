@@ -4,15 +4,12 @@ import argparse
 import os
 import re
 import sys
-from os.path import realpath, dirname, join, exists
+from os.path import exists
 
 import server
 from main.core.http_client import is_url
 from main.core.util import eprint, read_hashes, confirm
 from main.interface import gbd_api
-
-local_db_path = join(dirname(realpath(__file__)), 'local.db')
-DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)
 
 
 def cli_hash(args):
@@ -162,7 +159,7 @@ def column_type(s):
 def main():
     parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
 
-    parser.add_argument('-d', "--db", help='Specify database to work with', default=DEFAULT_DATABASE, nargs='?')
+    parser.add_argument('-d', "--db", help='Specify database to work with', default=gbd_api.DEFAULT_DATABASE, nargs='?')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
