@@ -8,11 +8,11 @@ import tatsu
 from flask import Flask, render_template, request, send_file, json
 from tatsu import exceptions
 
+import gbd_api
 import zipper
 from main import htmlGenerator
 from main.core import util
 from main.core.hashing import gbd_hash
-from main.interface import gbd_api
 
 app = Flask(__name__)
 
