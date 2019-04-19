@@ -1,6 +1,6 @@
 import os
 import threading
-from os.path import realpath, dirname, join, isfile
+from os.path import isfile
 from sqlite3 import OperationalError
 from zipfile import ZipInfo
 
@@ -16,7 +16,7 @@ from main.interface import gbd_api
 
 app = Flask(__name__)
 
-DATABASE = join(dirname(realpath(__file__)), 'local.db')
+DATABASE = gbd_api.local_db_path
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
@@ -143,7 +143,6 @@ def resolve():
 
 
 def handle_normal_resolve_request(req):
-    request_semaphore.acquire()
     hashed = req.values.get("hashes")
     group = req.values.get("group")
     shall_collapse = req.values.get("collapse") == "True"
@@ -152,7 +151,7 @@ def handle_normal_resolve_request(req):
     result += htmlGenerator.generate_head("Results")
 
     entries = []
-    if group is None:
+    if group == "":
         all_groups = gbd_api.get_all_tables(DATABASE)
         for attribute in all_groups:
             if not attribute.startswith("__"):
@@ -181,26 +180,26 @@ def handle_normal_resolve_request(req):
 
 
 def handle_cli_resolve_request(req):
-    request_semaphore.acquire()
     hashed = json.loads(req.values.get("hashes"))
-    print(hashed)
     groups = json.loads(req.values.get("group"))
     shall_collapse = req.values.get("collapse") == "True"
     pattern = req.values.get("pattern")
 
     entries = []
     try:
-        value = gbd_api.resolve(DATABASE, hashed, groups,
-                                collapse=shall_collapse,
-                                pattern=pattern)
+        if pattern != 'None':
+            value = gbd_api.resolve(DATABASE, hashed, groups,
+                                    collapse=shall_collapse,
+                                    pattern=pattern)
+        else:
+            value = gbd_api.resolve(DATABASE, hashed, groups, collapse=shall_collapse)
         for word in value:
             entries.append([groups, word])
+        return json.dumps(entries)
     except OperationalError:
         return json.dumps("Group not found")
     except IndexError:
         return json.dumps("Hash not found in our DATABASE")
-    print(json.dumps(entries))
-    return json.dumps(entries)
 
 
 @app.route("/groups/all", methods=['GET'])
@@ -251,6 +250,7 @@ def reflect_group():
             request_semaphore.release()
             return list.__str__()
         else:
+            request_semaphore.release()
             return "__ is reserved for system tables"
     except IndexError:
         request_semaphore.release()
