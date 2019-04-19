@@ -6,10 +6,10 @@ import re
 import sys
 from os.path import exists
 
+import gbd_api
 import server
 from main.core.http_client import is_url
 from main.core.util import eprint, read_hashes, confirm
-from main.interface import gbd_api
 
 
 def cli_hash(args):
