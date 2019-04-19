@@ -157,7 +157,7 @@ def handle_normal_resolve_request(req):
 
     entries = []
     if group == "":
-        all_groups = gbd_api.get_all_tables(DATABASE)
+        all_groups = gbd_api.get_all_groups(DATABASE)
         for attribute in all_groups:
             if not attribute.startswith("__"):
                 try:
@@ -234,7 +234,7 @@ def reflect():
                 "   </div>" \
                 "</nav>" \
                 "<hr>".format(url)
-    reflection = gbd_api.get_all_tables(DATABASE)
+    reflection = gbd_api.get_all_groups(DATABASE)
     response += htmlGenerator.generate_num_table_div(reflection)
     request_semaphore.release()
     return response
