@@ -98,7 +98,7 @@ def resolve(database, hash_list, group_list, pattern=None, collapse=False):
     with Database(database) as database:
         result = []
         for h in hash_list:
-            out = []
+            out = {'hash': h}
             for name in group_list:
                 if not name.startswith("__"):
                     resultset = sorted(search.resolve(database, name, h))
@@ -108,9 +108,9 @@ def resolve(database, hash_list, group_list, pattern=None, collapse=False):
                     resultset = res
                 if len(resultset) > 0:
                     if collapse:
-                        out.append(resultset[0])
+                        out.update({'{}'.format(name): resultset[0]})
                     else:
-                        out.append(' '.join(resultset))
+                        out.update({'{}'.format(name): ' '.join(resultset)})
             result.append(out)
         return result
 
