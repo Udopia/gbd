@@ -74,8 +74,9 @@ def query():
 @app.route("/queryzip", methods=['POST'])
 def queryzip():
     request_semaphore.acquire()
-    query = request.values.to_dict()["query"]
+    query = request.values.get('query')
     response = htmlGenerator.generate_html_header("en")
+    print(query)
     try:
         sorted_hash_set = sorted(gbd_api.query_search(DATABASE, query))
         if len(sorted_hash_set) != 0:
@@ -116,6 +117,9 @@ def queryzip():
                     response += '<hr>' \
                                 '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
                                             .format(THRESHOLD_ZIP_SIZE))
+        else:
+            response += '<hr>'
+            response += htmlGenerator.generate_warning("No benchmarks found")
     except exceptions.FailedParse:
         response += '<hr>'
         response += htmlGenerator.generate_warning("Non-valid query")
