@@ -60,7 +60,7 @@ def query():
         response = htmlGenerator.generate_html_header("en")
         response += htmlGenerator.generate_head("Results")
         try:
-            hashset = gbd_api.query_search(DATABASE)
+            hashset = gbd_api.query_search(DATABASE, query)
             response += htmlGenerator.generate_num_table_div(hashset)
         except exceptions.FailedParse:
             response += htmlGenerator.generate_warning("Non-valid query")
