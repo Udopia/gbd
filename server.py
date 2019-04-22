@@ -193,13 +193,13 @@ def handle_cli_resolve_request(req):
     entries = []
     try:
         if pattern != 'None':
-            value = gbd_api.resolve(DATABASE, hashed, groups,
-                                    collapse=shall_collapse,
-                                    pattern=pattern)
+            dict_list = gbd_api.resolve(DATABASE, hashed, groups,
+                                        collapse=shall_collapse,
+                                        pattern=pattern)
         else:
-            value = gbd_api.resolve(DATABASE, hashed, groups, collapse=shall_collapse)
-        for word in value:
-            entries.append([groups, word])
+            dict_list = gbd_api.resolve(DATABASE, hashed, groups, collapse=shall_collapse)
+        for d in dict_list:
+            entries.append(d)
         return json.dumps(entries)
     except OperationalError:
         return json.dumps("Group not found")

@@ -100,14 +100,21 @@ def cli_resolve(args):
     hashes = read_hashes()
     if is_url(args.db) and not exists(args.db):
         try:
-            print(gbd_api.resolve_request(args.db, list(hashes), args.name, args.collapse,
-                                          args.pattern, server.USER_AGENT_CLI))
+            dictionary_list = gbd_api.resolve_request(args.db, list(hashes), args.name, args.collapse,
+                                          args.pattern, server.USER_AGENT_CLI)
+            for d in dictionary_list:
+                print('\n{}'.format(d.get('hash')))
+                for group in args.name:
+                    print("{}: {}".format(group, d.get(group)))
         except ValueError as e:
             print(e)
         return
-    result = gbd_api.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
-    for element in result:
-        print(','.join(element))
+    else:
+        dictionary_list = gbd_api.resolve(args.db, hashes, args.name, args.pattern, args.collapse)
+        for d in dictionary_list:
+            print('\n{}'.format(d.get('hash')))
+            for group in args.name:
+                print("{}: {}".format(group, d.get(group)))
 
 
 def cli_info(args):
