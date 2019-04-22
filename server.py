@@ -76,7 +76,6 @@ def queryzip():
     request_semaphore.acquire()
     query = request.values.get('query')
     response = htmlGenerator.generate_html_header("en")
-    print(query)
     try:
         sorted_hash_set = sorted(gbd_api.query_search(DATABASE, query))
         if len(sorted_hash_set) != 0:
@@ -99,13 +98,14 @@ def queryzip():
                 util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                 files = []
                 for h in sorted_hash_set:
-                    files.append(gbd_api.resolve(DATABASE, [h], ['benchmarks'])[0])
+                    files.append(gbd_api.resolve(DATABASE, [h], ['benchmarks'])[0].get('benchmarks'))
                 size = 0
                 for file in files:
-                    zf = ZipInfo.from_file(*file, arcname=None)
+                    zf = ZipInfo.from_file(file, arcname=None)
                     size += zf.file_size
                 divisor = 1024 << 10
                 if size / divisor < THRESHOLD_ZIP_SIZE:
+                    print(files)
                     thread = threading.Thread(target=zipper.create_zip_with_marker,
                                               args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                     thread.start()
