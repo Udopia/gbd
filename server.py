@@ -43,7 +43,7 @@ def welcome():
 
 @app.route("/query/form", methods=['GET'])
 def query_form():
-    app.logger.info('{} requested query form at {}'.format(request.host, datetime.datetime.now()))
+    app.logger.info('{} requested query form at {}'.format(request.remote_addr, datetime.datetime.now()))
     return render_template('query_form.html')
 
 
