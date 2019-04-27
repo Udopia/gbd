@@ -35,7 +35,7 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
-    print('{} visited main site at {}'.format(request.remote_addr, datetime.datetime.now()))
+    app.logger.info('{} visited main site at {}'.format(request.remote_addr, datetime.datetime.now()))
     return render_template('home.html')
 
 
