@@ -161,12 +161,11 @@ def handle_normal_resolve_request(req):
             if not attribute.startswith("__"):
                 try:
                     value_dict = gbd_api.resolve(DATABASE, [hashed], [attribute],
-                                            collapse=shall_collapse,
-                                            pattern=pattern)[0]
+                                                collapse=shall_collapse,
+                                                pattern=pattern)[0]
                     entries.append([attribute, value_dict.get(attribute)])
                 except IndexError:
                     result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-        print(entries)
         result += htmlGenerator.generate_resolve_table_div(entries)
         return result
     else:
