@@ -1,3 +1,4 @@
+import datetime
 import os
 import threading
 from os.path import isfile
@@ -7,6 +8,7 @@ from zipfile import ZipInfo
 import tatsu
 from flask import Flask, render_template, request, send_file, json
 from tatsu import exceptions
+from werkzeug.contrib.fixers import ProxyFix
 
 import gbd_api
 import zipper
@@ -15,6 +17,8 @@ from main.core import util
 from main.core.hashing import gbd_hash
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
+limiter = Limiter(app, key_func=get_remote_address)
 
 DATABASE = gbd_api.local_db_path
 ZIPCACHE_PATH = 'zipcache'
@@ -31,11 +35,13 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
+    print('{} visited main site at {}'.format(request.remote_addr, datetime.datetime.now()))
     return render_template('home.html')
 
 
 @app.route("/query/form", methods=['GET'])
 def query_form():
+    app.logger.info('{} requested query form at {}'.format(request.host, datetime.datetime.now()))
     return render_template('query_form.html')
 
 
