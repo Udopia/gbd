@@ -20,7 +20,7 @@ DATABASE = gbd_api.local_db_path
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
-MAX_MIN_ZIP_FILES = 30  # time in minutes the ZIP files remain in the cache
+MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 USER_AGENT_CLI = 'gbd-cli'
@@ -105,7 +105,6 @@ def queryzip():
                     size += zf.file_size
                 divisor = 1024 << 10
                 if size / divisor < THRESHOLD_ZIP_SIZE:
-                    print(files)
                     thread = threading.Thread(target=zipper.create_zip_with_marker,
                                               args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                     thread.start()
