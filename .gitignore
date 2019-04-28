@@ -31,4 +31,4 @@ hs_err_pid*
 
 FETCH_HEAD
 
-main/gbd/gbd_tool.egg-info/*
+*/gbd_tool.egg-info/*
