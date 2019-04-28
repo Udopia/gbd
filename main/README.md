@@ -17,6 +17,7 @@ Python 3
 ### Getting Started
 - setup python3
 - make sure Python was compiled with SSL support
+- use package 'gbd_tool' for importing packages
 
 ## Usage
 - By default GBD works with a local sqlite3 database *local.db* which you have to define and give to the parameters of the
