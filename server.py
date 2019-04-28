@@ -15,8 +15,8 @@ from tatsu import exceptions
 from werkzeug.contrib.fixers import ProxyFix
 
 from main import htmlGenerator, util
-from main.core import gbd_api
-from main.core.hashing import gbd_hash
+from main.gbd import gbd_api
+from main.gbd.hashing import gbd_hash
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 
