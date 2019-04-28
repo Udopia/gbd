@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(name='global-benchmark-database-tool',
-      version='0.1',
+      version='0.1.1',
       description='A tool for global benchmark management',
       long_description=open('README.md', 'rt').read(),
       long_description_content_type="text/markdown",
-      url='https://https://github.com/Weitspringer/gbd',
+      url='https://github.com/Weitspringer/gbd',
       author='Markus Iser, Luca Springer',
       author_email='',
       license='MIT',

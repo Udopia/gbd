@@ -6,9 +6,10 @@ import re
 import sys
 from os.path import exists, join, dirname, realpath
 
+from gbd_tool import gbd_api
+from gbd_tool.http_client import is_url
+
 import server
-from main.gbd_tool import gbd_api
-from main.gbd_tool.http_client import is_url
 from main.util.util import eprint, read_hashes, confirm
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
