@@ -14,8 +14,8 @@ from flask_limiter.util import get_remote_address
 from tatsu import exceptions
 from werkzeug.contrib.fixers import ProxyFix
 
-from main.gbd import gbd_api
-from main.gbd.hashing import gbd_hash
+from main.gbd_tool import gbd_api
+from main.gbd_tool.hashing import gbd_hash
 from main.util import htmlGenerator, util
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
@@ -32,7 +32,7 @@ MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
 MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
-USER_AGENT_CLI = 'gbd-cli'
+USER_AGENT_CLI = 'gbd_tool-cli'
 
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
