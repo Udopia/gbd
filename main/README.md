@@ -1,4 +1,9 @@
 # gbd (Global Benchmark Database)
+A tool for global benchmark management.
+Sometimes, it is hard to get a overview about all solutions for different problems and how fast/complex the algorithms 
+are and how they can compete with your solution. What if all your benchmark files (.csv) would be managed by a database?
+This is what GBD does: Searching for files on your computer (path given), hashes (and resolves) 
+them and add schemes for different attributes of benchmarks (clauses, variables, etc.).
 
 ## Installation
 ### Programming Language
