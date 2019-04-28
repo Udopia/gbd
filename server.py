@@ -11,11 +11,11 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from gbd_tool import gbd_api
+from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.contrib.fixers import ProxyFix
 
-from main.gbd_tool import gbd_api
-from main.gbd_tool.hashing import gbd_hash
 from main.util import htmlGenerator, util
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
