@@ -4,12 +4,15 @@ import argparse
 import os
 import re
 import sys
-from os.path import exists
+from os.path import exists, join, dirname, realpath
 
 import gbd_api
 import server
 from main.core.http_client import is_url
 from main.core.util import eprint, read_hashes, confirm
+
+local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
+DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)  # if no path was set in env. variable, use local.db path
 
 
 def cli_hash(args):
