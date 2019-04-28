@@ -1,15 +1,13 @@
 import datetime
+import logging
 import os
 import threading
-from logging import Formatter, getLogger
-from logging.config import dictConfig
 from os.path import isfile
 from sqlite3 import OperationalError
 from zipfile import ZipInfo
 
 import tatsu
 from flask import Flask, render_template, request, send_file, json
-from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from tatsu import exceptions
@@ -21,39 +19,9 @@ from main import htmlGenerator
 from main.core import util
 from main.core.hashing import gbd_hash
 
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://flask.logging.wsgi_errors_stream',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
-
-class RequestFormatter(Formatter):
-    def format(self, record):
-        record.url = request.url
-        record.remote_addr = request.remote_addr
-        record.message = request.values
-        return super(RequestFormatter, self).format(record)
-
-
-formatter = RequestFormatter(
-    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
-    '%(levelname)s in %(module)s: %(message)s'
-)
-default_handler.setFormatter(formatter)
+logging.basicConfig(filename='server.log', level=logging.DEBUG)
 
 app = Flask(__name__)
-getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
@@ -72,6 +40,7 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
+    print(app.logger)
     return render_template('home.html')
 
 
