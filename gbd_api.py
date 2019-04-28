@@ -1,6 +1,4 @@
-import os
 import sqlite3
-from os.path import realpath, dirname, join
 from urllib.error import URLError
 
 from flask import json
@@ -10,9 +8,6 @@ from main.core.database import groups, benchmark_administration, search
 from main.core.database.db import Database
 from main.core.hashing.gbd_hash import gbd_hash
 from main.core.http_client import post_request
-
-local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
-DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)  # if no path was set in env. variable, use local.db path
 
 
 # hash a CSV file
