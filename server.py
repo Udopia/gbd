@@ -2,9 +2,9 @@ import datetime
 import logging
 import os
 import threading
-from os.path import isfile
+from os.path import isfile, basename
 from sqlite3 import OperationalError
-from zipfile import ZipInfo
+from zipfile import ZipInfo, ZipFile
 
 import tatsu
 from flask import Flask, render_template, request, send_file, json
@@ -14,10 +14,9 @@ from flask_limiter.util import get_remote_address
 from tatsu import exceptions
 from werkzeug.contrib.fixers import ProxyFix
 
-import gbd_api
-import zipper
-from main import htmlGenerator
-from main.core import util
+import cli
+from main import htmlGenerator, util
+from main.core import gbd_api
 from main.core.hashing import gbd_hash
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
@@ -27,7 +26,7 @@ logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = gbd_api.local_db_path
+DATABASE = cli.local_db_path
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
@@ -104,7 +103,7 @@ def queryzip():
                 util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                 check_zips_mutex.release()
                 request_semaphore.release()
-                app.logger.info('Sent file {] to {} at {}'.format(zipfile_ready, request.remote_addr,
+                app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
                                                                   datetime.datetime.now()))
                 return send_file(zipfile_ready,
                                  attachment_filename='benchmarks.zip',
@@ -120,7 +119,7 @@ def queryzip():
                     size += zf.file_size
                 divisor = 1024 << 10
                 if size / divisor < THRESHOLD_ZIP_SIZE:
-                    thread = threading.Thread(target=zipper.create_zip_with_marker,
+                    thread = threading.Thread(target=create_zip_with_marker,
                                               args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
                     thread.start()
                     check_zips_mutex.release()
@@ -283,9 +282,20 @@ def get_zip():
     zipfile = request.args.get('file')
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
         request_semaphore.release()
-        app.logger.info('Sent file {] to {} at {}'.format(zipfile.replace(ZIP_BUSY_PREFIX, ''), request.remote_addr,
+        app.logger.info('Sent file {} to {} at {}'.format(zipfile.replace(ZIP_BUSY_PREFIX, ''), request.remote_addr,
                                                           datetime.datetime.now()))
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
         request_semaphore.release()
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
+
+
+def create_zip_with_marker(zipfile, files, prefix):
+    ZIP_SEMAPHORE.acquire()
+    with ZipFile(zipfile, 'w') as zf:
+        for file in files:
+            zf.write(file, basename(file))
+    zf.close()
+    os.rename(zipfile, zipfile.replace(prefix, ''))
+    ZIP_SEMAPHORE.release()
+

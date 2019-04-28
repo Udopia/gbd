@@ -6,10 +6,10 @@ import re
 import sys
 from os.path import exists, join, dirname, realpath
 
-import gbd_api
 import server
+from main.core import gbd_api
 from main.core.http_client import is_url
-from main.core.util import eprint, read_hashes, confirm
+from main.util import eprint, read_hashes, confirm
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)  # if no path was set in env. variable, use local.db path
@@ -104,7 +104,7 @@ def cli_resolve(args):
     if is_url(args.db) and not exists(args.db):
         try:
             dictionary_list = gbd_api.resolve_request(args.db, list(hashes), args.name, args.collapse,
-                                          args.pattern, server.USER_AGENT_CLI)
+                                                      args.pattern, server.USER_AGENT_CLI)
             for d in dictionary_list:
                 print('\n{}'.format(d.get('hash')))
                 for group in args.name:
@@ -170,7 +170,7 @@ def column_type(s):
 def main():
     parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
 
-    parser.add_argument('-d', "--db", help='Specify database to work with', default=gbd_api.DEFAULT_DATABASE, nargs='?')
+    parser.add_argument('-d', "--db", help='Specify database to work with', default=DEFAULT_DATABASE, nargs='?')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
