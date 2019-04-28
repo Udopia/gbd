@@ -14,10 +14,9 @@ from flask_limiter.util import get_remote_address
 from tatsu import exceptions
 from werkzeug.contrib.fixers import ProxyFix
 
-import htmlGenerator
-import util
 from main.gbd import gbd_api
 from main.gbd.hashing import gbd_hash
+from main.util import htmlGenerator, util
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 

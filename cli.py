@@ -9,7 +9,7 @@ from os.path import exists, join, dirname, realpath
 import server
 from main.gbd import gbd_api
 from main.gbd.http_client import is_url
-from util import eprint, read_hashes, confirm
+from main.util.util import eprint, read_hashes, confirm
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
 DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)  # if no path was set in env. variable, use local.db path
