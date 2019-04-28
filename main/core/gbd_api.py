@@ -1,8 +1,10 @@
+# python packages
 import sqlite3
 from urllib.error import URLError
 
 from flask import json
 
+# internal packages
 from main.core import import_data
 from main.core.database import groups, benchmark_administration, search
 from main.core.database.db import Database
