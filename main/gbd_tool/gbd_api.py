@@ -5,11 +5,11 @@ from urllib.error import URLError
 from flask import json
 
 # internal packages
-from main.core import import_data
-from main.core.database import groups, benchmark_administration, search
-from main.core.database.db import Database
-from main.core.hashing.gbd_hash import gbd_hash
-from main.core.http_client import post_request
+from main.gbd_tool import import_data
+from main.gbd_tool.database import groups, benchmark_administration, search
+from main.gbd_tool.database.db import Database
+from main.gbd_tool.hashing.gbd_hash import gbd_hash
+from main.gbd_tool.http_client import post_request
 
 
 # hash a CSV file
