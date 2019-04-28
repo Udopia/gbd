@@ -1,12 +1,15 @@
 import datetime
 import os
 import threading
+from logging import Formatter, getLogger
+from logging.config import dictConfig
 from os.path import isfile
 from sqlite3 import OperationalError
 from zipfile import ZipInfo
 
 import tatsu
 from flask import Flask, render_template, request, send_file, json
+from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from tatsu import exceptions
@@ -18,7 +21,39 @@ from main import htmlGenerator
 from main.core import util
 from main.core.hashing import gbd_hash
 
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
+
+
+class RequestFormatter(Formatter):
+    def format(self, record):
+        record.url = request.url
+        record.remote_addr = request.remote_addr
+        record.message = request.values
+        return super(RequestFormatter, self).format(record)
+
+
+formatter = RequestFormatter(
+    '[%(asctime)s] %(remote_addr)s requested %(url)s\n'
+    '%(levelname)s in %(module)s: %(message)s'
+)
+default_handler.setFormatter(formatter)
+
 app = Flask(__name__)
+getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
@@ -37,13 +72,11 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
-    app.logger.info('{} visited main site at {}'.format(request.remote_addr, datetime.datetime.now()))
     return render_template('home.html')
 
 
 @app.route("/query/form", methods=['GET'])
 def query_form():
-    app.logger.info('{} requested query form at {}'.format(request.remote_addr, datetime.datetime.now()))
     return render_template('query_form.html')
 
 
@@ -93,12 +126,15 @@ def queryzip():
             zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
             zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
             check_zips_mutex.acquire()
+
             if isfile(zipfile_ready):
                 with open(zipfile_ready, 'a'):
                     os.utime(zipfile_ready, None)
                 util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                 check_zips_mutex.release()
                 request_semaphore.release()
+                app.logger.info('Sent file {] to {} at {}'.format(zipfile_ready, request.remote_addr,
+                                                                  datetime.datetime.now()))
                 return send_file(zipfile_ready,
                                  attachment_filename='benchmarks.zip',
                                  as_attachment=True)
@@ -118,6 +154,8 @@ def queryzip():
                     thread.start()
                     check_zips_mutex.release()
                     request_semaphore.release()
+                    app.logger.info('{} created zipfile {} at {}'.format(request.remote_addr, zipfile_busy,
+                                                                         datetime.datetime.now()))
                     return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
                 else:
                     check_zips_mutex.release()
@@ -274,6 +312,8 @@ def get_zip():
     zipfile = request.args.get('file')
     if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
         request_semaphore.release()
+        app.logger.info('Sent file {] to {} at {}'.format(zipfile.replace(ZIP_BUSY_PREFIX, ''), request.remote_addr,
+                                                          datetime.datetime.now()))
         return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
     elif not isfile('_{}'.format(zipfile)):
         request_semaphore.release()
