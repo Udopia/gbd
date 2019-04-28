@@ -1,6 +1,6 @@
-import sys
-import os
 import datetime
+import os
+import sys
 from zipfile import ZipInfo
 
 __all__ = ['eprint', 'read_hashes', 'confirm']
