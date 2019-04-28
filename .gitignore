@@ -30,3 +30,5 @@ hs_err_pid*
 *.iml
 
 FETCH_HEAD
+
+*/global_benchmark_database_tool.egg-info/*
