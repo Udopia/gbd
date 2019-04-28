@@ -31,4 +31,4 @@ hs_err_pid*
 
 FETCH_HEAD
 
-*/gbd_tool.egg-info/*
+*/global_benchmark_database_tool.egg-info/*

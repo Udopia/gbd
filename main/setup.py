@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='gbd-tool',
+setup(name='global-benchmark-database-tool',
       version='0.1',
       description='A tool for global benchmark management',
       url='https://https://github.com/Weitspringer/gbd',
@@ -12,7 +12,7 @@ setup(name='gbd-tool',
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.7",
       ],
-      packages=['gbd', 'gbd/database', 'gbd/hashing'],
+      packages=['gbd_tool', 'gbd_tool/database', 'gbd_tool/hashing'],
       include_package_data=True,
       install_requires=[
             'flask',

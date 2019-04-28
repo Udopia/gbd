@@ -1,9 +1,9 @@
 import os
 from os.path import isfile
 
-from main.gbd.database import groups
-from main.gbd.database.db import Database, DatabaseException
-from main.gbd.hashing.gbd_hash import gbd_hash
+from main.gbd_tool.database import groups
+from main.gbd_tool.database.db import Database, DatabaseException
+from main.gbd_tool.hashing.gbd_hash import gbd_hash
 from main.util.util import eprint
 
 
