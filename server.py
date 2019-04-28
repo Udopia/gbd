@@ -8,6 +8,7 @@ from zipfile import ZipInfo
 
 import tatsu
 from flask import Flask, render_template, request, send_file, json
+from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from tatsu import exceptions
@@ -22,6 +23,7 @@ from main.core.hashing import gbd_hash
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 
 app = Flask(__name__)
+logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
