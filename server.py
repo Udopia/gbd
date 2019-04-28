@@ -189,7 +189,7 @@ def handle_normal_resolve_request(req):
             value = gbd_api.resolve(DATABASE, [hashed], [group],
                                     collapse=shall_collapse,
                                     pattern=pattern)
-            entries.append([group, value[0]])
+            entries.append([group, value[0].get(group)])
             result += htmlGenerator.generate_resolve_table_div(entries)
         except OperationalError:
             result += htmlGenerator.generate_warning("Group not found")
