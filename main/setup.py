@@ -1,19 +1,9 @@
-import pathlib
-
 from setuptools import setup
-
-# The directory containing this file
-HERE = pathlib.Path(__file__).parent
-
-# The text of the README file
-README = (HERE / "README.md").read_text()
-
 
 setup(name='global-benchmark-database-tool',
       version='0.1',
       description='A tool for global benchmark management',
-      long_description=README,
-      long_description_content_type="text/markdown",
+      long_description=open('README.md', 'rt').read(),
       url='https://https://github.com/Weitspringer/gbd',
       author='Markus Iser, Luca Springer',
       author_email='',
