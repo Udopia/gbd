@@ -7,7 +7,7 @@ setup(name='gbd-tool',
       author='Markus Iser, Luca Springer',
       author_email='',
       license='MIT',
-      packages=['gbd'],
+      packages=['gbd', 'gbd/database', 'gbd/hashing'],
       install_requires=[
           'flask',
           'tatsu',
