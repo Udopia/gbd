@@ -1,13 +1,13 @@
 from __future__ import print_function
-import sys
-import os
-import hashlib
-import gzip
+
 import bz2
-import lzma
+import gzip
+import hashlib
 import io
-import re
+import lzma
 import mmap
+import re
+import sys
 
 __all__ = ['gbd_hash', 'HASH_VERSION']
 
