@@ -1,6 +1,7 @@
 import csv
 import re
-from main.core.database import groups, tags
+
+from main.gbd_tool.database import groups, benchmark_administration
 
 
 def exists(database, cat):
@@ -55,4 +56,4 @@ def import_csv(database, filename, key, source, target):
             lst = [(row[key], row[source]) for row in csvreader if row[source].strip()]
             print("Attempting to insert {} values into table {}".format(len(lst), target))
             for (hash_, value_) in lst:
-                tags.add_tag(database, target, value_, hash_, False)
+                benchmark_administration.add_tag(database, target, value_, hash_, False)

@@ -28,3 +28,7 @@ hs_err_pid*
 # IntelliJ Files
 .idea/
 *.iml
+
+FETCH_HEAD
+
+*/global_benchmark_database_tool.egg-info/*
