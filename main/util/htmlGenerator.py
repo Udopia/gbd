@@ -63,7 +63,7 @@ def generate_resolve_table_div(entries):
         response += "           <tr>" \
                     "               <th scope=\"row\">{}</th>\n" \
                     "               <td>{}</td>\n" \
-                    "           </tr>\n".format(entry[0], *entry[1])
+                    "           </tr>\n".format(entry[0], entry[1])
     response += "       </tbody>\n" \
                 "   <table>\n" \
                 "</div>\n"
