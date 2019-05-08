@@ -7,9 +7,10 @@ Python 3
 
 ### Python Packages (Requirements)
 - tatsu (install with pip3)
-- global-benchmark-database-tool (install with pip3)
 - setuptools
 - flask
+- flask_limiter
+- global-benchmark-database-tool
 
 ### Getting Started
 - setup python3
