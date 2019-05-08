@@ -5,18 +5,15 @@
 ### Programming Language
 Python 3
 
-### Python Packages (Requirements)
-- tatsu (install with pip3)
-- setuptools
-- flask
-- flask_limiter
-- global-benchmark-database-tool
-
 ### Getting Started
 - setup python3
 - setup pip (pip3) and install required packages
+    ```console
+	    pip3 install tatsu setuptools flask flask_limiter global-benchmark-database-tool
+	```
 - clone repository
-- make sure path for python 3 in cli.py is correct (default: #!/usr/bin/python3)
+- make sure path for python 3 in cli.py is correct
+  (default: #!/usr/bin/python3)
 - make sure Python was compiled with SSL support
 
 ## Usage
