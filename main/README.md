@@ -23,6 +23,7 @@ Python 3
 - By default GBD works with a local sqlite3 database *local.db* which you have to define and give to the parameters of the
   methods in gbd_api. The easiest way is to set following path in the class of your choice:
   local_db_path = join(dirname(realpath(__file__)), 'local.db')
+  Important: You have to provide absolute paths to the api, not relative paths!!!
 - You can set up your database by using methods in gbd_api.py
 - If you want to provide this management system on a server, there will be a package for doing this
 
