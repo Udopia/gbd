@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='global-benchmark-database-tool',
-      version='0.1.3',
+      version='0.1.4',
       description='A tool for global benchmark management',
       long_description=open('README.md', 'rt').read(),
       long_description_content_type="text/markdown",
