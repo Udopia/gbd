@@ -3,7 +3,6 @@ import sqlite3
 from urllib.error import URLError
 
 from flask import json
-
 # internal packages
 from main.gbd_tool import import_data
 from main.gbd_tool.database import groups, benchmark_administration, search
