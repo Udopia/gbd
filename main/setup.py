@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='global-benchmark-database-tool',
-      version='0.1.4',
+      version='1.0.0',
       description='A tool for global benchmark management',
       long_description=open('README.md', 'rt').read(),
       long_description_content_type="text/markdown",
@@ -14,8 +14,8 @@ setup(name='global-benchmark-database-tool',
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.7",
       ],
-      packages=['global-benchmark-database-tool', 'global-benchmark-database-tool/database',
-                'global-benchmark-database-tool/hashing'],
+      packages=['gbd_tool', 'gbd_tool/database',
+                'gbd_tool/hashing'],
       include_package_data=True,
       install_requires=[
             'flask',
