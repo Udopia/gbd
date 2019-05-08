@@ -9,7 +9,7 @@ Python 3
 - setup python3
 - setup pip (pip3) and install required packages
     ```console
-	    pip3 install tatsu setuptools flask flask_limiter global-benchmark-database-tool
+	    pip3 install flask_limiter global-benchmark-database-tool
 	```
 - clone repository
 - make sure path for python 3 in cli.py is correct
