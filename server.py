@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import threading
-from os.path import isfile, basename, join, dirname, realpath
+from os.path import isfile, basename
 from sqlite3 import OperationalError
 from zipfile import ZipInfo, ZipFile
 
@@ -14,7 +14,7 @@ from flask_limiter.util import get_remote_address
 from gbd_tool import gbd_api
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from main.util import htmlGenerator, util
 
@@ -25,7 +25,7 @@ logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = join(dirname(realpath(__file__)), 'local.db')
+DATABASE = os.environ.get('GBD_DB')
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
