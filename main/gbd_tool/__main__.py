@@ -1,6 +1,6 @@
 import os
 import sys
-from os.path import join
+from os.path import join, isfile
 
 from flask import json
 
@@ -17,23 +17,28 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    print("Installing config data...")
+    print("||Installing config data||\n")
     if not os.path.isdir(sys_dir):
         os.mkdir(sys_dir)
     config_path = join(sys_dir, config_dir)
     if not os.path.isdir(config_path):
         os.mkdir(config_path)
     config = os.path.join(config_path, config_file)
+    print("Write to config file...")
     open(config, 'w').close()
     f = open(config, 'w')
     f.write('{}\n'.format(json.dumps({'{}'.format(config_dir): '{}'.format(config)})))
     f.close()
+    print("done\n")
     local_db_path = join(sys_dir, db_dir)
     if not os.path.isdir(local_db_path):
         os.mkdir(local_db_path)
     db = os.path.join(local_db_path, db_file)
-    f = open(db, 'w')
-    f.close()
+    if not isfile(db):
+        print("Create new default database file...")
+        open(db, 'w').close()
+        print("done\n")
+    print("||done||\n")
 
 
 if __name__ == "__main__":
