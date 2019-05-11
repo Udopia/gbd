@@ -25,8 +25,6 @@ logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-with open(config_path) as json_file:
-    data = json.load(json_file)
 
 local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
 DATABASE = os.environ.get('GBD_DB', local_db_path)
