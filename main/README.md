@@ -17,6 +17,11 @@ Python 3
 ### Getting Started
 - setup python3
 - make sure Python was compiled with SSL support
+- to get the default configuration up and running, simply type 
+    ```console
+	    gbd-tool-init
+	```
+  in your console
 - use package 'gbd_tool' for importing packages
 
 ## Usage
