@@ -24,7 +24,7 @@ setup(name='global-benchmark-database-tool',
       ],
       entry_points={
           'console_scripts': [
-              'gbd-tools-init = gbd_tool.__main__:main'
+              'gbd-tool-init = gbd_tool.__main__:main'
           ]
       },
       zip_safe=False)
