@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import threading
-from os.path import isfile, basename
+from os.path import isfile, basename, join, dirname, realpath
 from sqlite3 import OperationalError
 from zipfile import ZipInfo, ZipFile
 
@@ -25,7 +25,11 @@ logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = os.environ.get('GBD_DB')
+with open(config_path) as json_file:
+    data = json.load(json_file)
+
+local_db_path = join(dirname(realpath(__file__)), 'local.db')  # define the path for the default database
+DATABASE = os.environ.get('GBD_DB', local_db_path)
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
