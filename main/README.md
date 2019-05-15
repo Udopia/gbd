@@ -21,8 +21,12 @@ Python 3
     ```console
 	    sudo gbd-tool-init
 	```
-  in your console
-- use package 'gbd_tool' for importing packages
+  in your console. If you get an DistributionError, make sure your default python version the shell is using is python 3!
+    ```console
+     alias python=python3
+    ```
+  (see more: https://stackoverflow.com/questions/5846167/how-to-change-default-python-version)
+- when coding, use package 'gbd_tool' for importing components
 
 ## Usage
 - By default GBD works with a local sqlite3 database *local.db* which you have to define and give to the parameters of the
