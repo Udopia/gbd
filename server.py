@@ -29,7 +29,6 @@ with open(config_manager.get_config_file_path()) as json_data:
     config_data = json.loads(json_data.read())
     json_data.close()
 
-print(config_data.get(config_manager.db_key))
 DATABASE = os.environ.get('GBD_DB', config_data.get(config_manager.db_key))
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
