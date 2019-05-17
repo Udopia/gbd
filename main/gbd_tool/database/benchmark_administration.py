@@ -6,6 +6,10 @@ from main.gbd_tool.database.db import Database, DatabaseException
 from main.gbd_tool.hashing.gbd_hash import gbd_hash
 from main.util.util import eprint
 
+from multiprocessing import Pool, Lock
+import multiprocessing
+mutex = Lock()
+
 def add_tag(database, cat, tag, hash, force=False):
     info = groups.reflect(database, cat)
     if (info[0]['unique']):
@@ -44,30 +48,41 @@ def add_benchmark(database, hash, path):
             database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))
 
 
-def remove_benchmarks(database):
-    paths = database.value_query("SELECT value FROM benchmarks")
-    for p in paths:
-        if not isfile(p):
-            eprint("Problem '{}' not found. Removing...".format(p))
-            database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
+def remove_benchmarks(db):
+    with Database(db) as database:
+        paths = database.value_query("SELECT value FROM benchmarks")
+        for p in paths:
+            if not isfile(p):
+                eprint("Problem '{}' not found. Removing...".format(p))
+                database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
+
+def register_benchmark(db, path):
+    try:
+        with Database(db) as database:
+            hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
+            if len(hashes) is not 0:
+                eprint('Problem {} already hashed'.format(path))
+                return
+        eprint('Hashing {}'.format(path))
+        hashvalue = gbd_hash(path)
+        mutex.acquire()
+        try:
+            with Database(db) as database:
+                add_benchmark(database, hashvalue, path)
+        finally:
+            mutex.release()
+    except Exception as e:
+        eprint(e)
+        return
 
 # todo: parallelize hashing
-def register_benchmarks(database, benchmark_root):
-    for root, dirnames, filenames in os.walk(benchmark_root):
+def register_benchmarks(db, root):
+    pool = Pool(multiprocessing.cpu_count())
+    for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
-            if filename.endswith(".cnf") or filename.endswith(".cnf.gz") or filename.endswith(".cnf.lzma") or filename.endswith(".cnf.bz2"):
-                path = os.path.join(root, filename)
-                eprint('Found {}'.format(path))
-                try:
-                    hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
-                    if len(hashes) is not 0:
-                        eprint('Problem {} already hashed'.format(path))
-                        continue
-                    hashvalue = gbd_hash(path)
-                    add_benchmark(database, hashvalue, path)
-                except DatabaseException as e:
-                    eprint(e)
-                    return
-                except UnicodeDecodeError as e:
-                    eprint('Skipping file due to decoding error: {}'.format(e))
-                    continue
+            path = os.path.join(root, filename)
+            if path.endswith(".cnf") or path.endswith(".cnf.gz") or path.endswith(".cnf.lzma") or path.endswith(".cnf.bz2"):
+                # register_benchmark(database, os.path.join(root, filename))
+                pool.apply_async(register_benchmark, args=(db, path))
+    pool.close()
+    pool.join() 
