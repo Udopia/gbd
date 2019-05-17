@@ -25,13 +25,12 @@ def import_file(database, path, key, source, target):
 
 # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database otherwise.
 # With the constructor of a database object the __init__ method in db.py will be called
-def init_database(database, path=None):
-    with Database(database) as database:
-        if path is not None:
-            benchmark_administration.remove_benchmarks(database)
-            benchmark_administration.register_benchmarks(database, path)
-        else:
-            Database(database)
+def init_database(db, path=None):
+    if path is not None:
+        benchmark_administration.remove_benchmarks(db)
+        benchmark_administration.register_benchmarks(db, path)
+    else:
+        Database(db)
 
 
 # Get information of the whole database
