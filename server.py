@@ -38,6 +38,7 @@ THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 USER_AGENT_CLI = 'gbd_tool-cli'
 
+gbd_api = gbd_api(DATABASE)
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
@@ -59,10 +60,10 @@ def query():
     ua = request.headers.get('User-Agent')
     if ua == USER_AGENT_CLI:
         if query == 'None':
-            hashset = gbd_api.query_search(DATABASE)
+            hashset = gbd_api.query_search()
         else:
             try:
-                hashset = gbd_api.query_search(DATABASE, query)
+                hashset = gbd_api.query_search(query)
             except tatsu.exceptions.FailedParse:
                 return "Illegal query"
         response = []
@@ -74,7 +75,7 @@ def query():
         response = htmlGenerator.generate_html_header("en")
         response += htmlGenerator.generate_head("Results")
         try:
-            hashset = gbd_api.query_search(DATABASE, query)
+            hashset = gbd_api.query_search(query)
             response += htmlGenerator.generate_num_table_div(hashset)
         except exceptions.FailedParse:
             response += htmlGenerator.generate_warning("Non-valid query")
@@ -90,7 +91,7 @@ def queryzip():
     query = request.values.get('query')
     response = htmlGenerator.generate_html_header("en")
     try:
-        sorted_hash_set = sorted(gbd_api.query_search(DATABASE, query))
+        sorted_hash_set = sorted(gbd_api.query_search(query))
         if len(sorted_hash_set) != 0:
             if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
                 os.makedirs('{}'.format(ZIPCACHE_PATH))
@@ -114,7 +115,7 @@ def queryzip():
                 util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                 files = []
                 for h in sorted_hash_set:
-                    files.append(gbd_api.resolve(DATABASE, [h], ['benchmarks'])[0].get('benchmarks'))
+                    files.append(gbd_api.resolve([h], ['benchmarks'])[0].get('benchmarks'))
                 size = 0
                 for file in files:
                     zf = ZipInfo.from_file(file, arcname=None)
@@ -174,11 +175,11 @@ def handle_normal_resolve_request(req):
 
     entries = []
     if group == "":
-        all_groups = gbd_api.get_all_groups(DATABASE)
+        all_groups = gbd_api.get_all_groups()
         for attribute in all_groups:
             if not attribute.startswith("__"):
                 try:
-                    value_dict = gbd_api.resolve(DATABASE, [hashed], [attribute],
+                    value_dict = gbd_api.resolve([hashed], [attribute],
                                                  collapse=shall_collapse,
                                                  pattern=pattern)[0]
                     entries.append([attribute, value_dict.get(attribute)])
@@ -188,7 +189,7 @@ def handle_normal_resolve_request(req):
         return result
     else:
         try:
-            value = gbd_api.resolve(DATABASE, [hashed], [group],
+            value = gbd_api.resolve([hashed], [group],
                                     collapse=shall_collapse,
                                     pattern=pattern)
             entries.append([group, value[0].get(group)])
@@ -209,11 +210,11 @@ def handle_cli_resolve_request(req):
     entries = []
     try:
         if pattern != 'None':
-            dict_list = gbd_api.resolve(DATABASE, hashed, groups,
+            dict_list = gbd_api.resolve(hashed, groups,
                                         collapse=shall_collapse,
                                         pattern=pattern)
         else:
-            dict_list = gbd_api.resolve(DATABASE, hashed, groups, collapse=shall_collapse)
+            dict_list = gbd_api.resolve(hashed, groups, collapse=shall_collapse)
         for d in dict_list:
             entries.append(d)
         return json.dumps(entries)
@@ -250,7 +251,7 @@ def reflect():
                 "   </div>" \
                 "</nav>" \
                 "<hr>".format(url)
-    reflection = gbd_api.get_all_groups(DATABASE)
+    reflection = gbd_api.get_all_groups()
     response += htmlGenerator.generate_num_table_div(reflection)
     request_semaphore.release()
     return response
@@ -262,7 +263,7 @@ def reflect_group():
     try:
         group = request.args.get('group')
         if not group.startswith("__"):
-            info = gbd_api.get_group_info(DATABASE, group)
+            info = gbd_api.get_group_info(group)
             list = ["Name: {}".format(info.get('name')),
                     "Type: {}".format(info.get('type')),
                     "Unique: {}".format(info.get('unique')),
