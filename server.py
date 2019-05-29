@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import threading
-from os.path import isfile, basename, join, dirname, realpath
+from os.path import isfile, basename
 from sqlite3 import OperationalError
 from zipfile import ZipInfo, ZipFile
 
@@ -11,10 +11,10 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gbd_tool import gbd_api
+from gbd_tool import gbd_api, config_manager
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from main.util import htmlGenerator, util
 
@@ -25,7 +25,11 @@ logging.getLogger().addHandler(default_handler)
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = join(dirname(realpath(__file__)), 'local.db')
+with open(config_manager.get_config_file_path()) as json_data:
+    config_data = json.loads(json_data.read())
+    json_data.close()
+
+DATABASE = os.environ.get('GBD_DB', config_data.get(config_manager.db_key))
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
@@ -40,7 +44,6 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
-    print(app.logger)
     return render_template('home.html')
 
 
@@ -297,4 +300,3 @@ def create_zip_with_marker(zipfile, files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
-
