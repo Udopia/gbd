@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gbd_tool import gbd_api, config_manager
+from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -38,7 +38,7 @@ THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 USER_AGENT_CLI = 'gbd_tool-cli'
 
-gbd_api = gbd_api(DATABASE)
+gbd_api = GbdApi(DATABASE)
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
