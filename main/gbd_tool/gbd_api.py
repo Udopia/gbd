@@ -101,11 +101,13 @@ class GbdApi:
                 benchmark_administration.remove_tag(database, name, value, h)
 
     # Create an union of two hash lists and return resulting hash list
-    def hash_union(self, hash_list, other_hash_list):
+    @staticmethod
+    def hash_union(hash_list, other_hash_list):
         return hash_list.update(other_hash_list)
 
     # Create an intersection of two hash lists and return new hash list
-    def hash_intersection(self, hash_list, other_hash_list):
+    @staticmethod
+    def hash_intersection(hash_list, other_hash_list):
         return hash_list.intersection_update(other_hash_list)
 
     # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
@@ -119,7 +121,8 @@ class GbdApi:
             return hashes
 
     # Send a query search request to a running GBD server
-    def query_request(self, host, query, useragent):
+    @staticmethod
+    def query_request(host, query, useragent):
         try:
             return set(post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent}))
         except URLError:
@@ -148,7 +151,8 @@ class GbdApi:
             return result
 
     # Send a resolve request to a running GBD server
-    def resolve_request(self, host, hash_list, group_list, collapse, pattern, useragent):
+    @staticmethod
+    def resolve_request(host, hash_list, group_list, collapse, pattern, useragent):
         try:
             hash_list = json.dumps(hash_list)
             group_list = json.dumps(group_list)
