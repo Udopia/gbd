@@ -16,10 +16,10 @@ class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
     def __init__(self, database):
-        if self.database is None:
-            self.database = database
+        self.database = database
 
     # hash a CSV file
+    @staticmethod
     def hash_file(path):
         return gbd_hash(path)
 
@@ -62,6 +62,7 @@ class GbdApi:
 
     # Get all groups which are in the database
     def get_all_groups(self):
+        print(self.database)
         with Database(self.database) as database:
             return groups.reflect(database)
 
