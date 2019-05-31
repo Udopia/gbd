@@ -11,12 +11,12 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from gbd_tool.config_manager import ConfigManager
+from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from main.gbd_tool.config_manager import ConfigManager
-from main.gbd_tool.gbd_api import GbdApi
 from main.util import htmlGenerator, util
 
 USER_AGENT_CLI = 'gbd_tool-cli'

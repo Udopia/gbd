@@ -6,11 +6,11 @@ import re
 import sys
 from os.path import exists, join, dirname, realpath
 
+from gbd_tool.config_manager import ConfigManager
+from gbd_tool.gbd_api import GbdApi
 from gbd_tool.http_client import is_url
 
 import server
-from main.gbd_tool.config_manager import ConfigManager
-from main.gbd_tool.gbd_api import GbdApi
 from main.util.util import eprint, read_hashes, confirm
 
 config_handler = ConfigManager(join(dirname(realpath(__file__)), 'cli_config'))
