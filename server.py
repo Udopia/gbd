@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import threading
-from os.path import isfile, basename
+from os.path import isfile, basename, join, dirname, realpath
 from sqlite3 import OperationalError
 from zipfile import ZipInfo, ZipFile
 
@@ -11,36 +11,21 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from main.gbd_tool.config_manager import ConfigManager
+from main.gbd_tool.gbd_api import GbdApi
 from main.util import htmlGenerator, util
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG)
-
-app = Flask(__name__)
-logging.getLogger().addHandler(default_handler)
-app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
-limiter = Limiter(app, key_func=get_remote_address)
-
-with open(config_manager.get_config_file_path()) as json_data:
-    config_data = json.loads(json_data.read())
-    json_data.close()
-
-DATABASE = os.environ.get('GBD_DB', config_data.get(config_manager.db_key))
-ZIPCACHE_PATH = 'zipcache'
-ZIP_BUSY_PREFIX = '_'
-MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
-MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
-THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
-ZIP_SEMAPHORE = threading.Semaphore(4)
 USER_AGENT_CLI = 'gbd_tool-cli'
 
-gbd_api = GbdApi(DATABASE)
-request_semaphore = threading.Semaphore(10)
-check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+logging.basicConfig(filename='server.log', level=logging.DEBUG)
+logging.getLogger().addHandler(default_handler)
+app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
+limiter = Limiter(app, key_func=get_remote_address)
 
 
 @app.route("/", methods={'GET'})
@@ -53,7 +38,7 @@ def query_form():
     return render_template('query_form.html')
 
 
-@app.route("/query", methods=['POST'])  # query string über post
+@app.route("/query", methods=['POST'])  # query string post
 def query():
     request_semaphore.acquire()
     query = request.values.get('query')
@@ -301,3 +286,20 @@ def create_zip_with_marker(zipfile, files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
+
+
+if __name__ == '__main__':
+    config_handler = ConfigManager(join(dirname(realpath(__file__)), 'server_config'),
+                                   join(dirname(realpath(__file__)), 'cli_config/conf.json'))
+    DATABASE = os.environ.get('GBD_DB', config_handler.get_database_path())
+
+    ZIPCACHE_PATH = 'zipcache'
+    ZIP_BUSY_PREFIX = '_'
+    MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
+    MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
+    THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
+    ZIP_SEMAPHORE = threading.Semaphore(4)
+
+    gbd_api = GbdApi(DATABASE)
+    request_semaphore = threading.Semaphore(10)
+    check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
