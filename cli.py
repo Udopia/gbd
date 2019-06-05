@@ -10,8 +10,8 @@ from gbd_tool.config_manager import ConfigManager
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.http_client import is_url
 
-import server
-from main.util.util import eprint, read_hashes, confirm
+from main.util import eprint, read_hashes, confirm
+from server import server
 
 config_handler = ConfigManager(join(dirname(realpath(__file__)), 'cli_config'))
 # if no path was set in env. variable, use config path for database
@@ -112,7 +112,7 @@ def cli_resolve(args):
     if is_url(args.db) and not exists(args.db):
         try:
             dictionary_list = GbdApi.resolve_request(args.db, list(hashes), args.name, args.collapse,
-                                                      args.pattern, server.USER_AGENT_CLI)
+                                                     args.pattern, server.USER_AGENT_CLI)
             for d in dictionary_list:
                 print('\n{}'.format(d.get('hash')))
                 for group in args.name:

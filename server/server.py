@@ -17,7 +17,7 @@ from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from main.util import htmlGenerator, util
+from server import util, htmlGenerator
 
 USER_AGENT_CLI = 'gbd_tool-cli'
 
@@ -290,7 +290,7 @@ def create_zip_with_marker(zipfile, files, prefix):
 
 if __name__ == '__main__':
     config_handler = ConfigManager(join(dirname(realpath(__file__)), 'server_config'),
-                                   join(dirname(realpath(__file__)), 'cli_config/conf.json'))
+                                   join(dirname(realpath(__file__)), '../cli_config/conf.json'))
     DATABASE = os.environ.get('GBD_DB', config_handler.get_database_path())
 
     ZIPCACHE_PATH = 'zipcache'
