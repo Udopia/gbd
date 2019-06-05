@@ -17,22 +17,13 @@ Python 3
 ### Getting Started
 - setup python3
 - make sure Python was compiled with SSL support
-- to get the default configuration up and running, simply type 
-    ```console
-	    sudo gbd-tool-init
-	```
-  in your console. If you get an DistributionError, make sure your default python version the shell is using is python 3!
-    ```console
-     alias python=python3
-    ```
-  (see more: https://stackoverflow.com/questions/5846167/how-to-change-default-python-version)
 - when coding, use package 'gbd_tool' for importing components
 
 ## Usage
-- By default GBD works with a local sqlite3 database *local.db* which you have to define and give to the parameters of the
-  methods in gbd_api. The easiest way is to set following path in the class of your choice:
-  local_db_path = join(dirname(realpath(__file__)), 'local.db')
-  Important: You have to provide absolute paths to the api, not relative paths!!!
+- The GbdApi constructor needs an absolute path to your wished configuration directory - it does not have to exist
+- Optional, you can give this constructor a path to a existing database file which you want to use.
+- By default GBD works with a local (located in configuration directory) sqlite3 database *local.db*.
+  Important: You have to provide absolute paths to the GbdApi constructor, not relative paths!!!
 - You can set up your database by using methods in gbd_api.py
 - If you want to provide this management system on a server, there will be a package for doing this
 

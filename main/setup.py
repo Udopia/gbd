@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='global_benchmark_database_tool',
-      version='1.6.2',
+      version='2.2.3',
       description='A tool for global benchmark management',
       long_description=open('README.md', 'rt').read(),
       long_description_content_type="text/markdown",
@@ -22,9 +22,4 @@ setup(name='global_benchmark_database_tool',
           'setuptools',
           'tatsu',
       ],
-      entry_points={
-          'console_scripts': [
-              'gbd-tool-init = gbd_tool.__main__:main'
-          ]
-      },
       zip_safe=False)
