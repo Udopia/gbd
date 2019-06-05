@@ -1,5 +1,5 @@
 import os
-from os.path import join, isfile
+from os.path import join, exists
 
 from flask import json
 
@@ -22,13 +22,11 @@ class ConfigManager:
         database_path = os.environ.get('GBD_DB', database)
         if not os.path.isdir(self.config_dir):
             os.mkdir(self.config_dir)
-        if isfile(database_path):
-            config = open(join(self.config_dir, config_file), 'w')
-            config.write('{}\n'.format(json.dumps({db_key: database_path})))
-            config.close()
-        else:
-            raise ValueError('Given config file {} not found. Note that this has to be an absolute path!'
-                             .format(database_path))
+        if not exists(database):
+            open(database, 'w').close()
+        config = open(join(self.config_dir, config_file), 'w')
+        config.write('{}\n'.format(json.dumps({db_key: database_path})))
+        config.close()
 
     def get_config_file_path(self):
         return join(self.config_dir, config_file)
