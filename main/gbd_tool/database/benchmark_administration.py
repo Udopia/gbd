@@ -1,14 +1,15 @@
+import multiprocessing
 import os
+from multiprocessing import Pool, Lock
 from os.path import isfile
 
-from main.gbd_tool.database import groups
-from main.gbd_tool.database.db import Database, DatabaseException
-from main.gbd_tool.hashing.gbd_hash import gbd_hash
-from main.util.util import eprint
+from gbd_tool.database import groups
+from gbd_tool.database.db import Database
+from gbd_tool.hashing.gbd_hash import gbd_hash
+from gbd_tool.util import eprint
 
-from multiprocessing import Pool, Lock
-import multiprocessing
 mutex = Lock()
+
 
 def add_tag(database, cat, tag, hash, force=False):
     info = groups.reflect(database, cat)

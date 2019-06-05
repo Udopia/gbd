@@ -36,3 +36,6 @@ FETCH_HEAD
 */dist/*
 
 */global_benchmark_database_tool.egg-info/*
+
+cli_config/*
+server_config/*
