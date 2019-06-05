@@ -9,8 +9,8 @@ from os.path import exists, join, dirname, realpath
 from gbd_tool.config_manager import ConfigManager
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.http_client import is_url
+from gbd_tool.util import eprint, read_hashes, confirm
 
-from main.util import eprint, read_hashes, confirm
 from server import server
 
 config_handler = ConfigManager(join(dirname(realpath(__file__)), 'cli_config'))

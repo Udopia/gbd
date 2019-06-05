@@ -3,10 +3,10 @@ import os
 from multiprocessing import Pool, Lock
 from os.path import isfile
 
-from main.gbd_tool.database import groups
-from main.gbd_tool.database.db import Database
-from main.gbd_tool.hashing.gbd_hash import gbd_hash
-from main.util import eprint
+from gbd_tool.database import groups
+from gbd_tool.database.db import Database
+from gbd_tool.hashing.gbd_hash import gbd_hash
+from util import eprint
 
 mutex = Lock()
 
