@@ -6,9 +6,10 @@ from os.path import isfile
 from gbd_tool.database import groups
 from gbd_tool.database.db import Database
 from gbd_tool.hashing.gbd_hash import gbd_hash
-from util import eprint
+from gbd_tool.util import eprint
 
 mutex = Lock()
+
 
 def add_tag(database, cat, tag, hash, force=False):
     info = groups.reflect(database, cat)

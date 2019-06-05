@@ -11,7 +11,6 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gbd_tool.config_manager import ConfigManager
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
@@ -289,10 +288,7 @@ def create_zip_with_marker(zipfile, files, prefix):
 
 
 if __name__ == '__main__':
-    config_handler = ConfigManager(join(dirname(realpath(__file__)), 'server_config'),
-                                   join(dirname(realpath(__file__)), '../cli_config/conf.json'))
-    DATABASE = os.environ.get('GBD_DB', config_handler.get_database_path())
-
+    DATABASE = os.environ.get('GBD_DB')
     ZIPCACHE_PATH = 'zipcache'
     ZIP_BUSY_PREFIX = '_'
     MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
@@ -300,6 +296,6 @@ if __name__ == '__main__':
     THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
     ZIP_SEMAPHORE = threading.Semaphore(4)
 
-    gbd_api = GbdApi(DATABASE)
+    gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
     request_semaphore = threading.Semaphore(10)
     check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
