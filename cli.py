@@ -6,16 +6,13 @@ import re
 import sys
 from os.path import exists, join, dirname, realpath
 
-from gbd_tool.config_manager import ConfigManager
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.http_client import is_url
 from gbd_tool.util import eprint, read_hashes, confirm
 
 from server import server
 
-config_handler = ConfigManager(join(dirname(realpath(__file__)), 'cli_config'))
-# if no path was set in env. variable, use config path for database
-DEFAULT_DATABASE = os.environ.get('GBD_DB', config_handler.get_database_path())
+config_path = join(dirname(realpath(__file__)), 'cli_config')
 
 
 def cli_hash(args):
@@ -25,12 +22,12 @@ def cli_hash(args):
 
 def cli_import(args):
     eprint('Importing Data from CSV-File: {}'.format(args.path))
-    api = GbdApi(args.db)
+    api = GbdApi(config_path, args.db)
     api.import_file(args.path, args.key, args.source, args.target)
 
 
 def cli_init(args):
-    api = GbdApi(args.db)
+    api = GbdApi(config_path, args.db)
     if args.path is not None:
         print(args.db)
         eprint('Removing invalid benchmarks from path: {}'.format(args.path))
@@ -45,7 +42,7 @@ def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    api = GbdApi(args.db)
+    api = GbdApi(config_path, args.db)
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
@@ -77,7 +74,7 @@ def cli_get(args):
             return
     else:
         try:
-            api = GbdApi(args.db)
+            api = GbdApi(config_path, args.db)
             hashes = api.query_search(args.query)
         except ValueError as e:
             print(e)
@@ -100,7 +97,7 @@ def process_hashes(hashes, union, intersection):
 # associate an attribute with a hash and a value
 def cli_set(args):
     hashes = read_hashes()
-    api = GbdApi(args.db)
+    api = GbdApi(config_path, args.db)
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
         api.remove_attribute(args.name, args.value, hashes)
     else:
@@ -121,7 +118,7 @@ def cli_resolve(args):
             print(e)
         return
     else:
-        api = GbdApi(args.db)
+        api = GbdApi(config_path, args.db)
         dictionary_list = api.resolve(hashes, args.name, args.pattern, args.collapse)
         for d in dictionary_list:
             print('\n{}'.format(d.get('hash')))
@@ -130,7 +127,7 @@ def cli_resolve(args):
 
 
 def cli_info(args):
-    api = GbdApi(args.db)
+    api = GbdApi(config_path, args.db)
     if args.name is not None:
         if args.values:
             info = api.get_group_values(args.name)
@@ -180,7 +177,7 @@ def column_type(s):
 def main():
     parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
 
-    parser.add_argument('-d', "--db", help='Specify database to work with', default=DEFAULT_DATABASE, nargs='?')
+    parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
