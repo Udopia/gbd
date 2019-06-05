@@ -23,7 +23,7 @@ USER_AGENT_CLI = 'gbd_tool-cli'
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 logging.getLogger().addHandler(default_handler)
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder="templates")
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
