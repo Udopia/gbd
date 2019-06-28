@@ -11,36 +11,24 @@ from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from gbd_tool import gbd_api
+from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
-from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-from main.util import htmlGenerator, util
+from server import util, htmlGenerator
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG)
-
-app = Flask(__name__)
-logging.getLogger().addHandler(default_handler)
-app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
-limiter = Limiter(app, key_func=get_remote_address)
-
-DATABASE = join(dirname(realpath(__file__)), 'local.db')
-ZIPCACHE_PATH = 'zipcache'
-ZIP_BUSY_PREFIX = '_'
-MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
-MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
-THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
-ZIP_SEMAPHORE = threading.Semaphore(4)
 USER_AGENT_CLI = 'gbd_tool-cli'
 
-request_semaphore = threading.Semaphore(10)
-check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+logging.basicConfig(filename='server.log', level=logging.DEBUG)
+logging.getLogger().addHandler(default_handler)
+app = Flask(__name__, static_folder="static", template_folder="templates")
+app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
+limiter = Limiter(app, key_func=get_remote_address)
 
 
 @app.route("/", methods={'GET'})
 def welcome():
-    print(app.logger)
     return render_template('home.html')
 
 
@@ -49,17 +37,17 @@ def query_form():
     return render_template('query_form.html')
 
 
-@app.route("/query", methods=['POST'])  # query string über post
+@app.route("/query", methods=['POST'])  # query string post
 def query():
     request_semaphore.acquire()
     query = request.values.get('query')
     ua = request.headers.get('User-Agent')
     if ua == USER_AGENT_CLI:
         if query == 'None':
-            hashset = gbd_api.query_search(DATABASE)
+            hashset = gbd_api.query_search()
         else:
             try:
-                hashset = gbd_api.query_search(DATABASE, query)
+                hashset = gbd_api.query_search(query)
             except tatsu.exceptions.FailedParse:
                 return "Illegal query"
         response = []
@@ -71,7 +59,7 @@ def query():
         response = htmlGenerator.generate_html_header("en")
         response += htmlGenerator.generate_head("Results")
         try:
-            hashset = gbd_api.query_search(DATABASE, query)
+            hashset = gbd_api.query_search(query)
             response += htmlGenerator.generate_num_table_div(hashset)
         except exceptions.FailedParse:
             response += htmlGenerator.generate_warning("Non-valid query")
@@ -87,7 +75,7 @@ def queryzip():
     query = request.values.get('query')
     response = htmlGenerator.generate_html_header("en")
     try:
-        sorted_hash_set = sorted(gbd_api.query_search(DATABASE, query))
+        sorted_hash_set = sorted(gbd_api.query_search(query))
         if len(sorted_hash_set) != 0:
             if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
                 os.makedirs('{}'.format(ZIPCACHE_PATH))
@@ -111,7 +99,7 @@ def queryzip():
                 util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
                 files = []
                 for h in sorted_hash_set:
-                    files.append(gbd_api.resolve(DATABASE, [h], ['benchmarks'])[0].get('benchmarks'))
+                    files.append(gbd_api.resolve([h], ['benchmarks'])[0].get('benchmarks'))
                 size = 0
                 for file in files:
                     zf = ZipInfo.from_file(file, arcname=None)
@@ -171,11 +159,11 @@ def handle_normal_resolve_request(req):
 
     entries = []
     if group == "":
-        all_groups = gbd_api.get_all_groups(DATABASE)
+        all_groups = gbd_api.get_all_groups()
         for attribute in all_groups:
             if not attribute.startswith("__"):
                 try:
-                    value_dict = gbd_api.resolve(DATABASE, [hashed], [attribute],
+                    value_dict = gbd_api.resolve([hashed], [attribute],
                                                  collapse=shall_collapse,
                                                  pattern=pattern)[0]
                     entries.append([attribute, value_dict.get(attribute)])
@@ -185,7 +173,7 @@ def handle_normal_resolve_request(req):
         return result
     else:
         try:
-            value = gbd_api.resolve(DATABASE, [hashed], [group],
+            value = gbd_api.resolve([hashed], [group],
                                     collapse=shall_collapse,
                                     pattern=pattern)
             entries.append([group, value[0].get(group)])
@@ -206,11 +194,11 @@ def handle_cli_resolve_request(req):
     entries = []
     try:
         if pattern != 'None':
-            dict_list = gbd_api.resolve(DATABASE, hashed, groups,
+            dict_list = gbd_api.resolve(hashed, groups,
                                         collapse=shall_collapse,
                                         pattern=pattern)
         else:
-            dict_list = gbd_api.resolve(DATABASE, hashed, groups, collapse=shall_collapse)
+            dict_list = gbd_api.resolve(hashed, groups, collapse=shall_collapse)
         for d in dict_list:
             entries.append(d)
         return json.dumps(entries)
@@ -247,7 +235,7 @@ def reflect():
                 "   </div>" \
                 "</nav>" \
                 "<hr>".format(url)
-    reflection = gbd_api.get_all_groups(DATABASE)
+    reflection = gbd_api.get_all_groups()
     response += htmlGenerator.generate_num_table_div(reflection)
     request_semaphore.release()
     return response
@@ -259,7 +247,7 @@ def reflect_group():
     try:
         group = request.args.get('group')
         if not group.startswith("__"):
-            info = gbd_api.get_group_info(DATABASE, group)
+            info = gbd_api.get_group_info(group)
             list = ["Name: {}".format(info.get('name')),
                     "Type: {}".format(info.get('type')),
                     "Unique: {}".format(info.get('unique')),
@@ -298,3 +286,16 @@ def create_zip_with_marker(zipfile, files, prefix):
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
 
+
+if __name__ == '__main__':
+    DATABASE = os.environ.get('GBD_DB')
+    ZIPCACHE_PATH = 'zipcache'
+    ZIP_BUSY_PREFIX = '_'
+    MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
+    MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
+    THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
+    ZIP_SEMAPHORE = threading.Semaphore(4)
+
+    gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
+    request_semaphore = threading.Semaphore(10)
+    check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
