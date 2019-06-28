@@ -17,21 +17,24 @@ DEFAULT_DATABASE = os.environ.get('GBD_DB', local_db_path)  # if no path was set
 
 
 def cli_hash(args):
-    eprint('Hashing Benchmark: {}'.format(args.path))
-    print(gbd_api.hash_file(args.path))
+    path = os.path.abspath(args.path)
+    eprint('Hashing Benchmark: {}'.format(path))
+    print(gbd_api.hash_file(path))
 
 
 def cli_import(args):
-    eprint('Importing Data from CSV-File: {}'.format(args.path))
-    gbd_api.import_file(args.db, args.path, args.key, args.source, args.target)
+    path = os.path.abspath(args.path)
+    eprint('Importing Data from CSV-File: {}'.format(path))
+    gbd_api.import_file(args.db, path, args.key, args.source, args.target)
 
 
 def cli_init(args):
     if args.path is not None:
+        path = os.path.abspath(args.path)
         print(args.db)
-        eprint('Removing invalid benchmarks from path: {}'.format(args.path))
-        eprint('Registering benchmarks from path: {}'.format(args.path))
-        gbd_api.init_database(args.db, args.path)
+        eprint('Removing invalid benchmarks from path: {}'.format(path))
+        eprint('Registering benchmarks from path: {}'.format(path))
+        gbd_api.init_database(args.db, path)
     else:
         gbd_api.init_database(args.db)
 
