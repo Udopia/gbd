@@ -9,8 +9,7 @@ RUN apt-get update && apt-get install -y \
   tatsu \
   setuptools \
   flask && \
- git clone https://github.com/Udopia/gbd.git && \
- chmod +x /gbd/run_server.sh
+ chmod +x run_server.sh
 ENV LC_ALL=C.UTF-8 \
   LANG=C.UTF-8
 WORKDIR /gbd
