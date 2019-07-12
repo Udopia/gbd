@@ -59,6 +59,6 @@ deploy:
     - chmod 600 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H baldur.iti.kit.edu >> ~/.ssh/known_hosts
+    - ssh-keyscan -H baldur3.iti.kit.edu >> ~/.ssh/known_hosts
   script:
     - ssh deploy@baldur3.iti.kit.edu "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml stop; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml rm --force; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml pull; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml up -d; docker logout ${CI_REGISTRY}"
