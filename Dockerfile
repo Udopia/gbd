@@ -1,4 +1,5 @@
 FROM ubuntu:18.04
+COPY . /
 RUN apt-get update && apt-get install -y \
   git \
   python3 \
@@ -9,9 +10,9 @@ RUN apt-get update && apt-get install -y \
   tatsu \
   setuptools \
   flask && \
- chmod +x run_server.sh
+ chmod +x run_server.sh \
+ && rm -rf /var/lib/apt/lists/*
 ENV LC_ALL=C.UTF-8 \
   LANG=C.UTF-8
-WORKDIR /gbd
 EXPOSE 5000
 CMD ./run_server.sh
