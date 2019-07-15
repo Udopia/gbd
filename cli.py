@@ -10,7 +10,7 @@ from gbd_tool.gbd_api import GbdApi
 from gbd_tool.http_client import is_url
 from gbd_tool.util import eprint, read_hashes, confirm
 
-from server import server
+from env import USER_AGENT_CLI
 
 config_path = join(dirname(realpath(__file__)), 'cli_config')
 
@@ -71,7 +71,7 @@ def cli_group(args):
 def cli_get(args):
     if is_url(args.db) and not exists(args.db):
         try:
-            hashes = GbdApi.query_request(args.db, args.query, server.USER_AGENT_CLI)
+            hashes = GbdApi.query_request(args.db, args.query, USER_AGENT_CLI)
         except ValueError:
             print("Path does not exist or cannot connect")
             return
@@ -112,7 +112,7 @@ def cli_resolve(args):
     if is_url(args.db) and not exists(args.db):
         try:
             dictionary_list = GbdApi.resolve_request(args.db, list(hashes), args.name, args.collapse,
-                                                     args.pattern, server.USER_AGENT_CLI)
+                                                     args.pattern, USER_AGENT_CLI)
             for d in dictionary_list:
                 print('\n{}'.format(d.get('hash')))
                 for group in args.name:
