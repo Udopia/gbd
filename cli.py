@@ -123,10 +123,14 @@ def cli_resolve(args):
     else:
         api = GbdApi(config_path, args.db)
         dictionary_list = api.resolve(hashes, args.name, args.pattern, args.collapse)
-        for d in dictionary_list:
-            print('\n{}'.format(d.get('hash')))
-            for group in args.name:
-                print("{}: {}".format(group, d.get(group)))
+        if args.markus:
+            for d in dictionary_list:
+                print('{} {}'.format(d.get('hash'), d.get(args.name[0])))
+        else:
+            for d in dictionary_list:
+                print('\n{}'.format(d.get('hash')))
+                for group in args.name:
+                    print("{}: {}".format(group, d.get(group)))
 
 
 def cli_info(args):
@@ -252,6 +256,7 @@ def main():
                                 default=["benchmarks"], nargs='*')
     parser_resolve.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_resolve.add_argument('-p', '--pattern', help='Substring that must occur in path')
+    parser_resolve.add_argument('-m', '--markus', action='store_true', help='Concise mode')
     parser_resolve.set_defaults(func=cli_resolve)
 
     # evaluate arguments
