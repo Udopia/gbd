@@ -18,7 +18,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from server import util, htmlGenerator
 
-USER_AGENT_CLI = 'gbd_tool-cli'
+from env import USER_AGENT_CLI
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 logging.getLogger().addHandler(default_handler)
