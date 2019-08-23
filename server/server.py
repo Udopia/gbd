@@ -26,6 +26,17 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
+DATABASE = os.environ.get('GBD_DB')
+ZIPCACHE_PATH = 'zipcache'
+ZIP_BUSY_PREFIX = '_'
+MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
+MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
+THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
+ZIP_SEMAPHORE = threading.Semaphore(4)
+
+gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
+request_semaphore = threading.Semaphore(10)
+check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 @app.route("/", methods={'GET'})
 def welcome():
@@ -287,15 +298,3 @@ def create_zip_with_marker(zipfile, files, prefix):
     ZIP_SEMAPHORE.release()
 
 
-if __name__ == '__main__':
-    DATABASE = os.environ.get('GBD_DB')
-    ZIPCACHE_PATH = 'zipcache'
-    ZIP_BUSY_PREFIX = '_'
-    MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
-    MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
-    THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
-    ZIP_SEMAPHORE = threading.Semaphore(4)
-
-    gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
-    request_semaphore = threading.Semaphore(10)
-    check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
