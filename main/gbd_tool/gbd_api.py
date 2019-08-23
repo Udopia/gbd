@@ -3,20 +3,21 @@ import sqlite3
 from urllib.error import URLError
 
 from flask import json
-
 # internal packages
-from main.gbd_tool import import_data
-from main.gbd_tool.database import groups, benchmark_administration, search
-from main.gbd_tool.database.db import Database
-from main.gbd_tool.hashing.gbd_hash import gbd_hash
-from main.gbd_tool.http_client import post_request
+from gbd_tool import import_data
+from gbd_tool.config_manager import ConfigManager
+from gbd_tool.database import groups, benchmark_administration, search
+from gbd_tool.database.db import Database
+from gbd_tool.hashing.gbd_hash import gbd_hash
+from gbd_tool.http_client import post_request
 
 
 class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
-    def __init__(self, database):
-        self.database = database
+    def __init__(self, config_path, database):
+        self.config_manager = ConfigManager(config_path, database)
+        self.database = self.config_manager.get_database_path()
 
     # hash a CSV file
     @staticmethod

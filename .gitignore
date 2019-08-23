@@ -1,5 +1,6 @@
 *.db
 *.xls
+*.pyc
 
 # Compiled class file
 *.class
