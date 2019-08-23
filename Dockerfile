@@ -15,5 +15,5 @@ RUN apt-get update && apt-get install -y \
 ENV LC_ALL=C.UTF-8 \
   LANG=C.UTF-8
 EXPOSE 5000
-cd server 
+RUN cd server 
 CMD ./run_server.sh
