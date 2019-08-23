@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
   tatsu \
   setuptools \
   flask && \
+ cd server
  chmod +x run_server.sh \
  && rm -rf /var/lib/apt/lists/*
 ENV LC_ALL=C.UTF-8 \
