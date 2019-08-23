@@ -1,7 +1,7 @@
 import csv
 import re
 
-from main.gbd_tool.database import groups, benchmark_administration
+from gbd_tool.database import groups, benchmark_administration
 
 
 def exists(database, cat):
@@ -35,6 +35,7 @@ def get_header(filename, key_column):
 def create_group(database, filename, csv_column, db_column):
     with open(filename, newline='') as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
+        # print("Importing: {}".format(csvreader.fieldnames))
         values = [line[csv_column] for line in csvreader]
         sqltype = determine_type(database, values)
         print('Column {} has type {} [values: {}, {}, {}, ...]'.format(csv_column, sqltype, values[0], values[1],
@@ -46,7 +47,7 @@ def import_csv(database, filename, key, source, target):
     with open(filename, newline='') as csvfile:
         if not exists(database, target):
             print("Creating table {}".format(target))
-            create_group(database, csvfile, source, target)
+            create_group(database, filename, source, target)
             csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
             lst = [(row[key], row[source]) for row in csvreader if row[source].strip()]
             print("Inserting {} values into table {}".format(len(lst), target))

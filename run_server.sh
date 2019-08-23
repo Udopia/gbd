@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-python3 server.py
-FLASK_APP=server.py flask run --host=0.0.0.0

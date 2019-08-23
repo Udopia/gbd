@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static',
+        filename='resources/gbd_logo_small.png') }}"></a>
+    <a class="navbar-brand" href="#"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/groups/all">Groups</a>
+          <a class="nav-item nav-link" href="/query/form">Search</a>
+          <a class="nav-item nav-link" href="/resolve/form">Resolve</a>
+        </div>
+      </div>
+    </nav>
+    <hr>
+    <main>
+    <div class="container">
+        <div class="container" id="header">
+            <h1>
+                gbd (Global Benchmark Database)
+            </h1>
+            <p>
+                A tool for collaborative benchmark meta-data management
+            </p>
+        </div>
+        <div class="container fluid">
+            <div id="programming-language">
+                <h3>
+                    Programming Language
+                </h3>
+                <p>
+                    Python 3
+                </p>
+            </div>
+            <div id="python-packages-requirements">
+                <h3>
+                    Python Packages (Requirements)
+                </h3>
+                <ul>
+                    <li>
+                        tatsu
+                    </li>
+                    <li>
+                        setuptools
+                    </li>
+                    <li>
+                        flask
+                    </li>
+                    <li>
+                        Linux OS or Linux Subsystem for Windows
+                    </li>
+                </ul>
+            </div>
+            <div id="getting-started">
+                <h3>
+                    Getting Started
+                </h3>
+                <ul>
+                    <li>
+                        setup python3
+                    </li>
+                    <li>
+                        setup pip and install required packages
+                    </li>
+                    <li>
+                        clone repository
+                    </li>
+                    <li>
+                        make sure path in gbd.py is correct (default: #!/usr/bin/python3)
+                    </li>
+                    <li>
+                        to start the server, run "sh run_server.sh" on your command line interface
+                        (Linux/Linux Subsystem)
+                    </li>
+                </ul>
+            </div>
+            <div id="usage">
+                <h3>
+                    Usage
+                </h3>
+                <p>
+                    By default gbd works with a local database
+                    <em>
+                        local.db
+                    </em>
+                    which (if not present) is created in the current working directory. To use another database it can
+                    be specified with
+                    a commandline parameter.
+                </p>
+            </div>
+            <div class="container" id="help">
+                <h5 id="help-on-basic-commands">
+                    Help on basic commands
+                </h5>
+                <pre><code>./gbd.py -h
+                </code></pre>
+                <h5 id="help-on-specific-command">
+                    Help on specific command
+                </h5>
+                <pre><code>./gbd.py [command] -h
+                </code></pre>
+                <h5 id="initialize-local-database">
+                    Initialize local database
+                </h5>
+                <pre><code>./gbd.py init [path]
+                </code></pre>
+                </div>
+            <div id="documentation">
+                <h3>
+                    Documenation
+                </h3>
+                <p>
+                    GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in
+                    Oxford, UK. Thus,
+                    two resources can now be used as documentation of the system.
+                </p>
+                <div id="folders">
+                    <h6 id="doc">
+                        doc/
+                    </h6>
+                    <p>
+                        The directory contains the Latex source of the original paper published at POS 2018.
+                    </p>
+                    <h6 id="presentation">
+                        presentation/
+                    </h6>
+                    <p>
+                        The directory contains the Latex source of the presentation slides as presented at POS 2018.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+    </body>
+</html>

@@ -1,0 +1,977 @@
+e555c1cf9e4e16a153ad742983e4d022 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-43-85-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-43-85-sat.cnf
+3c3fa8682e20d30eef7436bc774566be /raid/iser/cnf/sat2018/main/Ofer/course0.2_2018_3.cnf
+9511e48aa3100172b0dadf5ba2799e02 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-5-17-s.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-sat/partial-5-17-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/hard-sat/partial-5-17-s.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/industrial/anbulagan/hard-sat/partial-5-17-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/hard-sat/partial-5-17-s.cnf /raid/iser/cnf/sat2014/application/partial-5-17-s.cnf /raid/iser/cnf/sat2015/main/partial-5-17-s.cnf
+8c4aafa90e486e154a44b27d2ecbb4ad /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v2400c266431g9.cnf
+5c5175f4b09cdb5b1c9e67867b550da6 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/biere/dinphil/dp04u03.shuffled.cnf
+3a5549c5cc01d78e79c12bb6b9e9cd76 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-124.cnf
+7b8f2da54860eb9fe58a9d057055910d /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/apex7_gr_2pin_w4.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/apex7_gr_2pin_w4.shuffled.cnf
+3a0afe412d167f85b61ba499033ce7c3 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf.mis-120.debugged.cnf
+ae9c6b57de1537fa946a5d697ade8e69 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-557.cnf
+31c7ffc26775f5373163eaeaafd5fc4e /raid/iser/cnf/sat2016/app16/SC-past/16pipe_16_ooo.cnf
+1dc49db3b1316e735e7ec99dc315b3d9 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/Urquhart-s5-b3.shuffled-as.sat03-1572.cnf.mis-95.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/Urquhart-s5-b3.shuffled-as.sat03-1572.cnf.mis-95.debugged.cnf
+cc5710fe689b54ca2998fcac96f72f2b /raid/iser/cnf/sat2018/main/Porkhunov/mchess_15.cnf
+b4006a02f709108d6e804487981754ac /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h29-unknown.cnf
+43c2cb2b2be99329c6dbbd0cbee0080d /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g4.cnf
+e587e6a56fd12d4c4ff7dd8cda25cb3c /raid/iser/cnf/sat2018/main/final/CRIL/T86.2.0.cnf
+8f88029809ace49519aee16fa825951c /raid/iser/cnf/sat2018/main/Mayer-Eichberger/8-4-10.cnf
+200368bfbc0a085cb407785dd00df59f /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-465.cnf
+554dad1527061aa46259d4955c9dd0a8 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l05-ipc5-h27-unknown.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l05-ipc5-h27-unknown.cnf
+33d8164eb81ebf27f8b0223cfcf3e6d9 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x0-380.cnf
+85e8a6b566f61bdbf5368d417392b174 /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/simon/sat02/6pipe_6_ooo.shuffled-as.sat03-413.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT03/industrial/simon/sat02/6pipe_6_ooo.shuffled-as.sat03-413.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/application/SAT03/industrial/simon/sat02/6pipe_6_ooo.shuffled-as.sat03-413.cnf
+192165aaeb4ab853cbf947ec8860b1d4 /raid/iser/cnf/sat2018/main/Ofer/courses0.12_2017_9.cnf
+fff1afad7630f98a5910436647a9d2f8 /raid/iser/cnf/sat2014/application/6s168-opt.cnf /raid/iser/cnf/sat2015/main/6s168-opt.cnf
+d6aece3ac09cccd027684b5fb43ced96 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf.mis-100.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf.mis-100.debugged.cnf
+4e6ed390306a4601042b3e151acc3556 /raid/iser/cnf/sat2010/mixed/anbulagan/partial-5-17-u.cnf.gz
+2861b4788a60a2e02b6c0b1697c8a609 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x1e3-200.cnf
+3aac83b79305ff3ac3bb273ab8872f41 /raid/iser/cnf/sat2008/simon-s02b-r4b1k1.2.cnf.gz
+780ab315db161f24a28dd1786e6047af /raid/iser/cnf/sat2016/app16/SC-past/li-exam-61.cnf
+4bea9a4b772638c61162569a47f483f4 /raid/iser/cnf/sat2016/app16/SC-past/gss-29-s100.cnf
+2aa1ed6323f353880bb874fc4a717673 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/alu2_gr_rcs_w7.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/alu2_gr_rcs_w7.shuffled.cnf
+e2397a09ef0fc9d8f6bc7c61b97d71d3 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-16-31-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-16-31-sat.cnf
+33a1fb90ff6cf50f587acd688bad96b1 /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1100-m7545-k4-l4-s310659001.sat05-524.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest04-lksat-n1100-m7545-k4-l4-s310659001.sat05-524.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1100-m7545-k4-l4-s310659001.sat05-524.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1100-m7545-k4-l4-s310659001.sat05-524.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1100-m7545-k4-l4-s310659001.sat05-524.reshuffled-07.cnf
+39f3ad1d2197a13433203dad24d00226 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/total-10-17-s.cnf
+66bed3240c8863a5aa7e8ea864157f9d /raid/iser/cnf/sat2006/SAT-Race_TS_1/hoons-vbmc-s04-07.cnf.gz /raid/iser/cnf/sat2006/SAT-Race_TS_2/hoons-vbmc-s04-07.cnf.gz
+ea74e9e57042a96b0d64e499d29ed1cb /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2640c305320gyes10.cnf
+2b3f5b6bc38de69fb8a7b09a936564ed /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/total-5-19-s.cnf
+848b0bb42fd4e0311dd61e0138792e07 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/connamacher/connm-d0.02/connm-ue-csp-sat-n800-d0.02-s111845174.used-as.sat04-958.cnf
+699f84e813df4316b6d1f9087bb475b7 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-3-4-unsat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-3-4-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-3-4-unsat.cnf
+27c146f8d612fdddde3015715b56c47b /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-128.cnf
+ebd178e84c07d15167639390766674cf /raid/iser/cnf/sat2014/application/hitag2-10-60-0-0x0ffdbe60727f161-57.cnf
+48a1b96d89232904895b277134d7d14e /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-aerielogic/w11_20.cnf
+e7930e7a6eae3f2fd570743f4fa32ec3 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel3.cnf
+da90a92e31a744a36ea0125c89f73d04 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/c880_gr_rcs_w5.shuffled.cnf
+dcf6d23756903ac37f202668070926d1 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-6x8.cnf
+5682990af4f1517301d6a4123ebfe84a /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/schup-l2s-bc56s-1-k391.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/schup-l2s-bc56s-1-k391.cnf /raid/iser/cnf/sat2016/app16/SC-past/schup-l2s-bc56s-1-k391.cnf
+b85b142367dd5f6e9de87be7c49d25d4 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/pmg-14-UNSAT.sat05-3942.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/pmg-14-UNSAT.sat05-3942.reshuffled-07.cnf
+e3bfc51543b123eb1fbaf8bbf09acfeb /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-5-13-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-5-13-u.cnf
+fc6bb4da4c958624ec8333ca0a4fb8c4 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/fpga_routing/too_large_gr_rcs_w5.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/too_large_gr_rcs_w5.shuffled.cnf
+5da778728746a868a526ba51c0ba882f /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-240.cnf
+5eece839fae8d544ae40dd6a831b8efd /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf.mis-111.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf.mis-111.debugged.cnf
+7a2a5e053e1bb05e39e47dc0425df874 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-clqcolor-30-19-20.sat05-1256.reshuffled-07.cnf
+c5001ac75deef125617849e50daf89d9 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes3.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes3.cnf
+4cf8983fe6c3286623c916910bae0d2a /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/een-pico-prop05-50.cnf
+b65d056ee3882f9e70d697d067187f64 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/unsat-set-b-fclqcolor-10-07-09.sat05-1282.reshuffled-07.cnf.mis-140.debugged.cnf
+d9407df0473ac93e217dda726c5a3f55 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/9symml_gr_rcs_w5.shuffled.cnf
+9791c444910d6980bbb1481699ecaeac /raid/iser/cnf/sat2014/crafted/bvadd_27079.cnf
+8ea839a1615cdd2e789dbc4c347e4fe2 /raid/iser/cnf/sat2008/schup-l2s-motst-2-k315.cnf.gz
+5987c118b2e467c83b49bf67077b7b72 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-unsat-135-2.sat05-2354.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-unsat-135-2.sat05-2354.reshuffled-07.cnf
+abb1cefb7f2591e79d8ba128d5ee98b6 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/aim-200-6_0-yes1-3.cnf.mis-136.debugged.cnf
+941a2a8b4b12c5d64221c44abc33abe3 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-565.cnf
+da06ff7aa017eb56924b451fef60011c /raid/iser/cnf/sat2018/main/Mayer-Eichberger/7-5-6.cnf
+efacc4fedaa02f7936f92d0cee4a607b /raid/iser/cnf/sat2014/application/pb_300_10_lb_08.cnf
+6a175ad154e01d534201c6113480f426 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/longmult9.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult9.cnf
+c1d3d82abf4f70c0ca0f1550a85de715 /raid/iser/cnf/sat2014/application/bob12m04.cnf
+d2a8096bf63a0d7124d0009186844b33 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/schup-l2s-guid-1-k56.cnf /raid/iser/cnf/sat2009/application/SAT_RACE06/schup-l2s-guid-1-k56.cnf /raid/iser/cnf/sat2012/application/SATCompetition2009/application/SAT_RACE06/schup-l2s-guid-1-k56.cnf
+b196a76528ddf28ea76cfbac928e889e /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-666.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-666.cnf
+59c1977360920628cc5ef4b43682165e /raid/iser/cnf/sat2007/crafted/spence/hard/s109-100.cnf
+6f287438f3ca2efc7826716cd6c71f6b /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-5.debugged.cnf
+4e941491d23478da5d73ed7b47fedf45 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-10-19-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-10-19-sat.cnf
+6856739e7762f5ef6320051972820b9b /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/schuppan/l2s/dme-03-1-k247-unsat.shuffled-as.sat03-407.cnf
+b921f5405054e5ad4f83b508f35f47c7 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-fphp-016-015.sat05-1230.reshuffled-07.cnf
+6e3850f287298b8af2236d302937619f /raid/iser/cnf/sat2014/application/bob12m02.cnf
+239c20310a90caa903d5b69ec160670e /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1.1_72.shuffled-as.sat03-1586.cnf.mis-142.debugged.cnf
+e15633f02ac02db27a31a29c36229aa2 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s03-fifo8-400.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/simon-s03-fifo8-400.cnf
+d22857b3c48e11984d05f3412bd48506 /raid/iser/cnf/sat2018/main/Ofer/exam_flat_0.04_2018_3.cnf
+e44eb0542303dcf51c4a8f38dddbde95 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/ssa2670-129.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-129.cnf
+9023e107c0421e64641a5d4e764b0d26 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel5.cnf
+dca33b4d55df00d2ebd0caf2c65c3437 /raid/iser/cnf/sat2008/anbul-part-10-15-s.cnf.gz
+db2f317e1667103d7d195e944cef0a4c /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-127.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-127.cnf
+8990f5fae59a1ea5e8ef5a94812bc3f4 /raid/iser/cnf/sat2013/combinatoral/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1150c84314gyes7.cnf
+96a1fdd7f3eeadc5af48c4b49380fd81 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-5-19-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-5-19-u.cnf
+297104f427da534ec3ce1651f8e95ed2 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/pret150_60.cnf.mis-99.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/pret150_60.cnf.mis-99.debugged.cnf
+4b79bd68b8eb04ca4e71ee2fa537477a /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Medium/contest05/others/pmg-11-UNSAT.sat05-3939.reshuffled-07.cnf
+9eb18fd0bf2c71c57efd478489534e95 /raid/iser/cnf/sat2016/app16/SC-past/li-test4-95.cnf
+f5a118044af6bfa035e5138b831bc829 /raid/iser/cnf/sat2010/mixed/anbulagan/dated-10-13-s.cnf.gz
+a3e87fb00480795ac563663a110f95f7 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-21x33.cnf
+c3983bae5d8eeb6353a33bd814977e28 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-228.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-228.cnf
+6237a8e64b9620fc1da517d78f2488f3 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/twentyvars/7cnf20_90000_90000_7.shuffled.cnf
+8ec74cbbe2c47fc31450073db64e8f3d /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pinvar_w8.used-as.sat04-349.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pinvar_w8.used-as.sat04-349.cnf
+f1983610edcf2681f8350ecc8af693c8 /raid/iser/cnf/sat2006/SAT-Race_TS_1/een-tipb-sr06-par1.cnf.gz
+6622100b7e5166e5a229736f543cfc3d /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-brn007.sat05-2684.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-brn007.sat05-2684.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-brn007.sat05-2684.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-brn007.sat05-2684.reshuffled-07.cnf
+d22d89d18e8173ab34faa08bd56e47a7 /raid/iser/cnf/sat2018/main/final/CRIL/T82.2.0.cnf
+75b01c13a216b252c2da668aeeaa1102 /raid/iser/cnf/sat2008/palac-uts-l06-ipc5-h34.cnf.gz
+9d8267ba472408783d043933d598784a /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes2.cnf
+0ab8073673aa95997fe9e3a3297b1efe /raid/iser/cnf/sat2014/crafted/shift1add.10000.cnf
+40463e4bdcc31aa5dd0e13bb2d9416fb /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d-0.02-s383740539.sat05-534.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d-0.02-s383740539.sat05-534.reshuffled-07.cnf
+0070f34a264f0af84ef43eabf0013d8d /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7a-gensys-ukn002.sat05-3842.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7a-gensys-ukn002.sat05-3842.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-ukn002.sat05-3842.reshuffled-07.cnf
+e2f37b3ef70119fc4d3d2b9388e293fb /raid/iser/cnf/sat2006/SAT-Race_TS_2/schup-l2s-s04-valves.cnf.gz
+758d6fb2a0ee10b710cdadbd37e59f04 /raid/iser/cnf/sat2014/application/bob12s09-opt.cnf
+4e41e8ea9f04d547af5d8f2d1563e0f9 /raid/iser/cnf/sat2016/app16/SC-past/homer17.cnf
+e3c32bb61456aa5aeb5ef97f3b387ad9 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s02b-k2f-gr-rcs-w8.cnf /raid/iser/cnf/sat2009/application/SAT_RACE06/simon-s02b-k2f-gr-rcs-w8.cnf /raid/iser/cnf/sat2012/application/SATCompetition2009/application/SAT_RACE06/simon-s02b-k2f-gr-rcs-w8.cnf
+5cdb478391a0d55aec039610228a17b2 /raid/iser/cnf/sat2018/main/Ofer/course0.12_2018_3_1.cnf
+5d8545cf6ba686ae5d2ec865a6e396f0 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-21x39.cnf
+5e15df8e80da63c95903c6b49b0f5a3a /raid/iser/cnf/sat2010/mixed/anbulagan/dated-10-13-u.cnf.gz
+c4eaf4f48873c1884c02da26d9ddd32b /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG7-gensys-icl001.sat05-2926.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG7-gensys-icl001.sat05-2926.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG7-gensys-icl001.sat05-2926.reshuffled-07.cnf
+2b9bb02e47ba765e5f17926ec2f3868e /raid/iser/cnf/sat2011/mus/selected/SAT03/industrial/kukula/addm_bench/am_4_4.shuffled-as.sat03-360.cnf
+f5c63c6c6caec293251bdac6a0fb7ec9 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/mod2c-rand3bip-unsat-120-3.sat05-2340.reshuffled-07.cnf.mis-119.debugged.cnf
+60c1dd388dd2ee8e3dc90ba74654891e /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-2.shuffled-as.sat05-2534.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-2.shuffled-as.sat05-2534.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-2.shuffled-as.sat05-2534.cnf
+3a632d4c89935fc82b700014c73bac42 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-ukn006.shuffled-as.sat05-3846.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-ukn006.shuffled-as.sat05-3846.cnf
+c0a4275ca1f77b928cba388fff5e014e /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:cnt10.used-as.sat04-356.cnf
+3fbf701f12feb768cb862f5c90597426 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-1.sat05-2248.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-1.sat05-2248.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-1.sat05-2248.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/mod2-rand3bip-sat-270-1.sat05-2248.reshuffled-07.cnf
+58b1fa1b1570fc7cf979fa301a889cea /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1150c84314gyes1.cnf
+bd00db7b1c8e81b49456466eabc16b77 /raid/iser/cnf/sat2006/SAT-Race_TS_2/simon-mixed-s02bis-05.cnf.gz
+c93ef221408bd6b21ad7e5d9c0170fa0 /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.04-s736572600.sat05-546.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.04-s736572600.sat05-546.reshuffled-07.cnf
+5378ff3fe9756596f723ec5453c2bbc9 /raid/iser/cnf/sat2018/main/Porkhunov/mchess_16.cnf
+2f768113ee5701159e3b5afdf70a283f /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-5x41.cnf
+ee820cfbbad866c943dcc7389d73990b /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-14-14-unsat.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp11-main-track-selected/SAT11/crafted/skvortsov/battleship/battleship-14-14-unsat.cnf
+fb35e393ba492959bee045665e6da841 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-25-18-23.sat05-1287.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-25-18-23.sat05-1287.reshuffled-07.cnf
+a2089430a0cfb0225590edb0a5ee5841 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-661.cnf
+b0af4a56819c870e44804e7471fef5f1 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-6_2071.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-6_2071.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-6_2071.cnf /raid/iser/cnf/sat2014/crafted/GreenTao_2-3-6_2071.cnf
+3cf844c9d7d38d0e9a13f47df50b2a2c /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:dp12u11.used-as.sat04-358.cnf
+969f78065b4c56bb972176859ba1f698 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/longmult0.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult0.cnf
+7a422e78247f633cba5de247d2bbab65 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s02b-dp11u10.cnf /raid/iser/cnf/sat2009/application/SAT_RACE06/simon-s02b-dp11u10.cnf /raid/iser/cnf/sat2012/application/SATCompetition2009/application/SAT_RACE06/simon-s02b-dp11u10.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2009/application/SAT_RACE06/simon-s02b-dp11u10.cnf
+a6582e67bbe75eadbc9e748656bfe3cd /raid/iser/cnf/sat2014/application/6s167-opt.cnf /raid/iser/cnf/sat2015/main/6s167-opt.cnf
+cc10aeb3f77fa05414b89a58fd292094 /raid/iser/cnf/sat2018/main/Ofer/exam0.04_2018_3.cnf
+6a7645a092ae398b144c14b13b816108 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/color-18-4.sat05-443.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/color-18-4.sat05-443.reshuffled-07.cnf
+9de543bb0f07aa8727681a9c492904ea /raid/iser/cnf/sat2018/main/final/Collatz/by-alt-5-7.cnf
+6fdcb326b91fe50d0c67fb6b27b8ea61 /raid/iser/cnf/sat2014/application/bjrb07amba10andenv.cnf /raid/iser/cnf/sat2015/main/bjrb07amba10andenv.cnf
+88c642ef6cb752d957abb892148dad73 /raid/iser/cnf/sat2018/main/final/Zhou/magicSquare-9_glb.cnf
+a0fdaa57dcb20c2e7f84b4a34ea87102 /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/linvrinv8.sat05-567.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/linvrinv8.sat05-567.reshuffled-07.cnf
+5782ebf944f7f222dd6e566fe9a511b4 /raid/iser/cnf/sat2006/SAT-Race_TS_2/aloul-sr06-chnl10-13.cnf.gz
+1a723d2da57593d16d8e84c44a2b9275 /raid/iser/cnf/sat2018/main/final/CRIL/T56.2.0.cnf
+e3abe05f5b9705b8a9840cca005a2d13 /raid/iser/cnf/sat2014/application/6s126-opt.cnf
+0225d5383e6b7a4fab5b13819a9ac1fd /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x2_72.shuffled-as.sat03-1604.cnf.mis-141.debugged.cnf
+95e5eab829800a8d9eb16c9a7e456e1f /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/cmu-bmc-longmult15.cnf
+3a1b0f466b83ca83c522eec3d2f7f22d /raid/iser/cnf/sat2014/application/bob12m09-opt.cnf /raid/iser/cnf/sat2015/main/bob12m09-opt.cnf
+4b7702c928a41a64780924b9ffdd0d6b /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar10.cnf
+eb0a9f8a8daf20b9ed8da9c3fb854c03 /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/kukula/addm_bench/am_7_7.shuffled-as.sat03-363.cnf /raid/iser/cnf/sat2016/app16/SC-past/am_7_7.shuffled-as.sat03-363.cnf
+dc0fbcf24dd14f67a84c3c339ea3ca21 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pin_w9.used-as.sat04-352.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pin_w9.used-as.sat04-352.cnf
+9c82996b8f9e9d745c0c897af298489a /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net70-30-1.shuffled.cnf
+dcfec7655b13e74a09fb05e5b7498456 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult4.cnf
+80c4ef09647e023c3450b3068248fb92 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/queueinvar14.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar14.cnf
+3e0276fd627783cb1ced60add98b226f /raid/iser/cnf/sat2014/crafted/FlowerSnark-k6.cnf
+06c03d55fe90641631c551554c668554 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod5block_1var_7gates.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/mod5block_1var_7gates.cnf
+6bb4c92e1dd213dae39ddea0f2be9172 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-653.cnf
+e7d53a504c411d71cd880775f66b38e4 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/hoons-vbmc-lucky7.cnf /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/hoons-vbmc-lucky7.cnf /raid/iser/cnf/sat2011/mus/selected/SAT04/industrial/hoonsang/vis-bmc/luckySeven.used-as.sat04-990.cnf
+611df3df33b5b120d7e302db98d7ef52 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x24204-60.cnf
+c60ea637ddf10a20a8f92746698326cd /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:fifo8_400.used-as.sat04-363.cnf
+191bdaba67ac93eec947ff75fdd3f249 /raid/iser/cnf/sat2014/application/6s123.cnf
+55588a9c3048665c131897c5431c7ff0 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/color-11-3.sat05-445.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/color-11-3.sat05-445.reshuffled-07.cnf
+f2e8b8b23d802f706743c4e100760ab6 /raid/iser/cnf/sat2014/application/reg_s_2_unknown.cnf
+6bf543ae0202a390740b362b422af53b /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-14-26-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-14-26-sat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-14-26-sat.cnf
+bc502cdf58f5a1dedeb5ac2b5998ebba /raid/iser/cnf/sat2010/mixed/anbulagan/dated-5-15-u.cnf.gz
+1b6e6efb979c298d816ad2bd2f540ea5 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes7.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes7.cnf
+7df930b4720df941e414064845ce02ef /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-159.cnf
+508321d1c2419cfc789ba6686a537bd9 /raid/iser/cnf/sat2007/crafted/Hard/contest02/hgen3-v400-s553296708.sat05-471.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/hgen3-v400-s553296708.sat05-471.reshuffled-07.cnf
+c5ab13b4c1ecc02c9a6f4c05848d1bd6 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.12_2018_3_1.cnf
+b590566c511f481656fba430d7d2d0a7 /raid/iser/cnf/sat2008/simon-s03-w08-15.cnf.gz
+9535f310d9253518d4875c9843461061 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/pret150_40.cnf.mis-99.debugged.cnf
+a41af77355db86e8a24fdcdd72a189cc /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3_4vars_6gates.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/mod3_4vars_6gates.cnf
+9c4cb397e62c7d53b924a73f542f48fd /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/anton/l5k3/lksat-n900-m3357-k3-l5-s950595579.used-as.sat04-938.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/anton/l5k3/lksat-n900-m3357-k3-l5-s950595579.used-as.sat04-938.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT04/handmade/anton/l5k3/lksat-n900-m3357-k3-l5-s950595579.used-as.sat04-938.cnf
+72c6edc1d41fff4e4207a27999551aee /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net60-25-5.shuffled.cnf
+626ef169f4b77ac3d4c0177fef4f1792 /raid/iser/cnf/sat2018/main/Ofer/course0.12_2018_3_3.cnf
+470b28a43e933b98ec968fc386b5aba2 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-230-2.sat05-2189.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-230-2.sat05-2189.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-230-2.sat05-2189.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/mod2-rand3bip-sat-230-2.sat05-2189.reshuffled-07.cnf
+2784bfa18ab9914fc7a40b1982b48aed /raid/iser/cnf/sat2007/crafted/spence/medium/s77-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s77-100.cnf
+ec52f65782b2947a3630cb6a98cc3081 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/C250_FW.cnf.mis-138.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/C250_FW.cnf.mis-138.debugged.cnf
+58fe832117457fb098cb8043681b3c0f /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/markstrom/UNSATISFIABLE/mm-2x2-6-6-s.1.shuffled-as.sat03-1499.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT03/handmade/markstrom/UNSATISFIABLE/mm-2x2-6-6-s.1.shuffled-as.sat03-1499.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT03/handmade/markstrom/UNSATISFIABLE/mm-2x2-6-6-s.1.shuffled-as.sat03-1499.cnf
+40133bc28f35c9a6b2984cc218e0530b /raid/iser/cnf/sat2018/main/Porkhunov/mchess_19.cnf
+7e389668bce83a791cd5e95d2317b17a /raid/iser/cnf/sat2007/crafted/spence/hard/s105-100.cnf
+6d7f6a4b4322dc553f7cc1e71e0db06e /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-462.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-462.cnf
+d54d456b0dd9f29813bb5072de9e441f /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes5.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes5.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes5.cnf
+e54e33590721df42538dfc082be22c45 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/cmpadd/ca002.shuffled.cnf
+63772ee22f22d6e52a9dcd2c3cc82050 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-10-15-s.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-sat/partial-10-15-s.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/anbulagan/hard-sat/partial-10-15-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT07/industrial/anbulagan/hard-sat/partial-10-15-s.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-10-15-s.cnf
+66402ace16f423b644b55708ff87f66b /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-ukn009.shuffled-as.sat05-3849.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-ukn009.shuffled-as.sat05-3849.cnf
+e6cf583623d6e8ca9f99fcffba3c2cba /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v945c61409g3.cnf
+645459795694d1c7987ad4f285528a59 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-14.sat05-2589.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-14.sat05-2589.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-14.sat05-2589.reshuffled-07.cnf
+1f5a8c860d54fd51285c8c28f683b0dd /raid/iser/cnf/sat2015/main/38bits_10.dimacs.cnf
+74105d9545da09c85b76e69682d1dfad /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:valves-gates-1-k617-unsat.used-as.sat04-436.cnf /raid/iser/cnf/sat2016/app16/SC-past/valves-gates-1-k617-unsat.cnf
+9420c4596fe5c68ebc821c063345f790 /raid/iser/cnf/sat2018/main/final/Collatz/ad-A-3-7-17.cnf
+dd3207ffcdfd5683b0085349b54a3ec9 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/dinphil/dp09u08.shuffled.cnf
+71d1d27b41b6f4104192f3c7bd2c8dc8 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut5-helpbox26.cnf
+49c50ae13dbfa44688e2b54a4722c3f2 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-9x13.cnf
+b6eca6d07af400214fa03f9e4e5b4abf /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/dinphil/dp08u07.shuffled.cnf
+5984d6817830a238253f2d5bb2071437 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/bmc1/23.shuffled.cnf
+d8eab9bef5af833a5b4a75469b5e3661 /raid/iser/cnf/sat2014/application/6s133.cnf /raid/iser/cnf/sat2015/main/6s133.cnf
+26b0763ed9c7577e949cf9fd2522ad1a /raid/iser/cnf/sat2008/een-tip-sat-vis-eisen.cnf.gz
+9535bcbfbae04ca59b77e73512c1856c /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes10.cnf
+aeef242712a1eabbfbf58b297bdbf003 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-16-16-unsat.cnf
+422048aa30db4b286e515af3cea7b4a2 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-7-12-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-7-12-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-7-12-unsat.cnf
+016425fae1ab61f7ba965c368a99e8c5 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-566.cnf
+5ab692016e52eccd10d87f60f4d8b602 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes2.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes2.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes2.cnf
+982127a423398c1fd2d90f93c0f5476c /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-6x34.cnf
+60116c4bcd409e548ebe8af98d6348b1 /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/linvrinv9.sat05-568.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/linvrinv9.sat05-568.reshuffled-07.cnf
+2de581c6d77ce42d04a5a492e62e1f11 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-5-15-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/total-5-15-u.cnf
+b62c24c338f533b420bccf7bda48a063 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/289-sat-5x8.cnf.mis-119.debugged.cnf
+1754d26d64dcd49869fb0bc528fcc65c /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-13-25-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-13-25-sat.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-13-25-sat.cnf
+7286f919a1a2cb62cde7824bc927f3b2 /raid/iser/cnf/sat2015/main/42bits_12.dimacs.cnf
+7e820c2831935fb32b48254f143f080c /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7a-gensys-ukn009.sat05-3849.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7a-gensys-ukn009.sat05-3849.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-ukn009.sat05-3849.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-ukn009.sat05-3849.reshuffled-07.cnf
+fd1373228c28b0924cdd7887b364ba9c /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/kukula03:addm_benchs:am_6_6.used-as.sat04-339.cnf
+d764f6e01886e4ed2dd72efd2f53c386 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/aloul/Bart/bart17.shuffled.cnf
+ca259707dd0b6c98d107d6d05789d164 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/marijn:Philips:philips.used-as.sat04-301.cnf
+4963513135f0a1ce3c3851f8f0ed0d5b /raid/iser/cnf/sat2014/crafted/shift1add.18973.cnf
+568984882c91cf6ad3a742f934677c2b /raid/iser/cnf/sat2008/cmu-bmc-barrel6.cnf.gz
+4936d97321a52a2a3af35eab7445c558 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox31.cnf
+7f37820e1ee4a4a1ac91acd57bdf4f8c /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x1e3-20.cnf
+be04653dad7eb92122f04b00a24dfde2 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-14x38.cnf
+c699e56afeaf3f19e4207cb3e0668142 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-598.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-598.cnf
+6e4136860a2f8b340cf527bfa92b037b /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/kexu/frb-0.6/frb75-13-2.used-as.sat04-878.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/kexu/frb-0.6/frb75-13-2.used-as.sat04-878.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT04/handmade/kexu/frb-0.6/frb75-13-2.used-as.sat04-878.cnf
+6de51e2ff43f5413d81428baa010bc8f /raid/iser/cnf/sat2018/main/final/Collatz/C3-2-31.cnf
+8815ffc47db29a7f7a187c99bbf4f31e /raid/iser/cnf/sat2008/marijn-philips.cnf.gz
+1f440dfa30d32937b43f54da71196ae5 /raid/iser/cnf/sat2015/main/44bits_11.dimacs.cnf
+58fda7ee38fba822c6f83b5f2ab9407b /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG8-gensys-ukn005.sat05-3584.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG8-gensys-ukn005.sat05-3584.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG8-gensys-ukn005.sat05-3584.reshuffled-07.cnf
+08623e11e14e81a520d41401132b1a67 /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest02-ezfact64_10.sat05-449.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest02-ezfact64_10.sat05-449.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest02-ezfact64_10.sat05-449.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest02-ezfact64_10.sat05-449.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/contest02-ezfact64_10.sat05-449.reshuffled-07.cnf
+e46e83bb9c78815ab68e484382488e02 /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/schuppan/l2s/valves-gates-1-k617-unsat.shuffled-as.sat03-412.cnf
+2c60c6077e4f17c44027016ba06d21a6 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pin_w8.used-as.sat04-351.cnf
+32f1905e7cb42578cc1f775b47dcb6c8 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_4vars_11gates_b2_restricted.cnf
+a14b7a1f1d1318c0d9fd61aeeeb25d7e /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-ukn004.shuffled-as.sat05-3844.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-ukn004.shuffled-as.sat05-3844.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-ukn004.shuffled-as.sat05-3844.cnf
+eaee543d07d57e9f66d8751d4207d270 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-558.cnf
+fdacb330621114685e0ce460223c8db8 /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7-dead-dnd002.sat05-3108.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd002.sat05-3108.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd002.sat05-3108.reshuffled-07.cnf
+34db8bdc82946640a64bc63b1a21160e /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1.1_64.shuffled-as.sat03-1585.cnf.mis-125.debugged.cnf
+96a82e88a73f2540d42e1f3935de171c /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/goldberg/rand_net/rand_net70-60-10.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/goldberg/rand_net/rand_net70-60-10.shuffled.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/application/SAT02/industrial/goldberg/rand_net/rand_net70-60-10.shuffled.cnf
+7850d94958d61c2671d8c38cc383e269 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-5-17-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/total-5-17-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/total-5-17-u.cnf
+e72ecd162ab78d3d1dda28f75f02f251 /raid/iser/cnf/sat2010/mixed/anbulagan/dated-5-13-u.cnf.gz
+fa12677a6538ca79cf65a0ab268e23cb /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-sat-210-3.sat05-2475.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-sat-210-3.sat05-2475.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-sat-210-3.sat05-2475.reshuffled-07.cnf
+fab0d984226b76d7b62ef603b94f14b6 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox26.cnf
+0056ef8729768f5622c1d64271f1377a /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_3vars_9gates_restr.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_3vars_9gates_restr.cnf
+a2817892ea338f6eb6bb654af89f0f51 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_8gates_u2_autoenc.cnf
+23a06b832a078f34d479a3a1787f08cb /raid/iser/cnf/sat2012/application/SAT_Race_2008/palac-sn7-ipc5-h16.cnf
+455d93e70b66ef92bf6f8276e1f232cb /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-aerielogic/fifo4_33.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-aerielogic/fifo4_33.cnf
+5ebe740da8dc7cdb2d3d1802a8981434 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/term1_gr_2pin_w3.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/term1_gr_2pin_w3.shuffled.cnf
+4b7886f332bd864f7d4349b0bb9ad3fb /raid/iser/cnf/sat2010/mixed/anbulagan/dated-10-19-u.cnf.gz
+94cbdd5b16f6df40411928c71e0b153d /raid/iser/cnf/sat2007/crafted/Hard/contest02/ezfact64_5.sat05-452.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest02/ezfact64_5.sat05-452.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/ezfact64_5.sat05-452.reshuffled-07.cnf
+e2cf1b05f6a81979a828b0bec4a750b7 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-5-11-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-5-11-u.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/anbulagan/hard-unsat/partial-5-11-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-5-11-u.cnf
+c478b7c4d25ace749035a76fdb6a1312 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox30.cnf
+8f6b38a084b11a6dc0c8cecbea7dda21 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox28.cnf
+498af268589f5dafd496f97b0f9fd347 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-24-46-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-24-46-sat.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-24-46-sat.cnf
+fd6c05d16b5375929006246cee606716 /raid/iser/cnf/sat2013/combinatoral/satrace-unselected/er/urq55.cnf
+76eaaa8d8c3b18a0803764f4c8b451a5 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-4_512.cnf
+6ee09491b5da24a2d842a129b9f488eb /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/bqwh.60.1080.sat05-436.reshuffled-07.cnf
+fb60700fa304a2262b3bf60cc02ca805 /raid/iser/cnf/sat2018/main/final/CRIL/T103.2.0.cnf
+01d1aaf202a8f5d5ca4fde629b710453 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/goldberg/rand_net/rand_net60-40-10.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/goldberg/rand_net/rand_net60-40-10.shuffled.cnf
+3fe99a21ec1f32f1d5e261c47a5a2556 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h28-unknown.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l06-ipc5-h28-unknown.cnf /raid/iser/cnf/sat2011/mus/selected/SAT07/industrial/palacios/uts/uts-l06-ipc5-h28-unknown.cnf
+05395e4b3ada4a26a4e4b165326af83c /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-11-21-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-11-21-sat.cnf
+4130597ac49ee9fc6189ac0d2b4e7777 /raid/iser/cnf/sat2011/application/selected/SAT04/industrial/hoonsang/vis-bmc/all.used-as.sat04-986.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT04/industrial/hoonsang/vis-bmc/all.used-as.sat04-986.cnf
+709985c055f9bf6838f974e4f1366842 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x1e3-100.cnf
+12f8cebbfc40ab0e27f3d1b8e5f02f0b /raid/iser/cnf/sat2015/hard-combinatorial/50bits_10.dimacs.cnf /raid/iser/cnf/sat2015/main/50bits_10.dimacs.cnf
+7903b257edfa9e8a3ddff50fd0281a06 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-3-5-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-3-5-sat.cnf
+6672e02a84494092fd07f30273afb75a /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-11-11-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-11-11-unsat.cnf
+e7c1baf45a41d3f1f4415eb94d2d89f9 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g3.cnf
+e0137b73dcb7851f9fb8436970b89cec /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG8/gensys-ukn007.shuffled-as.sat05-3586.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG8/gensys-ukn007.shuffled-as.sat05-3586.cnf
+e3a3d40798ef30d5d1383dd72b6d13ea /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net40-25-5.shuffled.cnf
+c960af5de692eaa8dcc447129554a43b /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/een-tip-sat-nusmv-tt5.B.cnf /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/tip_bmc:sat_nusmv.tcas-t^5.B.cnf
+5a0c961fbcbffa440b8c0f6bcb8a150a /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/li/li-exam/li-exam-61.shuffled-as.sat03-366.cnf /raid/iser/cnf/sat2016/app16/SC-past/li-exam-61.shuffled-as.sat03-366.cnf
+20ec273b390300c1647d6817225fe2a9 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/sgp_5-5-6.sat05-2675.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/sgp_5-5-6.sat05-2675.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/others/sgp_5-5-6.sat05-2675.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Difficult/contest05/others/sgp_5-5-6.sat05-2675.reshuffled-07.cnf
+555119cc10a5bc8b830c21b90ddd5f3d /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-dead-dnd001.sat05-2742.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-dead-dnd001.sat05-2742.reshuffled-07.cnf
+6321475176452b75049ac8dba5c44f64 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut5-helpbox30.cnf
+7153d8d8a883dadd3a596a546163d73e /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/plainoldcnf/5cnf_4300_4300_170.shuffled.cnf
+637fbed2b8425cd190358de321470ced /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-clqcolor-12-07-08.sat05-1251.reshuffled-07.cnf
+589a5acf084b3a37adb8ccc4f3e339d5 /raid/iser/cnf/sat2018/main/final/Zhou/ortholatin-7.cnf
+d6722e39f2220b7569776bacaa634af7 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-742.cnf
+655b0037512978cf5ec07a5e933cb8f7 /raid/iser/cnf/sat2011/mus/selected/SAT03/industrial/kukula/addm_bench/am_5_5.shuffled-as.sat03-361.cnf
+e8bc566173a57ac9521a32fdc509d98e /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n800-d0.04-s362703357.sat05-548.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n800-d0.04-s362703357.sat05-548.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n800-d0.04-s362703357.sat05-548.reshuffled-07.cnf
+76ca7a8ba390ce7ad2b330b2d3f5d3df /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-1.sat05-2158.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-1.sat05-2158.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-1.sat05-2158.reshuffled-07.cnf
+56fab133892525bcf937ea1409de8a73 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/goldberg/rand_net/rand_net60-25-10.shuffled.cnf
+68bcf17d493051411ca3db8bdbc67f33 /raid/iser/cnf/sat2018/main/final/Collatz/5or7mod8.rules.7-7.cnf
+2c8976bdef2d2f741b71b9a0782fc57b /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-11x4.cnf
+905d44f84b1683d48be51418fe07a258 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-3.shuffled-as.sat05-2520.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp11-main-track-selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-3.shuffled-as.sat05-2520.cnf /raid/iser/cnf/sat2014/crafted/mod2c-rand3bip-sat-240-3.shuffled-as.sat05-2520.cnf
+88b5a4a2f6e4971ba0f9e819ce62d7e2 /raid/iser/cnf/sat2018/main/Ofer/exams0.04_2017_9.cnf
+b314c374faf4dd5611808621d2f8dd9e /raid/iser/cnf/sat2011/application/selected/SAT04/industrial/hoonsang/vis-bmc/dekker.used-as.sat04-989.cnf
+a8a4bc9d5da0ddae2f31fbecdf849153 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/urqh1c5x5.shuffled-as.sat03-1468.cnf.mis-103.debugged.cnf
+a2b19ea3fdd746ab11acbfe1bd12c95b /raid/iser/cnf/sat2015/main/40bits_10.dimacs.cnf
+fe3e47c29282bd6d761052eb1add532a /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox26.cnf
+a07f6bb0c079fb39f8778f3be860975b /raid/iser/cnf/sat2007/crafted/spence/medium/s61-100.cnf
+ffeb6f7b589fea1f3be4fe6c96a991bd /raid/iser/cnf/sat2014/application/6s11-opt.cnf /raid/iser/cnf/sat2015/main/6s11-opt.cnf
+4a8541a1a673d30d15bc3642e243edc0 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/8-4-9.cnf
+e0b5f91d67a5f691dd493896bcc4ea02 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s02-w08-18.cnf
+c0e10da46420f0ee7a888da403e7addd /raid/iser/cnf/sat2018/main/Ofer/exams_flat_0.04_2017_9.cnf
+04ef195f95f83e363a6cb3f2e8a13ce1 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-2.sat05-2159.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-2.sat05-2159.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-210-2.sat05-2159.reshuffled-07.cnf
+28421b4328fdd364fe9afafe98e8e7b6 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/dellacherie/comb/comb1.shuffled.cnf /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:comb1.used-as.sat04-361.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/dellacherie/comb/comb1.shuffled.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:comb1.used-as.sat04-361.cnf
+1b28eea79c185a34dd895f947b3cc5ab /raid/iser/cnf/sat2008/simon-s02-f2clk-50.cnf.gz
+0db3610c141464042c9478224adc8341 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes5.cnf /raid/iser/cnf/sat2014/crafted/rbsat-v945c61409gyes5.cnf
+1616a05ea73479ecee627f025a7c3655 /raid/iser/cnf/sat2014/crafted/bvadd_17322.cnf
+ab5b4d66bf88c923710054169d64fe88 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/connamacher/connm-d0.04/connm-ue-csp-sat-n800-d0.04-s1788334438.used-as.sat04-976.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp11-main-track-selected/SAT04/handmade/connamacher/connm-d0.04/connm-ue-csp-sat-n800-d0.04-s1788334438.used-as.sat04-976.cnf
+b36b0233dda05b7c3d9d36579e6889c3 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-446.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-446.cnf
+378510b343f3fec0cb711da998764fbb /raid/iser/cnf/sat2007/industrial/palacios/medium/safe-30-h30-sat.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2010/mixed/palacios/safe-30-h30-sat.cnf /raid/iser/cnf/sat2012/portfolio/SAT_Race_2010/mixed/palacios/safe-30-h30-sat.cnf
+a102f662928ee9747e7cecc2c23b24dd /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-4x35.cnf
+00cfdf5af7ecc364a3b96ab21a672d93 /raid/iser/cnf/sat2012/application/SAT_Race_2008/palac-uts-l06-ipc5-h34.cnf
+8efaa68aab0e0fba25c785a7edea8db1 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-461.cnf
+daea08553d869e02d000df429dd233de /raid/iser/cnf/sat2007/crafted/spence/medium/s73-100.cnf
+671a05743fbfd1ca239e7f5ced273b0a /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/biere/dinphil/dp10s10.shuffled.cnf
+3a28a7b97f4e3ccb835d81f8c227b70a /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/hwb-n26-03-S540351185.sat05-490.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest03/others/hwb-n26-03-S540351185.sat05-490.reshuffled-07.cnf
+2bb51459db8e404aa067bd12fc7f05fd /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/counting-easier-php-012-010.sat05-1172.reshuffled-07.cnf.mis-97.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/counting-easier-php-012-010.sat05-1172.reshuffled-07.cnf.mis-97.debugged.cnf
+3be79211d2a737a160d97d20f4fcf50a /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-17-33-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-17-33-sat.cnf
+3874f41bd2e0187b53b76ed6e004d93a /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-123.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-123.cnf
+d7b08c988b0005c5ec75ae225b4b599e /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/hwb-n32-01-S1491788039.sat05-497.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/hwb-n32-01-S1491788039.sat05-497.reshuffled-07.cnf
+51132477156afebc87d0e3e261028367 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-360.cnf
+57d41c83de908de09c3ec54be84e8f3d /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-24-57-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-24-57-sat.cnf
+4ce18cb500909abcff2247c9676524b4 /raid/iser/cnf/sat2014/application/6s130-opt.cnf /raid/iser/cnf/sat2015/hard-combinatorial/6s130-opt.cnf /raid/iser/cnf/sat2015/main/6s130-opt.cnf
+519edd542eda8518141bc04d0d00ca20 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/ph11.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satrace-unselected/er/ph11.cnf
+ac67ca5250e1478d7e6c5ae36a51e621 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-445.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-445.cnf
+8345a570892be31801432f1ae053a56f /raid/iser/cnf/sat2018/main/Mayer-Eichberger/8-4-8.cnf
+65618b812c58aa6075cdf77f0a392f5d /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/289-sat-11x4.cnf.mis-131.debugged.cnf
+cf687ddb30cf0ecfd7518b734da3db99 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/bmc1/42.shuffled.cnf
+c7f48617a74db807ad7ad5e5bcb55f82 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/6-5-6.cnf
+9f752ebfe938999f9077cb1324a4baf8 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/queueinvar8.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar8.cnf
+45824bf9a04691a7c1de2b772b97284a /raid/iser/cnf/sat2014/application/bob12s02.cnf /raid/iser/cnf/sat2015/main/bob12s02.cnf
+d0d80ba6105cb31b852491b10d2272ca /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG7a-gensys-ukn001.sat05-3841.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG7a-gensys-ukn001.sat05-3841.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG7a-gensys-ukn001.sat05-3841.reshuffled-07.cnf
+d14028833cd34d1e8b2c6707efaf3f8c /raid/iser/cnf/sat2018/main/Zha/Karatsuba6972593x13466917.cnf
+c68b9ab690fabfaeb6c55607efe882c4 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-669.cnf
+2fe9ba98467159238a4f60335b38bdb9 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/marijn/equilarge-l/equilarge_l2.used-as.sat04-894.cnf
+ddcda59015eb9972f85a2d02b083cebd /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-18-18-unsat.cnf
+fdf28ad2637fdb2e24f667ecadf0a193 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-2-c.debugged.cnf
+060550a68badfbd28b67784620c307de /raid/iser/cnf/sat2018/main/final/CRIL/T90.2.0.cnf
+3e1802692b5b99879375d4ce46266e77 /raid/iser/cnf/sat2012/application/SAT_Race_2008/simon-s02-f2clk-50.cnf /raid/iser/cnf/sat2012/portfolio/SAT_Race_2008/simon-s02-f2clk-50.cnf
+a423efcda88cd0214744330f82043cec /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s03-fifo8-300.cnf /raid/iser/cnf/sat2009/application/SAT_RACE06/simon-s03-fifo8-300.cnf
+719dabf254e9a01faa398218e23add52 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:w08_14.used-as.sat04-359.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:w08_14.used-as.sat04-359.cnf
+7b53d926ecb7127ac1c65f3c096abd86 /raid/iser/cnf/sat2012/application/SAT_Race_2008/marijn-philips.cnf
+8d07247516d1f106acb2519fe6c0d081 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-10-13-s.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-sat/partial-10-13-s.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/anbulagan/hard-sat/partial-10-13-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT07/industrial/anbulagan/hard-sat/partial-10-13-s.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/application/SAT07/industrial/anbulagan/hard-sat/partial-10-13-s.cnf
+83c88ecd6b3f295b1866c54471ead3d0 /raid/iser/cnf/sat2007/crafted/Hard/contest04/others/equilarge_l4.sat05-521.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/others/equilarge_l4.sat05-521.reshuffled-07.cnf
+297d04e9ab8f51d81c724803a3c49e0c /raid/iser/cnf/sat2014/application/6s151.cnf /raid/iser/cnf/sat2015/hard-combinatorial/6s151.cnf /raid/iser/cnf/sat2015/main/6s151.cnf
+338bd899418ef1f199c5adba8da704d8 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox29.cnf
+83c0024252bdf4b02cb20b3719a74a5b /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/urqh5x5.shuffled-as.sat03-1481.cnf.mis-127.debugged.cnf
+e27187ddc8d16fbdcde6e7d89a32af6b /raid/iser/cnf/sat2018/main/Zha/Karatsuba4477457x5308417.cnf
+9dfeeb4a41cfc137d230a34d3b7ec793 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net40-25-10.shuffled.cnf
+20e078b1b39f6e3bcbef68a77dc35f09 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-15-29-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-15-29-sat.cnf
+7c8fa7b696c7ad642b573947aa917f42 /raid/iser/cnf/sat2015/hard-combinatorial/58bits_13.dimacs.cnf /raid/iser/cnf/sat2015/main/58bits_13.dimacs.cnf
+0859aca187a5fc50a6e3ef3788b0558c /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h30-unknown.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h30-unknown.cnf
+8e2946b60655ca83d3ef60bd803f6eea /raid/iser/cnf/sat2018/main/Mayer-Eichberger/9-4-10.cnf
+39c159db81244ae9e3a01e2236caa3ed /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG7a-gensys-brn004.sat05-3669.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG7a-gensys-brn004.sat05-3669.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG7a-gensys-brn004.sat05-3669.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/others/QG7a-gensys-brn004.sat05-3669.reshuffled-07.cnf
+aeb8f2581b64316ef12e871a6f3f05d5 /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/others/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest05/others/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest05/others/eulcbip-8-UNSAT.sat05-3937.reshuffled-07.cnf
+c96f7bf31123abf7bbd50f67140b349a /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/partial-5-11-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-11-s.cnf
+6540222c3d152718e12229e8f1d7c663 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/connamacher/connm-d-0.02/connm-ue-csp-sat-n1200-d-0.02-s405595518.used-as.sat04-950.cnf
+f891362db3e337bd681a1fc09faf8a67 /raid/iser/cnf/sat2016/app16/SC-past/am_9_9.cnf
+750247642ad58bcd8208dcad3fc02576 /raid/iser/cnf/sat2007/crafted/spence/medium/s89-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s89-100.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/spence/medium/s89-100.cnf
+c0362b7837413fb5ba8acf69f27e0068 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/289-sat-7x6.cnf.mis-125.debugged.cnf
+123914747df23d959c91815817099f7d /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes8.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes8.cnf
+aad6eafec698a12bdc6c15a063f2f3fc /raid/iser/cnf/sat2008/anbul-dated-5-15-u.cnf.gz
+009e22195e137f289ed03024c5061b26 /raid/iser/cnf/sat2014/crafted/shift1add.15982.cnf
+e4ceb6609a9fc85dcc98ed39ef669321 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-4.debugged.cnf
+a810e7f5ed8efdbcda4fc1a03af91242 /raid/iser/cnf/sat2015/hard-combinatorial/52bits_12.dimacs.cnf /raid/iser/cnf/sat2015/main/52bits_12.dimacs.cnf
+f885d8eff59c996f4be4aedfb7693540 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-b-clqcolor-30-20-26.sat05-1264.reshuffled-07.cnf
+922c25dd2f0e20c656e686dcb7a0cef2 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-6x30.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/mosoi/289/289-unsat-6x30.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT11/crafted/mosoi/289/289-unsat-6x30.cnf /raid/iser/cnf/sat2014/crafted/289-unsat-6x30.cnf
+2be9f9ecc6cf43e0cdc366b850e4a82d /raid/iser/cnf/sat2018/main/Ofer/courses_flat_0.16_2017_9.cnf
+6dc83d9d538d3de1575f0bd33ac2c8f3 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/simon/satex-challenges/f600.shuffled.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT02/handmade/simon/satex-challenges/f600.shuffled.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT02/handmade/simon/satex-challenges/f600.shuffled.cnf
+b034f2aaf4b2c19ace7fa410c2c4ebcf /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net50-30-1.shuffled.cnf
+b0e550fc160a5868b0fa63813a558afb /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-5x8.cnf
+12f1b2a4e610e191a964a18aa5ecc7a5 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-5_528.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-5_528.cnf
+c24cc7f609b4e98a611c403c6048b2ce /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/hole10.cnf.mis-98.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/hole10.cnf.mis-98.debugged.cnf
+ee59c7de5b1f90a5620963f0e31a3e36 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:cnf-r4-b1-k1.2-comp.used-as.sat04-355.cnf
+f629a829421de433a30fe403c7164128 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/barrel2.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel2.cnf
+404c3fc25a6f5fdce432f91623e0dc04 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-128.cnf
+1d2700871445913ecdd8efa26e9e1053 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h34-unknown.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h34-unknown.cnf
+7102599487d8270727fd407449a495ea /raid/iser/cnf/sat2018/main/Mayer-Eichberger/7-4-7.cnf
+d0ae61719002b37149e3390f52718bd0 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_2vars_9gates_u2_autoenc.cnf
+dc43e3556685cdf7ab94e02008ac642e /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/ssa2670-140.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-140.cnf
+1a32977765c329b66e2c88f37f2fa044 /raid/iser/cnf/sat2007/crafted/Hard/contest04/others/equilarge_l3.sat05-520.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/others/equilarge_l3.sat05-520.reshuffled-07.cnf
+cb9483c8f50b5666fae56471d4502b08 /raid/iser/cnf/sat2014/application/6s169-opt.cnf /raid/iser/cnf/sat2015/main/6s169-opt.cnf
+906136ff210a38c095c5781a2d964e17 /raid/iser/cnf/sat2014/application/6s16.cnf /raid/iser/cnf/sat2015/main/6s16.cnf
+1888d05a7d675893540e77465331605a /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x24204-50.cnf
+ec69613d93a858f77b265a4ffd7ffb94 /raid/iser/cnf/sat2008/aloul-chnl11-13.cnf.gz
+6936affa9229ee14b1fa65a5dfbe1060 /raid/iser/cnf/sat2014/crafted/shift1add.24955.cnf
+d5a3f304b574429a5d9ff6862e653e39 /raid/iser/cnf/sat2018/main/final/CRIL/T98.2.0.cnf
+fb1e62a5b378a3386d828da233d18f6c /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g8.cnf
+9766b68e96bb5386d29102528ee6ce84 /raid/iser/cnf/sat2016/app16/SC-past/par32-1-c.cnf
+4a7c8e3b58eb5911e44508ac035e0f92 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/cmpadd/ca064.shuffled.cnf
+16080e727d47ba6fcc00e3549382c1ce /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/fpga_routing/c499_gr_rcs_w5.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/c499_gr_rcs_w5.shuffled.cnf
+05ec5aeba3f38a3a90855825a632487d /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/aim-200-6_0-yes1-2.cnf.mis-138.debugged.cnf
+da19d6182a9141148cc9280dadbc0917 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-5-19-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/hard-sat/partial-5-19-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/hard-sat/partial-5-19-s.cnf
+bb505bc516931cf4baecae5163b5d8c7 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-5-9-sat.cnf
+f6f5620ec0fd7dae3d741e781e31998d /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox31.cnf
+8bd2fee1a7bc8c409c93f122e123121e /raid/iser/cnf/sat2018/main/final/Zhou/lei450-05b-05.cnf
+9d124b7409f57fbdfbdb7da083701af1 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-227.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-227.cnf
+c0516f57983b3dd76a2877356bbdc177 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-icl009.sat05-2721.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-icl009.sat05-2721.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl009.sat05-2721.reshuffled-07.cnf
+735743be6cd6d5fe79b89034e5ec94d4 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x24204-70.cnf
+79a78ce3b21f9adb4cb5ce9237c5c375 /raid/iser/cnf/sat2007/crafted/spence/hard/s113-100.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/crafted/spence/hard/s113-100.cnf
+b16d346e654969fd246175566e5468a4 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-10-17-u.cnf
+fda3d7dff9dcc3250104b65bbefbc0c8 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult2.cnf
+e4473f3decf063778aba7ecc8f265cea /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_11gates_u2_autoenc.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_11gates_u2_autoenc.cnf
+35fbf08b7e588e17f2d29c8e29825e19 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-239.cnf
+080a464ee482178aecd596918a857738 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/mod2c-3cage-unsat-10-3.sat05-2568.reshuffled-07.cnf.mis-104.debugged.cnf
+ddefd7cce7033635857849b0d1d26c8d /raid/iser/cnf/sat2008/een-pico-prop00-75.cnf.gz
+f4d89e9f8f8b95d4d01fcda792b2343f /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox30.cnf
+7f615b1094890447a54c33484453db3a /raid/iser/cnf/sat2007/industrial/palacios/medium/cube-9-h10-unsat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/medium/cube-9-h10-unsat.cnf
+784bddb1cccda5f0544006b54dcfca84 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-12x14.cnf
+f4d925439e38b8c67d6a29cf64b99588 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/easier-php-035-029.sat05-1179.reshuffled-07.cnf
+103fddf5f6a59f7ef2f446c01a5f3b32 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/aloul-chnl11-13.cnf /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/aloul-chnl11-13.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/aloul-chnl11-13.cnf
+bbe6a8622793348163294e9d3c544416 /raid/iser/cnf/sat2018/main/final/CRIL/T117.2.0.cnf
+e430c39f665aef5851077dc5478d77b5 /raid/iser/cnf/sat2006/SAT-Race_TS_1/vange-color-inc-54.cnf.gz
+5b46b27e47217e3562ecc4251632f286 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-10-17-s.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/anbulagan/hard-sat/partial-10-17-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT07/industrial/anbulagan/hard-sat/partial-10-17-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2011/application/SAT07/industrial/anbulagan/hard-sat/partial-10-17-s.cnf /raid/iser/cnf/sat2014/application/partial-10-17-s.cnf
+fc6d14d18bb7d84dfd5c4ac5ef774e20 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/mm-2x3-8-8-sb.1.sat05-475.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp07-main-track-selected/crafted/Hard/contest03/others/mm-2x3-8-8-sb.1.sat05-475.reshuffled-07.cnf
+908dc9679e10c5bbbdc05547ecfde682 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/plainoldcnf/5cnf_3900_3900_060.shuffled.cnf
+62f9c5cf9b792396f5f1e1010bc5fd41 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/pret150_75.cnf.mis-99.debugged.cnf
+6751b82884c31c3b87b0de8c02faa6e8 /raid/iser/cnf/sat2008/cmu-bmc-longmult13.cnf.gz
+cf0ae232f961da65266985349df66db1 /raid/iser/cnf/sat2014/application/6s10.cnf
+a4b187798e17ef5a6dd591aa6765dff0 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x0-420.cnf
+695519f506c442b4bdfbe0ce240bfd11 /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/schup-l2s-abp4-1-k31.cnf
+e97d8bfcb17e22bc35d4ef605f379fc1 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x1e3-300.cnf
+ed48d380562f1abbb1a9e9f220844121 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/zhang-lintao/xor-chain/x1_40.shuffled.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT02/handmade/zhang-lintao/xor-chain/x1_40.shuffled.cnf
+de5e7ae7761eb64afde78de21893dc48 /raid/iser/cnf/sat2018/main/final/Collatz/cz-d-4-7-5.cnf
+4dc491a8d24a8b66cd38e732bc127923 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-220-2.sat05-2174.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-220-2.sat05-2174.reshuffled-07.cnf
+f8da1fdd9f1b246647ebb63ddb7c69d1 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-ukn003.sat05-2726.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-ukn003.sat05-2726.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-ukn003.sat05-2726.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-ukn003.sat05-2726.reshuffled-07.cnf
+496a240a6694f22beaef5551b15a9ccd /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/dinphil/dp02u01.shuffled.cnf
+4cd3da894fa995cd724d97d7c6792b2e /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d-0.02-s1542454144.sat05-533.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d-0.02-s1542454144.sat05-533.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d-0.02-s1542454144.sat05-533.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d-0.02-s1542454144.sat05-533.reshuffled-07.cnf
+94784f1bef2096ca0b0a1137b8b9ae3c /raid/iser/cnf/sat2015/hard-combinatorial/62bits_10.dimacs.cnf /raid/iser/cnf/sat2015/main/62bits_10.dimacs.cnf
+9eef6af41a26bb99ac2ecd6f6b237eeb /raid/iser/cnf/sat2007/industrial/palacios/medium/cube-11-h14-sat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/medium/cube-11-h14-sat.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/palacios/medium/cube-11-h14-sat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT07/industrial/palacios/medium/cube-11-h14-sat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/application/SAT07/industrial/palacios/medium/cube-11-h14-sat.cnf
+aec02375903072ebb7fbda03ba8ec137 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/dellacherie/w08/w08_10.shuffled.cnf
+df1965e95ae00d1be3b9a262d1b6b338 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-15-15-unsat.cnf
+1c826aef02bb79c59d8d198b826d47eb /raid/iser/cnf/sat2018/main/final/Zhou/magicSquare-8_glb.cnf
+e500604e60a3a935302ceeddf0242b57 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7/iso-ukn004.shuffled-as.sat05-3385.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7/iso-ukn004.shuffled-as.sat05-3385.cnf
+d8fcb6063b927451de080d05c129742d /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/mutcb13.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satrace-unselected/er/mutcb13.cnf
+e8debe9c66c6ab98d8d2927153fd8735 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_2pinvar_w9.used-as.sat04-350.cnf
+18d03ffdddc1c41ebe4b769c8a575140 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/goldberg/fpga_routing/vda_gr_rcs_w9.shuffled.cnf
+a595dc923062f9a1cda20ea246a5a5cb /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-5_4232.cnf
+7b748135535bb814af543b2f97acf7e6 /raid/iser/cnf/sat2014/crafted/Robertson-k8.cnf
+3dccb1d482143cd9e08ff2f1e31da995 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2400c266431gyes3.cnf
+2117d38e5cceefc87bfe043172e21887 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-17x30.cnf
+cb9e9a15b6b3cfe50650f6374b46e9ed /raid/iser/cnf/sat2014/application/ctl_3791_556_unsat_pre.cnf
+f83248e962fd0a75d49e24242693c9b1 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/gomes/bqwh/bqwh.60.1152.shuffled-as.sat03-1650.cnf
+1c555037b0dca4d13aea81d464e32984 /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.02-s1099787414.sat05-542.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.02-s1099787414.sat05-542.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/connm-ue-csp-sat-n1200-d0.02-s1099787414.sat05-542.reshuffled-07.cnf
+e23235a6a8c1f6d3a61b317062b7ed33 /raid/iser/cnf/sat2016/app16/SC-past/li-test4-96.cnf
+96f33739a96ff101dd18a3aed401f76b /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-19-19-unsat.cnf
+43c0e23f0c30697c81ade8406ebf6363 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-17x27.cnf
+869cb9e3fe4ec4e5dbd512a853492bed /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut5-helpbox29.cnf
+cce07478dbde30cc566a71c8ef89e162 /raid/iser/cnf/sat2011/application/selected/SAT04/industrial/vangelder/cnf-color/myciel6-tr.used-as.sat04-320.cnf
+cc3e4039787cda40b3c23122f2975164 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-aerielogic/fifo6_93.cnf
+76424db891d8ca6272191595f71882ab /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-2.debugged.cnf
+8a464f9c175107bbcf8668b009fa07bd /raid/iser/cnf/sat2014/application/6s17-opt.cnf /raid/iser/cnf/sat2015/hard-combinatorial/6s17-opt.cnf /raid/iser/cnf/sat2015/main/6s17-opt.cnf
+813c4a691ff11c88cda5e4299425a94f /raid/iser/cnf/sat2014/crafted/shift1add.21964.cnf
+edd5597173ff72cc34fb3772c2626ca3 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_3vars_7gates.cnf /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/modcircuits/mod4block_3vars_7gates.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/modcircuits/mod4block_3vars_7gates.cnf
+4871e958cb8628668c4a27674c0eacbc /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7-gensys-ukn003.sat05-3346.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7-gensys-ukn003.sat05-3346.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7-gensys-ukn003.sat05-3346.reshuffled-07.cnf
+a08a298d66b05a83cd08b04f05a0dead /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net70-60-1.shuffled.cnf
+247f121df5bd9e867f54547d760538ea /raid/iser/cnf/sat2018/main/final/Zhou/si2-r001-m200-09.cnf
+5312872582e55f8ac820b4dac74f000f /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-19-37-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-19-37-sat.cnf
+c336c078596b08e5c4ed6e3fe0f9f6ad /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/kexu/frb-0.8/frb45-21-1.used-as.sat04-883.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/kexu/frb-0.8/frb45-21-1.used-as.sat04-883.cnf /raid/iser/cnf/sat2014/crafted/frb45-21-1.used-as.sat04-883.cnf
+33128b59f4c0a15c9b1c84814286b786 /raid/iser/cnf/sat2014/application/beempgsol5b1.cnf /raid/iser/cnf/sat2015/main/beempgsol5b1.cnf
+5e83376ea5ebb60f9c769e660d1dcbfb /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/fpga_routing/c880_gr_rcs_w6.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/c880_gr_rcs_w6.shuffled.cnf
+bec54db03903cea3a071293b05c04e66 /raid/iser/cnf/sat2006/SAT-Race_TS_1/een-tipb-sr06-tc6b.cnf.gz
+6f75566df4f164f8eab99554ab400e88 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2640c305320gyes3.cnf
+a098ee41c92ba709804907a229f18be7 /raid/iser/cnf/sat2007/crafted/Hard/contest04/others/equilarge_l5.sat05-522.reshuffled-07.cnf
+e479b58b19bb3afaed4fc20aac2ae031 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/linvrinv5.sat05-564.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/linvrinv5.sat05-564.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/others/linvrinv5.sat05-564.reshuffled-07.cnf
+1ddadb1347e0e159fc0adbd0b55f0e6f /raid/iser/cnf/sat2015/main/48bits_12.dimacs.cnf
+a43149e2b2af743dac1bbe2565d2cecc /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/longmult6.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult6.cnf
+1c194150da400ffa3df0f59f8c4a142b /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-icl008.sat05-2720.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-icl008.sat05-2720.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl008.sat05-2720.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl008.sat05-2720.reshuffled-07.cnf
+acafc93019f00b50497dc2e78fbd784c /raid/iser/cnf/sat2008/simon-s03-fifo8-400.cnf.gz
+d777973803920c1e3412eaffb710aae8 /raid/iser/cnf/sat2018/main/final/Collatz/full-ax-xa.rules.7-7.cnf
+0b791cd4552df628a21334b12e574170 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/ais8.cnf.mis-97.debugged.cnf
+2daf1f5ebdbce70af1c7461d4569cd9e /raid/iser/cnf/sat2018/main/final/Zhou/si2-m4Dr2-m256-08.cnf
+f888ef68d9e9365ec285a608ec33f9b0 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x24204-350.cnf
+fcd9047dcfe937344ac8defab401e403 /raid/iser/cnf/sat2018/main/final/CRIL/T92.2.0.cnf
+f9cdc5114ba2ec92c395fe61a99a2358 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x0-330.cnf
+c298ec68088a6637e4632923b21e242b /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG6/dead-dnd002.shuffled-as.sat05-2713.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG6/dead-dnd002.shuffled-as.sat05-2713.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG6/dead-dnd002.shuffled-as.sat05-2713.cnf
+23ac19f6a16fcb2f3ba66b360bbd4a20 /raid/iser/cnf/sat2018/main/Ofer/course0.2_2018_3_5.cnf
+c3f27a92d797b4e6c4f651486b0c60aa /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-7x6.cnf
+f7a07c26e7a62e343c1199de609dc6ab /raid/iser/cnf/sat2018/main/final/Collatz/less-cy-caa.rules.6-4.cnf
+acd9b31bcd2efabdb3667e2be20b60d4 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-brn002.shuffled-as.sat05-3935.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-brn002.shuffled-as.sat05-3935.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-brn002.shuffled-as.sat05-3935.cnf
+2f507d2a7e0747e4d4e5f5fd530a1d98 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:motors-stuck-1-k407-unsat.used-as.sat04-433.cnf
+9fda602cea7badbd19575262648f446f /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-654.cnf
+8568d5d44ede1ebc8b5418430a48032f /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-b-clqcolor-16-11-14.sat05-1261.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/counting-clq/unsat-set-b-clqcolor-16-11-14.sat05-1261.reshuffled-07.cnf
+b6dd1ac12f6e6c9ac1b0290efe90b204 /raid/iser/cnf/sat2015/main/46bits_11.dimacs.cnf
+5e7e54dde5bf2c64f1080a90f0651006 /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest02-Mat26.sat05-457.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest02-Mat26.sat05-457.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest02-Mat26.sat05-457.reshuffled-07.cnf
+ed33941120a0e49b3d581628c33e4a59 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-741.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-741.cnf
+3921e9e0697a1a30d1ecebbf031e7ce4 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-9x32.cnf
+0db21ae9b546fbde0dee49fcbe0abd27 /raid/iser/cnf/sat2007/industrial/palacios/hard/safe-50-h50-sat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/hard/safe-50-h50-sat.cnf
+6c29288abf6428dce7913bca4377ec48 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-6x19.cnf
+3f8c8077ffd1dc01fb691a120768bbab /raid/iser/cnf/sat2018/main/Ofer/courses_flat_0.12_2017_9.cnf
+8d3014b131d960f5abb2b2461aada9ac /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x1e3-40.cnf
+9fb8faf365ab1983a7744a963aeadeff /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/mod2-rand3bip-sat-270-2.sat05-2249.reshuffled-07.cnf
+5380f8920a151fd22fc2885a2713ca32 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox5-cut3-symmbreak.cnf
+cb42f64e778127fef4eb209864f2df30 /raid/iser/cnf/sat2014/crafted/bvadd_29740.cnf
+5c568c16440c7ced0e26a226f03a617c /raid/iser/cnf/sat2014/crafted/rbsat-v1150c84314gyes5.cnf
+43b523ed4dc736a3f1dd6bef198b8b1d /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-14x8.cnf
+6f88c35250d8aea4f1926b6275933abd /raid/iser/cnf/sat2006/SAT-Race_TS_1/hoons-vbmc-s04-05.cnf.gz /raid/iser/cnf/sat2008/hoons-vbmc-lucky7.cnf.gz
+b85a6841af8ebeb319204bd9a326ef23 /raid/iser/cnf/sat2010/mixed/palacios/uts-l06-ipc5-h32.cnf.gz
+f3bacbd4c8d33387f373c6f572f03452 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x0-40.cnf
+4e731226cee6957cfdc65aee53fee556 /raid/iser/cnf/sat2016/app16/SC-past/C168_FW_UT_518.cnf
+d4b324c28864f53a083cc3e6b4c080cf /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/9symml_gr_2pin_w5.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/9symml_gr_2pin_w5.shuffled.cnf
+d406750f06be6a2144212da8341e68a4 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/hwb-n28-01-S136611085.sat05-491.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/hwb-n28-01-S136611085.sat05-491.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest03/others/hwb-n28-01-S136611085.sat05-491.reshuffled-07.cnf
+ce7bac0a62518ea6e7b802bbf6548178 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-6x20.cnf
+a87f146c3380e824cddb278f25faee52 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/simon/satex-challenges/par32-3.shuffled.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT02/handmade/simon/satex-challenges/par32-3.shuffled.cnf
+53385d3b34fed47fde0f932091ca40a5 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/kexu/frb-0.8/frb59-26-1.used-as.sat04-891.cnf
+d82cafa213b9b39917d26c1628683b7e /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net60-30-10.shuffled.cnf
+cc84518692ce4311e66b3d1051aaa02a /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-10-13-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-10-13-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-10-13-u.cnf
+60d06b169430c71b74474eb03d25bf29 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-fphp-070-069.sat05-1240.reshuffled-07.cnf
+2c5ff1d0bbbebb3e7ef06b95cde4927e /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/stanion/hwb/hwb-n32-02-S1478512323.shuffled-as.sat03-1638.cnf
+c8d0175ea6867caadc816367da4fcbf0 /raid/iser/cnf/sat2007/industrial/palacios/hard/safe-50-h49-unsat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/hard/safe-50-h49-unsat.cnf
+04e9e2793bc06325e5c821ac1829f972 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-13-13-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-13-13-unsat.cnf
+35ac3aff640284791332a9b7d78e6d72 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v2640c305320g4.cnf
+4b14973b7a5606048537569c1211db71 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2-rand3bip-sat/mod2-rand3bip-sat-270-1.shuffled-as.sat05-2248.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2-rand3bip-sat/mod2-rand3bip-sat-270-1.shuffled-as.sat05-2248.cnf /raid/iser/cnf/sat2014/crafted/mod2-rand3bip-sat-270-1.shuffled-as.sat05-2248.cnf
+5305606078c0a70e7c263edcc4b14373 /raid/iser/cnf/sat2007/crafted/Hard/contest02/hgen3-v400-s344840348.sat05-470.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/hgen3-v400-s344840348.sat05-470.reshuffled-07.cnf
+f8fa0bea6716f69dc961173cbe4eb08e /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-2.sat05-2489.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-2.sat05-2489.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-2.sat05-2489.reshuffled-07.cnf
+285d0678e27e55555807d9601d370b3c /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/kexu/frb-0.6/frb80-14-2.used-as.sat04-880.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/kexu/frb-0.6/frb80-14-2.used-as.sat04-880.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT04/handmade/kexu/frb-0.6/frb80-14-2.used-as.sat04-880.cnf /raid/iser/cnf/sat2014/crafted/frb80-14-2.used-as.sat04-880.cnf
+7495c20c92276338befefeed93ca3218 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/pmg-12-UNSAT.sat05-3940.reshuffled-07.cnf.mis-126.debugged.cnf
+7279083fbf6593ae2d155a2a83445318 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes4.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes4.cnf
+c40f0e583e449c852b146a7dadb965ef /raid/iser/cnf/sat2018/main/final/CRIL/T122.2.0.cnf
+9964a5e750852afe6b08beec0c2eb1dc /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-9-17-sat.cnf
+c84f41c85ffc3c933f5099011f024ae3 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox28.cnf
+7b67982dc33164e1cfb64b91146a899b /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/gomes/bqwh/bqwh.50.825.shuffled-as.sat03-1648.cnf
+c980156c5eec9c2cd2d0866c21cbeadb /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_4vars_11gates_b2.cnf
+10b2600ea675120a0b034deb996e8c47 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes6.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes6.cnf
+f76d9f8b4d4a4435509f960289238b69 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-6-11-sat.cnf
+c777190b6c36b18af54231c6d5eea46d /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/barrel6.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel6.cnf
+c8db5d425b1b4804762678180a5e523f /raid/iser/cnf/sat2018/main/final/CRIL/T93.2.0.cnf
+d2b50b0811eed64542be57da9efb09a8 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/10-3-13.cnf
+c2ee713c4b3509a423aeac5772e41a2b /raid/iser/cnf/sat2014/crafted/bvslt_19860.cnf
+7edb32763188f217f6081a8f6df5a4db /raid/iser/cnf/sat2018/main/final/Collatz/bx-d-4-7-8.cnf
+6071bc9ed4ae30fe97f6b877372119e6 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-2.shuffled-as.sat05-2519.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-2.shuffled-as.sat05-2519.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-2.shuffled-as.sat05-2519.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-240-2.shuffled-as.sat05-2519.cnf
+ec34418e6538160ff440c5a401dcdfd0 /raid/iser/cnf/sat2018/main/Porkhunov/Cake_8_16.cnf
+1f07660e8e021d37158404c920e15c23 /raid/iser/cnf/sat2012/application/SAT_Race_2008/simon-s02b-r4b1k1.2.cnf /raid/iser/cnf/sat2012/portfolio/SAT_Race_2008/simon-s02b-r4b1k1.2.cnf
+4e4b9200593cc1128180ef12a31bc817 /raid/iser/cnf/sat2007/crafted/Hard/contest04/others/CompositeRSA576.sat05-509.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/others/CompositeRSA576.sat05-509.reshuffled-07.cnf
+aa16fbfaf14e0d1052652377909d8820 /raid/iser/cnf/sat2015/hard-combinatorial/56bits_12.dimacs.cnf /raid/iser/cnf/sat2015/main/56bits_12.dimacs.cnf
+a877f19f0f8c2b52dff9e6e132cae570 /raid/iser/cnf/sat2006/SAT-Race_TS_2/een-pico-sr06-pr02-02.cnf.gz
+c802ac08fe101fae78609e22ae927789 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-14x34.cnf
+e42e956fd8990bc261c624256177abfa /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1.1_56.shuffled-as.sat03-1584.cnf.mis-110.debugged.cnf
+456b065279ced76dd7479fa799a8c477 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG8/iso-ukn009.shuffled-as.sat05-3632.cnf
+d52333649aa31b5483ad98e323d54280 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-12x15.cnf
+88705666f8550d838ff7af6c616e06fe /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-php-045-044.sat05-1195.reshuffled-07.cnf
+766ae2a6f60dc6ee6fd8aac6dee47fd9 /raid/iser/cnf/sat2012/application/SC2012_Application_Debugged/satrace-unselected/zeus/esawn_uw3.debugged.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SC2012_Application_Debugged/satrace-unselected/zeus/esawn_uw3.debugged.cnf /raid/iser/cnf/sat2014/application/esawn_uw3.debugged.cnf /raid/iser/cnf/sat2016/app16/SC-past/esawn_uw3.debugged.cnf
+c7cf4250919e15d333c057679b23cf41 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel4.cnf
+a4f363a93475aff067bac5d4ba8c9da5 /raid/iser/cnf/sat2018/main/final/Collatz/full-cy-caa.rules.7-7.cnf
+ad9b1c14c0cb967ccf40a65c247d0671 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h31-unknown.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l06-ipc5-h31-unknown.cnf /raid/iser/cnf/sat2011/mus/selected/SAT07/industrial/palacios/uts/uts-l06-ipc5-h31-unknown.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h31-unknown.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h31-unknown.cnf
+2f0c8edd5e303452c4e8f806d156cc5c /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-250-3.sat05-2220.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-250-3.sat05-2220.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-250-3.sat05-2220.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-250-3.sat05-2220.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-250-3.sat05-2220.reshuffled-07.cnf
+a7c0686b7e96eb7abf5f7b2eb14dd65a /raid/iser/cnf/sat2012/application/SAT_Race_2008/anbul-part-10-15-s.cnf
+4d46cc879b58f124790e9d10485b18f5 /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x0-350.cnf
+f896dd44bedb158ca9c0775029fcad2d /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-5-8-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-5-8-unsat.cnf
+a699dfabd6826a07435168210abe4bca /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG-gensys-brn008.sat05-2685.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG-gensys-brn008.sat05-2685.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG-gensys-brn008.sat05-2685.reshuffled-07.cnf
+78a9f70bde97a9093a1d208a87ed2213 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/sgp_6-6-10.sat05-2670.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/sgp_6-6-10.sat05-2670.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp07-main-track-selected/crafted/Difficult/contest05/others/sgp_6-6-10.sat05-2670.reshuffled-07.cnf
+16ca53b889c78f4fbf9b40a2279cd552 /raid/iser/cnf/sat2015/main/50bits_11.dimacs.cnf
+fa85652b893df00154ec2094d2c078e6 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v1375c111739g2.cnf
+04a6aa7c5450f23ef01e38df9b932afc /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net40-25-1.shuffled.cnf
+6871c285437a3bba6ac595995418efd8 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h33-unknown.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l06-ipc5-h33-unknown.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h33-unknown.cnf
+fcfbf408f107ad2784a0c14ad21b0654 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-14-27-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-14-27-sat.cnf
+29cee73166d4e5f53cf50ff30057dd13 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-5-5_34308.cnf
+8787f442257b5d7b2b4d7ca633d36ac5 /raid/iser/cnf/sat2015/hard-combinatorial/50bits_13.dimacs.cnf /raid/iser/cnf/sat2015/main/50bits_13.dimacs.cnf
+8cd77c37b397f22c73d2e83bd19e00fa /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:guidance-1-k56-unsat.used-as.sat04-432.cnf
+9432052848608165d97b9965f8737c46 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-clqcolor-16-10-11.sat05-1253.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/counting-clq/unsat-set-a-clqcolor-16-10-11.sat05-1253.reshuffled-07.cnf
+7946a4a62f36bdf704f72ac93a031294 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/fpga_routing/too_large_gr_rcs_w6.shuffled.cnf /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/too_large_gr_rcs_w6.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/too_large_gr_rcs_w6.shuffled.cnf
+1127da468b838cffe08dfd0056c7ed8f /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/een-tip-sat-texas-tp-5e.cnf
+fb5cd419ec5e61a6fc476ccc1ff129e0 /raid/iser/cnf/sat2015/main/48bits_14.dimacs.cnf
+d1072c411057a180acba0e9045302e14 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/6-4-6.cnf
+a78fd4d045b3abf8c09c2a1c17c49078 /raid/iser/cnf/sat2016/app16/SC-past/li-exam-62.cnf
+c3b515b03bc647eb5d29eb2bfdbbc935 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-unsat/total-10-11-u.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-unsat/total-10-11-u.cnf
+d5952987a56214a85e8f085cd81c2222 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-10-19-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-10-19-u.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/hard-unsat/partial-10-19-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-10-19-u.cnf
+e92eefa0369d3bd87c23620a48f44355 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x0-50.cnf
+55779a32da7ebc9a245831c7f2663f6f /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/nam/fpga-routing/k2fix_gr_rcs_w9.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/nam/fpga-routing/k2fix_gr_rcs_w9.shuffled.cnf /raid/iser/cnf/sat2014/application/k2fix_gr_rcs_w9.shuffled.cnf /raid/iser/cnf/sat2015/main/k2fix_gr_rcs_w9.shuffled.cnf
+773e68a3729609a0c81d168da4cb27ac /raid/iser/cnf/sat2013/combinatoral/satrace-unselected/er/mutcb16.cnf
+c87bd35caf36518150c135438d5ce339 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox5-cut5-symmbreak.cnf
+f17d8de18ede8f6732cadfd55fa450aa /raid/iser/cnf/sat2014/crafted/bvsub_06991.cnf
+c8ab0bbbe335700ae96a1e80a511830c /raid/iser/cnf/sat2018/main/final/Zhou/si2-b06m-m1000-03.cnf
+fa9f5c1a0edfa9f6762129f6dfd9bdcc /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/longmult7.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult7.cnf
+dd220740dd2ddfdcfb0bb25981f3d4c4 /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG7a-gensys-ukn005.sat05-3845.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG7a-gensys-ukn005.sat05-3845.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG7a-gensys-ukn005.sat05-3845.reshuffled-07.cnf
+d8c117ab215e63665495a562821e6713 /raid/iser/cnf/sat2014/application/6s131-opt.cnf /raid/iser/cnf/sat2015/main/6s131-opt.cnf
+b8243bcaeeef8c2aa873b1fd2b0e287d /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-6-9-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-6-9-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-6-9-unsat.cnf
+6cb88afe5d3873b8fd89192daf06c123 /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/schuppan/l2s/bc57-sensors-1-k303-unsat.shuffled-as.sat03-406.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT03/industrial/schuppan/l2s/bc57-sensors-1-k303-unsat.shuffled-as.sat03-406.cnf
+56229c310083a3936dbb901015e65bf6 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1820c171155gyes6.cnf
+a3ad659ea10870c4281ebbd616001a4b /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-359.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-359.cnf
+bfc2ea918be5f34a326167ca19f591eb /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g7.cnf
+4cc2bed4c3dbd9d32364216ba0573771 /raid/iser/cnf/sat2018/main/Porkhunov/mchess_20.cnf
+cde7f41b87456c13d44ee607b8c8e2b6 /raid/iser/cnf/sat2018/main/final/CRIL/T105.2.0.cnf
+20d5fd43fe7c63a4968983bbaf3a6c68 /raid/iser/cnf/sat2010/mixed/anbulagan/total-10-19-s.cnf.gz
+05a8b0fdbc13f44c8c18a7d33ab370cd /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/urq35.cnf
+d2fad1dd671ac0aaf019a1d07dad0aa6 /raid/iser/cnf/sat2008/een-tip-sat-nusmv-t5.B.cnf.gz
+4bf292e5f8253bc8c8f86f8d6a8b8552 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/aloul/Homer/homer17.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/aloul/Homer/homer17.shuffled.cnf
+ad06ae668d8bc1eb4039b93ae2da30e1 /raid/iser/cnf/sat2014/crafted/bvashr_0710.cnf
+11405596354f117cd609ed38845e4fb5 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-fphp-035-034.sat05-1235.reshuffled-07.cnf
+0e0d5514c00e1c89424ccca0604e9fdf /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-20-20-unsat.cnf
+fa4164b1d134b37d919839d3f7661a40 /raid/iser/cnf/sat2007/crafted/spence/hard/s117-100.cnf
+fd474cfad51365d976bd76576c07ed2f /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-151.cnf
+9f65e47417110ff1663855e3bbeb07ec /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v1820c171155g5.cnf
+22e8e7b22726491da8f733137216253b /raid/iser/cnf/sat2018/main/final/CRIL/T87.2.0.cnf
+fedb238110fd7372dd55c6aa45673efe /raid/iser/cnf/sat2007/crafted/spence/medium/s65-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s65-100.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/spence/medium/s65-100.cnf
+ba749aeed633dfcc4ba30ba9ab78c0ae /raid/iser/cnf/sat2014/application/dimacs.cnf /raid/iser/cnf/sat2015/hard-combinatorial/dimacs.cnf /raid/iser/cnf/sat2015/main/dimacs.cnf
+1c6ea5f2921d16245330361e4166ca8b /raid/iser/cnf/sat2013/combinatoral/satrace-unselected/er/ph12.cnf
+5045d94f8db437e4f5a67a35d2eac9ce /raid/iser/cnf/sat2007/crafted/spence/medium/s57-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s57-100.cnf
+85e674deedb7d3415ee8a3ebf6d7a463 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-fclqcolor-10-06-07.sat05-1274.reshuffled-07.cnf
+7e96c7a834ab6d2bd8cb9a9b58df909d /raid/iser/cnf/sat2015/hard-combinatorial/50bit.dimacs.cnf /raid/iser/cnf/sat2015/hard-combinatorial/66bit.dimacs.cnf /raid/iser/cnf/sat2015/main/50bit.dimacs.cnf /raid/iser/cnf/sat2015/main/66bit.dimacs.cnf
+4537983e133a3061c137804e88e50eab /raid/iser/cnf/sat2015/hard-combinatorial/54bits_13.dimacs.cnf /raid/iser/cnf/sat2015/main/54bits_13.dimacs.cnf
+551adeb66e5cfcb2a1e8caf5f5c97dce /raid/iser/cnf/sat2007/crafted/Hard/contest02/ezfact64_6.sat05-453.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest02/ezfact64_6.sat05-453.reshuffled-07.cnf
+9c74efa5bcd7e208a62929d6830577b1 /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7-dead-dnd001.sat05-3419.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7-dead-dnd001.sat05-3419.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd001.sat05-3419.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd001.sat05-3419.reshuffled-07.cnf
+2e4680721d4502ddbaa486e2a667125f /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-6x40.cnf
+4772b154958b69d6ef789174ceab8022 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-160.cnf
+fc69a63136ce851eb88dddba283ce11d /raid/iser/cnf/sat2018/main/final/Collatz/by-X-2-7-100.cnf
+15c21489f28f42f563e5ef07b46a4f91 /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7a-gensys-icl001.sat05-3822.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-icl001.sat05-3822.reshuffled-07.cnf
+4ec82dfd9d789a37617c7a29cafa5b59 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x2_56.shuffled-as.sat03-1602.cnf.mis-110.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/x2_56.shuffled-as.sat03-1602.cnf.mis-110.debugged.cnf
+000f310860c67f91f429c493501e7280 /raid/iser/cnf/sat2018/main/final/Collatz/cz-alt-3-7.cnf
+1000bc31b6411f7656de8d6f7ae1f21f /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/vange-col-inithx.i.1-cn-54.cnf
+a77d8d3b3e0db3bacfb5457f962d23d7 /raid/iser/cnf/sat2014/application/6s153.cnf
+d44c97770ce8d0c2dd6663a1b7992727 /raid/iser/cnf/sat2007/crafted/Hard/contest04/others/equilarge_l2.sat05-519.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/others/equilarge_l2.sat05-519.reshuffled-07.cnf
+258a9f69aa455ec2f8098ec8c8e0cac9 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-unsat/total-5-13-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/medium-unsat/total-5-13-u.cnf
+af0e33c9b8d168e463782d9e0bb01a32 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-unsat/total-5-11-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/medium-unsat/total-5-11-u.cnf /raid/iser/cnf/sat2011/mus/selected/SAT07/industrial/anbulagan/medium-unsat/total-5-11-u.cnf
+de55b46c3b3ccf4e27af9736141f9c01 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-13x32.cnf
+b78e734e7ba153d86cf87b1504dc96d0 /raid/iser/cnf/sat2015/main/46bits_12.dimacs.cnf
+efba46f5576e04b2a00388714e85f9dd /raid/iser/cnf/sat2018/main/Ofer/course0.16_2018_3_5.cnf
+ed5980839cb24306e80152407f162108 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel8.cnf
+d09c5b5a395b008be88a72724095d512 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/999999000001nw.sat05-447.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/999999000001nw.sat05-447.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest03/others/999999000001nw.sat05-447.reshuffled-07.cnf
+fd2e13f3f9e8fa23cb56af46b2908ca8 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-3.debugged.cnf
+6d800b09f4451f81ec97724b2dc9d607 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult3.cnf
+cecda8b5db17f1b999e218eb34a730d5 /raid/iser/cnf/sat2007/crafted/Hard/contest02/hgen2-v500-s1216665065.sat05-467.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/hgen2-v500-s1216665065.sat05-467.reshuffled-07.cnf
+7530c3323f25988f9fc1168b222a3289 /raid/iser/cnf/sat2016/app16/SC-past/li-test4-99.cnf
+c7ffa8f4e91a5df432635d372a5923df /raid/iser/cnf/sat2007/crafted/Hard/contest02/ezfact64_4.sat05-451.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest02/ezfact64_4.sat05-451.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/ezfact64_4.sat05-451.reshuffled-07.cnf
+bdaa74c1d30dcd392526610766d87cf6 /raid/iser/cnf/sat2014/crafted/rbsat-v945c61409g10.cnf
+953063596544e53557bad08a2414e309 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/kexu/frb-0.8/frb59-26-2.used-as.sat04-892.cnf
+b94c4ad6719bb83e1a205107d3c5ada2 /raid/iser/cnf/sat2018/main/final/CRIL/T107.2.0.cnf
+e635e566a2acad600f9f68f31c18896f /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/C171_FR.cnf.mis-128.debugged.cnf
+c24248155f27ff9e393c0456e2757660 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1560c133795gyes1.cnf
+39e334cf6d451141f0938a15f66d2019 /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest03-hwb-n26-01-S1957858365.sat05-500.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest03-hwb-n26-01-S1957858365.sat05-500.reshuffled-07.cnf
+29e2a12ed7c12b695bfb881599584d05 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/stanion/hwb/hwb-n28-02-S818962541.shuffled-as.sat03-1628.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp11-main-track-selected/SAT03/handmade/stanion/hwb/hwb-n28-02-S818962541.shuffled-as.sat03-1628.cnf
+4b1801138f5bfcd3b81aabfae806426d /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/total-10-15-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-sat/total-10-15-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/medium-sat/total-10-15-s.cnf
+08d3f22272217f7adb422e8f7fffd0e4 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-5-5_34309.cnf
+45649d4f61120aad753562fbd1064a57 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1_72.shuffled-as.sat03-1595.cnf.mis-141.debugged.cnf
+3b660c9e3e2644d49065bfa933e13734 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/genurq7Sat.shuffled-as.sat03-1513.cnf.mis-135.debugged.cnf
+536adf2716870306c76f4561ce9c63d4 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v2400c266431g5.cnf
+6175b6699f53b56d7d0f723c1e3de657 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-2.sat05-2567.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-2.sat05-2567.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-2.sat05-2567.reshuffled-07.cnf
+0e4deba266d7b427ed928551e5544a02 /raid/iser/cnf/sat2014/crafted/rnd-v25-e81-k9.cnf
+fbee98ddae06187865526d1faee33062 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-1.shuffled-as.sat05-2533.cnf /raid/iser/cnf/sat2014/crafted/mod2c-rand3bip-sat-250-1.shuffled-as.sat05-2533.cnf
+10601b09fd4e90a0044b75bb1df42455 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-5-17-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-5-17-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-5-17-u.cnf
+2301355f8574ab12555bce521e61fc5d /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v1375c111739g6.cnf
+1a34a688bd34f6b7adeccab9df1d7ae1 /raid/iser/cnf/sat2014/application/6s165-nonopt.cnf /raid/iser/cnf/sat2015/main/6s165-nonopt.cnf
+020180a26d7f1ce6087e55855bf35193 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/urquhart4_25bis.shuffled-as.sat03-1554.cnf.mis-127.debugged.cnf
+82b8331f4fdb674551bb7e6e0398ea08 /raid/iser/cnf/sat2007/industrial/palacios/medium/cube-11-h13-unsat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/medium/cube-11-h13-unsat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/medium/cube-11-h13-unsat.cnf /raid/iser/cnf/sat2016/app16/SC-past/cube-11-h13-unsat.cnf
+d39642ad0f066e0915c1f025a150d514 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1_64.shuffled-as.sat03-1594.cnf.mis-125.debugged.cnf
+a1f65cd2a5bdaf405f1483d2d1e1649b /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s111845174.sat05-536.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s111845174.sat05-536.reshuffled-07.cnf
+0e8569d867da814bbade65a7a85fa1ce /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/barrel7.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/barrel7.cnf
+a79c6ee3062afa632f039c8d3ee76863 /raid/iser/cnf/sat2016/app16/SC-past/mulhs064.cnf
+242b840db7c66ec03aef630095fc62ff /raid/iser/cnf/sat2015/hard-combinatorial/58bits_10.dimacs.cnf /raid/iser/cnf/sat2015/main/58bits_10.dimacs.cnf
+b2091da10fb0542dea826dbbc36bbf16 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-5-19-u.cnf
+d90dee8db936e146f0d0a17021175f7c /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.00-s1875077647.sat05-530.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.00-s1875077647.sat05-530.reshuffled-07.cnf
+af5675772d894c1b677256540ae22ce1 /raid/iser/cnf/sat2014/application/6s137.cnf
+909823c7c6a27cd48b5f654eafdac77d /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/example2_gr_rcs_w5.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/example2_gr_rcs_w5.shuffled.cnf
+e2f0dddecdd25ab225b027dd4c59ccd5 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/simon/satex-challenges/c6288.shuffled.cnf
+17967e8ad3d2cff3fd04101f0286a656 /raid/iser/cnf/sat2007/industrial/palacios/hard/safe-30-h29-unsat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/hard/safe-30-h29-unsat.cnf /raid/iser/cnf/sat2016/app16/SC-past/safe-30-h29-unsat.cnf
+6e2b8ff4ec82b198a24d10591c15c6a2 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2100c215164gyes4.cnf
+6f4d87d5fad586ba39347085b4ade288 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes1.cnf
+dc9cbc7b749bc664fdb33b2b8e196308 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox5-cut4-symmbreak.cnf
+100d5e03e6cd17a1ffe139f9fbb8d3bb /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-240-3.sat05-2205.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-240-3.sat05-2205.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-240-3.sat05-2205.reshuffled-07.cnf
+cf86c5fff50dfad56cd77bf8ea4f78da /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-4-7-sat.cnf
+c43cb7fd65bb0b82ba8c74efc3676068 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:dp11u10.used-as.sat04-357.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:dp11u10.used-as.sat04-357.cnf
+20407569ab6b50dbe28a6542ed99fc47 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/bevan/cnf/marg3x3add8.shuffled-as.sat03-1449.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT03/handmade/bevan/cnf/marg3x3add8.shuffled-as.sat03-1449.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT03/handmade/bevan/cnf/marg3x3add8.shuffled-as.sat03-1449.cnf
+1efdddc030287dce9d3bc087aa892fc2 /raid/iser/cnf/sat2016/app16/SC-past/gripper14u.cnf
+7ea6906700676d6e4e1761f0d2cd749a /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-aerielogic/w10_40.cnf
+beab6fcd9ae54395a6b2fd39702ddcf9 /raid/iser/cnf/sat2007/crafted/Hard/contest02/pyhala-braun-unsat-40-4-02.sat05-459.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/pyhala-braun-unsat-40-4-02.sat05-459.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest02/pyhala-braun-unsat-40-4-02.sat05-459.reshuffled-07.cnf
+64f7045c3ddf16cf06ebe656ffcc496f /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_4vars_12gates_b2.cnf
+572e28625fd01c2f02d4f374ebc6cacb /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-4x8.cnf
+0020d50e05f414c159b1bc7ba790efe3 /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/bqwh.40.reg.520.sat05-433.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest03/others/bqwh.40.reg.520.sat05-433.reshuffled-07.cnf
+8798c34365c20fec41425f45a2d9fb71 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/ph9.cnf
+0897459720bb927930bca72b690bf21c /raid/iser/cnf/sat2014/crafted/rnd-v25-e212-k9.cnf
+7026058e5605cd8cbca203d8f566feff /raid/iser/cnf/sat2014/application/6s13-opt.cnf /raid/iser/cnf/sat2015/hard-combinatorial/6s13-opt.cnf /raid/iser/cnf/sat2015/main/6s13-opt.cnf
+b1b1b740e4375cdd7494c6733a027794 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/fpga_routing/term1_gr_rcs_w3.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/term1_gr_rcs_w3.shuffled.cnf
+61940dc6050d9401d01b8c0b7920d21a /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2c-rand3bip-sat-190-3.sat05-2445.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2c-rand3bip-sat-190-3.sat05-2445.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2c-rand3bip-sat-190-3.sat05-2445.reshuffled-07.cnf
+0d5c3041e3ade5bf950e869a5848e1cd /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/sgp_5-6-8.sat05-2669.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/sgp_5-6-8.sat05-2669.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/others/sgp_5-6-8.sat05-2669.reshuffled-07.cnf
+0a5b01d49e054b341bf260936784105b /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/nam/fpga-routing/k2fix_gr_rcs_w8.shuffled.cnf /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_rcs_w8.used-as.sat04-353.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/nam/fpga-routing/k2fix_gr_rcs_w8.shuffled.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:k2fix_gr_rcs_w8.used-as.sat04-353.cnf
+25c3324d48f71e10bacd599e5465c108 /raid/iser/cnf/sat2015/hard-combinatorial/group_mulr.cnf /raid/iser/cnf/sat2015/main/group_mulr.cnf
+f4dab4642a7a90c00eee75973e47aceb /raid/iser/cnf/sat2012/application/SAT_Race_2008/anbul-dated-5-15-u.cnf
+e0ddf51bae57a99ed4702c093447cc0f /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:bc57-sensors-1-k303-unsat.used-as.sat04-430.cnf
+a93ddb5fca08bfebe37b4a1e6404636b /raid/iser/cnf/sat2011/application/selected/SAT04/industrial/vangelder/cnf-color/abb313GPIA-9-c.used-as.sat04-317.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/application/SAT04/industrial/vangelder/cnf-color/abb313GPIA-9-c.used-as.sat04-317.cnf /raid/iser/cnf/sat2016/app16/SC-past/abb313GPIA-9-c.used-as.sat04-317.cnf
+27a3e134aaa7655467d0941227e192b8 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_2vars_11gates_u2_autoenc.cnf /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/modcircuits/mod3block_2vars_11gates_u2_autoenc.cnf
+f94da3459548c5abbbc2f60bf4da7b26 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x1e3-60.cnf
+7adfc1eaff60a0a61eddecae301be7d8 /raid/iser/cnf/sat2014/application/ctl_4291_567_5_unsat_pre.cnf
+752882b161089a4547a1e8f617c76768 /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s925928766.sat05-538.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s925928766.sat05-538.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s925928766.sat05-538.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s925928766.sat05-538.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.02-s925928766.sat05-538.reshuffled-07.cnf
+fd120603b217b6e57c42d879bf809dfe /raid/iser/cnf/sat2010/mixed/anbulagan/dated-5-11-u.cnf.gz
+b2defdfff9dc907f493334b4c98ea1a2 /raid/iser/cnf/sat2008/schup-l2s-bc56s-1-k391.cnf.gz
+2719f70452b9bc70ef9157e9013877fc /raid/iser/cnf/sat2016/app16/SC-past/li-test4-100.cnf
+71597a091bcea113fb559a0bfda15df2 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net40-30-5.shuffled.cnf
+fe11a53df195ed5701fc7ab647dea793 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/partial-5-15-s.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/medium-sat/partial-5-15-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-15-s.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-15-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-15-s.cnf /raid/iser/cnf/sat2014/application/partial-5-15-s.cnf /raid/iser/cnf/sat2015/main/partial-5-15-s.cnf
+705feb13fbac58bb6caffd5b82863136 /raid/iser/cnf/sat2018/main/final/Zhou/si2-r001-m200-00.cnf
+7796939abc2197373300f93f3a2139ff /raid/iser/cnf/sat2015/hard-combinatorial/64bits_13.dimacs.cnf /raid/iser/cnf/sat2015/main/64bits_13.dimacs.cnf
+50fc550db5c36341bf4fe8dbde33d5c4 /raid/iser/cnf/sat2014/crafted/shift1add.29940.cnf
+25fe16402d15c9e2daf1dcdb4aaa6586 /raid/iser/cnf/sat2018/main/final/Zhou/bibd-8-70-35-4-15_glb.cnf
+6985ad94dbc41872a34911e0d04907b8 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-665.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-665.cnf
+aa741c3bb54913dbdb5bd66d202d0a76 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/queueinvar12.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar12.cnf
+ff5ae2f816c1dfc4ade2736804a8453b /raid/iser/cnf/sat2014/application/6s184.cnf
+84e25fdb3147e08c6281724a1fd2643d /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/ssa2670-133.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-133.cnf
+32a7f574f8bd7ab664ca0a5f4d5b8c5c /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h35-unknown.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l06-ipc5-h35-unknown.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/uts/uts-l06-ipc5-h35-unknown.cnf
+f0a9fbfed6e1f5a89d737e0c455bead1 /raid/iser/cnf/sat2010/mixed/palacios/safe-30-h30-sat.cnf.gz
+8ea1fef144ef01a1728dc2c60b8c675b /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/een-tip-sat-nusmv-t5.B.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/een-tip-sat-nusmv-t5.B.cnf
+49f51ab495bb28eba9b0e1a9fffa0fc9 /raid/iser/cnf/sat2018/main/final/Zhou/bibd-16-80-15-3-2_glb.cnf
+2a053cfc6293959826287d22de08c7b3 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-icl005.shuffled-as.sat05-3826.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-icl005.shuffled-as.sat05-3826.cnf
+4a4b6c09d5c32e529fb506890739455b /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/gensys-ukn002.sat05-2744.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/gensys-ukn002.sat05-2744.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/others/gensys-ukn002.sat05-2744.reshuffled-07.cnf
+a49ec277f6333607018149535921ea15 /raid/iser/cnf/sat2014/crafted/bvadd_27966.cnf
+25011adec2f0f33089701143dc615c08 /raid/iser/cnf/sat2011/application/unselected/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-7_13850.cnf
+551d0c10db7181f5f52c035e4d2e76d4 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/bevan/cnf/marg3x3add8ch.shuffled-as.sat03-1448.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT03/handmade/bevan/cnf/marg3x3add8ch.shuffled-as.sat03-1448.cnf
+66e7125d555ee2d5f624f9c14ecb48d3 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_9gates_u2.cnf
+8b899edb155a1e93f104a116d5bab003 /raid/iser/cnf/sat2018/main/Porkhunov/mchess_17.cnf
+f848a51c07889aab2b02fbcd6818bd26 /raid/iser/cnf/sat2007/crafted/Hard/contest02/ezfact256_1.sat05-464.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/ezfact256_1.sat05-464.reshuffled-07.cnf
+79f8b9f3a634dfd8c440ff5ba35e4ed4 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-3.shuffled-as.sat05-2535.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp11-main-track-selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-250-3.shuffled-as.sat05-2535.cnf /raid/iser/cnf/sat2014/crafted/mod2c-rand3bip-sat-250-3.shuffled-as.sat05-2535.cnf
+2c89a2d85768ea2a2d1b0b0cf293bbf4 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_9gates_u2_autoenc.cnf
+7472b3ab6593ebb8361ae0c47e86b210 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/owp_4vars_5gates.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/owp_4vars_5gates.cnf
+421ea667c1b0a4ab621ca3be17c9a28b /raid/iser/cnf/sat2007/crafted/spence/medium/s69-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s69-100.cnf
+7e352841fd980f2521bb244920bbcc30 /raid/iser/cnf/sat2006/SAT-Race_TS_1/simon-mixed-s02bis-05.cnf.gz
+be30d0716392b2ad04a553b44a0bafa5 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/urquhart3_25.shuffled-as.sat03-1553.cnf.mis-101.debugged.cnf
+876f906c5c286cd738621302aa39030b /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar18.cnf
+bd2dc9db30f92c9d05a738f4c82ce0c3 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/dellacherie/w10/w10_70.shuffled.cnf
+4b634307b42313d3e69d07c9f691a5fc /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-5_4231.cnf
+d365a76b6eff280b011c4205d8a91198 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-12-12-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-12-12-unsat.cnf
+a4e6c41d7bec097e8762c8e3e4313a16 /raid/iser/cnf/sat2008/anbul-part-10-13-s.cnf.gz
+881f787cbbd41dd9d07624520e3141e6 /raid/iser/cnf/sat2018/main/Porkhunov/Cake_9_20.cnf
+72b6422cb5b266bef414cd720e420360 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-10-11-u.cnf
+d046f08f35e3e7b33ce6faddc74db278 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/pmg-12-UNSAT.sat05-3940.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/pmg-12-UNSAT.sat05-3940.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/others/pmg-12-UNSAT.sat05-3940.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Difficult/contest05/others/pmg-12-UNSAT.sat05-3940.reshuffled-07.cnf
+beed811472857d3948a9215e0b61aaff /raid/iser/cnf/sat2018/main/final/Zhou/si2-b03m-m400-03.cnf
+30cfdac56e99c8fb4e4b58be35c1adc1 /raid/iser/cnf/sat2007/crafted/spence/medium/s85-100.cnf
+1f208ad33ffddb09761aa21c1941f171 /raid/iser/cnf/sat2014/application/beempgsol2b1.cnf /raid/iser/cnf/sat2015/main/beempgsol2b1.cnf
+3e041cfaed1e0f9dba703e62b1165f58 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/aim-200-6_0-yes1-4.cnf.mis-135.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/aim-200-6_0-yes1-4.cnf.mis-135.debugged.cnf
+a22b00fdef8d2c843bcecd0b69c37f12 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-1.sat05-2263.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-1.sat05-2263.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-1.sat05-2263.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/mod2-rand3bip-sat-280-1.sat05-2263.reshuffled-07.cnf
+c47c150e2f656df6fb670f3665e00624 /raid/iser/cnf/sat2015/hard-combinatorial/50bits_14.dimacs.cnf /raid/iser/cnf/sat2015/main/50bits_14.dimacs.cnf
+a33afde587b7abeda39d6e72973e0e69 /raid/iser/cnf/sat2016/app16/SC-past/g250.29.cnf
+fecbcfa723b4e35c3894e8e5207f3219 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:motors-stuck-2-k314-unsat.used-as.sat04-434.cnf
+9e156bed92bb826b8f11d94c17abea23 /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n600-d0.02-s1676244754.sat05-535.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n600-d0.02-s1676244754.sat05-535.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n600-d0.02-s1676244754.sat05-535.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-connm-ue-csp-sat-n600-d0.02-s1676244754.sat05-535.reshuffled-07.cnf
+4b951cf9d9110a628e080cc2d56c70f0 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/6-3-8.cnf
+1b7cf3309ed19b733b3f0ce95d5ce51d /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-10-15-u.cnf
+2ab54da98fe60209722a0bae988e1f72 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-6_2072.cnf
+03f588049e2ce8cfd5ac013c1cebecbe /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut5-helpbox28.cnf
+2df5678da54ae001d18c7111aec3d627 /raid/iser/cnf/sat2018/main/final/Collatz/ax-d-4-7-5.cnf
+a661159bc25ac8d0ea9eb47f0282ed74 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.2_2018_3.cnf
+634a1840183fdf011a1370e11d3ed683 /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l05-ipc5-h26-unsat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/uts/uts-l05-ipc5-h26-unsat.cnf /raid/iser/cnf/sat2011/mus/selected/SAT07/industrial/palacios/uts/uts-l05-ipc5-h26-unsat.cnf
+a407b3a9c08c90947ecc0d85e1024ebc /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-unsat-120-3.sat05-2340.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-unsat-120-3.sat05-2340.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-rand3bip-unsat-120-3.sat05-2340.reshuffled-07.cnf
+e2567e6c71cb12f7b0fa153064d847eb /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g9.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g9.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g9.cnf
+5f309840a2a03396b522decfbf757626 /raid/iser/cnf/sat2008/jarvi-eq-atree-9.cnf.gz
+53998b454a137b4d3baad9ce9375cb6d /raid/iser/cnf/sat2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1000-m6860-k4-l4-s1935114289.sat05-523.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest-02-03-04/contest04-lksat-n1000-m6860-k4-l4-s1935114289.sat05-523.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest-02-03-04/contest04-lksat-n1000-m6860-k4-l4-s1935114289.sat05-523.reshuffled-07.cnf
+318cc8f38ec6c665ae0e5930fa504ea3 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net50-25-5.shuffled.cnf
+fe00acd8035d47df6119eab2a3e46ff6 /raid/iser/cnf/sat2014/application/6s12.cnf
+404d7351aa057043c478dd114edd59ed /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/dellacherie/fifo8/fifo8_300.shuffled.cnf
+5565569543899a0900d69678d7434257 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-24-47-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-24-47-sat.cnf
+da9604b2ae10246773984674b774bc1f /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/markstrom05/eulcbip/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/markstrom05/eulcbip/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/markstrom05/eulcbip/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT05/crafted/markstrom05/eulcbip/eulcbip-7-UNSAT.shuffled-as.sat05-3936.cnf
+8bb3ad19de7ee83238b51047b7345016 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/easier-fphp-035-029.sat05-1221.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/counting-php/easier-fphp-035-029.sat05-1221.reshuffled-07.cnf
+35cfb86bb76d24a844602b85962ad7ce /raid/iser/cnf/sat2015/hard-combinatorial/58bits_11.dimacs.cnf /raid/iser/cnf/sat2015/main/58bits_11.dimacs.cnf
+73abc8516a42bbcf96e3d51056a6ae6f /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-136.cnf
+37ee3e2799fd3328eb13a38a34b91f05 /raid/iser/cnf/sat2006/SAT-Race_TS_1/schup-l2s-s04-abp4.cnf.gz /raid/iser/cnf/sat2008/schup-l2s-abp4-1-k31.cnf.gz
+5aee6e487bf98dc89a65a4bab1d4d4e8 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/mod2-rand3bip-sat-210-2.sat05-2159.reshuffled-07.cnf.mis-144.debugged.cnf
+5129538583ef85d5a0e7b5a613112efe /raid/iser/cnf/sat2007/industrial/palacios/uts/uts-l06-ipc5-h32-unknown.cnf
+c32dde02daaec92f79ba7b9c00abcf78 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_8gates_u2.cnf /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/modcircuits/mod4block_2vars_8gates_u2.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_8gates_u2.cnf
+5e7ca2ad262a66d24805f36eb5ee083a /raid/iser/cnf/sat2018/main/final/CRIL/T62.2.0.cnf
+61084f68a8fa193f7088c10a74a94416 /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.00-s1756632460.sat05-526.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d0.00-s1756632460.sat05-526.reshuffled-07.cnf
+41a6b050b336c061990a3ca8437a73ff /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g5.cnf
+3136a18485a1cdb23cf47a20aaa5f98d /raid/iser/cnf/sat2018/main/final/CRIL/T125.2.0.cnf
+17b0ab665ed64c0712415a5bbf1e25c0 /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7a-gensys-icl004.sat05-3825.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7a-gensys-icl004.sat05-3825.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-icl004.sat05-3825.reshuffled-07.cnf
+3619e22a7b3f966f9b4a10506fb10efb /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x24204-330.cnf
+8c22b83778e4ef7d123d825577456e69 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x2_64.shuffled-as.sat03-1603.cnf.mis-125.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/x2_64.shuffled-as.sat03-1603.cnf.mis-125.debugged.cnf
+95074e062a3d1c7546c129d4a65d2084 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-4_511.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-4_511.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-4-4_511.cnf /raid/iser/cnf/sat2014/crafted/GreenTao_2-4-4_511.cnf
+09f5158c83874099fc3f2f435b4a7089 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG7-gensys-icl006.sat05-3132.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG7-gensys-icl006.sat05-3132.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG7-gensys-icl006.sat05-3132.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Difficult/contest05/QG/QG7-gensys-icl006.sat05-3132.reshuffled-07.cnf
+5a15987bfbcb669ff97eb4b5eee20534 /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7-dead-dnd005.sat05-3111.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7-dead-dnd005.sat05-3111.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd005.sat05-3111.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd005.sat05-3111.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest05/QG/QG7-dead-dnd005.sat05-3111.reshuffled-07.cnf
+b80ea0f1e72e3d3c33f17688bf16022a /raid/iser/cnf/sat2014/crafted/rnd-v25-e178-k13.cnf
+d97c7758cf41425198eafbe1f023b294 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-10-18-sat.cnf
+b51212db347a54d70282070c64535863 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-10-11-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/hard-sat/partial-10-11-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/hard-sat/partial-10-11-s.cnf /raid/iser/cnf/sat2014/application/partial-10-11-s.cnf /raid/iser/cnf/sat2015/main/partial-10-11-s.cnf
+85b95660e53592e4d671e0996c3d1410 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-127.cnf
+b7050383dff26600e22eb9b5802b8a8e /raid/iser/cnf/sat2008/vange-col-abb313GPIA-9-c.cnf.gz
+313cfeca3821477f06d0b5528895efd8 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-3.sat05-2265.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-3.sat05-2265.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-3.sat05-2265.reshuffled-07.cnf
+000501eb3ed0b8d3c657b908700ca84d /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2640c305320gyes8.cnf
+1036a0c7c565afca179fdedb26303fa8 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-10-07-09.sat05-1282.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-10-07-09.sat05-1282.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-10-07-09.sat05-1282.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Hard/contest05/counting-clq/unsat-set-b-fclqcolor-10-07-09.sat05-1282.reshuffled-07.cnf
+79915ebc42dccf5e972a9843490b6a2e /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/289-sat-4x8.cnf.mis-95.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/289-sat-4x8.cnf.mis-95.debugged.cnf
+29c3bbf6e773cba34ee5fcc57f8608bb /raid/iser/cnf/sat2015/hard-combinatorial/62bits_11.dimacs.cnf /raid/iser/cnf/sat2015/main/62bits_11.dimacs.cnf
+2d5bc532f8f878bcc37e4eecf8e44cc6 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.12_2018_3.cnf
+95ab7a26e39e91fee5946a87fa9cc976 /raid/iser/cnf/sat2007/industrial/palacios/medium/emptyroom-4-h21-unsat.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/palacios/medium/emptyroom-4-h21-unsat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/medium/emptyroom-4-h21-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/industrial/palacios/medium/emptyroom-4-h21-unsat.cnf
+0a21c9316e17731661487218a81ad5ff /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/partial-5-13-s.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/medium-sat/partial-5-13-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-13-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/medium-sat/partial-5-13-s.cnf
+024a7b96b6ae0e168092758473ab55f8 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox23.cnf
+0d530c4704dad56741bee0d715104bbd /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG-gensys-icl003.sat05-2715.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/others/QG-gensys-icl003.sat05-2715.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG-gensys-icl003.sat05-2715.reshuffled-07.cnf
+8ad0b2912b3050e21851427e9dbea729 /raid/iser/cnf/sat2018/main/final/CRIL/T77.2.0.cnf
+4bfa4500a99dc4ab5587f096edcfc709 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-3.sat05-2568.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-3.sat05-2568.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2c-3cage-unsat-10-3.sat05-2568.reshuffled-07.cnf
+588b3c7ea35f30e90ec256bbafb23269 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/simon-s02b-r4b1k1.1.cnf
+e5b72eb9edb080dfc74ca18bed19f49e /raid/iser/cnf/sat2008/een-tip-sat-texas-tp-5e.cnf.gz
+cb2ba8f3a5a8dd921cc7ac4161cdef9a /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/total-5-17-s.cnf
+7a7204dcfdf0c76dfb2d99ff72ba8d35 /raid/iser/cnf/sat2018/main/final/CRIL/T96.2.0.cnf
+11ec78ede4370fd5a3aa867fda1a0490 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-5_527.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-5_527.cnf
+f419dd0c1502a8540ba96a1367f9cffa /raid/iser/cnf/sat2007/industrial/anbulagan/medium-unsat/total-10-13-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/medium-unsat/total-10-13-u.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/medium-unsat/total-10-13-u.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/industrial/anbulagan/medium-unsat/total-10-13-u.cnf /raid/iser/cnf/sat2014/application/total-10-13-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/total-10-13-u.cnf
+68cc8a229d4a2396666915c950145b83 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-11x9.cnf
+ebefa4921952776143d93e24e9e3dbe5 /raid/iser/cnf/sat2011/application/selected/SAT04/industrial/vangelder/cnf-color/abb313GPIA-9-tr.used-as.sat04-321.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/application/SAT04/industrial/vangelder/cnf-color/abb313GPIA-9-tr.used-as.sat04-321.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/application/SAT04/industrial/vangelder/cnf-color/abb313GPIA-9-tr.used-as.sat04-321.cnf
+0954596f9f837e181abbed28c489c59f /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_10gates_u2_autoenc.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp09-main-track-selected/crafted/SAT09/CRAFTED/modcircuits/mod4block_2vars_10gates_u2_autoenc.cnf
+dfe108c2e8aebfc35ad7cf414125d657 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes8.cnf
+d463fd17e4d735e693a19445217f4ed7 /raid/iser/cnf/sat2007/crafted/spence/medium/s81-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s81-100.cnf
+51122a65194206b357e7f17a493c0e80 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-7-13-sat.cnf
+eca745e78ca19083aec8f4224ad09ca8 /raid/iser/cnf/sat2018/main/final/Collatz/less-cy-caa.rules.4-9.cnf
+2e5984a5bd0e5196345a3f103a297bcd /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-icl001.sat05-2695.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-icl001.sat05-2695.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl001.sat05-2695.reshuffled-07.cnf
+fff6f5d7f8e9af61e9517937d4713137 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-130.cnf
+e70c29f85ece7098ac655bac51ced1c5 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-230-3.shuffled-as.sat05-2505.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-230-3.shuffled-as.sat05-2505.cnf
+34fdb0c88bb9ae4492a7e5c58a150415 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.12_2018_3_3.cnf
+00d166eb058d173a422ee9005f009ce3 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-12.sat05-2587.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-12.sat05-2587.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-12.sat05-2587.reshuffled-07.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-3cage-unsat-9-12.sat05-2587.reshuffled-07.cnf
+3a24c141808018e9354ef1e06074fb04 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-20-39-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-20-39-sat.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-20-39-sat.cnf
+02b63889f212094d0af5f0e22ba89b59 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/ssa2670-132.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-132.cnf
+b95603fe18f2f8eec52fd801cdf2e9e2 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/example2_gr_2pin_w5.shuffled.cnf
+5458de1e1c97ebe25fafe9d44ac733fe /raid/iser/cnf/sat2012/application/SAT_Race_2008/anbul-part-10-13-s.cnf
+9fdacbe10abdf80e981c46622f0f786f /raid/iser/cnf/sat2007/crafted/Hard/contest03/others/hwb-n28-02-S818962541.sat05-492.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp07-main-track-selected/crafted/Hard/contest03/others/hwb-n28-02-S818962541.sat05-492.reshuffled-07.cnf
+9eab2ac8fc7d88ae92a3b492bfab3be6 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-10-10-unsat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-10-10-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-10-10-unsat.cnf
+6758ba718f0a71791e6bd38935cfaa34 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/een-pico-prop01-75.cnf
+293f16d9b4bd7a81ad5e4aba4f9e363d /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/plainoldcnf/5cnf_3900_3900_220.shuffled.cnf
+b387cb9791812553aa78b67da7fbf5ba /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-141.cnf
+b5a8fffa4728317b10c423ebd6a5495f /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02bis:cnf-r4-b1-k1.1-comp.used-as.sat04-354.cnf
+1af3932da0983710a91e7e537c80d02a /raid/iser/cnf/sat2018/main/final/Zhou/bibd-19-57-9-3-1_glb.cnf
+c9286ec22d6d761034de47619b7172f4 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-27-54-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-27-54-sat.cnf
+bd6f8c394a0f8ae6997e9b56f0e51417 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/289-sat-6x8.cnf.mis-143.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/289-sat-6x8.cnf.mis-143.debugged.cnf
+c05d49928545a1e5af76936702738676 /raid/iser/cnf/sat2008/palac-sn7-ipc5-h16.cnf.gz
+cfb67d8683d0ea8596ca95d24344a99a /raid/iser/cnf/sat2007/crafted/spence/hard/s97-100.cnf
+66611c84f3fb49ed61af35f154ebae19 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/goldberg/rand_net/rand_net60-30-1.shuffled.cnf
+746d4e140681cd67cec22254bec9ce4c /raid/iser/cnf/sat2006/SAT-Race_TS_1/simon-mixed-s02bis-03.cnf.gz
+1b2ccab3efa4cc209890fb7920f10a4f /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/linvrinv6.sat05-565.reshuffled-07.cnf
+7da8eb61cf8f847e999f506879f445e3 /raid/iser/cnf/sat2018/main/Ofer/courses0.2_2017_9.cnf
+916f105ca4eaf0551f16bdcc23c5747d /raid/iser/cnf/sat2015/main/46bits_14.dimacs.cnf
+5e3f2738c3aee1e2b827d7733c43b9f3 /raid/iser/cnf/sat2018/main/final/Collatz/cz-3-7-7.cnf
+e39eeefde3989daaf411eda0500d2ff4 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar6.cnf
+9eecc2960988dc952bd735ca7ea9707a /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-fphp-018-017.sat05-1231.reshuffled-07.cnf
+bb950ee4394a8b845ba70cb6b4dd874c /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/dellacherie/comb/comb2.shuffled.cnf
+3151e4db709ea4b97945362a3a14040c /raid/iser/cnf/sat2011/application/unselected/crafted/kullmann/GreenTao/GreenTaok1k2/GreenTao_2-3-7_13800.cnf
+baab5fbd9dcf6b48a5ee8259cf2c6db5 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-131.cnf
+b1eeca82b816c18681895a1eeaefedd5 /raid/iser/cnf/sat2007/crafted/Hard/contest02/ezfact64_3.sat05-450.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/ezfact64_3.sat05-450.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest02/ezfact64_3.sat05-450.reshuffled-07.cnf /raid/iser/cnf/sat2014/crafted/ezfact64_3.sat05-450.reshuffled-07.cnf
+dc386063a5763eda788ec44c97b91f29 /raid/iser/cnf/sat2018/main/final/CRIL/T116.2.0.cnf
+51b93688dde877395aa4a6cff64c69e5 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-530.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-530.cnf
+754faf019d7781e2cd9a41164904de5a /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/queueinvar20.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar20.cnf
+62bff19e71b48cbbe6d4a18a5826e654 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-10-17-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/total-10-17-u.cnf /raid/iser/cnf/sat2011/application/selected/SAT07/industrial/anbulagan/hard-unsat/total-10-17-u.cnf
+2bc7e90a7b40863a869d8b284c6758d8 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/marg6x6.shuffled-as.sat03-1456.cnf.mis-119.debugged.cnf
+38633e0c073ad029a6a7ef10913ec62d /raid/iser/cnf/sat2014/application/bob12m02-opt.cnf /raid/iser/cnf/sat2015/hard-combinatorial/bob12m02-opt.cnf /raid/iser/cnf/sat2015/main/bob12m02-opt.cnf
+7bad43de71bca1097f85d5d44d55dc08 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar2.cnf
+0c6f688ddaa5f393cbebc4e6829b767a /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7-gensys-icl100.sat05-3226.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/QG/QG7-gensys-icl100.sat05-3226.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7-gensys-icl100.sat05-3226.reshuffled-07.cnf
+01fc1cc7cc851ced9b38006aa2e75a8a /raid/iser/cnf/sat2018/main/final/Johnson/sted1_0x24204-380.cnf
+1ccaca0f50396bbe7dc7b16c8be03ee8 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-2.sat05-2264.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-2.sat05-2264.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/jarvisalo/mod2-rand3bip-sat-280-2.sat05-2264.reshuffled-07.cnf
+6dacf620c514b191a4f26fdfef9ca637 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut4-helpbox23.cnf
+03457cd7f06740fbd0861e092d3353a5 /raid/iser/cnf/sat2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-220-1.sat05-2173.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-220-1.sat05-2173.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/jarvisalo/mod2-rand3bip-sat-220-1.sat05-2173.reshuffled-07.cnf
+b1c6856c56d22fb1308d1c26c18358b7 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/biere/cmpadd/ca256.shuffled.cnf
+6b21b5ad58463fcdd1ec0745708ec265 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1150c84314gyes2.cnf
+c7f7cbcf1149650972b52171d9b41959 /raid/iser/cnf/sat2018/main/final/CRIL/T84.2.0.cnf
+a2fb5bf8dbb031c33351e5fbe431804c /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.04-s1788334438.sat05-543.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satcomp07-main-track-selected/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n800-d0.04-s1788334438.sat05-543.reshuffled-07.cnf
+3f32a23ce40545bee21a67b8ef95945d /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/dellacherie/fifo8/fifo8_100.shuffled.cnf
+412b87ee2037fb2ec6acbff0363556fb /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_2vars_10gates_u2_autoenc.cnf
+b130234f70ed1c608dae3bbbddac25f8 /raid/iser/cnf/sat2014/application/hitag2-8-60-0-0x1eb82244d7f1c3c-47.cnf /raid/iser/cnf/sat2015/hard-combinatorial/hitag2-8-60-0-0x1eb82244d7f1c3c-47.cnf /raid/iser/cnf/sat2015/main/hitag2-8-60-0-0x1eb82244d7f1c3c-47.cnf
+01f1c59e1f99531dbe367c3e70efdb53 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-30-30-unsat.cnf
+19e6997b6e958b0e285fff471a2ccf49 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/easier-fphp-020-015.sat05-1218.reshuffled-07.cnf
+0e8f76e68b69c76f8794a87fb594a9b4 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net70-25-5.shuffled.cnf
+8587e81584571de23645b92ad35c06e0 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult8.cnf
+116c29e95b1b3459e4738841f0162973 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v1820c171155g4.cnf
+9fa2b066662029eeb2b896429a90b238 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/zhang-lintao/xor-chain/x1_80.shuffled.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT02/handmade/zhang-lintao/xor-chain/x1_80.shuffled.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT02/handmade/zhang-lintao/xor-chain/x1_80.shuffled.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT02/handmade/zhang-lintao/xor-chain/x1_80.shuffled.cnf
+75727ffda9f2fc1ef61337e32f95f806 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/aloul/Homer/homer14.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/aloul/Homer/homer14.shuffled.cnf
+6d64faf50318e46583350bdcb0922a3f /raid/iser/cnf/sat2018/main/Porkhunov/mchess_18.cnf
+958f50a37ed4f3a934e3250bb1c30051 /raid/iser/cnf/sat2015/main/48bits_13.dimacs.cnf
+c9e4c43861754b2611860dcf170f1d07 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/2bitmax_6.cnf.mis-133.debugged.cnf
+730cd44942bc3c8bee8e1d1e9ffebde3 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:motors-stuck-2-k315-sat.used-as.sat04-435.cnf
+cc85f033577fbb3c8a83370efc922a45 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-152.cnf
+347d8326288b49e8389ff890e818a222 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-670.cnf
+6b70839c8447b720115326e1ff6f5f55 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/10-4-10.cnf
+fc349a14c3addeb4a74bdccddb1f57c6 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut5-helpbox23.cnf
+61c79c8c72b1035be3d4d081ae469ab5 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/vda_gr_rcs_w7.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/vda_gr_rcs_w7.shuffled.cnf
+31e20f1606555a0a34b9f6d3ec19320d /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod3block_4vars_12gates_b2_restricted.cnf
+3334ff43429fda8c54983a412e2d2416 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-8-15-sat.cnf
+a9c48b5ff186964248df7c4f570ab6c5 /raid/iser/cnf/sat2007/crafted/Medium/contest05/others/QG7a-gensys-brn100.sat05-3765.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Medium/contest05/others/QG7a-gensys-brn100.sat05-3765.reshuffled-07.cnf
+b00bfe42325dc02bf3bd3da000064ce9 /raid/iser/cnf/sat2018/main/final/Zhou/patat-08-comp-3.cnf
+8a0563a286e1a8059bd7bf0a4762c954 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-17-17-unsat.cnf
+59322a53562563e615a6bb7c93fc4606 /raid/iser/cnf/sat2014/crafted/shift1add.13988.cnf
+e29b7bb4c99b0ae686c9d4040cf594c7 /raid/iser/cnf/sat2018/main/final/Collatz/bz-X-4-7-6.cnf
+4591ecef741a91ff6913fad54c5c70ff /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v1560c133795gyes9.cnf
+621911eafdbc1395ec31763d4fdd00d5 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-18-35-sat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-18-35-sat.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-18-35-sat.cnf
+c56696a5601fe91cedf6effd6d554fe2 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-622.cnf
+dac67b0fe6d48587828a40d30e8b5ab1 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/hirsch03/hgen8-n320-01-S1432474240.shuffled-as.sat03-890.used-as.sat04-841.cnf
+1ca68d0a5b0ddfc2a892e7268e40bc4f /raid/iser/cnf/sat2016/app16/SC-past/par32-3-c.cnf
+535d6dfc1353833d0873beb041e3f267 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/modcircuits/mod5block_2vars_12gates.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/modcircuits/mod5block_2vars_12gates.cnf
+6d9374fcfcc5cfdbd19b05cca9c66f27 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-621.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-621.cnf
+a9fe9aa2ed0937e2028120bb91cedf9b /raid/iser/cnf/sat2014/crafted/rbsat-v1150c84314gyes10.cnf
+c6c7b918398eeb2f2c1f43037c405618 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/fpga-routing/c499_gr_2pin_w5.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/fpga-routing/c499_gr_2pin_w5.shuffled.cnf
+2aeb5a29f7c8ec261391b530ac8989a1 /raid/iser/cnf/sat2018/main/final/Collatz/mod8-abd-yad.rules.7-7.cnf
+21665cf7941dc92b2ef969d054eb1a9d /raid/iser/cnf/sat2016/app16/SC-past/li-exam-63.cnf
+60ffd4cdd12aa89a9af8a44f4a812574 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-dead-dnd002.sat05-2713.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-dead-dnd002.sat05-2713.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-dead-dnd002.sat05-2713.reshuffled-07.cnf
+162be0986d6aa43dc15fa7e3611572d3 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v760c43649g2.cnf
+cda16052d45ab7a3e961304fef6472be /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/marijn/equilarge-l/equilarge_l4.used-as.sat04-896.cnf
+aa384bcaaa6370a337b42cefa63e8ec8 /raid/iser/cnf/sat2014/crafted/5-SATISFIABLE.cnf
+dbbeb491fb135279e10dcdfcc9be4fb8 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-662.cnf
+dbd267b5380215f7cc7e3d4c826d05ec /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/unforced/rbsat-v2400c266431g6.cnf
+81d4ee474dd357000fe095d9c455d198 /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/anton/l5k3/lksat-n1100-m4103-k3-l5-s558351420.used-as.sat04-934.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/anton/l5k3/lksat-n1100-m4103-k3-l5-s558351420.used-as.sat04-934.cnf
+e544183b01b5e83218a5bdc00e70c3ef /raid/iser/cnf/sat2018/main/final/Zhou/frb35-17-5_ext.cnf
+64a52204b6aeaca7823b7af58e072294 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-220-3.shuffled-as.sat05-2490.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/jarvisalo05/mod2c-rand3bip-sat/mod2c-rand3bip-sat-220-3.shuffled-as.sat05-2490.cnf
+b924cce5767e4e6db0b04561022cc791 /raid/iser/cnf/sat2014/crafted/bvslt_13916.cnf
+fa9853db29a5f135e9b3bc1499c81293 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/aloul/Homer/homer16.shuffled.cnf /raid/iser/cnf/sat2012/application/SATCompetition2011/application/SAT02/industrial/aloul/Homer/homer16.shuffled.cnf
+f082b4428b681cf0af56dce409c4c33d /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-php-025-024.sat05-1191.reshuffled-07.cnf
+1f6c1f435f8b368534d695cc058ac41e /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/schuppan03:l2s:bc56-sensors-1-k391-unsat.used-as.sat04-439.cnf
+db539405ad82e8ad7c5172d364a3f3e2 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-6-10-sat.cnf
+af4748d674e5f5d1ac141be5045e0a94 /raid/iser/cnf/sat2007/crafted/spence/hard/s101-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/hard/s101-100.cnf
+0ef48ecc798f4ddb2e40337e1f112d59 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/8-5-6.cnf
+721e91b83eca30cc9e317b376550a246 /raid/iser/cnf/sat2018/main/final/Collatz/1mod8.rules.7-7.cnf
+5efdd1c6c6467da79f10536c196ea479 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/longmult5.cnf
+6be4a7f98e39d898c2cf73feaf5c5394 /raid/iser/cnf/sat2006/SAT-Race_TS_1/simon-mixed-s02bis-01.cnf.gz
+1e1004a356f1a499bfd5f014e6dedcee /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-default/queueinvar4.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar4.cnf
+0a6208bbb62e212e510fa00888811b3a /raid/iser/cnf/sat2018/main/Porkhunov/Cake_9_19.cnf
+9bfcf5466fb83c0a67459d53b931eb01 /raid/iser/cnf/sat2006/SAT-Race_TS_2/hoons-vbmc-s04-06.cnf.gz
+f14894caec247baf1aadeda45aa10e85 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v945c61409gyes7.cnf
+c91cac6462b471450c83e630bbe07e19 /raid/iser/cnf/sat2006/SAT-Race_TS_2/schup-l2s-s04s2-09.cnf.gz
+7836281f3f08246831a81d52a7330b35 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-10-15-u.cnf
+88ccc28fb744137b5685b7d9ec0180bc /raid/iser/cnf/sat2007/crafted/Hard/contest02/hgen3-v500-s1349121860.sat05-473.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest02/hgen3-v500-s1349121860.sat05-473.reshuffled-07.cnf
+65d8153023e6ccfbea7b945ae438d8d4 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-7x39.cnf
+46ab7b194b36efdf2a6cff25a8594b1b /raid/iser/cnf/sat2015/main/48bits_11.dimacs.cnf
+def4a9d3b0968cc2900ec944a92e5a9f /raid/iser/cnf/sat2011/application/selected/SAT04/handmade/anton/l4k4/lksat-n900-m6174-k4-l4-s819398222.used-as.sat04-929.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT04/handmade/anton/l4k4/lksat-n900-m6174-k4-l4-s819398222.used-as.sat04-929.cnf
+ec12d7cc79d6c9192f09e0df73727484 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/s113-100.cnf.mis-84.debugged.cnf
+47c339326ef6993260af581fa29ff8fb /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/schup-l2s-motst-2-k315.cnf /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/schup-l2s-motst-2-k315.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/schup-l2s-motst-2-k315.cnf /raid/iser/cnf/sat2012/portfolio/SAT_Race_2008/schup-l2s-motst-2-k315.cnf
+61ac0f84eeda08f32fb13fd5a50841a0 /raid/iser/cnf/sat2018/main/Ofer/course0.12_2018_3_5.cnf
+c90ffdea66de151071b5311b39d7d38b /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/dubois50.cnf.mis-99.debugged.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_crafted_debugged/dubois50.cnf.mis-99.debugged.cnf
+bf0e34659c4acee6284ffeae7d35f53e /raid/iser/cnf/sat2016/app16/SC-past/servers_slapd_a_vc149923.cnf
+76d8b0bbb742492a6f03dddd2c47ec52 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/chu-min-li/urquhart/urquhart3_25bis.shuffled.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT02/handmade/chu-min-li/urquhart/urquhart3_25bis.shuffled.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT02/handmade/chu-min-li/urquhart/urquhart3_25bis.shuffled.cnf
+6d1ef143e3e45a8f6bfbc7a1bdf09777 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-139.cnf
+0c8cc3c1f6d2fd04a2af4136554a1056 /raid/iser/cnf/sat2007/industrial/anbulagan/medium-sat/total-10-19-s.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2010/mixed/anbulagan/total-10-19-s.cnf
+86379d06c17f14eaabb037f97c9abd9f /raid/iser/cnf/sat2008/cmu-bmc-longmult15.cnf.gz
+5f1db9e99ee20282858b899f7a509966 /raid/iser/cnf/sat2018/main/final/Zhou/frb35-17-5-mgd_ext.cnf
+5e16e45caa832f33561d043ad0731a1b /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x0-70.cnf
+d2df3868558068542d1597a1c2847068 /raid/iser/cnf/sat2011/application/selected/SAT03/industrial/li/li-test4/li-test4-100.shuffled-as.sat03-370.cnf
+f78a14c35b0085ca0cf875699f2acec1 /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7/dead-dnd003.shuffled-as.sat05-3109.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7/dead-dnd003.shuffled-as.sat05-3109.cnf
+b7f88b659fc9504ed030d8a00d9ee03f /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/simon-s03-w08-15.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/simon-s03-w08-15.cnf
+08d67ac6bc42e0cd42d0fc529d247b10 /raid/iser/cnf/sat2018/main/final/Johnson/sted5_0x0-60.cnf
+86fba22f642b259a90ce2a090a5641c1 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-10-17-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-10-17-sat.cnf
+78d78dadd66ce4945bdc345e93e2241a /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/x1_56.shuffled-as.sat03-1593.cnf.mis-109.debugged.cnf
+f1a280e6acb9f3cbbde23fef9ef116d2 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-32-63-sat.cnf
+b63ed509ebfd55dbbe0dfee5d36455cb /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/mutcb12.cnf
+0791e15121c47001fe78fd5534e96afd /raid/iser/cnf/sat2014/application/6s9.cnf /raid/iser/cnf/sat2015/main/6s9.cnf
+169d009abba00278ebb3dd68a4f3a67a /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/partial-5-15-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/partial-5-15-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-5-15-u.cnf
+4673bd1b260f2102623b71c924a4a30f /raid/iser/cnf/sat2007/industrial/anbulagan/hard-unsat/total-10-19-u.cnf /raid/iser/cnf/sat2009/application/SAT07/industrial/anbulagan/hard-unsat/total-10-19-u.cnf /raid/iser/cnf/sat2016/app16/SC-past/total-10-19-u.cnf
+afc124aae0c3ebc6125d0bca6b50aee9 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net70-25-1.shuffled.cnf
+57ec798479b19bd41f76b4a021eb5e6c /raid/iser/cnf/sat2014/crafted/shift1add.25952.cnf
+c98825145b84c857c788c954de96e2f4 /raid/iser/cnf/sat2012/application/SAT_Race_2008/simon-s02b-r4b1k1.1.cnf /raid/iser/cnf/sat2012/portfolio/SAT_Race_2008/simon-s02b-r4b1k1.1.cnf
+7d68d2c30e21a72fca5c5ffbc3ae2c6c /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/skvortsov/battleship/battleship-12-23-sat.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-12-23-sat.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT11/crafted/skvortsov/battleship/battleship-12-23-sat.cnf
+0aed208e7ea867c39db8a8453639e5bb /raid/iser/cnf/sat2008/een-pico-prop05-75.cnf.gz
+f183a0d706836d7bd8d4b68e7909f981 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-21x40.cnf
+948f5988997ebc6f2789a1bf3f6dff50 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-default/queueinvar16.cnf
+396513038bc8cc743713d790d2cac82d /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/sgp_9-8-8.sat05-2674.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/sgp_9-8-8.sat05-2674.reshuffled-07.cnf
+e4e97d56e24b6e82d1ffb54e6c9e09df /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-php/harder-fphp-050-049.sat05-1238.reshuffled-07.cnf
+90e0093c4902b82299ad04c425a415b5 /raid/iser/cnf/sat2018/main/final/CRIL/T129.2.0.cnf
+79bab2fc65d2e06603a21508956b1118 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/vange-col-abb313GPIA-9-c.cnf /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/vange-col-abb313GPIA-9-c.cnf /raid/iser/cnf/sat2012/application/SAT_Race_2008/vange-col-abb313GPIA-9-c.cnf
+c9401076b5e494a464ca6bdf453e64a9 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-unsat-21x14.cnf
+d1eb5bd47b1ba5115954c01958dbb4d3 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/genurq6Sat.shuffled-as.sat03-1512.cnf.mis-112.debugged.cnf
+8483a8af012c08ef3656feb90f50c2c3 /raid/iser/cnf/sat2011/application/selected/SAT02/industrial/biere/dinphil/dp04s04.shuffled.cnf
+d313f24b4451ad6a625fed982774fedd /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-6x9.cnf
+bb03dd9ebe0df0f7b2261be6c90e9600 /raid/iser/cnf/sat2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes1.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes1.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2009/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes1.cnf
+b950522c7c02ed1d6d87c47d7642a905 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes10.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes10.cnf
+51eb365aabf725d94ddfe348fe313468 /raid/iser/cnf/sat2009/application/SAT_RACE08/cnf/cmu-bmc-barrel6.cnf
+bf2d31ccc08fdb5c47f0394afcbf40b3 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/stanion/hwb/hwb-n30-02-S77299857.shuffled-as.sat03-1633.cnf
+504a8c7ec61988fe814bde2cfb0f38a0 /raid/iser/cnf/sat2018/main/final/Collatz/bx-d-4-7-6.cnf
+868605c823e11ad0f926dc99f1f5fb05 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.16_2018_3.cnf
+f471497b90ce22e5b4f5d7b2e08911ae /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7/gensys-icl007.shuffled-as.sat05-3133.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7/gensys-icl007.shuffled-as.sat05-3133.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7/gensys-icl007.shuffled-as.sat05-3133.cnf
+a87bc19ab3d2183c0c8ae119177b5d68 /raid/iser/cnf/sat2014/application/pb_300_10_lb_07.cnf
+688913d4abd953a5f723bde8a3de08cc /raid/iser/cnf/sat2007/crafted/Hard/contest04/connamacher/connm-ue-csp-sat-n1200-d-0.02-s405595518.sat05-531.reshuffled-07.cnf
+89e1e4b75b8bd96ccd6dc62f59094a62 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes4.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes4.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SC2012_Hard_Combinatorial/satcomp09-main-track-unselected/crafted/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v760c43649gyes4.cnf
+ceca004efbbc288d9cf7887ee9860436 /raid/iser/cnf/sat2006/SAT-Race-Benchmarks/een-tip-uns-nusmv-t5.B.cnf /raid/iser/cnf/sat2009/application/SAT_RACE06/een-tip-uns-nusmv-t5.B.cnf
+c23a4279bd84dfc30431483a50758898 /raid/iser/cnf/sat2011/application/unselected/crafted/skvortsov/battleship/battleship-4-6-unsat.cnf /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-4-6-unsat.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satcomp11-main-track-unselected/SAT11/crafted/skvortsov/battleship/battleship-4-6-unsat.cnf
+98e5e6055e2441aefb51218a93b7738a /raid/iser/cnf/sat2007/crafted/Hard/contest05/QG/QG7a-gensys-icl009.sat05-3830.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-icl009.sat05-3830.reshuffled-07.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2007/crafted/Hard/contest05/QG/QG7a-gensys-icl009.sat05-3830.reshuffled-07.cnf
+594b2af78904c7d53c48e354f4139a06 /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/bmc-aerielogic/w10_45.shuffled.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/bmc-aerielogic/w10_45.shuffled.cnf
+c98dfd30f95e821b2c9785146fbfa771 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:f2clk_50.used-as.sat04-365.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:f2clk_50.used-as.sat04-365.cnf
+bd1b1fc7d0e5acc1fac0c2c8f1d1e0e6 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/6-4-7.cnf
+9e98a7cbf7e8cd4505cdf12acb47762b /raid/iser/cnf/sat2011/application/selected/SAT05/crafted/sorge05/QG7a/gensys-ukn003.shuffled-as.sat05-3843.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT05/crafted/sorge05/QG7a/gensys-ukn003.shuffled-as.sat05-3843.cnf
+bac8324b89714d6f0b30962023b33c67 /raid/iser/cnf/sat2018/main/Zha/Karatsuba7654321x1234567.cnf
+e28f629e937c1f89fb609ff50151d575 /raid/iser/cnf/sat2007/crafted/spence/medium/s93-100.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/spence/medium/s93-100.cnf
+1d9c8debbadd7265c60ca8615d321728 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/others/pmg-13-UNSAT.sat05-3941.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/others/pmg-13-UNSAT.sat05-3941.reshuffled-07.cnf
+2554b7bde7e9d0d26e0a2e0853e24454 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-597.cnf
+0015745e721b3c337a8493e913d2cb39 /raid/iser/cnf/sat2011/mus/selected/SAT02/industrial/goldberg/rand_net/rand_net50-40-5.shuffled.cnf
+9be6b50fe36d87f5de59e218ef7c8111 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-fclqcolor-20-13-14.sat05-1278.reshuffled-07.cnf
+0f577a4738fefc5457fbbea8b8c445fd /raid/iser/cnf/sat2015/hard-combinatorial/62bits_14.dimacs.cnf /raid/iser/cnf/sat2015/main/62bits_14.dimacs.cnf
+01882e2b523c00965d511b8e3f884011 /raid/iser/cnf/sat2018/main/final/Soos/apn-sbox6-cut3-helpbox29.cnf
+ed053510efbe14a0e055083118ca857d /raid/iser/cnf/sat2016/app16/SC-past/li-test4-98.cnf
+0bb8d36eb6d795d53dafa62e030554c8 /raid/iser/cnf/sat2011/application/selected/SAT03/handmade/stanion/hwb/hwb-n28-01-S136611085.shuffled-as.sat03-1627.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2011/crafted/SAT03/handmade/stanion/hwb/hwb-n28-01-S136611085.shuffled-as.sat03-1627.cnf /raid/iser/cnf/sat2012/portfolio/SATCompetition2011/crafted/SAT03/handmade/stanion/hwb/hwb-n28-01-S136611085.shuffled-as.sat03-1627.cnf /raid/iser/cnf/sat2013/combinatoral/satchal12-selected/Hard_Combinatorial_SAT+UNSAT/SATCompetition2011/crafted/SAT03/handmade/stanion/hwb/hwb-n28-01-S136611085.shuffled-as.sat03-1627.cnf
+a4115972e14a74d22844877b85999fe8 /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/mutcb14.cnf
+6e910a1eabb6a4565b0bb625397748e3 /raid/iser/cnf/sat2018/main/Ofer/course_flat_0.12_2018_3_5.cnf
+b710045bde2367a5f1c75256d6408ba9 /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-icl006.sat05-2718.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl006.sat05-2718.reshuffled-07.cnf
+d09bec8fe2d36f0430f2e8f9c773ee34 /raid/iser/cnf/sat2018/main/Mayer-Eichberger/9-4-9.cnf
+b9df878097f0a5027ac790be1bdbd5fb /raid/iser/cnf/sat2016/app16/SC-past/f1000.cnf
+5b3ecc29c9b55e78a5f97098622c7e49 /raid/iser/cnf/sat2007/crafted/Hard/contest05/counting-clq/unsat-set-a-clqcolor-10-06-07.sat05-1250.reshuffled-07.cnf
+99485e37250c78e6a9f27c851df1ddb4 /raid/iser/cnf/sat2018/main/final/Zhou/si2-b03m-m800-03.cnf
+a24ea93045716db200585bc777aca5e2 /raid/iser/cnf/sat2007/industrial/anbulagan/hard-sat/partial-10-19-s.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/anbulagan/hard-sat/partial-10-19-s.cnf /raid/iser/cnf/sat2013/application/satchal12-selected/Application_SAT+UNSAT/SATCompetition2007/industrial/anbulagan/hard-sat/partial-10-19-s.cnf /raid/iser/cnf/sat2016/app16/SC-past/partial-10-19-s.cnf
+4d8c2309d3ec0a8926f0e19a55befd18 /raid/iser/cnf/sat2012/crafted/SATChallenge2012_crafted_debugged/par32-1.debugged.cnf
+8a2a471174e6c79872573045d47b86a3 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/ssa2670-134.cnf
+002235ccf5c4f2c45fabe3942df6fe53 /raid/iser/cnf/sat2012/application/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:w08_15.used-as.sat04-360.cnf /raid/iser/cnf/sat2012/portfolio/SATChallenge2012_Application/SAT_Race_unselected/satelite/simon03:sat02:w08_15.used-as.sat04-360.cnf
+578b2ad5fa1d530c9ca1035e8f409525 /raid/iser/cnf/sat2007/industrial/palacios/medium/emptyroom-4-h22-sat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/medium/emptyroom-4-h22-sat.cnf
+70eac53f4d8ed50b9c3aba557d9756de /raid/iser/cnf/sat2018/main/final/Collatz/cannonball-opt-y.rules.4-10.cnf
+11bad5a717014d9d663eecc0ac17620c /raid/iser/cnf/sat2008/simon-s02b-r4b1k1.1.cnf.gz
+d1df0f70f36d19f3b4b7207ea4eeff2e /raid/iser/cnf/sat2014/crafted/bvult_16967.cnf
+e6aa251e39a6623cf876f7a1fe9866e8 /raid/iser/cnf/sat2011/application/selected/SAT09/CRAFTED/rbsat/crafted/forced/rbsat-v2400c266431gyes2.cnf
+86caae73faa436a23f30d89e8bf03301 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/plainoldcnf/5cnf_3500_3500_30f1.shuffled.cnf
+b5aabaefda76e9750d2843ea4784b197 /raid/iser/cnf/sat2011/application/selected/SAT02/handmade/pehoushek/plainoldcnf/5cnf_4300_4300_110.shuffled.cnf
+d508b2a8a4bcce17c6270a6a37f29321 /raid/iser/cnf/sat2014/application/6s16-opt.cnf /raid/iser/cnf/sat2015/hard-combinatorial/6s16-opt.cnf /raid/iser/cnf/sat2015/main/6s16-opt.cnf
+e742ea310756e87a64fad8ca6189de60 /raid/iser/cnf/sat2007/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-1.sat05-2488.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-1.sat05-2488.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Hard/contest05/others/mod2c-rand3bip-sat-220-1.sat05-2488.reshuffled-07.cnf
+e4b11b2d8185474747ad6849c6b8d21a /raid/iser/cnf/sat2007/crafted/Difficult/contest05/QG/QG6-gensys-icl004.sat05-2716.reshuffled-07.cnf /raid/iser/cnf/sat2009/crafted/SAT07/crafted/Difficult/contest05/QG/QG6-gensys-icl004.sat05-2716.reshuffled-07.cnf /raid/iser/cnf/sat2012/crafted/SATCompetition2007/crafted/Difficult/contest05/QG/QG6-gensys-icl004.sat05-2716.reshuffled-07.cnf
+b9ef731c06ced29111a551384ce228d1 /raid/iser/cnf/sat2018/main/final/Collatz/full-by-za.rules.5-7.cnf
+eb7a68df2aaea1deb6026921726f17bb /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/ph10.cnf /raid/iser/cnf/sat2012/portfolio/SC2012_Hard_Combinatorial/satrace-unselected/er/ph10.cnf
+eadf81b3117a60c7f90f02c34c20b13b /raid/iser/cnf/sat2007/industrial/palacios/medium/cube-9-h11-sat.cnf /raid/iser/cnf/sat2012/application/SATCompetition2007/industrial/palacios/medium/cube-9-h11-sat.cnf
+0eaeba8722fe5ccc420c272b2a4b9e92 /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-529.cnf
+9245e551dfd95ed5ebfc55af9dff6c7c /raid/iser/cnf/sat2012/crafted/SC2012_Hard_Combinatorial/satrace-unselected/er/urq45.cnf
+969476343986fb0221d3aa05dd709ea7 /raid/iser/cnf/sat2011/application/selected/SAT11/crafted/mosoi/289/289-sat-11x10.cnf
+402ed2c5a2aea35a3a7923e263f7edce /raid/iser/cnf/sat2016/app16/SC-past/f600.cnf
+fe5cc9646204b3171a93f72fef7a71ba /raid/iser/cnf/sat2011/mus/selected/SAT11/mus/marques-silva/atpg/bf1355-466.cnf /raid/iser/cnf/sat2011/mus/submitted/marques-silva/atpg/bf1355-466.cnf
+8f03368754c4e17c62094751c7a34142 /raid/iser/cnf/sat2018/main/final/Collatz/mod8-bbd-zbd.rules.7-7.cnf
+c736d1c0a4bf52eaad04144cabb1d0e3 /raid/iser/cnf/sat2015/hard-combinatorial/64bits_11.dimacs.cnf /raid/iser/cnf/sat2015/main/64bits_11.dimacs.cnf
