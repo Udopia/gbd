@@ -38,10 +38,10 @@
                 <label for="query">Query-Command</label>
                 <input type="text" name="query" class="form-control" id="query" placeholder="Enter command">
             </div>
-            <button formaction="http://localhost:5000/query" class="btn btn-primary form-group">
+            <button formaction="{{ url_for('query', _external=True) }}" class="btn btn-primary form-group">
                 Show
             </button>
-            <button formaction="http://localhost:5000/queryzip" class="btn btn-secondary form-group">
+            <button formaction="{{ url_for('queryzip', _external=True) }}" class="btn btn-secondary form-group">
                 Download as ZIP
             </button>
         </form>
