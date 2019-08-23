@@ -16,7 +16,7 @@ from gbd_tool.hashing import gbd_hash
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from server import util, htmlGenerator
+import util, htmlGenerator
 
 from env import USER_AGENT_CLI
 
