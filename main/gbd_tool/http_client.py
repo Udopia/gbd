@@ -26,7 +26,7 @@ def post_request(url, params, headers):
 # return true if given string represents a valid URL
 def is_url(url):
     try:
-        urlparse(url)
-        return True
+        tuple = urlparse(url)
+        return len(tuple[0]) > 0 and len(tuple[1]) > 0
     except ValueError:
         return False

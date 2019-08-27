@@ -49,11 +49,8 @@ def cli_group(args):
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
-        eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(args.name,
-                                                                                             args.unique
-                                                                                             is not None,
-                                                                                             args.type,
-                                                                                             args.unique))
+        eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(
+            args.name, args.unique is not None, args.unique))
         api.add_attribute_group(args.name, args.type, args.unique)
         return
     if not api.check_group_exists(args.name):
@@ -70,30 +67,26 @@ def cli_group(args):
 # entry for query command
 def cli_get(args):
     if is_url(args.db) and not exists(args.db):
+        eprint("Sending query request to server {}".format(args.db))
         try:
-            hashes = GbdApi.query_request(args.db, args.query, USER_AGENT_CLI)
+            resultset = GbdApi.query_request(args.db, args.query, USER_AGENT_CLI)
         except ValueError:
-            print("Path does not exist or cannot connect")
+            eprint("Path does not exist or cannot connect")
             return
     else:
+        eprint("Querying {} ...".format(args.db))
         try:
             api = GbdApi(config_path, args.db)
-            hashes = api.query_search(args.query)
+            resultset = api.query_search(args.query, args.resolve)
         except ValueError as e:
-            print(e)
+            eprint(e)
             return
-    process_hashes(hashes, args.union, args.intersection)
-    print(*hashes, sep='\n')
-    return
-
-
-def process_hashes(hashes, union, intersection):
-    if union:
-        inp = read_hashes()
-        GbdApi.hash_union(hashes, inp)
-    elif intersection:
-        inp = read_hashes()
-        GbdApi.hash_intersection(hashes, inp)
+    if args.collapse:
+        for result in resultset:
+            print(" ".join([item.split(',')[0] for item in result]))
+    else:
+        for result in resultset:
+            print(" ".join(result))
     return
 
 
@@ -241,13 +234,10 @@ def main():
 
     # define find command sub-structure
     parser_query = subparsers.add_parser('get', help='Query the benchmark database')
-    parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")',
+    parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', 
                               nargs='?')
-    parser_query.add_argument('-u', '--union', help='Read hashes from stdin and create union with query results',
-                              action='store_true')
-    parser_query.add_argument('-i', '--intersection',
-                              help='Read hashes from stdin and create intersection with query results',
-                              action='store_true')
+    parser_query.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
+    parser_query.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_query.set_defaults(func=cli_get)
 
     # define resolve command

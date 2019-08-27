@@ -1,18 +1,29 @@
 from tatsu import parse
 
 
-def find_hashes(database, query=None):
+def find_hashes(database, query=None, resolve=None):
     if query is None:
         return database.value_query("SELECT hash FROM benchmarks")
     else:
         ast = parse(GRAMMAR, query)
-        where = build_where(ast)
-        tables = build_join(ast)
+        tables = collect_tables(ast)
         tables.discard("benchmarks")
-        joined = "benchmarks "
-        for table in tables:
-            joined += "left join " + table + " on benchmarks.hash = " + table + ".hash "
-        return database.value_query("SELECT benchmarks.hash FROM {} WHERE {}".format(joined, where))
+        if resolve is None or len(resolve) == 0:
+            sql_select = "benchmarks.hash, GROUP_CONCAT(benchmarks.value)"
+        elif "hash" in resolve:
+            resolve.remove("hash") 
+            tables.update(resolve)
+            sql_select = ", ".join(['GROUP_CONCAT({}.value)'.format(table) for table in resolve])
+            sql_select = "benchmarks.hash, {}".format(sql_select)
+        else:
+            tables.update(resolve)
+            sql_select = ", ".join(['{}.value'.format(table) for table in resolve])
+        where = build_where(ast)
+        tables.discard("benchmarks")
+        sql_from = " ".join(['LEFT JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables])
+        statement = "SELECT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash".format(sql_select, sql_from, where)
+        print (statement)
+        return database.query(statement)
 
 
 def resolve(database, cat, hash):
@@ -41,7 +52,7 @@ GRAMMAR = r'''
         ;
 
     numeric = /[0-9\.\-]+/ ;
-    alphanumeric = /[a-zA-Z0-9_\-\%]+/ ;
+    alphanumeric = /[a-zA-Z0-9_\-\%\.\/]+/ ;
 
     name = /[a-zA-Z0-9_]+/ ;
 '''
@@ -59,13 +70,13 @@ def build_where(ast):
     return result
 
 
-def build_join(ast):
+def collect_tables(ast):
     result = set()
     if ast["exp"] is not None:
-        result.update(build_join(ast["exp"]))
+        result.update(collect_tables(ast["exp"]))
     elif ast["con"] is not None:
-        result.update(build_join(ast["exp1"]))
-        result.update(build_join(ast["exp2"]))
+        result.update(collect_tables(ast["exp1"]))
+        result.update(collect_tables(ast["exp2"]))
     elif ast["op"] is not None:
         result.add(ast["attr"])
     return result
