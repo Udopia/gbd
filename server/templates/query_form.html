@@ -55,17 +55,17 @@
                         <div class="card-body bg-dark text-white">
                             <h5 class="card-title">Query Syntax</h5>
                             <p class="card-text">
-                                Context free language: <br>
-                                S -> (S) | S and S | S or S | C <br>
-                                C -> NOV <br>
-                                N -> L([a-zA-z0-9_]+) (L(R) language resulting of regular expression R) <br>
-                                O -> - (nothing) | < | > | <= | >= | like <br>
-                                V -> L([a-zA-Z0-9_\-\%]+) <br>
+                                A query can be composed as follows: <br>
+                                <ul>
+                                    <li>S -> (S) | S and S | S or S | C </li>
+                                    <li>C -> $name (< | > | <= | >= | like) $value </li>
+                                </ul>
 
-                                If your are searching for Strings, use for example "benchmarks like %graph%" <br>
-                                and if you are searching for numbers use "clauses > 100" <br>
-                                Example of intersection of two conditions: <br>
-                                    "clauses > 100 and variables < 50" <br>
+                                Valid queries are e.g.:
+                                <ul>
+                                    <li>family like %crypto%</li>
+                                    <li>(runtime_fougney > 500) and (result = SAT)</li>
+                                </ul>
                             </p>
                             <a href="#" class="btn btn-primary">OK</a>
                         </div>

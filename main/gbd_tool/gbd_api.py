@@ -102,25 +102,15 @@ class GbdApi:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, name, value, h)
 
-    # Create an union of two hash lists and return resulting hash list
-    @staticmethod
-    def hash_union(hash_list, other_hash_list):
-        return hash_list.update(other_hash_list)
-
-    # Create an intersection of two hash lists and return new hash list
-    @staticmethod
-    def hash_intersection(hash_list, other_hash_list):
-        return hash_list.intersection_update(other_hash_list)
-
     # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
     # and filled with hashes and their values for the according group. Returns list of hashes
-    def query_search(self, query=None):
+    def query_search(self, query=None, resolve=None):
         with Database(self.database) as database:
             try:
-                hashes = search.find_hashes(database, query)
-            except sqlite3.OperationalError:
-                raise ValueError("Cannot open database file")
-            return hashes
+                result = search.find_hashes(database, query, resolve)
+            except sqlite3.OperationalError as err:
+                raise ValueError("Query error for database '{}': {}".format(self.database, err))
+            return result
 
     # Send a query search request to a running GBD server
     @staticmethod
