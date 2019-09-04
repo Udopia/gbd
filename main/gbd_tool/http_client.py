@@ -3,6 +3,7 @@ from urllib.request import Request, urlopen
 
 from flask import json
 
+USER_AGENT_CLI = 'gbd_tool-cli'
 
 # Get url, and dictionaries of parameters and headers with which then form a get request
 def get_request(url, params, headers):
