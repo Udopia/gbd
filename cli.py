@@ -36,6 +36,9 @@ def cli_init(args):
     else:
         api.init_database()
 
+def cli_algo(args):
+    path = os.path.abspath(args.path)
+
 
 # entry for modify command
 def cli_group(args):
@@ -169,6 +172,11 @@ def main():
                                 nargs='?')
     parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
     parser_reflect.set_defaults(func=cli_info)
+
+    # define create command sub-structure
+    parser_algo = subparsers.add_parser('algo', help='Execute a named algorithm on the given benchmark')
+    parser_algo.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_algo.set_defaults(func=cli_algo)
 
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
