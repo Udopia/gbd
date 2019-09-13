@@ -22,7 +22,7 @@ def find_hashes(database, query=None, resolve=None):
         tables.discard("benchmarks")
         sql_from = " ".join(['LEFT JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables])
         statement = "SELECT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash".format(sql_select, sql_from, where)
-        print (statement)
+        #print (statement)
         return database.query(statement)
 
 
