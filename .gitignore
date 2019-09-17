@@ -39,4 +39,4 @@ FETCH_HEAD
 */global_benchmark_database_tool.egg-info/*
 
 cli_config/*
-server_config/*
+server/server_config/*
