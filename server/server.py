@@ -38,6 +38,7 @@ gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
+
 @app.route("/", methods={'GET'})
 def welcome():
     return render_template('home.html')
@@ -286,6 +287,11 @@ def get_zip():
     elif not isfile('_{}'.format(zipfile)):
         request_semaphore.release()
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
+
+
+@app.route("/demo", methods=['GET'])
+def get_demo_page():
+    return render_template('new_layout.html')
 
 
 def create_zip_with_marker(zipfile, files, prefix):
