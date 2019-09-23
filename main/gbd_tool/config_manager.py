@@ -22,8 +22,6 @@ class ConfigManager:
         database_path = os.environ.get('GBD_DB', database)
         if not os.path.isdir(self.config_dir):
             os.mkdir(self.config_dir)
-        if not exists(database):
-            open(database, 'w').close()
         config = open(join(self.config_dir, config_file), 'w')
         config.write('{}\n'.format(json.dumps({db_key: database_path})))
         config.close()

@@ -4,15 +4,13 @@ import argparse
 import os
 import re
 import sys
-from os.path import exists, join, dirname, realpath
 
 from gbd_tool.gbd_api import GbdApi
-from gbd_tool.http_client import is_url
-from gbd_tool.util import eprint, read_hashes, confirm
+from gbd_tool.util import eprint, confirm
 
-from env import USER_AGENT_CLI
+from server.interface import SERVER_CONFIG_PATH
 
-config_path = join(dirname(realpath(__file__)), 'cli_config')
+config_path = SERVER_CONFIG_PATH
 
 
 def cli_hash(args):
@@ -32,12 +30,15 @@ def cli_init(args):
     path = os.path.abspath(args.path)
     api = GbdApi(config_path, args.db)
     if args.path is not None:
-        print(args.db)
         eprint('Removing invalid benchmarks from path: {}'.format(path))
         eprint('Registering benchmarks from path: {}'.format(path))
         api.init_database(path)
     else:
         api.init_database()
+
+
+def cli_algo(args):
+    path = os.path.abspath(args.path)
 
 
 # entry for modify command
@@ -66,21 +67,13 @@ def cli_group(args):
 
 # entry for query command
 def cli_get(args):
-    if is_url(args.db) and not exists(args.db):
-        eprint("Sending query request to server {}".format(args.db))
-        try:
-            resultset = GbdApi.query_request(args.db, args.query, USER_AGENT_CLI)
-        except ValueError:
-            eprint("Path does not exist or cannot connect")
-            return
-    else:
-        eprint("Querying {} ...".format(args.db))
-        try:
-            api = GbdApi(config_path, args.db)
-            resultset = api.query_search(args.query, args.resolve)
-        except ValueError as e:
-            eprint(e)
-            return
+    eprint("Querying {} ...".format(args.db))
+    try:
+        api = GbdApi(config_path, args.db)
+        resultset = api.query_search(args.query, args.resolve)
+    except ValueError as e:
+        eprint(e)
+        return
     if args.collapse:
         for result in resultset:
             print(" ".join([item.split(',')[0] for item in result]))
@@ -92,38 +85,11 @@ def cli_get(args):
 
 # associate an attribute with a hash and a value
 def cli_set(args):
-    hashes = read_hashes()
     api = GbdApi(config_path, args.db)
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
-        api.remove_attribute(args.name, args.value, hashes)
+        api.remove_attribute(args.name, args.value, args.hashes)
     else:
-        api.set_attribute(args.name, args.value, hashes, args.force)
-
-
-def cli_resolve(args):
-    hashes = read_hashes()
-    if is_url(args.db) and not exists(args.db):
-        try:
-            dictionary_list = GbdApi.resolve_request(args.db, list(hashes), args.name, args.collapse,
-                                                     args.pattern, USER_AGENT_CLI)
-            for d in dictionary_list:
-                print('\n{}'.format(d.get('hash')))
-                for group in args.name:
-                    print("{}: {}".format(group, d.get(group)))
-        except ValueError as e:
-            print(e)
-        return
-    else:
-        api = GbdApi(config_path, args.db)
-        dictionary_list = api.resolve(hashes, args.name, args.pattern, args.collapse)
-        if args.markus:
-            for d in dictionary_list:
-                print('{} {}'.format(d.get('hash'), d.get(args.name[0])))
-        else:
-            for d in dictionary_list:
-                print('\n{}'.format(d.get('hash')))
-                for group in args.name:
-                    print("{}: {}".format(group, d.get(group)))
+        api.set_attribute(args.name, args.value, args.hashes, args.force)
 
 
 def cli_info(args):
@@ -209,6 +175,11 @@ def main():
     parser_reflect.set_defaults(func=cli_info)
 
     # define create command sub-structure
+    parser_algo = subparsers.add_parser('algo', help='Execute a named algorithm on the given benchmark')
+    parser_algo.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_algo.set_defaults(func=cli_algo)
+
+    # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
     parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
     parser_group.add_argument('-u', '--unique', help='Specify if the group stores unique or '
@@ -223,9 +194,9 @@ def main():
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure
-    parser_tag = subparsers.add_parser('set',
-                                       help='Associate attribues with benchmarks (hashes read line-wise from stdin)')
-    parser_tag.add_argument('name', type=column_type, help='Name of attribute group')
+    parser_tag = subparsers.add_parser('set', help='Sets the value of attribute [name] to [value] for benchmark [hash]')
+    parser_tag.add_argument('hashes', help='Hashes', nargs='+')
+    parser_tag.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
     parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
     parser_tag.add_argument('-r', '--remove', action='store_true',
                             help='Remove attribute from hashes if present, instead of adding it')
@@ -239,15 +210,6 @@ def main():
     parser_query.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
     parser_query.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_query.set_defaults(func=cli_get)
-
-    # define resolve command
-    parser_resolve = subparsers.add_parser('resolve', help='Resolve Hashes')
-    parser_resolve.add_argument('name', type=column_type, help='Name of group to resolve against',
-                                default=["benchmarks"], nargs='*')
-    parser_resolve.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
-    parser_resolve.add_argument('-p', '--pattern', help='Substring that must occur in path')
-    parser_resolve.add_argument('-m', '--markus', action='store_true', help='Concise mode')
-    parser_resolve.set_defaults(func=cli_resolve)
 
     # evaluate arguments
     if len(sys.argv) > 1:
