@@ -40,3 +40,4 @@ FETCH_HEAD
 
 cli_config/*
 server/server_config/*
+*/default_config/*
