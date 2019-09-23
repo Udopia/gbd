@@ -29,7 +29,6 @@ def cli_init(args):
     path = os.path.abspath(args.path)
     api = GbdApi(config_path, args.db)
     if args.path is not None:
-        print(args.db)
         eprint('Removing invalid benchmarks from path: {}'.format(path))
         eprint('Registering benchmarks from path: {}'.format(path))
         api.init_database(path)
