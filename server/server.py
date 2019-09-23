@@ -1,9 +1,10 @@
+import datetime
 import logging
 import threading
+import os
 from os.path import isfile, basename, join
-from os import environ
 from sqlite3 import OperationalError
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
 
 import tatsu
 from flask import Flask, render_template, request, send_file, json
@@ -25,7 +26,7 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = environ.get('GBD_DB')
+DATABASE = os.environ.get('GBD_DB')
 if DATABASE is None:
     DATABASE = join(interface.SERVER_CONFIG_PATH, db_file)
 
