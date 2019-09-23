@@ -37,7 +37,6 @@ class GbdApi:
         if self.db_is_url:
             raise NotImplementedError
         else:
-            print("Creating new database at {}".format(self.database))
             Database(self.database)
         if path is not None:
             benchmark_administration.remove_benchmarks(self.database)
