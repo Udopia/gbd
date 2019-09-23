@@ -4,12 +4,13 @@ import argparse
 import os
 import re
 import sys
-from os.path import exists, join, dirname, realpath
 
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.util import eprint, confirm
 
-config_path = join(dirname(realpath(__file__)), 'cli_config')
+import server
+
+config_path = server.SERVER_CONFIG_PATH
 
 
 def cli_hash(args):
@@ -34,6 +35,7 @@ def cli_init(args):
         api.init_database(path)
     else:
         api.init_database()
+
 
 def cli_algo(args):
     path = os.path.abspath(args.path)
