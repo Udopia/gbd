@@ -7,7 +7,7 @@ from sqlite3 import OperationalError
 from zipfile import ZipFile, ZipInfo
 
 import tatsu
-from flask import Flask, render_template, request, send_file, json
+from flask import Flask, render_template, request, send_file, json, url_for
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -292,12 +292,22 @@ def get_zip():
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
 
 
+@app.route("/demo/deq", methods=['POST'])
+def get_demo_results():
+    request_semaphore.acquire()
+    q = request.values.get('query')
+    tables = request.values.getlist('tables')
+    print(tables)
+    request_semaphore.release()
+    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=True,
+                           results=['Not yet implemented'],
+                           checked_tables=tables, query=q)
+
+
 @app.route("/demo", methods=['GET'])
 def get_demo_page():
-    # TODO: Quick Search
-    # TODO: Info
     # TODO: Resolved Results
-    return render_template('new_layout.html', tables=gbd_api.get_all_groups())
+    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=False)
 
 
 def create_zip_with_marker(zipfile, files, prefix):
