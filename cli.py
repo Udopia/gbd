@@ -8,9 +8,9 @@ import sys
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.util import eprint, confirm
 
-import server
+from server.interface import SERVER_CONFIG_PATH
 
-config_path = server.SERVER_CONFIG_PATH
+config_path = SERVER_CONFIG_PATH
 
 
 def cli_hash(args):
