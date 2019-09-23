@@ -23,7 +23,9 @@
       </div>
 </nav>
 <div class="container"><a>Search Bar</a></div>
-<div class="container"><a>All tables</a></div>
+<div class="container"><a>All tables</a>
+    {% for table in tables %}<div><p>{{ table }}</p></div>{% endfor %}
+</div>
 <div class="container"><a>Logic</a></div>
 <div class="container"><a>Resolved results</a></div>
 </body>
