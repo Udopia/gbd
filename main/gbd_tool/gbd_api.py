@@ -2,14 +2,14 @@
 import sqlite3
 from urllib.error import URLError
 
-from flask import json
 # internal packages
-from gbd_tool import import_data
-from gbd_tool.config_manager import ConfigManager
-from gbd_tool.database import groups, benchmark_administration, search
-from gbd_tool.database.db import Database
-from gbd_tool.hashing.gbd_hash import gbd_hash
-from gbd_tool.http_client import post_request, is_url, USER_AGENT_CLI
+from . import import_data
+from .config_manager import ConfigManager
+from .database import groups, benchmark_administration, search
+from .database.db import Database
+from .hashing.gbd_hash import gbd_hash
+from .http_client import post_request, is_url, USER_AGENT_CLI
+
 
 class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
@@ -36,11 +36,12 @@ class GbdApi:
     def init_database(self, path=None):
         if self.db_is_url:
             raise NotImplementedError
+        else:
+            print("Creating new database at {}".format(self.database))
+            Database(self.database)
         if path is not None:
             benchmark_administration.remove_benchmarks(self.database)
             benchmark_administration.register_benchmarks(self.database, path)
-        else:
-            Database(self.database)
 
     # Get information of the whole database
     def get_database_info(self):
