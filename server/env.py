@@ -1,1 +1,0 @@
-USER_AGENT_CLI = 'gbd_tool-cli'

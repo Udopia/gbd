@@ -1,24 +1,24 @@
 import datetime
 import logging
-import os
 import threading
-from os.path import isfile, basename, join, dirname, realpath
+import os
+from os.path import isfile, basename, join
 from sqlite3 import OperationalError
-from zipfile import ZipInfo, ZipFile
+from zipfile import ZipFile, ZipInfo
 
 import tatsu
-from flask import Flask, render_template, request, send_file, json
+from flask import Flask, render_template, request, send_file, json, url_for
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
+from gbd_tool.config_manager import db_file
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
+from gbd_tool.http_client import USER_AGENT_CLI
 
-import util, htmlGenerator
-
-from env import USER_AGENT_CLI
+import htmlGenerator, util, interface
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 logging.getLogger().addHandler(default_handler)
@@ -27,6 +27,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
 DATABASE = os.environ.get('GBD_DB')
+if DATABASE is None:
+    DATABASE = join(interface.SERVER_CONFIG_PATH, db_file)
+
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
@@ -34,9 +37,10 @@ MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 
-gbd_api = GbdApi(join(dirname(realpath(__file__)), 'server_config'), DATABASE)
+gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
 request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+
 
 @app.route("/", methods={'GET'})
 def welcome():
@@ -286,6 +290,24 @@ def get_zip():
     elif not isfile('_{}'.format(zipfile)):
         request_semaphore.release()
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
+
+
+@app.route("/demo/deq", methods=['POST'])
+def get_demo_results():
+    request_semaphore.acquire()
+    q = request.values.get('query')
+    tables = request.values.getlist('tables')
+    print(tables)
+    request_semaphore.release()
+    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=True,
+                           results=['Not yet implemented'],
+                           checked_tables=tables, query=q)
+
+
+@app.route("/demo", methods=['GET'])
+def get_demo_page():
+    # TODO: Resolved Results
+    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=False)
 
 
 def create_zip_with_marker(zipfile, files, prefix):

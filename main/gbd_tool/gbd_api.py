@@ -2,14 +2,13 @@
 import sqlite3
 from urllib.error import URLError
 
-from flask import json
 # internal packages
-from gbd_tool import import_data
-from gbd_tool.config_manager import ConfigManager
-from gbd_tool.database import groups, benchmark_administration, search
-from gbd_tool.database.db import Database
-from gbd_tool.hashing.gbd_hash import gbd_hash
-from gbd_tool.http_client import post_request
+from . import import_data
+from .config_manager import ConfigManager
+from .database import groups, benchmark_administration, search
+from .database.db import Database
+from .hashing.gbd_hash import gbd_hash
+from .http_client import post_request, is_url, USER_AGENT_CLI
 
 
 class GbdApi:
@@ -18,6 +17,7 @@ class GbdApi:
     def __init__(self, config_path, database):
         self.config_manager = ConfigManager(config_path, database)
         self.database = self.config_manager.get_database_path()
+        self.db_is_url = is_url(self.database)
 
     # hash a CSV file
     @staticmethod
@@ -26,20 +26,26 @@ class GbdApi:
 
     # Import CSV file
     def import_file(self, path, key, source, target):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             import_data.import_csv(database, path, key, source, target)
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called
     def init_database(self, path=None):
+        if self.db_is_url:
+            raise NotImplementedError
+        else:
+            Database(self.database)
         if path is not None:
             benchmark_administration.remove_benchmarks(self.database)
             benchmark_administration.register_benchmarks(self.database, path)
-        else:
-            Database(self.database)
 
     # Get information of the whole database
     def get_database_info(self):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version()}
 
@@ -53,27 +59,37 @@ class GbdApi:
 
     # Adds a group to given database representing for example an attribute of a benchmark
     def add_attribute_group(self, name, type, unique):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             groups.add(database, name, unique is not None, type, unique)
 
     # Remove group from database
     def remove_attribute_group(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             groups.remove(database, name)
 
     # Get all groups which are in the database
     def get_all_groups(self):
+        if self.db_is_url:
+            raise NotImplementedError
         print(self.database)
         with Database(self.database) as database:
             return groups.reflect(database)
 
     # Delete entries in groups from database, but don't delete the according group
     def clear_group(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             groups.remove(database, name)
 
     # Retrieve information about a specific group
     def get_group_info(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
         if name is not None:
             with Database(self.database) as database:
                 return {'name': name, 'type': groups.reflect_type(database, name),
@@ -85,6 +101,8 @@ class GbdApi:
 
     # Retrieve all values the given group contains
     def get_group_values(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
         if name is not None:
             return self.query_search('{} like %%%%'.format(name))
         else:
@@ -92,63 +110,35 @@ class GbdApi:
 
     # Associate hashes with a hash-value in a group
     def set_attribute(self, name, value, hash_list, force):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             for h in hash_list:
                 benchmark_administration.add_tag(database, name, value, h, force)
 
     # Remove association of a hash with a hash-value in a group
     def remove_attribute(self, name, value, hash_list):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, name, value, h)
 
     # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
     # and filled with hashes and their values for the according group. Returns list of hashes
-    def query_search(self, query=None, resolve=None):
-        with Database(self.database) as database:
+    def query_search(self, query=None, resolve=[]):
+        # remote queries
+        if self.db_is_url:
             try:
-                result = search.find_hashes(database, query, resolve)
-            except sqlite3.OperationalError as err:
-                raise ValueError("Query error for database '{}': {}".format(self.database, err))
-            return result
-
-    # Send a query search request to a running GBD server
-    @staticmethod
-    def query_request(host, query, useragent):
-        try:
-            return set(post_request("{}/query".format(host), {'query': query}, {'User-Agent': useragent}))
-        except URLError:
-            raise ValueError('Cannot send request to host')
-
-    # Resolve hashes against groups. Returns a list of dictionaries (one for each hash) and several entries
-    # (their values in given groups)
-    def resolve(self, hash_list, group_list, pattern=None, collapse=False):
-        with Database(self.database) as database:
-            result = []
-            for h in hash_list:
-                out = {'hash': h}
-                for name in group_list:
-                    if not name.startswith("__"):
-                        resultset = sorted(search.resolve(database, name, h))
-                        resultset = [str(element) for element in resultset]
-                    if name == 'benchmarks' and pattern is not None:
-                        res = [k for k in resultset if pattern in k]
-                        resultset = res
-                    if len(resultset) > 0:
-                        if collapse:
-                            out.update({'{}'.format(name): resultset[0]})
-                        else:
-                            out.update({'{}'.format(name): ' '.join(resultset)})
-                result.append(out)
-            return result
-
-    # Send a resolve request to a running GBD server
-    @staticmethod
-    def resolve_request(host, hash_list, group_list, collapse, pattern, useragent):
-        try:
-            hash_list = json.dumps(hash_list)
-            group_list = json.dumps(group_list)
-            return post_request("{}/resolve".format(host), {'hashes': hash_list, 'group': group_list, 'collapse': collapse,
-                                                            'pattern': pattern}, {'User-Agent': useragent})
-        except URLError:
-            raise ValueError('Cannot send request to host')
+                # TODO: make sure to to generate the same datastructure and resultset as with local queries:
+                return set(post_request("{}/query".format(self.database), {'query': query}, {'User-Agent': USER_AGENT_CLI}))
+            except URLError:
+                raise ValueError('Cannot send request to host')
+        # local queries
+        else:
+            with Database(self.database) as database:
+                try:
+                    resultset = search.find_hashes(database, query, resolve)
+                except sqlite3.OperationalError as err:
+                    raise ValueError("Query error for database '{}': {}".format(self.database, err))
+                return resultset

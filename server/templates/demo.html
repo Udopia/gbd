@@ -1,0 +1,13 @@
+{% extends "demo_base.html" %}
+
+{% block content %}
+{% if True == is_result %}
+    <hr>
+    Query: {{ query }} <br>
+    Tables: {% for table in checked_tables %} {{ table }}{% if loop.last != True %},{% endif %} {% endfor %}<br>
+    Results:
+    {% for entry in results %}
+        <li>{{ entry }}</li>
+    {% endfor %}
+{% endif %}
+{% endblock %}
