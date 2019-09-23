@@ -18,7 +18,7 @@ from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 from gbd_tool.http_client import USER_AGENT_CLI
 
-from .data import SERVER_CONFIG_PATH
+from .interface import SERVER_CONFIG_PATH
 from .htmlGenerator import generate_zip_busy_page, generate_warning, \
     generate_num_table_div, generate_html_header, generate_head, \
     generate_resolve_table_div
