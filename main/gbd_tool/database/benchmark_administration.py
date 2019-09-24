@@ -60,7 +60,7 @@ def remove_benchmarks(database):
 def safe_benchark_hash_locked(arg):
     mutex.acquire()
     try:
-        # create new connection from old one due to limitations of multithreaded use (cursor initialization issue)
+        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
         with Database(arg['database'].path) as database:
             add_benchmark(database, arg['hashvalue'], arg['path'])
     finally:
