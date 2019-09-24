@@ -17,9 +17,12 @@ def get_request(url, params, headers):
 
 # Get url and dictionaries of parameters and headers with which then form a post request
 def post_request(url, params, headers):
+    print(url)
     parsed_url = urlparse(url)
-    if parsed_url.scheme != 'https' or parsed_url.scheme != 'http':
+    print(parsed_url)
+    if parsed_url.scheme != 'https' and parsed_url.scheme != 'http':
         url = 'http://{}'.format(url)
+    print(url)
     request = Request(url, data=urlencode(params).encode(), headers=headers, method='POST')
     return json.loads(urlopen(request).read().decode())
 
