@@ -25,11 +25,11 @@ class GbdApi:
         return gbd_hash(path)
 
     # Import CSV file
-    def import_file(self, path, key, source, target):
+    def import_file(self, path, key, source, target, delimiter):
         if self.db_is_url:
             raise NotImplementedError
         with Database(self.database) as database:
-            import_data.import_csv(database, path, key, source, target)
+            import_data.import_csv(database, path, key, source, target, delimiter)
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called

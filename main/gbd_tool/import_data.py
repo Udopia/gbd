@@ -32,28 +32,33 @@ def get_header(filename, key_column):
     return fieldnames
 
 
-def create_group(database, filename, csv_column, db_column):
+def create_group(database, filename, header, csv_column, db_column, delim_=' '):
     with open(filename, newline='') as csvfile:
-        csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
+        csvfile.readline() #skip header
+        csvreader = csv.DictReader(csvfile, fieldnames=header, delimiter=delim_, quotechar='\'')
         # print("Importing: {}".format(csvreader.fieldnames))
-        values = [line[csv_column] for line in csvreader]
+        values = [line[csv_column].strip() for line in csvreader]
         sqltype = determine_type(database, values)
         print('Column {} has type {} [values: {}, {}, {}, ...]'.format(csv_column, sqltype, values[0], values[1],
                                                                        values[2]))
         groups.add(database, db_column, unique=True, type=sqltype, default=None)
 
 
-def import_csv(database, filename, key, source, target):
+def import_csv(database, filename, key, source, target, delim_=' '):
     with open(filename, newline='') as csvfile:
+        # trim whitespace off header
+        header = [h.strip() for h in csvfile.readline().split(delim_)]
+        print(header)
         if not exists(database, target):
             print("Creating table {}".format(target))
-            create_group(database, filename, source, target)
-            csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
-            lst = [(row[key], row[source]) for row in csvreader if row[source].strip()]
+            create_group(database, filename, header, source, target, delim_)
+            csvreader = csv.DictReader(csvfile, fieldnames=header, delimiter=delim_, quotechar='\'')
+            lst = [(row[key], row[source].strip()) for row in csvreader if row[source].strip()]
             print("Inserting {} values into table {}".format(len(lst), target))
             database.bulk_insert(target, lst)
         else:
-            csvreader = csv.DictReader(csvfile, delimiter=' ', quotechar='\'')
+            csvreader = csv.DictReader(csvfile,fieldnames=header,  delimiter=delim_, quotechar='\'')
+            print(csvreader._fieldnames)
             lst = [(row[key], row[source]) for row in csvreader if row[source].strip()]
             print("Attempting to insert {} values into table {}".format(len(lst), target))
             for (hash_, value_) in lst:
