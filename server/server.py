@@ -301,7 +301,6 @@ def get_demo_results():
     try:
         results = list(gbd_api.query_search(q, checked_groups))
         for (a, b) in enumerate(results):
-            print(b)
             entry = list(b)
             for (n, i) in enumerate(entry):
                 if n == 0:
