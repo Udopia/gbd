@@ -296,18 +296,34 @@ def get_zip():
 def get_demo_results():
     request_semaphore.acquire()
     q = request.values.get('query')
-    tables = request.values.getlist('tables')
-    print(tables)
-    request_semaphore.release()
-    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=True,
-                           results=['Not yet implemented'],
-                           checked_tables=tables, query=q)
+    all_groups = gbd_api.get_all_groups()
+    checked_groups = request.values.getlist('groups')
+    try:
+        hashset = gbd_api.query_search(q)
+        request_semaphore.release()
+        return render_template('demo.html', groups=all_groups, is_result=True,
+                               results=['Not yet implemented'],
+                               checked_groups=checked_groups, query=q)
+    except tatsu.exceptions.FailedParse:
+        request_semaphore.release()
+        return render_template('demo.html', groups=all_groups,
+                               is_result=True,
+                               contains_error=True, error_message="Whoops! Non-valid query...")
+    except ValueError:
+        request_semaphore.release()
+        return render_template('demo.html', groups=all_groups,
+                               is_result=True,
+                               contains_error=True, error_message="Whoops! "
+                                                                  "Your query contains a group we could not "
+                                                                  "find in our database...")
 
 
 @app.route("/demo", methods=['GET'])
 def get_demo_page():
-    # TODO: Resolved Results
-    return render_template('demo.html', tables=gbd_api.get_all_groups(), is_result=False)
+    request_semaphore.acquire()
+    all_groups = gbd_api.get_all_groups()
+    request_semaphore.release()
+    return render_template('demo.html', groups=all_groups, is_result=False)
 
 
 def create_zip_with_marker(zipfile, files, prefix):
