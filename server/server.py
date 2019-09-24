@@ -299,10 +299,17 @@ def get_demo_results():
     all_groups = gbd_api.get_all_groups()
     checked_groups = request.values.getlist('groups')
     try:
-        hashset = gbd_api.query_search(q)
+        results = list(gbd_api.query_search(q, checked_groups))
+        for (a, b) in enumerate(results):
+            print(b)
+            entry = list(b)
+            for (n, i) in enumerate(entry):
+                if n == 0:
+                    entry.pop(n)
+            results[a] = entry.__str__()
         request_semaphore.release()
         return render_template('demo.html', groups=all_groups, is_result=True,
-                               results=['Not yet implemented'],
+                               results=results,
                                checked_groups=checked_groups, query=q)
     except tatsu.exceptions.FailedParse:
         request_semaphore.release()
