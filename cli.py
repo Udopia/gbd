@@ -23,7 +23,7 @@ def cli_import(args):
     path = os.path.abspath(args.path)
     eprint('Importing Data from CSV-File: {}'.format(path))
     api = GbdApi(config_path, args.db)
-    api.import_file(path, args.key, args.source, args.target)
+    api.import_file(path, args.key, args.source, args.target, args.delimiter)
 
 
 def cli_init(args):
@@ -165,6 +165,7 @@ def main():
                                required=True)
     parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)",
                                required=True)
+    parser_import.add_argument('-d', '--delimiter', choices=[" ", ",", ";"], default=" ", help="Delimiter")
     parser_import.set_defaults(func=cli_import)
 
     # define info
