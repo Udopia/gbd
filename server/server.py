@@ -1,5 +1,6 @@
 import datetime
 import logging
+import re
 import threading
 import os
 from os.path import isfile, basename, join
@@ -297,6 +298,11 @@ def get_demo_results():
     request_semaphore.acquire()
     q = request.values.get('query')
     all_groups = gbd_api.get_all_groups()
+    for group in all_groups:
+        group_name = group.__str__()
+        is_system_table = re.match('_{2}.*', group_name)
+        if is_system_table:
+            all_groups.remove(group)
     checked_groups = request.values.getlist('groups')
     try:
         results = list(gbd_api.query_search(q, checked_groups))
@@ -328,6 +334,11 @@ def get_demo_results():
 def get_demo_page():
     request_semaphore.acquire()
     all_groups = gbd_api.get_all_groups()
+    for group in all_groups:
+        group_name = group.__str__()
+        is_system_table = re.match('_{2}.*', group_name)
+        if is_system_table:
+            all_groups.remove(group)
     request_semaphore.release()
     return render_template('demo.html', groups=all_groups, is_result=False)
 
