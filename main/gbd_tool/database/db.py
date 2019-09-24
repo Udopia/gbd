@@ -15,6 +15,7 @@ class Database:
 
     def __init__(self, path):
         self.create_mode = not isfile(path)
+        self.path = path
         # init connections
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()

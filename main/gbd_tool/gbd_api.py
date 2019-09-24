@@ -36,11 +36,9 @@ class GbdApi:
     def init_database(self, path=None):
         if self.db_is_url:
             raise NotImplementedError
-        else:
-            Database(self.database)
-        if path is not None:
-            benchmark_administration.remove_benchmarks(self.database)
-            benchmark_administration.register_benchmarks(self.database, path)
+        with Database(self.database) as database:
+            benchmark_administration.remove_benchmarks(database)
+            benchmark_administration.register_benchmarks(database, path)
 
     # Get information of the whole database
     def get_database_info(self):
@@ -51,11 +49,10 @@ class GbdApi:
 
     # Checks weather a group exists in given database object
     def check_group_exists(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
         with Database(self.database) as database:
-            if name in groups.reflect(database):
-                return True
-            else:
-                return False
+            return name in groups.reflect(database)
 
     # Adds a group to given database representing for example an attribute of a benchmark
     def add_attribute_group(self, name, type, unique):

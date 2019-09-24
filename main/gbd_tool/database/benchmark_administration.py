@@ -1,6 +1,6 @@
 import multiprocessing
 import os
-from multiprocessing import Pool, Lock
+from multiprocessing import Pool, Lock, Queue
 from os.path import isfile
 
 from gbd_tool.database import groups
@@ -49,41 +49,41 @@ def add_benchmark(database, hash, path):
             database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))
 
 
-def remove_benchmarks(db):
-    with Database(db) as database:
-        paths = database.value_query("SELECT value FROM benchmarks")
-        for p in paths:
-            if not isfile(p):
-                eprint("Problem '{}' not found. Removing...".format(p))
-                database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
+def remove_benchmarks(database):
+    paths = database.value_query("SELECT value FROM benchmarks")
+    for p in paths:
+        if not isfile(p):
+            eprint("Problem '{}' not found. Removing...".format(p))
+            database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
 
-def register_benchmark(db, path):
+
+def safe_benchark_hash_locked(arg):
+    mutex.acquire()
     try:
-        with Database(db) as database:
-            hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
-            if len(hashes) is not 0:
-                eprint('Problem {} already hashed'.format(path))
-                return
-        eprint('Hashing {}'.format(path))
-        hashvalue = gbd_hash(path)
-        mutex.acquire()
-        try:
-            with Database(db) as database:
-                add_benchmark(database, hashvalue, path)
-        finally:
-            mutex.release()
-    except Exception as e:
-        eprint(e)
-        return
+        # create new connection from old one due to limitations of multithreaded use (cursor initialization issue)
+        with Database(arg['database'].path) as database:
+            add_benchmark(database, arg['hashvalue'], arg['path'])
+    finally:
+        mutex.release()
+
+
+def register_benchmark(database, path):
+    eprint('Hashing {}'.format(path))
+    hashvalue = gbd_hash(path)
+    return { 'database': database, 'path': path, 'hashvalue': hashvalue }
+
 
 # todo: parallelize hashing
-def register_benchmarks(db, root):
+def register_benchmarks(database, root):
     pool = Pool(multiprocessing.cpu_count())
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
             if path.endswith(".cnf") or path.endswith(".cnf.gz") or path.endswith(".cnf.lzma") or path.endswith(".cnf.bz2"):
-                # register_benchmark(database, os.path.join(root, filename))
-                pool.apply_async(register_benchmark, args=(db, path))
+                hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
+                if len(hashes) is not 0:
+                    eprint('Problem {} already hashed'.format(path))
+                else:
+                    pool.apply_async(register_benchmark, args=(database, path), callback=safe_benchark_hash_locked)
     pool.close()
     pool.join() 
