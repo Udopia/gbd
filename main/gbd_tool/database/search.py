@@ -3,20 +3,27 @@ from gbd_tool.util import eprint
 
 
 def find_hashes(database, query=None, resolve=[]):
-    if query is None:
-        return database.value_query("SELECT DISTINCT hash FROM benchmarks")
-    else:
+    statement = "SELECT DISTINCT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash"
+    s_attributes = "benchmarks.hash"
+    s_tables = ""
+    s_conditions = "1=1"
+    tables = { "benchmarks" }
+    
+    if query is not None:
         ast = parse(GRAMMAR, query)
-        tables = collect_tables(ast)
+        s_conditions = build_where(ast)
+        tables.update(collect_tables(ast))
+
+    if resolve is not None:
         if len(resolve) == 0:
             resolve.append("benchmarks")
-        str_resolve_tables = "benchmarks.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
-        str_where_query = build_where(ast)
+        s_attributes = "benchmarks.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
         tables.update(resolve)
-        str_join_tables = " ".join(['LEFT JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables if table != "benchmarks"])
-        statement = "SELECT DISTINCT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash".format(str_resolve_tables, str_join_tables, str_where_query)
-        eprint("Query: ".format(statement))
-        return database.query(statement)
+
+    s_tables = " ".join(['LEFT JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables if table != "benchmarks"])
+
+    eprint("Query: {}".format(statement.format(s_attributes, s_tables, s_conditions)))
+    return database.query(statement.format(s_attributes, s_tables, s_conditions))
 
 
 def build_where(ast):
