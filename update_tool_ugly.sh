@@ -1,5 +1,3 @@
 #!/bin/bash
-
-for f in $(find /home/markus/git/gbd/main/gbd_tool -name '*.py'); do 
-    sudo cp -v $f /usr/local/lib/python3.5/dist-packages/gbd_tool/${f:35}
-done
+sudo rm -rfv /usr/local/lib/python3.5/dist-packages/gbd_tool
+sudo cp -Rfv /home/markus/git/gbd/main/gbd_tool /usr/local/lib/python3.5/dist-packages/
