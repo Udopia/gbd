@@ -39,6 +39,8 @@ def cli_init(args):
 
 def cli_algo(args):
     path = os.path.abspath(args.path)
+    with open(path, newline='') as cnffile:
+        cnffile.readline()
 
 
 # entry for modify command
