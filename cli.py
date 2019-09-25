@@ -79,7 +79,7 @@ def cli_get(args):
             print(" ".join([item.split(',')[0] for item in result]))
     else:
         for result in resultset:
-            print(" ".join(result))
+            print(" ".join([(item or '') for item in result]))
     return
 
 
@@ -161,7 +161,7 @@ def main():
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")
     parser_import.add_argument('-k', '--key', type=column_type,
                                help="Name of the key column (the hash-value of the problem)", required=True)
-    parser_import.add_argument('-s', '--source', type=column_type, help="Source name of column to import (in csv-file)",
+    parser_import.add_argument('-s', '--source', help="Source name of column to import (in csv-file)",
                                required=True)
     parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)",
                                required=True)

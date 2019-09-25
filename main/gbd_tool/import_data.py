@@ -53,13 +53,12 @@ def import_csv(database, filename, key, source, target, delim_=' '):
             print("Creating table {}".format(target))
             create_group(database, filename, header, source, target, delim_)
             csvreader = csv.DictReader(csvfile, fieldnames=header, delimiter=delim_, quotechar='\'')
-            lst = [(row[key], row[source].strip()) for row in csvreader if row[source].strip()]
+            lst = [(row[key], row[source].strip()) for row in csvreader if row[source]]
             print("Inserting {} values into table {}".format(len(lst), target))
             database.bulk_insert(target, lst)
         else:
-            csvreader = csv.DictReader(csvfile,fieldnames=header,  delimiter=delim_, quotechar='\'')
-            print(csvreader._fieldnames)
-            lst = [(row[key], row[source]) for row in csvreader if row[source].strip()]
+            csvreader = csv.DictReader(csvfile, fieldnames=header,  delimiter=delim_, quotechar='\'')
+            lst = [(row[key], row[source].strip()) for row in csvreader if row[source]]
             print("Attempting to insert {} values into table {}".format(len(lst), target))
             for (hash_, value_) in lst:
                 benchmark_administration.add_tag(database, target, value_, hash_, False)
