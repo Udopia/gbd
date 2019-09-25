@@ -3,8 +3,6 @@ from gbd_tool.util import eprint
 
 
 def find_hashes(database, query=None, resolve=[]):
-    print("FUUUUUUUUUUUUUUUUUUUUUUUUUUCK!!!")
-
     statement = "SELECT DISTINCT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash"
     s_attributes = "benchmarks.hash"
     s_tables = ""
