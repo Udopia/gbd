@@ -110,6 +110,7 @@ class GbdApi:
         if self.db_is_url:
             raise NotImplementedError
         with Database(self.database) as database:
+            print("Setting {} to {} for benchmarks {}".format(name, value, hash_list))
             for h in hash_list:
                 benchmark_administration.add_tag(database, name, value, h, force)
 
