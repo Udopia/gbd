@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+import sys
 import threading
 import os
 from os.path import isfile, basename, join
@@ -14,7 +15,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
-from gbd_tool.config_manager import db_file
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 from gbd_tool.http_client import USER_AGENT_CLI
@@ -27,9 +27,9 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
 limiter = Limiter(app, key_func=get_remote_address)
 
-DATABASE = os.environ.get('GBD_DB')
+DATABASE = os.environ.get('GBD_DB_SERVER')
 if DATABASE is None:
-    DATABASE = join(interface.SERVER_CONFIG_PATH, db_file)
+    raise RuntimeError("No database path given. Please set path in GBD_DB environment variable!")
 
 ZIPCACHE_PATH = 'zipcache'
 ZIP_BUSY_PREFIX = '_'
@@ -353,3 +353,5 @@ def create_zip_with_marker(zipfile, files, prefix):
     ZIP_SEMAPHORE.release()
 
 
+if __name__ == '__main__':
+    manager.run()
