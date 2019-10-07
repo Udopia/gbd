@@ -15,7 +15,10 @@ class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
     def __init__(self, config_path, database):
-        self.config_manager = ConfigManager(config_path, database)
+        try:
+            self.config_manager = ConfigManager(config_path, database)
+        except AttributeError:
+            raise RuntimeError("Database path in arguments or in environment variable GBD_DB?")
         self.database = self.config_manager.get_database_path()
         self.db_is_url = is_url(self.database)
 
@@ -72,7 +75,6 @@ class GbdApi:
     def get_all_groups(self):
         if self.db_is_url:
             raise NotImplementedError
-        print(self.database)
         with Database(self.database) as database:
             return groups.reflect(database)
 

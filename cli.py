@@ -6,13 +6,14 @@ import re
 import sys
 import gzip
 import bz2
+from os.path import join, dirname, realpath
 
-from gbd_tool.gbd_api import GbdApi
+from main.gbd_tool.gbd_api import GbdApi
 from gbd_tool.util import eprint, confirm
 
 from server.interface import SERVER_CONFIG_PATH
 
-config_path = SERVER_CONFIG_PATH
+config_path = join(dirname(realpath(__file__)), "cli_config")
 
 
 def cli_hash(args):
