@@ -15,7 +15,7 @@ class ConfigManager:
         if database is not None:
             self.make_configuration(database)
         else:
-            self.make_configuration(join(self.config_dir, db_file))
+            raise AttributeError("No database specified to work with")
 
     # Absolute path for custom config file is needed
     def make_configuration(self, database):
