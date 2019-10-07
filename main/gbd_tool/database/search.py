@@ -20,7 +20,7 @@ def find_hashes(database, query=None, resolve=[]):
         s_attributes = "benchmarks.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
         tables.update(resolve)
 
-    s_tables = " ".join(['LEFT JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables if table != "benchmarks"])
+    s_tables = " ".join(['INNER JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables if table != "benchmarks"])
 
     eprint(statement.format(s_attributes, s_tables, s_conditions))
 
