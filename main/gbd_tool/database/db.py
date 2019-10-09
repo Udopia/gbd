@@ -68,6 +68,7 @@ class Database:
         return self.cursor.execute(q).fetchall()
 
     def submit(self, q):
+        eprint(q)
         self.cursor.execute(q)
         self.commit()
 
