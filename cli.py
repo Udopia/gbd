@@ -92,7 +92,7 @@ def cli_group(args):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
         eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(
-            args.name, args.unique is not None, args.unique))
+            args.name, args.unique is not None, args.type, args.unique))
         api.add_attribute_group(args.name, args.type, args.unique)
         return
     if not api.check_group_exists(args.name):
