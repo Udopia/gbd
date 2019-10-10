@@ -35,7 +35,12 @@ def build_where(ast):
         result = "(" + build_where(ast["exp1"]) + " " + ast["con"] + " " + build_where(ast["exp2"]) + ")"
     elif ast["op"] is not None:
         value = ast["val"]["num"] or "'" + ast["val"]["alnum"] + "'"
-        result = ast["attr"] + ".value " + ast["op"] + " " + value
+        attrexp = build_where(ast["attrexp"])
+        result = attrexp + ast["op"] + " " + value
+    elif ast["arith"] is not None:
+        result = "(CAST(" + ast["attr1"] + ".value AS FLOAT) " + ast["arith"] + " CAST(" + ast["attr2"] + ".value AS FLOAT)) "
+    else:
+        result = ast["attr"] + ".value "
     return result
 
 
@@ -47,6 +52,11 @@ def collect_tables(ast):
         result.update(collect_tables(ast["exp1"]))
         result.update(collect_tables(ast["exp2"]))
     elif ast["op"] is not None:
+        result.update(collect_tables(ast["attrexp"]))
+    elif ast["arith"] is not None:
+        result.add(ast["attr1"])
+        result.add(ast["attr2"])
+    else: 
         result.add(ast["attr"])
     return result
 
@@ -63,12 +73,11 @@ GRAMMAR = r'''
         | constraint
         ;
 
-    constraint = attr:name op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ;
+    constraint = attrexp:calc op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ;
 
-    value
-        = num:numeric
-        | alnum:alphanumeric
-        ;
+    calc = attr:name | '(' attr1:name arith:('+' | '-' | '*' | '/') attr2:name ')' ;
+
+    value = num:numeric | alnum:alphanumeric ;
 
     numeric = /[0-9\.\-]+/ ;
     alphanumeric = /[a-zA-Z0-9_\-\%\.\/]+/ ;
