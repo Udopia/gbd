@@ -46,7 +46,7 @@ def cli_algo(args):
     api.add_attribute_group("clauses_negative", "integer", 0)
     api.add_attribute_group("clauses_horn", "integer", 0)
 
-    resultset = api.query_search("clauses_horn = 0", ["benchmarks"])
+    resultset = api.query_search("(clauses_horn = 0) and (clauses_positive = 0) and (clauses_negative = 0)", ["benchmarks"])
     for result in resultset:
         c_horn = 0
         c_pos = 0
@@ -63,6 +63,7 @@ def cli_algo(args):
         else:
             cnffile = open(path, 'rt')
         
+        eprint("Parsing {}".format(path))
         for line in cnffile:
             if line.strip() and len(line.strip().split()) > 1:
                 parts = line.strip().split()[:-1]
@@ -91,7 +92,7 @@ def cli_group(args):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
         eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(
-            args.name, args.unique is not None, args.unique))
+            args.name, args.unique is not None, args.type, args.unique))
         api.add_attribute_group(args.name, args.type, args.unique)
         return
     if not api.check_group_exists(args.name):
