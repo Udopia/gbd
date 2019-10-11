@@ -1,6 +1,6 @@
 def add(database, cat, unique=False, type='text', default=None):
     ustr = "UNIQUE" if unique else ""
-    dstr = "DEFAULT {}".format(default) if default is not None else ""
+    dstr = "DEFAULT \"{}\"".format(default) if default is not None else ""
     database.submit(
         'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value {} NOT NULL {})'.format(cat, ustr, type, dstr))
     if default is not None:
