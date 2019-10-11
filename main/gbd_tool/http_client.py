@@ -20,7 +20,7 @@ def post_request(url, params, headers):
     print(url)
     parsed_url = urlparse(url)
     print(parsed_url)
-    if parsed_url.scheme != 'https' and parsed_url.scheme != 'http':
+    if parsed_url.scheme != 'https' or parsed_url.scheme != 'http':
         url = 'http://{}'.format(url)
     print(url)
     request = Request(url, data=urlencode(params).encode(), headers=headers, method='POST')
