@@ -16,4 +16,5 @@ ENV LC_ALL=C.UTF-8 \
   LANG=C.UTF-8
 EXPOSE 5000
 WORKDIR /server
-CMD ./run_server.sh
+#CMD ./run_server.sh
+ENTRYPOINT ["./run_server.sh", "/raid/iser/raid.db"]
