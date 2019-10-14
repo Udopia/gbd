@@ -367,7 +367,3 @@ def create_zip_with_marker(zipfile, files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
-
-
-if __name__ == '__main__':
-    manager.run()
