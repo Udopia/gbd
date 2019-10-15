@@ -17,9 +17,6 @@
         <span class="navbar-toggler-icon"></span>
     </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-item nav-link active" href="#">Home<span class="sr-only">(current)</span></a>
-        </div>
       </div>
 </nav>
 <hr>
@@ -30,10 +27,17 @@
     </div>
     <div class="container-fluid">
             <form action="#" method="post" id="args">
-                <div class="form-group">
+                {% if has_query == True %}
+                    <div class="form-group">
                     <label for="query"></label>
-                    <input type="text" name="query" class="form-control" placeholder="Enter command">
-                </div>
+                    <input type="text" name="query" class="form-control" value="{{ query }}">
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                    <label for="query"></label>
+                    <input type="text" name="query" class="form-control" placeholder="Enter query">
+                    </div>
+                {% endif %}
                 <div class="form-group">
                     <label for="groups"></label>
                     {% for group in groups %}
@@ -43,7 +47,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                <button formaction="{{ url_for('get_demo_results', _external=True) }}"
+                <button formaction="{{ url_for('quick_search_results', _external=True) }}"
                         class="btn btn-primary form-group">
                 Show
             </button>
