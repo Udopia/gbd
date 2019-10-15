@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from os.path import join, exists
+from os.path import join
 
 from flask import json
 

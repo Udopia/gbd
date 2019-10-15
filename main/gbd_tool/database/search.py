@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from tatsu import parse
 from gbd_tool.util import eprint
+from tatsu import parse
 
 
 def find_hashes(database, query=None, resolve=[]):
