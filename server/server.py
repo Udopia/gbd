@@ -136,17 +136,8 @@ def query():
         request_semaphore.release()
         return json.dumps(response)
     else:
-        response = htmlGenerator.generate_html_header("en")
-        response += htmlGenerator.generate_head("Results")
-        try:
-            hashset = gbd_api.query_search(query)
-            response += htmlGenerator.generate_num_table_div(hashset)
-        except exceptions.FailedParse:
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += htmlGenerator.generate_warning("Group not found")
-    request_semaphore.release()
-    return response
+        request_semaphore.release()
+        return "Not allowed"
 
 
 @app.route("/queryzip", methods=['POST'])
@@ -224,45 +215,9 @@ def resolve():
     if ua == USER_AGENT_CLI:
         result = handle_cli_resolve_request(request)
     else:
-        result = handle_normal_resolve_request(request)
+        return "Not allowed"
     request_semaphore.release()
     return result
-
-
-def handle_normal_resolve_request(req):
-    hashed = req.values.get("hashes")
-    group = req.values.get("group")
-    shall_collapse = req.values.get("collapse") == "True"
-    pattern = req.values.get("pattern")
-    result = htmlGenerator.generate_html_header("en")
-    result += htmlGenerator.generate_head("Results")
-
-    entries = []
-    if group == "":
-        all_groups = gbd_api.get_all_groups()
-        for attribute in all_groups:
-            if not attribute.startswith("__"):
-                try:
-                    value_dict = gbd_api.resolve([hashed], [attribute],
-                                                 collapse=shall_collapse,
-                                                 pattern=pattern)[0]
-                    entries.append([attribute, value_dict.get(attribute)])
-                except IndexError:
-                    result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-        result += htmlGenerator.generate_resolve_table_div(entries)
-        return result
-    else:
-        try:
-            value = gbd_api.resolve([hashed], [group],
-                                    collapse=shall_collapse,
-                                    pattern=pattern)
-            entries.append([group, value[0].get(group)])
-            result += htmlGenerator.generate_resolve_table_div(entries)
-        except OperationalError:
-            result += htmlGenerator.generate_warning("Group not found")
-        except IndexError:
-            result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-        return result
 
 
 def handle_cli_resolve_request(req):
@@ -286,39 +241,6 @@ def handle_cli_resolve_request(req):
         return json.dumps("Group not found")
     except IndexError:
         return json.dumps("Hash not found in our DATABASE")
-
-
-@app.route("/groups/all", methods=['GET'])
-def reflect():
-    request_semaphore.acquire()
-    response = htmlGenerator.generate_html_header('en')
-    url = '/static/resources/gbd_logo_small.png'
-    response += "<body>" \
-                "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
-                "   <a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{}\"></a>" \
-                "   <a class=\"navbar-brand\" href=\"#\"></a>" \
-                "   <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
-                "       data-target=\"#navbarNavAltMarkup\"" \
-                "       aria-controls=\"navbarNavAltMarkup\" " \
-                "       aria-expanded=\"false\"" \
-                "       aria-label=\"Toggle navigation\">" \
-                "       <span class=\"navbar-toggler-icon\"></span>" \
-                "   </button>" \
-                "   <div class=\"collapse navbar-collapse\" id=\"navbarNavAltMarkup\">" \
-                "       <div class=\"navbar-nav\">" \
-                "           <a class=\"nav-item nav-link\" href=\"/\">Home</a>" \
-                "           <a class=\"nav-item nav-link active\" href=\"#\">Groups" \
-                "                   <span class=\"sr-only\">(current)</span></a>" \
-                "           <a class=\"nav-item nav-link\" href=\"/query/form\">Search</a>" \
-                "           <a class=\"nav-item nav-link\" href=\"/resolve/form\">Resolve</a>" \
-                "       </div>" \
-                "   </div>" \
-                "</nav>" \
-                "<hr>".format(url)
-    reflection = gbd_api.get_all_groups()
-    response += htmlGenerator.generate_num_table_div(reflection)
-    request_semaphore.release()
-    return response
 
 
 @app.route("/groups/reflect", methods=['GET'])
