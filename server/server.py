@@ -75,12 +75,6 @@ def quick_search_results():
     checked_groups = request.values.getlist('groups')
     try:
         results = list(gbd_api.query_search(q, checked_groups))
-        for (a, b) in enumerate(results):
-            entry = list(b)
-            for (n, i) in enumerate(entry):
-                if n == 0:
-                    entry.pop(n)
-            results[a] = entry.__str__()
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups, is_result=True,
                                results=results,
