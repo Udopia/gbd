@@ -59,9 +59,56 @@ request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
-@app.route("/", methods={'GET'})
-def welcome():
-    return render_template('home.html')
+@app.route("/", methods=['GET'])
+def quick_search():
+    request_semaphore.acquire()
+    all_groups = get_groups()
+    request_semaphore.release()
+    return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False)
+
+
+@app.route("/results", methods=['POST'])
+def quick_search_results():
+    request_semaphore.acquire()
+    q = request.values.get('query')
+    all_groups = get_groups()
+    checked_groups = request.values.getlist('groups')
+    try:
+        results = list(gbd_api.query_search(q, checked_groups))
+        for (a, b) in enumerate(results):
+            entry = list(b)
+            for (n, i) in enumerate(entry):
+                if n == 0:
+                    entry.pop(n)
+            results[a] = entry.__str__()
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups, is_result=True,
+                               results=results,
+                               checked_groups=checked_groups, has_query=True, query=q)
+    except tatsu.exceptions.FailedParse:
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups,
+                               is_result=True,
+                               contains_error=True, error_message="Whoops! Non-valid query...",
+                               has_query=True, query=q)
+    except ValueError:
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups,
+                               is_result=True,
+                               contains_error=True, error_message="Whoops! "
+                                                                  "Your query contains a group we could not "
+                                                                  "find in our database...",
+                               has_query=True, query=q)
+
+
+def get_groups():
+    all_groups = gbd_api.get_all_groups()
+    for group in all_groups:
+        group_name = group.__str__()
+        is_system_table = re.match('_{2}.*', group_name)
+        if is_system_table:
+            all_groups.remove(group)
+    return all_groups
 
 
 @app.route("/query/form", methods=['GET'])
@@ -307,56 +354,6 @@ def get_zip():
     elif not isfile('_{}'.format(zipfile)):
         request_semaphore.release()
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
-
-
-@app.route("/demo/deq", methods=['POST'])
-def get_demo_results():
-    request_semaphore.acquire()
-    q = request.values.get('query')
-    all_groups = gbd_api.get_all_groups()
-    for group in all_groups:
-        group_name = group.__str__()
-        is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
-    checked_groups = request.values.getlist('groups')
-    try:
-        results = list(gbd_api.query_search(q, checked_groups))
-        for (a, b) in enumerate(results):
-            entry = list(b)
-            for (n, i) in enumerate(entry):
-                if n == 0:
-                    entry.pop(n)
-            results[a] = entry.__str__()
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups, is_result=True,
-                               results=results,
-                               checked_groups=checked_groups, query=q)
-    except tatsu.exceptions.FailedParse:
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups,
-                               is_result=True,
-                               contains_error=True, error_message="Whoops! Non-valid query...")
-    except ValueError:
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups,
-                               is_result=True,
-                               contains_error=True, error_message="Whoops! "
-                                                                  "Your query contains a group we could not "
-                                                                  "find in our database...")
-
-
-@app.route("/demo", methods=['GET'])
-def get_demo_page():
-    request_semaphore.acquire()
-    all_groups = gbd_api.get_all_groups()
-    for group in all_groups:
-        group_name = group.__str__()
-        is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
-    request_semaphore.release()
-    return render_template('demo.html', groups=all_groups, is_result=False)
 
 
 def create_zip_with_marker(zipfile, files, prefix):
