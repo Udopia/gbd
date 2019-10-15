@@ -16,26 +16,26 @@
 
 import datetime
 import logging
-import re
-import sys
-import threading
 import os
-from os.path import isfile, basename, join
+import re
+import threading
+from os.path import isfile, basename
 from sqlite3 import OperationalError
 from zipfile import ZipFile, ZipInfo
 
+import htmlGenerator
+import interface
 import tatsu
-from flask import Flask, render_template, request, send_file, json, url_for
+import util
+from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
+from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
-from gbd_tool.http_client import USER_AGENT_CLI
-
-import htmlGenerator, util, interface
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 logging.getLogger().addHandler(default_handler)
