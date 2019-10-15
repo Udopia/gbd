@@ -89,15 +89,16 @@ def quick_search_results():
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups,
                                is_result=True,
+                               checked_groups=checked_groups,
                                contains_error=True, error_message="Whoops! Non-valid query...",
                                has_query=True, query=q)
     except ValueError:
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups,
                                is_result=True,
+                               checked_groups=checked_groups,
                                contains_error=True, error_message="Whoops! "
-                                                                  "Your query contains a group we could not "
-                                                                  "find in our database...",
+                                                                  "Something went wrong...",
                                has_query=True, query=q)
 
 
