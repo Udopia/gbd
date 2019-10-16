@@ -89,7 +89,7 @@ GRAMMAR = r'''
         | constraint
         ;
 
-    constraint = attrexp:calc op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ;
+    constraint = '(' attrexp:calc op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ')';
 
     calc = attr:name | '(' attr1:name arith:('+' | '-' | '*' | '/') attr2:name ')' ;
 
