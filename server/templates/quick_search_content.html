@@ -1,0 +1,29 @@
+{% extends "quick_search.html" %}
+
+{% block content %}
+{% if True == is_result %}
+    {% if True == contains_error %}
+        <div class="alert-warning" style="margin: 10px; padding: 5px; border-radius: 5px">{{ error_message }}</div>
+    {% else %}
+        <hr>
+        <div class="container" style="display: block; max-height: 700px; overflow-y: auto;">
+        <div class="scrollbar scrollbar-primary">
+    <table class="table table-bordered table-dark table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Hash</th>
+            {% for group in checked_groups %}
+            <th scope="col">{{ group }}</th>
+            {% endfor %}
+        </thead>
+        <tbody>
+        {% for entry in results %}
+            <tr>{% for attribute in entry %}<td>{{ attribute }}</td>{% endfor %}</tr>
+        {% endfor %}
+        </tbody>
+    </table>
+        </div>
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
