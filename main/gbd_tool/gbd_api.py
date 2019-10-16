@@ -21,7 +21,7 @@ from urllib.error import URLError
 # internal packages
 from . import import_data
 from .config_manager import ConfigManager
-from .database import groups, benchmark_administration, search
+from .database import groups, benchmark_administration, search, algo
 from .database.db import Database
 from .hashing.gbd_hash import gbd_hash
 from .http_client import post_request, is_url, USER_AGENT_CLI
@@ -122,6 +122,21 @@ class GbdApi:
             return self.query_search('{} like %%%%'.format(name))
         else:
             raise ValueError('No group given')
+
+    def run_algo(self, name):
+        if self.db_is_url:
+            raise NotImplementedError
+        if name is not None:
+            if name == "horn":
+                with Database(self.database) as database:
+                    algo.run_horn_algo(self, database)
+            elif name == "vars":
+                with Database(self.database) as database:
+                    algo.run_vars_algo(self, database)
+            else:
+                raise ValueError("Unknown algorithm '{}'".format(name))
+        else:
+            raise ValueError('No algorithm given')
 
     # Associate hashes with a hash-value in a group
     def set_attribute(self, name, value, hash_list, force):
