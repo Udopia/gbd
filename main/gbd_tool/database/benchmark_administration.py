@@ -16,7 +16,7 @@
 
 import multiprocessing
 import os
-from multiprocessing import Pool, Lock, Queue
+from multiprocessing import Pool, Lock
 from os.path import isfile
 
 from gbd_tool.database import groups

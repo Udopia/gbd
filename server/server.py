@@ -16,26 +16,26 @@
 
 import datetime
 import logging
-import re
-import sys
-import threading
 import os
-from os.path import isfile, basename, join
+import re
+import threading
+from os.path import isfile, basename
 from sqlite3 import OperationalError
 from zipfile import ZipFile, ZipInfo
 
+import htmlGenerator
+import interface
 import tatsu
-from flask import Flask, render_template, request, send_file, json, url_for
+import util
+from flask import Flask, render_template, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.hashing import gbd_hash
+from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
-from gbd_tool.http_client import USER_AGENT_CLI
-
-import htmlGenerator, util, interface
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG)
 logging.getLogger().addHandler(default_handler)
@@ -59,9 +59,51 @@ request_semaphore = threading.Semaphore(10)
 check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
-@app.route("/", methods={'GET'})
-def welcome():
-    return render_template('home.html')
+@app.route("/", methods=['GET'])
+def quick_search():
+    request_semaphore.acquire()
+    all_groups = get_groups()
+    request_semaphore.release()
+    return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False)
+
+
+@app.route("/results", methods=['POST'])
+def quick_search_results():
+    request_semaphore.acquire()
+    q = request.values.get('query')
+    all_groups = get_groups()
+    checked_groups = request.values.getlist('groups')
+    try:
+        results = list(gbd_api.query_search(q, checked_groups))
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups, is_result=True,
+                               results=results,
+                               checked_groups=checked_groups, has_query=True, query=q)
+    except tatsu.exceptions.FailedParse:
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups,
+                               is_result=True,
+                               checked_groups=checked_groups,
+                               contains_error=True, error_message="Whoops! Non-valid query...",
+                               has_query=True, query=q)
+    except ValueError:
+        request_semaphore.release()
+        return render_template('quick_search_content.html', groups=all_groups,
+                               is_result=True,
+                               checked_groups=checked_groups,
+                               contains_error=True, error_message="Whoops! "
+                                                                  "Something went wrong...",
+                               has_query=True, query=q)
+
+
+def get_groups():
+    all_groups = gbd_api.get_all_groups()
+    for group in all_groups:
+        group_name = group.__str__()
+        is_system_table = re.match('_{2}.*', group_name)
+        if is_system_table:
+            all_groups.remove(group)
+    return all_groups
 
 
 @app.route("/query/form", methods=['GET'])
@@ -88,17 +130,8 @@ def query():
         request_semaphore.release()
         return json.dumps(response)
     else:
-        response = htmlGenerator.generate_html_header("en")
-        response += htmlGenerator.generate_head("Results")
-        try:
-            hashset = gbd_api.query_search(query)
-            response += htmlGenerator.generate_num_table_div(hashset)
-        except exceptions.FailedParse:
-            response += htmlGenerator.generate_warning("Non-valid query")
-        except OperationalError:
-            response += htmlGenerator.generate_warning("Group not found")
-    request_semaphore.release()
-    return response
+        request_semaphore.release()
+        return "Not allowed"
 
 
 @app.route("/queryzip", methods=['POST'])
@@ -176,45 +209,9 @@ def resolve():
     if ua == USER_AGENT_CLI:
         result = handle_cli_resolve_request(request)
     else:
-        result = handle_normal_resolve_request(request)
+        return "Not allowed"
     request_semaphore.release()
     return result
-
-
-def handle_normal_resolve_request(req):
-    hashed = req.values.get("hashes")
-    group = req.values.get("group")
-    shall_collapse = req.values.get("collapse") == "True"
-    pattern = req.values.get("pattern")
-    result = htmlGenerator.generate_html_header("en")
-    result += htmlGenerator.generate_head("Results")
-
-    entries = []
-    if group == "":
-        all_groups = gbd_api.get_all_groups()
-        for attribute in all_groups:
-            if not attribute.startswith("__"):
-                try:
-                    value_dict = gbd_api.resolve([hashed], [attribute],
-                                                 collapse=shall_collapse,
-                                                 pattern=pattern)[0]
-                    entries.append([attribute, value_dict.get(attribute)])
-                except IndexError:
-                    result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-        result += htmlGenerator.generate_resolve_table_div(entries)
-        return result
-    else:
-        try:
-            value = gbd_api.resolve([hashed], [group],
-                                    collapse=shall_collapse,
-                                    pattern=pattern)
-            entries.append([group, value[0].get(group)])
-            result += htmlGenerator.generate_resolve_table_div(entries)
-        except OperationalError:
-            result += htmlGenerator.generate_warning("Group not found")
-        except IndexError:
-            result += htmlGenerator.generate_warning("Hash not found in our DATABASE")
-        return result
 
 
 def handle_cli_resolve_request(req):
@@ -238,39 +235,6 @@ def handle_cli_resolve_request(req):
         return json.dumps("Group not found")
     except IndexError:
         return json.dumps("Hash not found in our DATABASE")
-
-
-@app.route("/groups/all", methods=['GET'])
-def reflect():
-    request_semaphore.acquire()
-    response = htmlGenerator.generate_html_header('en')
-    url = '/static/resources/gbd_logo_small.png'
-    response += "<body>" \
-                "<nav class=\"navbar navbar-expand-lg navbar-dark bg-dark\">" \
-                "   <a href=\"/\" class=\"navbar-left\"><img style=\"max-width:50px\" src=\"{}\"></a>" \
-                "   <a class=\"navbar-brand\" href=\"#\"></a>" \
-                "   <button class=\"navbar-toggler\" type=\"button\" data-toggle=\"collapse\" " \
-                "       data-target=\"#navbarNavAltMarkup\"" \
-                "       aria-controls=\"navbarNavAltMarkup\" " \
-                "       aria-expanded=\"false\"" \
-                "       aria-label=\"Toggle navigation\">" \
-                "       <span class=\"navbar-toggler-icon\"></span>" \
-                "   </button>" \
-                "   <div class=\"collapse navbar-collapse\" id=\"navbarNavAltMarkup\">" \
-                "       <div class=\"navbar-nav\">" \
-                "           <a class=\"nav-item nav-link\" href=\"/\">Home</a>" \
-                "           <a class=\"nav-item nav-link active\" href=\"#\">Groups" \
-                "                   <span class=\"sr-only\">(current)</span></a>" \
-                "           <a class=\"nav-item nav-link\" href=\"/query/form\">Search</a>" \
-                "           <a class=\"nav-item nav-link\" href=\"/resolve/form\">Resolve</a>" \
-                "       </div>" \
-                "   </div>" \
-                "</nav>" \
-                "<hr>".format(url)
-    reflection = gbd_api.get_all_groups()
-    response += htmlGenerator.generate_num_table_div(reflection)
-    request_semaphore.release()
-    return response
 
 
 @app.route("/groups/reflect", methods=['GET'])
@@ -309,56 +273,6 @@ def get_zip():
         return htmlGenerator.generate_zip_busy_page(zipfile, 0)
 
 
-@app.route("/demo/deq", methods=['POST'])
-def get_demo_results():
-    request_semaphore.acquire()
-    q = request.values.get('query')
-    all_groups = gbd_api.get_all_groups()
-    for group in all_groups:
-        group_name = group.__str__()
-        is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
-    checked_groups = request.values.getlist('groups')
-    try:
-        results = list(gbd_api.query_search(q, checked_groups))
-        for (a, b) in enumerate(results):
-            entry = list(b)
-            for (n, i) in enumerate(entry):
-                if n == 0:
-                    entry.pop(n)
-            results[a] = entry.__str__()
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups, is_result=True,
-                               results=results,
-                               checked_groups=checked_groups, query=q)
-    except tatsu.exceptions.FailedParse:
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups,
-                               is_result=True,
-                               contains_error=True, error_message="Whoops! Non-valid query...")
-    except ValueError:
-        request_semaphore.release()
-        return render_template('demo.html', groups=all_groups,
-                               is_result=True,
-                               contains_error=True, error_message="Whoops! "
-                                                                  "Your query contains a group we could not "
-                                                                  "find in our database...")
-
-
-@app.route("/demo", methods=['GET'])
-def get_demo_page():
-    request_semaphore.acquire()
-    all_groups = gbd_api.get_all_groups()
-    for group in all_groups:
-        group_name = group.__str__()
-        is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
-    request_semaphore.release()
-    return render_template('demo.html', groups=all_groups, is_result=False)
-
-
 def create_zip_with_marker(zipfile, files, prefix):
     ZIP_SEMAPHORE.acquire()
     with ZipFile(zipfile, 'w') as zf:
@@ -367,7 +281,3 @@ def create_zip_with_marker(zipfile, files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
-
-
-if __name__ == '__main__':
-    manager.run()
