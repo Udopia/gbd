@@ -106,7 +106,6 @@ def quick_search_results():
 def get_group_tuples():
     group_list = []
     all_groups = gbd_api.get_all_groups()
-    print(all_groups)
     for group in all_groups:
         group_name = group.__str__()
         is_system_table = re.match('_{2}.*', group_name)
