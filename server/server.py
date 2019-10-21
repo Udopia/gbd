@@ -73,6 +73,14 @@ def quick_search_results():
     q = request.values.get('query')
     all_groups = get_groups()
     checked_groups = request.values.getlist('groups')
+    groups_list = []
+    for group in all_groups:
+        print("Check {}".format(group))
+        if group[0] in checked_groups:
+            groups_list.append([group[0], True])
+        else:
+            groups_list.append([group[0], False])
+    all_groups = groups_list
     try:
         results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
@@ -97,12 +105,15 @@ def quick_search_results():
 
 
 def get_groups():
+    group_list = []
     all_groups = gbd_api.get_all_groups()
+    print(all_groups)
     for group in all_groups:
         group_name = group.__str__()
         is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
+        if not is_system_table:
+            group_list.append([group, False])
+    all_groups = sorted(group_list)
     return all_groups
 
 
