@@ -32,10 +32,6 @@ hs_err_pid*
 
 FETCH_HEAD
 
-/main/build/*
-
-*/build/*
-
 */dist/*
 
 */global_benchmark_database_tool.egg-info/*
