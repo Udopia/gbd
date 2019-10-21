@@ -32,6 +32,8 @@ hs_err_pid*
 
 FETCH_HEAD
 
+/main/build/*
+
 */build/*
 
 */dist/*
