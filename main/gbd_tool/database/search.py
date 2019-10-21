@@ -15,7 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gbd_tool.util import eprint
-from tatsu import parse
+from tatsu import parse, exceptions
+import pprint
 
 
 def find_hashes(database, query=None, resolve=[]):
@@ -26,7 +27,14 @@ def find_hashes(database, query=None, resolve=[]):
     tables = { "benchmarks" }
     
     if query is not None:
-        ast = parse(GRAMMAR, query)
+        try:
+            ast = parse(GRAMMAR, query)
+        except exceptions.FailedParse as err:
+            eprint(err)
+            eprint("Parser Exception: The query-parser threw an exception (try using more brackets)")
+            return list() 
+        #pp = pprint.PrettyPrinter(indent=4)
+        #pp.pprint(ast)
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
 
@@ -45,35 +53,44 @@ def find_hashes(database, query=None, resolve=[]):
 
 def build_where(ast):
     result = ""
-    if ast["exp"] is not None:
-        result = build_where(ast["exp"])
-    elif ast["con"] is not None:
-        result = "(" + build_where(ast["exp1"]) + " " + ast["con"] + " " + build_where(ast["exp2"]) + ")"
-    elif ast["op"] is not None:
-        value = ast["val"]["num"] or "'" + ast["val"]["alnum"] + "'"
-        attrexp = build_where(ast["attrexp"])
-        result = attrexp + ast["op"] + " " + value
-    elif ast["arith"] is not None:
-        result = "(CAST(" + ast["attr1"] + ".value AS FLOAT) " + ast["arith"] + " CAST(" + ast["attr2"] + ".value AS FLOAT)) "
-    else:
-        result = ast["attr"] + ".value "
+    if ast["q"] is not None:
+        result = build_where(ast["q"])
+    elif ast["qop"] is not None:
+        result = build_where(ast["left"]) + " " + ast["qop"] + " " + build_where(ast["right"])
+    elif ast["sop"] is not None:
+        result = ast["left"] + ".value " + ast["sop"] + " \"" + ast["right"] + "\""
+    elif ast["aop"] is not None:
+        result = build_where(ast["left"]) + " " + ast["aop"] + " " + build_where(ast["right"])
+    elif ast["bracket_term"] is not None:
+        result = '(' + build_where(ast["bracket"]) + ')'
+    elif ast["top"] is not None:
+        result = build_where(ast["left"]) + " " + ast["top"] + " " + build_where(ast["right"])
+    elif ast["value"] is not None:
+        result = "CAST(" + ast["value"] + ".value AS FLOAT)"
+    elif ast["constant"] is not None:
+        result = ast["constant"]
     return result
 
 
 def collect_tables(ast):
     result = set()
-    if ast["exp"] is not None:
-        result.update(collect_tables(ast["exp"]))
-    elif ast["con"] is not None:
-        result.update(collect_tables(ast["exp1"]))
-        result.update(collect_tables(ast["exp2"]))
-    elif ast["op"] is not None:
-        result.update(collect_tables(ast["attrexp"]))
-    elif ast["arith"] is not None:
-        result.add(ast["attr1"])
-        result.add(ast["attr2"])
-    else: 
-        result.add(ast["attr"])
+    if ast["q"] is not None:
+        result.update(collect_tables(ast["q"]))
+    elif ast["qop"] is not None:
+        result.update(collect_tables(ast['left']))
+        result.update(collect_tables(ast['right']))
+    elif ast["sop"] is not None:
+        result.add(ast["left"])
+    elif ast["aop"] is not None:
+        result.update(collect_tables(ast["left"]))
+        result.update(collect_tables(ast["right"]))
+    elif ast["bracket_term"] is not None:
+        result.update(collect_tables(ast["bracket_term"]))
+    elif ast["top"] is not None:
+        result.update(collect_tables(ast['left']))
+        result.update(collect_tables(ast['right']))
+    elif ast["value"] is not None:
+        result.add(ast["value"])
     return result
 
 
@@ -81,22 +98,18 @@ GRAMMAR = r'''
     @@grammar::EXP
     @@ignorecase::True
 
-    start = exp:expression $ ;
+    start = q:query $ ;
 
-    expression
-        = '(' exp:expression ')'
-        | exp1:expression con:('and' | 'or') exp2:expression
-        | constraint
-        ;
+    query = '(' q:query ')' | left:query qop:('and' | 'or') right:query | scon | acon;
 
-    constraint = attrexp:calc op:('=' | '<' | '>' | '<=' | '>=' | '!=' | '<>' | 'like') val:value ;
+    scon = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('like') right:substr ;
+    substr = '%'alnum | alnum'%' | '%'alnum'%' ;
+    
+    acon = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
 
-    calc = attr:name | '(' attr1:name arith:('+' | '-' | '*' | '/') attr2:name ')' ;
+    term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
-    value = num:numeric | alnum:alphanumeric ;
-
-    numeric = /[0-9\.\-]+/ ;
-    alphanumeric = /[a-zA-Z0-9_\-\%\.\/]+/ ;
-
-    name = /[a-zA-Z0-9_]+/ ;
+    num = /[0-9\.\-]+/ ;
+    alnum = /[a-zA-Z0-9_\.\-\/]+/ ;
+    colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
 '''

@@ -59,45 +59,7 @@ def cli_init(args):
 
 def cli_algo(args):
     api = GbdApi(config_path, args.db)
-    api.add_attribute_group("clauses_positive", "integer", 0)
-    api.add_attribute_group("clauses_negative", "integer", 0)
-    api.add_attribute_group("clauses_horn", "integer", 0)
-
-    resultset = api.query_search("(clauses_horn = 0) and (clauses_positive = 0) and (clauses_negative = 0)", ["benchmarks"])
-    for result in resultset:
-        c_horn = 0
-        c_pos = 0
-        c_neg = 0
-        hashvalue = result[0].split(',')[0]
-        path = result[1].split(',')[0]
-        eprint(hashvalue)
-        eprint(path)
-        cnffile = None
-        if path.endswith('.cnf.gz'):
-            cnffile = gzip.open(path, 'rt')
-        elif path.endswith('.cnf.bz2'):
-            cnffile = bz2.open(path, 'rt')
-        else:
-            cnffile = open(path, 'rt')
-        
-        eprint("Parsing {}".format(path))
-        for line in cnffile:
-            if line.strip() and len(line.strip().split()) > 1:
-                parts = line.strip().split()[:-1]
-                if parts[0][0] == 'c' or parts[0][0] == 'p':
-                    continue
-                n_neg = sum(int(part) < 0 for part in parts)
-                if n_neg < 2:
-                    c_horn += 1
-                    if n_neg == 0:
-                        c_pos += 1
-                elif n_neg == len(parts):
-                    c_neg += 1
-        api.set_attribute("clauses_positive", c_pos, [ hashvalue ], True)
-        api.set_attribute("clauses_negative", c_neg, [ hashvalue ], True)
-        api.set_attribute("clauses_horn", c_horn, [ hashvalue ], True)
-        cnffile.close()
-
+    api.run_algo(args.name)
 
 # entry for modify command
 def cli_group(args):
@@ -235,7 +197,7 @@ def main():
 
     # define create command sub-structure
     parser_algo = subparsers.add_parser('algo', help='Execute a named algorithm on the given benchmark and store all the data')
-    #parser_algo.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_algo.add_argument('name', type=column_type, help='Name of algorithm: "horn" or "vars"')
     parser_algo.set_defaults(func=cli_algo)
 
     # define create command sub-structure
