@@ -62,7 +62,7 @@ check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 @app.route("/", methods=['GET'])
 def quick_search():
     request_semaphore.acquire()
-    all_groups = get_groups()
+    all_groups = get_group_tuples()
     request_semaphore.release()
     return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False)
 
@@ -71,8 +71,15 @@ def quick_search():
 def quick_search_results():
     request_semaphore.acquire()
     q = request.values.get('query')
-    all_groups = get_groups()
+    all_groups = get_group_tuples()
     checked_groups = request.values.getlist('groups')
+    groups_list = []
+    for group_tuple in all_groups:
+        if group_tuple[0] in checked_groups:
+            groups_list.append([group_tuple[0], True])
+        else:
+            groups_list.append([group_tuple[0], False])
+    all_groups = groups_list
     try:
         results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
@@ -96,13 +103,15 @@ def quick_search_results():
                                has_query=True, query=q)
 
 
-def get_groups():
+def get_group_tuples():
+    group_list = []
     all_groups = gbd_api.get_all_groups()
     for group in all_groups:
         group_name = group.__str__()
         is_system_table = re.match('_{2}.*', group_name)
-        if is_system_table:
-            all_groups.remove(group)
+        if not is_system_table:
+            group_list.append([group, False])
+    all_groups = sorted(group_list)
     return all_groups
 
 
