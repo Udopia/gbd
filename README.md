@@ -15,6 +15,11 @@ Python 3
 - make sure path for python 3 in cli.py is correct
   (default: #!/usr/bin/python3)
 - make sure Python was compiled with SSL support
+- create an executable link like so ```ln -s $respository/cli.py $bin/gbd```
+- obtain a database from https://baldur.iti.kit.edu/gbd/ and safe them under /path/to/db/file.db
+- execute ```export GBD_DB=/path/to/db/file.db``` and put it in your .bashrc or somewhere else
+- run ```gbd init /path/to/cnf``` in order to reinitialize your benchmarks table
+- run ```gbd get -r benchmarks``` to test the system
 
 ## Usage
 - By default GBD works with a local database *local.db* which (if not present) is created in the current working directory. To use another database it can be specified with a commandline parameter
