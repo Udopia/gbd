@@ -41,16 +41,23 @@
                 <div class="form-group">
                     <label for="groups"></label>
                     {% for group in groups %}
+                        {% if group[1] == False %}
                         <div class="container" style="margin-bottom: 10px; margin-top: 0px;
                                                     margin-left: 0px; margin-right: 0px; display: inline">
-                        <input type="checkbox" name="groups" value="{{ group }}"> {{ group }}
+                        <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
                         </div>
+                        {% else %}
+                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
+                                                    margin-left: 0px; margin-right: 0px; display: inline">
+                        <input type="checkbox" name="groups" value="{{ group[0] }}" checked> {{ group[0] }}
+                        </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <button formaction="{{ url_for('quick_search_results', _external=True) }}"
                         class="btn btn-primary form-group">
-                Show
-            </button>
+                Show</button>
+                <button formaction="#" class="btn btn-secondary form-group">Download .csv</button>
             </form>
     </div>
     {% block content %}{% endblock %}
