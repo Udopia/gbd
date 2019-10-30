@@ -50,3 +50,15 @@ def delete_old_cached_files(directory, max_hours, max_minutes):
                 and diff_hour >= max_hours and diff_minute >= max_minutes:
             os.remove(path)
     return 0
+
+
+def create_csv_string(headers, contents):
+    csv_string = ""
+    header_string = ', '.join(str(header) for header in headers)
+    header_string += "\n"
+    csv_string += header_string
+    for content in contents:
+        content_string = ', '.join(str(e) for e in content)
+        content_string += "\n"
+        csv_string += content_string
+    return csv_string

@@ -115,11 +115,6 @@ def get_group_tuples():
     return all_groups
 
 
-@app.route("/query/form", methods=['GET'])
-def query_form():
-    return render_template('query_form.html')
-
-
 @app.route("/query", methods=['POST'])  # query string post
 def query():
     request_semaphore.acquire()
@@ -204,68 +199,6 @@ def queryzip():
         response += htmlGenerator.generate_warning("Group not found")
     request_semaphore.release()
     return response
-
-
-@app.route("/resolve/form", methods=['GET'])
-def resolve_form():
-    return render_template('resolve_form.html')
-
-
-@app.route("/resolve", methods=['POST'])
-def resolve():
-    request_semaphore.acquire()
-    ua = request.headers.get('User-Agent')
-    if ua == USER_AGENT_CLI:
-        result = handle_cli_resolve_request(request)
-    else:
-        return "Not allowed"
-    request_semaphore.release()
-    return result
-
-
-def handle_cli_resolve_request(req):
-    hashed = json.loads(req.values.get("hashes"))
-    groups = json.loads(req.values.get("group"))
-    shall_collapse = req.values.get("collapse") == "True"
-    pattern = req.values.get("pattern")
-
-    entries = []
-    try:
-        if pattern != 'None':
-            dict_list = gbd_api.resolve(hashed, groups,
-                                        collapse=shall_collapse,
-                                        pattern=pattern)
-        else:
-            dict_list = gbd_api.resolve(hashed, groups, collapse=shall_collapse)
-        for d in dict_list:
-            entries.append(d)
-        return json.dumps(entries)
-    except OperationalError:
-        return json.dumps("Group not found")
-    except IndexError:
-        return json.dumps("Hash not found in our DATABASE")
-
-
-@app.route("/groups/reflect", methods=['GET'])
-def reflect_group():
-    request_semaphore.acquire()
-    try:
-        group = request.args.get('group')
-        if not group.startswith("__"):
-            info = gbd_api.get_group_info(group)
-            list = ["Name: {}".format(info.get('name')),
-                    "Type: {}".format(info.get('type')),
-                    "Unique: {}".format(info.get('unique')),
-                    "Default: {}".format(info.get('default')),
-                    "Size: {}".format(info.get('entries'))]
-            request_semaphore.release()
-            return list.__str__()
-        else:
-            request_semaphore.release()
-            return "__ is reserved for system tables"
-    except IndexError:
-        request_semaphore.release()
-        return "Group not found"
 
 
 @app.route("/zips/busy", methods=['GET'])
