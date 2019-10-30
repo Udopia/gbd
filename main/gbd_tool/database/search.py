@@ -58,6 +58,7 @@ def build_where(ast):
     elif ast["qop"] is not None:
         result = build_where(ast["left"]) + " " + ast["qop"] + " " + build_where(ast["right"])
     elif ast["sop"] is not None:
+        eprint(ast["right"])
         result = ast["left"] + ".value " + ast["sop"] + " \"" + ast["right"] + "\""
     elif ast["aop"] is not None:
         result = build_where(ast["left"]) + " " + ast["aop"] + " " + build_where(ast["right"])
@@ -102,14 +103,14 @@ GRAMMAR = r'''
 
     query = '(' q:query ')' | left:query qop:('and' | 'or') right:query | scon | acon;
 
-    scon = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('like') right:substr ;
-    substr = '%'alnum | alnum'%' | '%'alnum'%' ;
-    
+    scon = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('like') right:likean ;
+        
     acon = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
 
     term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
     num = /[0-9\.\-]+/ ;
     alnum = /[a-zA-Z0-9_\.\-\/]+/ ;
+    likean = /[\%]?[a-zA-Z0-9_\.\-\/]+[\%]?/;
     colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
 '''
