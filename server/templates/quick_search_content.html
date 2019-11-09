@@ -23,6 +23,12 @@
         </tbody>
     </table>
         </div>
+        <form action="#" method="post" id="csv">
+                <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
+                    <input type="hidden" name="results" value='{{ results_json }}'>
+                <button formaction="{{ url_for('get_csv_file', _external=True)}}"
+                        class="btn btn-secondary form-group">Export as CSV</button>
+        </form>
     </div>
     {% endif %}
 {% endif %}

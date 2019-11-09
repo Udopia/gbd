@@ -55,9 +55,7 @@
                     {% endfor %}
                 </div>
                 <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                        class="btn btn-primary form-group">
-                Show</button>
-                <button formaction="#" class="btn btn-secondary form-group">Download .csv</button>
+                        class="btn btn-primary form-group">Show</button>
             </form>
     </div>
     {% block content %}{% endblock %}

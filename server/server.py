@@ -19,6 +19,7 @@ import logging
 import os
 import re
 import threading
+import random
 from os.path import isfile, basename
 from sqlite3 import OperationalError
 from zipfile import ZipFile, ZipInfo
@@ -45,14 +46,16 @@ limiter = Limiter(app, key_func=get_remote_address)
 
 DATABASE = os.environ.get('GBD_DB_SERVER')
 if DATABASE is None:
-    raise RuntimeError("No database path given. Please set path in GBD_DB environment variable!")
+    raise RuntimeError("No database path given.")
 
-ZIPCACHE_PATH = 'zipcache'
+CACHE_PATH = 'cache'
 ZIP_BUSY_PREFIX = '_'
 MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
 MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
+
+CSV_FILE_NAME = 'gbd'
 
 gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
 request_semaphore = threading.Semaphore(10)
@@ -84,8 +87,9 @@ def quick_search_results():
         results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups, is_result=True,
-                               results=results,
-                               checked_groups=checked_groups, has_query=True, query=q)
+                               results=results, results_json=json.dumps(results),
+                               checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+                               has_query=True, query=q)
     except tatsu.exceptions.FailedParse:
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups,
@@ -103,6 +107,18 @@ def quick_search_results():
                                has_query=True, query=q)
 
 
+@app.route("/exportcsv", methods=['POST'])
+def get_csv_file():
+    request_semaphore.acquire()
+    checked_groups = json.loads(request.values.get('checked_groups'))
+    results = json.loads(request.values.get('results'))
+    csv_file = create_csv_file(checked_groups, results)
+    request_semaphore.release()
+    app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
+                                                      datetime.datetime.now()))
+    return send_file(csv_file, attachment_filename='{}.csv'.format(CSV_FILE_NAME), as_attachment=True)
+
+
 def get_group_tuples():
     group_list = []
     all_groups = gbd_api.get_all_groups()
@@ -116,7 +132,7 @@ def get_group_tuples():
 
 
 @app.route("/query", methods=['POST'])  # query string post
-def query():
+def query_for_cli():
     request_semaphore.acquire()
     query = request.values.get('query')
     ua = request.headers.get('User-Agent')
@@ -138,83 +154,6 @@ def query():
         return "Not allowed"
 
 
-@app.route("/queryzip", methods=['POST'])
-def queryzip():
-    request_semaphore.acquire()
-    query = request.values.get('query')
-    response = htmlGenerator.generate_html_header("en")
-    try:
-        sorted_hash_set = sorted(gbd_api.query_search(query))
-        if len(sorted_hash_set) != 0:
-            if not os.path.isdir('{}'.format(ZIPCACHE_PATH)):
-                os.makedirs('{}'.format(ZIPCACHE_PATH))
-            result_hash = gbd_hash.hash_hashlist(sorted_hash_set)
-            zipfile_busy = ''.join('{}/{}{}.zip'.format(ZIPCACHE_PATH, ZIP_BUSY_PREFIX, result_hash))
-            zipfile_ready = zipfile_busy.replace(ZIP_BUSY_PREFIX, '')
-            check_zips_mutex.acquire()
-
-            if isfile(zipfile_ready):
-                with open(zipfile_ready, 'a'):
-                    os.utime(zipfile_ready, None)
-                util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
-                check_zips_mutex.release()
-                request_semaphore.release()
-                app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
-                                                                  datetime.datetime.now()))
-                return send_file(zipfile_ready,
-                                 attachment_filename='benchmarks.zip',
-                                 as_attachment=True)
-            elif not isfile(zipfile_busy):
-                util.delete_old_cached_files(ZIPCACHE_PATH, MAX_HOURS_ZIP_FILES, MAX_MIN_ZIP_FILES)
-                files = []
-                for h in sorted_hash_set:
-                    files.append(gbd_api.resolve([h], ['benchmarks'])[0].get('benchmarks'))
-                size = 0
-                for file in files:
-                    zf = ZipInfo.from_file(file, arcname=None)
-                    size += zf.file_size
-                divisor = 1024 << 10
-                if size / divisor < THRESHOLD_ZIP_SIZE:
-                    thread = threading.Thread(target=create_zip_with_marker,
-                                              args=(zipfile_busy, files, ZIP_BUSY_PREFIX))
-                    thread.start()
-                    check_zips_mutex.release()
-                    request_semaphore.release()
-                    app.logger.info('{} created zipfile {} at {}'.format(request.remote_addr, zipfile_busy,
-                                                                         datetime.datetime.now()))
-                    return htmlGenerator.generate_zip_busy_page(zipfile_busy, float(round(size / divisor, 2)))
-                else:
-                    check_zips_mutex.release()
-                    response += '<hr>' \
-                                '{}'.format(htmlGenerator.generate_warning("ZIP too large (size >{} MB)")
-                                            .format(THRESHOLD_ZIP_SIZE))
-        else:
-            response += '<hr>'
-            response += htmlGenerator.generate_warning("No benchmarks found")
-    except exceptions.FailedParse:
-        response += '<hr>'
-        response += htmlGenerator.generate_warning("Non-valid query")
-    except OperationalError:
-        response += '<hr>'
-        response += htmlGenerator.generate_warning("Group not found")
-    request_semaphore.release()
-    return response
-
-
-@app.route("/zips/busy", methods=['GET'])
-def get_zip():
-    request_semaphore.acquire()
-    zipfile = request.args.get('file')
-    if isfile(zipfile.replace(ZIP_BUSY_PREFIX, '')):
-        request_semaphore.release()
-        app.logger.info('Sent file {} to {} at {}'.format(zipfile.replace(ZIP_BUSY_PREFIX, ''), request.remote_addr,
-                                                          datetime.datetime.now()))
-        return send_file(zipfile.replace(ZIP_BUSY_PREFIX, ''), attachment_filename='benchmarks.zip', as_attachment=True)
-    elif not isfile('_{}'.format(zipfile)):
-        request_semaphore.release()
-        return htmlGenerator.generate_zip_busy_page(zipfile, 0)
-
-
 def create_zip_with_marker(zipfile, files, prefix):
     ZIP_SEMAPHORE.acquire()
     with ZipFile(zipfile, 'w') as zf:
@@ -223,3 +162,15 @@ def create_zip_with_marker(zipfile, files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
+
+
+def create_csv_file(checked_groups, results):
+    if not os.path.isdir('{}'.format(CACHE_PATH)):
+        os.makedirs('{}'.format(CACHE_PATH))
+    postfix = '{}'.format(random.randint(1, 10000))
+    csv = CSV_FILE_NAME + postfix
+    csv_file = ''.join('{}/{}.csv'.format(CACHE_PATH, csv))
+    f = open(csv_file, 'w')
+    f.write(util.create_csv_string(checked_groups, results))
+    f.close()
+    return csv_file
