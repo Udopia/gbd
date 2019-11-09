@@ -173,4 +173,5 @@ def create_csv_file(checked_groups, results):
     f = open(csv_file, 'w')
     f.write(util.create_csv_string(checked_groups, results))
     f.close()
+    util.delete_old_cached_files(CACHE_PATH, 0, 1)
     return csv_file
