@@ -41,3 +41,4 @@ main/build/*
 cli_config/*
 server/server_config/*
 */default_config/*
+server/cache/*
