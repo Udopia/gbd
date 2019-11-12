@@ -21,7 +21,7 @@ from zipfile import ZipInfo
 
 def delete_old_cached_files(directory, max_hours, max_minutes):
     """
-        Delete all ZIP files in list if they are older than x hours or x min
+        Delete all files in list if they are older than max_hours or max_minutes
     """
     if max_hours is not None:
         if max_hours < 0 or max_hours >= 24:
