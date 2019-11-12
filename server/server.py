@@ -156,16 +156,6 @@ def query_for_cli():
         return "Not allowed"
 
 
-def create_zip_with_marker(zipfile, files, prefix):
-    ZIP_SEMAPHORE.acquire()
-    with ZipFile(zipfile, 'w') as zf:
-        for file in files:
-            zf.write(file, basename(file))
-    zf.close()
-    os.rename(zipfile, zipfile.replace(prefix, ''))
-    ZIP_SEMAPHORE.release()
-
-
 def create_csv_file(checked_groups, results):
     if not os.path.isdir('{}'.format(CACHE_PATH)):
         os.makedirs('{}'.format(CACHE_PATH))
