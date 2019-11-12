@@ -28,7 +28,7 @@ from os.path import join, dirname, realpath
 
 from gbd_tool.util import eprint, confirm
 
-from main.gbd_tool.gbd_api import GbdApi
+from gbd_tool.gbd_api import GbdApi
 
 config_path = join(dirname(realpath(__file__)), "cli_config")
 
