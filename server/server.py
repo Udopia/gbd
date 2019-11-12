@@ -50,8 +50,8 @@ if DATABASE is None:
 
 CACHE_PATH = 'cache'
 ZIP_BUSY_PREFIX = '_'
-MAX_HOURS_ZIP_FILES = None  # time in hours the ZIP file remain in the cache
-MAX_MIN_ZIP_FILES = 1  # time in minutes the ZIP files remain in the cache
+MAX_HOURS = None  # time in hours the ZIP file remain in the cache
+MAX_MINUTES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 
@@ -86,25 +86,32 @@ def quick_search_results():
     try:
         results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
-        return render_template('quick_search_content.html', groups=all_groups, is_result=True,
+        return render_template('quick_search_content.html',
+                               groups=all_groups,
+                               is_result=True,
                                results=results, results_json=json.dumps(results),
                                checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-                               has_query=True, query=q)
+                               has_query=True,
+                               query=q)
     except tatsu.exceptions.FailedParse:
         request_semaphore.release()
         return render_template('quick_search_content.html', groups=all_groups,
                                is_result=True,
                                checked_groups=checked_groups,
-                               contains_error=True, error_message="Whoops! Non-valid query...",
-                               has_query=True, query=q)
+                               contains_error=True,
+                               error_message="Whoops! Non-valid query...",
+                               has_query=True,
+                               query=q)
     except ValueError:
         request_semaphore.release()
-        return render_template('quick_search_content.html', groups=all_groups,
+        return render_template('quick_search_content.html',
+                               groups=all_groups,
                                is_result=True,
                                checked_groups=checked_groups,
-                               contains_error=True, error_message="Whoops! "
-                                                                  "Something went wrong...",
-                               has_query=True, query=q)
+                               contains_error=True,
+                               error_message="Whoops! Something went wrong...",
+                               has_query=True,
+                               query=q)
 
 
 @app.route("/exportcsv", methods=['POST'])
@@ -165,5 +172,5 @@ def create_csv_file(checked_groups, results):
     f = open(csv_file, 'w')
     f.write(util.create_csv_string(checked_groups, results))
     f.close()
-    util.delete_old_cached_files(CACHE_PATH, 0, 1)
+    util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
     return csv_file
