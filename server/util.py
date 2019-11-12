@@ -54,11 +54,11 @@ def delete_old_cached_files(directory, max_hours, max_minutes):
 
 def create_csv_string(headers, contents):
     csv_string = "Hash"
-    header_string = ', '.join(str(header) for header in headers)
+    header_string = ','.join(str(header) for header in headers)
     header_string += "\n"
     csv_string += header_string
     for content in contents:
-        content_string = ', '.join(str(e) for e in content)
+        content_string = ','.join("\"{}\"".format(str(e)) for e in content)
         content_string += "\n"
         csv_string += content_string
     return csv_string

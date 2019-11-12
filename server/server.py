@@ -59,7 +59,7 @@ CSV_FILE_NAME = 'gbd'
 
 gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
 request_semaphore = threading.Semaphore(10)
-check_zips_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
 @app.route("/", methods=['GET'])
@@ -112,7 +112,9 @@ def get_csv_file():
     request_semaphore.acquire()
     checked_groups = json.loads(request.values.get('checked_groups'))
     results = json.loads(request.values.get('results'))
+    csv_mutex.acquire()
     csv_file = create_csv_file(checked_groups, results)
+    csv_mutex.release()
     request_semaphore.release()
     app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
                                                       datetime.datetime.now()))
