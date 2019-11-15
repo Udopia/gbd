@@ -35,11 +35,10 @@ class ConfigManager:
 
     # Absolute path for custom config file is needed
     def make_configuration(self, database):
-        database_path = os.environ.get('GBD_DB', database)
         if not os.path.isdir(self.config_dir):
             os.mkdir(self.config_dir)
         config = open(join(self.config_dir, config_file), 'w')
-        config.write('{}\n'.format(json.dumps({db_key: database_path})))
+        config.write('{}\n'.format(json.dumps({db_key: database})))
         config.close()
 
     def get_config_file_path(self):
