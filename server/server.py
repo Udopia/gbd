@@ -38,28 +38,41 @@ from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG)
-logging.getLogger().addHandler(default_handler)
+limiter = None
+DATABASE = None
+gbd_api = None
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.wsgi_app = ProxyFix(app.wsgi_app, num_proxies=1)
-limiter = Limiter(app, key_func=get_remote_address)
-
-DATABASE = os.environ.get('GBD_DB_SERVER')
-if DATABASE is None:
-    raise RuntimeError("No database path given.")
 
 CACHE_PATH = 'cache'
-ZIP_BUSY_PREFIX = '_'
 MAX_HOURS = None  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 
 CSV_FILE_NAME = 'gbd'
-
-gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
 request_semaphore = threading.Semaphore(10)
 csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+
+
+def create_app(application, db):
+    logging.basicConfig(filename='server.log', level=logging.DEBUG)
+    logging.getLogger().addHandler(default_handler)
+    application.wsgi_app = ProxyFix(application.wsgi_app, num_proxies=1)
+    if db is None:
+        fallback = os.environ.get('GBD_DB')
+        if fallback is None:
+            raise RuntimeError("No database given.")
+        else:
+            application.config['database'] = fallback
+    else:
+        application.config['database'] = db
+    global DATABASE
+    DATABASE = application.config['database']
+    global limiter
+    limiter = Limiter(application, key_func=get_remote_address)
+    global gbd_api
+    gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
+    return application
 
 
 @app.route("/", methods=['GET'])
@@ -174,3 +187,13 @@ def create_csv_file(checked_groups, results):
     f.close()
     util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
     return csv_file
+
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('-d')
+    args = parser.parse_args()
+    database = args.d
+    app = create_app(app, database)
+    app.run()
