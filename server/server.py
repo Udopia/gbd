@@ -20,11 +20,7 @@ import os
 import re
 import threading
 import random
-from os.path import isfile, basename
-from sqlite3 import OperationalError
-from zipfile import ZipFile, ZipInfo
 
-import htmlGenerator
 import interface
 import tatsu
 import util
@@ -139,6 +135,12 @@ def get_csv_file():
     app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
                                                       datetime.datetime.now()))
     return send_file(csv_file, attachment_filename='{}.csv'.format(CSV_FILE_NAME), as_attachment=True)
+
+
+@app.route("/getzip", methods=['POST'])
+def get_zip_file():
+    request_semaphore.acquire()
+    query = request.values.get('query')
 
 
 def get_group_tuples():
