@@ -1,62 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>Global Benchmark Database Tool</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    </head>
+    <title>Global Benchmark Database Tool</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static',
+    <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static',
         filename='resources/gbd_logo_small.png') }}"></a>
     <a class="navbar-brand" href="#"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    </div>
 </nav>
 <hr>
 <div class="container bg-dark text-white" style="padding: 20px; border-radius: 5px">
     <div class="container mx-auto text-center">
-            <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"
-                 class="img-responsive" alt="Logo">
+        <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"
+             class="img-responsive" alt="Logo">
     </div>
     <div class="container-fluid">
-            <form action="#" method="post" id="args">
-                {% if has_query == True %}
-                    <div class="form-group">
+        <form action="#" method="post" id="args">
+            {% if has_query == True %}
+                <div class="form-group">
                     <label for="query"></label>
                     <input type="text" name="query" class="form-control" value="{{ query }}">
-                    </div>
-                {% else %}
-                    <div class="form-group">
+                </div>
+            {% else %}
+                <div class="form-group">
                     <label for="query"></label>
                     <input type="text" name="query" class="form-control" placeholder="Enter query">
-                    </div>
-                {% endif %}
-                <div class="form-group">
-                    <label for="groups"></label>
-                    {% for group in groups %}
-                        {% if group[1] == False %}
-                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
-                                                    margin-left: 0px; margin-right: 0px; display: inline">
-                        <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
-                        </div>
-                        {% else %}
-                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
-                                                    margin-left: 0px; margin-right: 0px; display: inline">
-                        <input type="checkbox" name="groups" value="{{ group[0] }}" checked> {{ group[0] }}
-                        </div>
-                        {% endif %}
-                    {% endfor %}
                 </div>
-                <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                        class="btn btn-primary form-group">Show</button>
-            </form>
+            {% endif %}
+            <div class="form-group">
+                <label for="groups"></label>
+                {% for group in groups %}
+                    {% if group[1] == False %}
+                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
+                                                    margin-left: 0px; margin-right: 0px; display: inline">
+                            <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
+                        </div>
+                    {% else %}
+                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
+                                                    margin-left: 0px; margin-right: 0px; display: inline">
+                            <input type="checkbox" name="groups" value="{{ group[0] }}" checked> {{ group[0] }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                    class="btn btn-primary form-group">Show
+            </button>
+        </form>
     </div>
     {% block content %}{% endblock %}
 </div>

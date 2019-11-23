@@ -1,35 +1,43 @@
 {% extends "quick_search.html" %}
 
 {% block content %}
-{% if True == is_result %}
-    {% if True == contains_error %}
-        <div class="alert-warning" style="margin: 10px; padding: 5px; border-radius: 5px">{{ error_message }}</div>
-    {% else %}
-        <hr>
-        <div class="container" style="display: block; max-height: 700px; overflow-y: auto;">
-        <div class="scrollbar scrollbar-primary">
-    <table class="table table-bordered table-dark table-striped">
-        <thead>
-        <tr>
-            <th scope="col">Hash</th>
-            {% for group in checked_groups %}
-            <th scope="col">{{ group }}</th>
-            {% endfor %}
-        </thead>
-        <tbody>
-        {% for entry in results %}
-            <tr>{% for attribute in entry %}<td>{{ attribute }}</td>{% endfor %}</tr>
-        {% endfor %}
-        </tbody>
-    </table>
-        </div>
-        <form action="#" method="post" id="csv">
-                <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
+    {% if True == is_result %}
+        {% if True == contains_error %}
+            <div class="alert-warning" style="margin: 10px; padding: 5px; border-radius: 5px">{{ error_message }}</div>
+        {% else %}
+            <hr>
+            <div class="container" style="display: block; max-height: 700px; overflow-y: auto;">
+                <div class="scrollbar scrollbar-primary">
+                    <table class="table table-bordered table-dark table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">Hash</th>
+                            {% for group in checked_groups %}
+                                <th scope="col">{{ group }}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                        {% for entry in results %}
+                            <tr>{% for attribute in entry %}
+                                <td>{{ attribute }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="container">
+                <form action="#" method="post" id="export">
+                    <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
                     <input type="hidden" name="results" value='{{ results_json }}'>
-                <button formaction="{{ url_for('get_csv_file', _external=True)}}"
-                        class="btn btn-secondary form-group">Export as CSV</button>
-        </form>
-    </div>
+                    <button formaction="{{ url_for('get_csv_file', _external=True) }}"
+                            class="btn btn-secondary form-group">Export as CSV
+                    </button>
+                    <input type="hidden" name="query" value='{{ query }}'>
+                    <button formaction="{{ url_for('get_zip_file', _external=True) }}"
+                            class="btn btn-primary form-group">Download as ZIP
+                    </button>
+                </form>
+            </div>
+        {% endif %}
     {% endif %}
-{% endif %}
 {% endblock %}
