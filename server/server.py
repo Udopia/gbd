@@ -172,10 +172,10 @@ def get_zip_file():
     result_hash = gbd_hash.gbd_hash(result)
 
 
-def create_zip_with_marker(zipfile, files, prefix):
+def create_zip_with_marker(zipfile, zip_files, prefix):
     ZIP_SEMAPHORE.acquire()
     with ZipFile(zipfile, 'w') as zf:
-        for file in files:
+        for file in zip_files:
             zf.write(file, basename(file))
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
