@@ -196,4 +196,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     database = args.d
     app = create_app(app, database)
-    app.run()
+    app.run(host='0.0.0.0')
