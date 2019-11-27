@@ -1,5 +1,4 @@
 # gbd (Global Benchmark Database)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/38208424784e4789a683bd597d58081b)](https://www.codacy.com/app/luca_springer/gbd?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Weitspringer/gbd&amp;utm_campaign=Badge_Grade)
 
 ## Installation
 ### Programming Language
@@ -22,13 +21,10 @@ Python 3
 - run ```gbd get -r benchmarks``` to test the system
 
 ## Usage
-- By default GBD works with a local database *local.db* which (if not present) is created in the current working directory. To use another database it can be specified with a commandline parameter
-- After setting up the GBD it can be used either for personal purposes or public usage by starting the shell script:
-	```console
-	sh run_server.sh
-	```
-- Flask will run at localhost:5000 by default, but this is only recommended for deployment. For changes modify *server.sh*
-- Fetching data from other databases is planned
+- After getting started, you can use GBD from the command line as explained in the help section
+- For starting the server on Linux, run ```sh run_server.sh /path/to/database```. If no path is given, the script uses
+the path exported in the environment variable GBD_DB
+- For starting the server on Windows, run ```\path\to\python3\interpreter server.py -d /path/to/database```
 
 ### Help on basic commands
 	./cli.py -h
@@ -36,7 +32,7 @@ Python 3
 ### Help on specific command
 	./cli.py [command] -h
 
-### Initialize local database
+### Initialize GBD
 	./cli.py init [path]
 
 ## Documenation
