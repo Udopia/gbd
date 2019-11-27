@@ -21,7 +21,7 @@ import re
 import threading
 import random
 from os.path import basename, isfile
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
 
 import interface
 import tatsu
@@ -51,6 +51,7 @@ ZIP_PREFIX = '_'
 CSV_FILE_NAME = 'gbd'
 request_semaphore = threading.Semaphore(10)
 csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
+zip_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 
 
 def create_app(application, db):
@@ -169,6 +170,17 @@ def get_csv_file():
     request_semaphore.acquire()
     checked_groups = json.loads(request.values.get('checked_groups'))
     results = json.loads(request.values.get('results'))
+    if len(results) == 0:
+        return render_quick_search(
+            groups=get_group_tuples(),
+            is_result=True,
+            results=None,
+            results_json=None,
+            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+            contains_error=True,
+            error_message="You don't want empty CSV files, believe me.",
+            has_query=True,
+            query=request.values.get('query'))
     csv_mutex.acquire()
     csv_file = create_csv_file(checked_groups, results)
     csv_mutex.release()
@@ -195,15 +207,74 @@ def create_csv_file(checked_groups, results):
 def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
+    checked_groups = request.values.get('checked_groups')
     result = sorted(gbd_api.query_search(query))
     if len(result) == 0:
-        return quick_search_results()
-    result_hash = gbd_hash.gbd_hash(result)
-    if isfile(result_hash):
-        return 0
+        return render_quick_search(
+            groups=get_group_tuples(),
+            is_result=True,
+            results=None,
+            results_json=None,
+            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+            contains_error=True,
+            error_message="You don't want empty ZIP files, believe me.",
+            has_query=True,
+            query=query)
+    if not os.path.isdir('{}'.format(CACHE_PATH)):
+        os.makedirs('{}'.format(CACHE_PATH))
+    hash_list = []
+    benchmark_files = []
+    for result_tuple in result:
+        hash_list.append(result_tuple[0])
+        benchmark_files.append(result_tuple[1])
+    result_hash = gbd_hash.hash_hashlist(sorted(list(hash_list)))
+    zipfile_busy = ''.join('{}/{}{}.zip'.format(CACHE_PATH, ZIP_PREFIX, result_hash))
+    zipfile_ready = zipfile_busy.replace(ZIP_PREFIX, '')
+
+    zip_mutex.acquire()
+    if isfile(zipfile_ready):
+        with open(zipfile_ready, 'a'):
+            os.utime(zipfile_ready, None)
+        util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
+        zip_mutex.release()
+        request_semaphore.release()
+        app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
+                                                          datetime.datetime.now()))
+        return send_file(zipfile_ready,
+                         attachment_filename='benchmarks.zip',
+                         as_attachment=True)
+    elif not isfile(zipfile_busy):
+        size = 0
+        for file in benchmark_files:
+            zf = ZipInfo.from_file(file, arcname=None)
+            size += zf.file_size
+        divisor = 1024 << 10
+        if size / divisor < THRESHOLD_ZIP_SIZE:
+            create_zip(zipfile_ready, benchmark_files, ZIP_PREFIX)
+            zip_mutex.release()
+            request_semaphore.release()
+            return send_file(zipfile_ready,
+                             attachment_filename="benchmarks.zip",
+                             as_attachment=True)
+        else:
+            request_semaphore.release()
+            return render_quick_search(
+                groups=get_group_tuples(),
+                is_result=True,
+                results=None,
+                results_json=None,
+                checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+                contains_error=True,
+                error_message="The ZIP file is too large (more than {} MB)".format(THRESHOLD_ZIP_SIZE),
+                has_query=True,
+                query=query)
+    else:
+        zip_mutex.release()
+        request_semaphore.release()
+        return get_zip_file()
 
 
-def create_zip_with_marker(zipfile, zip_files, prefix):
+def create_zip(zipfile, zip_files, prefix):
     ZIP_SEMAPHORE.acquire()
     with ZipFile(zipfile, 'w') as zf:
         for file in zip_files:
