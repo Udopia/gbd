@@ -22,9 +22,9 @@ Python 3
 
 ## Usage
 - After getting started, you can use GBD from the command line as explained in the help section
-- For starting the server on Linux, run ```sh run_server.sh /path/to/database```. If no path is given, the script uses
-the path exported in the environment variable GBD_DB
-- For starting the server on Windows, run ```\path\to\python3\interpreter server.py -d /path/to/database```
+- For starting the server on Linux, run ```sh /server/run_server.sh /path/to/db/file.db```. If no path is given, the script uses
+the path from ```GBD_DB```
+- For starting the server on Windows, run ```\path\to\python3\interpreter \server\server.py -d \path\to\db\file.db```
 
 ### Help on basic commands
 	./cli.py -h
