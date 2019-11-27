@@ -20,6 +20,8 @@ import os
 import re
 import threading
 import random
+from os.path import basename
+from zipfile import ZipFile
 
 import interface
 import tatsu
@@ -77,6 +79,18 @@ def quick_search():
     all_groups = get_group_tuples()
     request_semaphore.release()
     return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False)
+
+
+def get_group_tuples():
+    group_list = []
+    all_groups = gbd_api.get_all_groups()
+    for group in all_groups:
+        group_name = group.__str__()
+        is_system_table = re.match('_{2}.*', group_name)
+        if not is_system_table:
+            group_list.append([group, False])
+    all_groups = sorted(group_list)
+    return all_groups
 
 
 @app.route("/results", methods=['POST'])
@@ -137,22 +151,35 @@ def get_csv_file():
     return send_file(csv_file, attachment_filename='{}.csv'.format(CSV_FILE_NAME), as_attachment=True)
 
 
+def create_csv_file(checked_groups, results):
+    if not os.path.isdir('{}'.format(CACHE_PATH)):
+        os.makedirs('{}'.format(CACHE_PATH))
+    postfix = '{}'.format(random.randint(1, 10000))
+    csv = CSV_FILE_NAME + postfix
+    csv_file = ''.join('{}/{}.csv'.format(CACHE_PATH, csv))
+    f = open(csv_file, 'w')
+    f.write(util.create_csv_string(checked_groups, results))
+    f.close()
+    util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
+    return csv_file
+
+
 @app.route("/getzip", methods=['POST'])
 def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
+    result = gbd_api.query_search(query)
+    result_hash = gbd_hash.gbd_hash(result)
 
 
-def get_group_tuples():
-    group_list = []
-    all_groups = gbd_api.get_all_groups()
-    for group in all_groups:
-        group_name = group.__str__()
-        is_system_table = re.match('_{2}.*', group_name)
-        if not is_system_table:
-            group_list.append([group, False])
-    all_groups = sorted(group_list)
-    return all_groups
+def create_zip_with_marker(zipfile, files, prefix):
+    ZIP_SEMAPHORE.acquire()
+    with ZipFile(zipfile, 'w') as zf:
+        for file in files:
+            zf.write(file, basename(file))
+    zf.close()
+    os.rename(zipfile, zipfile.replace(prefix, ''))
+    ZIP_SEMAPHORE.release()
 
 
 @app.route("/query", methods=['POST'])  # query string post
@@ -176,19 +203,6 @@ def query_for_cli():
     else:
         request_semaphore.release()
         return "Not allowed"
-
-
-def create_csv_file(checked_groups, results):
-    if not os.path.isdir('{}'.format(CACHE_PATH)):
-        os.makedirs('{}'.format(CACHE_PATH))
-    postfix = '{}'.format(random.randint(1, 10000))
-    csv = CSV_FILE_NAME + postfix
-    csv_file = ''.join('{}/{}.csv'.format(CACHE_PATH, csv))
-    f = open(csv_file, 'w')
-    f.write(util.create_csv_string(checked_groups, results))
-    f.close()
-    util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
-    return csv_file
 
 
 if __name__ == '__main__':
