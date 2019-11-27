@@ -20,7 +20,7 @@ import os
 import re
 import threading
 import random
-from os.path import basename
+from os.path import basename, isfile
 from zipfile import ZipFile
 
 import interface
@@ -46,6 +46,7 @@ MAX_HOURS = None  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
+ZIP_PREFIX = '_'
 
 CSV_FILE_NAME = 'gbd'
 request_semaphore = threading.Semaphore(10)
@@ -109,32 +110,58 @@ def quick_search_results():
     try:
         results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
-        return render_template('quick_search_content.html',
-                               groups=all_groups,
-                               is_result=True,
-                               results=results, results_json=json.dumps(results),
-                               checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-                               has_query=True,
-                               query=q)
+        return render_quick_search(
+            groups=all_groups,
+            is_result=True,
+            results=results,
+            results_json=json.dumps(results),
+            checked_groups=checked_groups,
+            checked_groups_json=json.dumps(checked_groups),
+            contains_error=False, error_message=None,
+            has_query=True,
+            query=q)
     except tatsu.exceptions.FailedParse:
         request_semaphore.release()
-        return render_template('quick_search_content.html', groups=all_groups,
-                               is_result=True,
-                               checked_groups=checked_groups,
-                               contains_error=True,
-                               error_message="Whoops! Non-valid query...",
-                               has_query=True,
-                               query=q)
+        return render_quick_search(
+            groups=all_groups,
+            is_result=True,
+            results=None,
+            results_json=None,
+            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+            contains_error=True,
+            error_message="Whoops! Non-valid query...",
+            has_query=True,
+            query=q)
     except ValueError:
         request_semaphore.release()
-        return render_template('quick_search_content.html',
-                               groups=all_groups,
-                               is_result=True,
-                               checked_groups=checked_groups,
-                               contains_error=True,
-                               error_message="Whoops! Something went wrong...",
-                               has_query=True,
-                               query=q)
+        return render_quick_search(
+            groups=all_groups,
+            is_result=True,
+            results=None,
+            results_json=None,
+            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+            contains_error=True,
+            error_message="Whoops! Something went wrong...",
+            has_query=True,
+            query=q)
+
+
+def render_quick_search(groups,
+                        is_result, results, results_json,
+                        checked_groups, checked_groups_json,
+                        contains_error, error_message,
+                        has_query, query):
+    return render_template('quick_search_content.html',
+                           groups=groups,
+                           is_result=is_result,
+                           results=results,
+                           results_json=results_json,
+                           checked_groups=checked_groups,
+                           checked_groups_json=checked_groups_json,
+                           contains_error=contains_error,
+                           error_message=error_message,
+                           has_query=has_query,
+                           query=query)
 
 
 @app.route("/exportcsv", methods=['POST'])
@@ -168,8 +195,12 @@ def create_csv_file(checked_groups, results):
 def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
-    result = gbd_api.query_search(query)
+    result = sorted(gbd_api.query_search(query))
+    if len(result) == 0:
+        return quick_search_results()
     result_hash = gbd_hash.gbd_hash(result)
+    if isfile(result_hash):
+        return 0
 
 
 def create_zip_with_marker(zipfile, zip_files, prefix):
@@ -207,6 +238,7 @@ def query_for_cli():
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
+
     parser = ArgumentParser()
     parser.add_argument('-d')
     args = parser.parse_args()
