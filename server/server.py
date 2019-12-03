@@ -109,7 +109,13 @@ def quick_search_results():
             groups_list.append([group_tuple[0], False])
     all_groups = groups_list
     try:
-        results = list(gbd_api.query_search(q, checked_groups))
+        if len(checked_groups) == 0:
+            results = list(gbd_api.query_search())
+        else:
+            if q == "":
+                results = list(gbd_api.query_search(None, checked_groups))
+            else:
+                results = list(gbd_api.query_search(q, checked_groups))
         request_semaphore.release()
         return render_quick_search(
             groups=all_groups,
