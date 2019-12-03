@@ -6,13 +6,13 @@ Python 3
 
 ### Getting Started
 - setup python3
-- setup pip (pip3) and install required packages
+- setup pip3 and install required packages from ```requirements.txt```
     ```console
-	    pip3 install flask_limiter global-benchmark-database-tool
+	    pip3 install -U -r /path/to/requirements.txt
 	```
 - clone repository
 - make sure path for python 3 in cli.py is correct
-  (default: #!/usr/bin/python3)
+  (default: ```#!/usr/bin/python3```)
 - make sure Python was compiled with SSL support
 - create an executable link like so ```ln -s $respository/cli.py $bin/gbd```
 - obtain a database from https://baldur.iti.kit.edu/gbd/ and safe them under /path/to/db/file.db
