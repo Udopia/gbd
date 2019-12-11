@@ -157,7 +157,7 @@ class GbdApi:
 
     # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
     # and filled with hashes and their values for the according group. Returns list of hashes
-    def query_search(self, query=None, resolve=[]):
+    def query_search(self, query=None, resolve=[], collapse=False):
         # remote queries
         if self.db_is_url:
             try:
@@ -170,6 +170,16 @@ class GbdApi:
             with Database(self.database) as database:
                 try:
                     resultset = search.find_hashes(database, query, resolve)
+                    if collapse:
+                        returnset = list()
+                        for result in resultset:
+                            result_list = list(result)
+                            return_list = list()
+                            for item in result_list:
+                                item = "".join([item.split(',')[0]])
+                                return_list.append(item)
+                            returnset.append(tuple(return_list))
+                        resultset = returnset
                 except sqlite3.OperationalError as err:
                     raise ValueError("Query error for database '{}': {}".format(self.database, err))
                 return resultset
