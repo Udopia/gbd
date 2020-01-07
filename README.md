@@ -1,44 +1,38 @@
 # gbd (Global Benchmark Database)
 
-## Installation
-### Programming Language
+## Programming Language
 Python 3
 
-### Getting Started
-- setup python3
-- setup pip3 and install required packages from ```requirements.txt```
-    ```console
-	    pip3 install -U -r /path/to/requirements.txt
-	```
-- clone repository
-- make sure path for python 3 in cli.py is correct
-  (default: ```#!/usr/bin/python3```)
-- create an executable link like so ```ln -s $respository/cli.py $bin/gbd```
-- obtain a database from https://baldur.iti.kit.edu/gbd/ and safe them under /path/to/db/file.db
-- execute ```export GBD_DB=/path/to/db/file.db``` and put it in your .bashrc or somewhere else
-- run ```gbd init /path/to/cnf``` in order to reinitialize your benchmarks table
-- run ```gbd get -r benchmarks``` to test the system
+## Installation
 
-## Usage
+- Setup python3 (with SSL support) and pip3
+- Clone Repository
+- Install required packages: ```pip3 install -U -r requirements.txt```
+- Make sure path for `python3` in `cli.py` is correct (default: ```#!/usr/bin/python3```)
+- Create executable link: ```ln -s $respository/cli.py ~/bin/gbd```
+- Optional: Download a database, e.g., [https://baldur.iti.kit.edu/gbd/](https://baldur.iti.kit.edu/gbd/roth.db), and safe it under /path/to/db/file.db
+- Configure DB Path: ```export GBD_DB=/path/to/db/file.db``` (and put it in your .bashrc)
+- Reinitialize paths in "benchmarks" table: ```gbd init /path/to/cnf```
+
+## Test
+>   ```gbd get -r benchmarks```
+
+### Using GBD Server
 - After getting started, you can use GBD from the command line as explained in the help section
-- For starting the server on Linux, run ```sh /server/run_server.sh /path/to/db/file.db```. If no path is given, the script uses
-the path from ```GBD_DB```
+- For starting the server on Linux, run ```sh /server/run_server.sh /path/to/db/file.db```. If no path is given, the script uses the path from ```GBD_DB```
 - For starting the server on Windows, run ```\path\to\python3\interpreter \server\server.py -d \path\to\db\file.db```
 
 ### Help on basic commands
-	./cli.py -h
+>	```gbd -h```
 
 ### Help on specific command
-	./cli.py [command] -h
-
-### Initialize GBD
-	./cli.py init [path]
+>	```gbd [command] -h```
 
 ## Documenation
-GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus, two resources can now be used as documentation of the system. 
+GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus, two resources can now be used as documentation of the system.
 
-### doc/
+### misc/doc/
 The directory contains the Latex source of the original paper published at POS 2018.
 
-### presentation/ 
+### misc/presentation/
 The directory contains the Latex source of the presentation slides as presented at POS 2018.

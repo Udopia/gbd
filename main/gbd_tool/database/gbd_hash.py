@@ -117,14 +117,14 @@ def gbd_hash(fname):
             skip = True  # do not hash comment and header line
         elif byte <= b' ':
             space = True  # do not immediately append spaces but remember that there was at least one
-            if byte == b'\n' or byte == b'\r':
+            if skip and (byte == b'\n' or byte == b'\r'):
                 skip = False  # comment line ended
 
     hash_md5.update(b'\n')
     f.close()
     
     Tend = time.time()
-    eprint("Seconds to hash: {:1.2}".format(Tend - Tstart))
+    eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
 
 def hash_hashlist(hashlist):
