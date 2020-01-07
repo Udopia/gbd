@@ -49,6 +49,7 @@ ZIP_SEMAPHORE = threading.Semaphore(4)
 ZIP_PREFIX = '_'
 
 CSV_FILE_NAME = 'gbd'
+standard_attribute = 'benchmarks'
 request_semaphore = threading.Semaphore(10)
 csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 zip_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
@@ -111,9 +112,9 @@ def quick_search_results():
     try:
         if len(checked_groups) == 0:
             if q != "":
-                results = list(gbd_api.query_search(query=q, resolve=['benchmarks'], collapse=False))
+                results = list(gbd_api.query_search(query=q, resolve=[standard_attribute], collapse=False))
             else:
-                results = list(gbd_api.query_search(query=None, resolve=[], collapse=False))
+                results = list(gbd_api.query_search(query=None, resolve=[standard_attribute], collapse=False))
         else:
             if q == "":
                 results = list(gbd_api.query_search(query=None, resolve=checked_groups, collapse=False))
