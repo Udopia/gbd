@@ -18,7 +18,7 @@ import datetime
 import os
 from zipfile import ZipInfo
 
-from .server import standard_attribute
+import interface
 
 
 def delete_old_cached_files(directory, max_hours, max_minutes):
@@ -57,7 +57,7 @@ def delete_old_cached_files(directory, max_hours, max_minutes):
 def create_csv_string(headers, contents):
     csv_string = "Hash "
     if len(headers) == 0:
-        headers = [standard_attribute]
+        headers = [interface.standard_attribute]
     header_string = ' '.join(str(header) for header in headers)
     header_string += "\n"
     csv_string += header_string

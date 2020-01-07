@@ -49,7 +49,7 @@ ZIP_SEMAPHORE = threading.Semaphore(4)
 ZIP_PREFIX = '_'
 
 CSV_FILE_NAME = 'gbd'
-standard_attribute = 'benchmarks'
+standard_attribute = interface.standard_attribute
 request_semaphore = threading.Semaphore(10)
 csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 zip_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
