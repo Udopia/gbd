@@ -110,12 +110,15 @@ def quick_search_results():
     all_groups = groups_list
     try:
         if len(checked_groups) == 0:
-            results = list(gbd_api.query_search(True))
+            if q != "":
+                results = list(gbd_api.query_search(query=q, resolve=['benchmarks'], collapse=False))
+            else:
+                results = list(gbd_api.query_search(query=None, resolve=[], collapse=False))
         else:
             if q == "":
-                results = list(gbd_api.query_search(None, checked_groups, True))
+                results = list(gbd_api.query_search(query=None, resolve=checked_groups, collapse=False))
             else:
-                results = list(gbd_api.query_search(q, checked_groups, True))
+                results = list(gbd_api.query_search(query=q, resolve=checked_groups, collapse=False))
         request_semaphore.release()
         return render_quick_search(
             groups=all_groups,
@@ -214,7 +217,7 @@ def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
     checked_groups = request.values.get('checked_groups')
-    result = sorted(gbd_api.query_search(query, True))
+    result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
         return render_quick_search(
             groups=get_group_tuples(),
