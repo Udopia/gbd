@@ -77,16 +77,16 @@ def safe_benchark_hash_locked(arg):
     mutex.acquire()
     try:
         # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database'].path) as database:
+        with Database(arg['database_path']) as database:
             add_benchmark(database, arg['hashvalue'], arg['path'])
     finally:
         mutex.release()
 
 
-def register_benchmark(database, path):
+def register_benchmark(database_path, path):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
-    return { 'database': database, 'path': path, 'hashvalue': hashvalue }
+    return { 'database_path': database_path, 'path': path, 'hashvalue': hashvalue }
 
 
 def register_benchmarks(database, root):
@@ -101,6 +101,7 @@ def register_benchmarks(database, root):
                     eprint('Problem {} already hashed'.format(path))
                 else:
                     eprint('Hash in pool {}'.format(filename))
-                    pool.apply_async(register_benchmark, args=(database, path), callback=safe_benchark_hash_locked)
+                    handler = pool.apply_async(register_benchmark, args=(database.path, path), callback=safe_benchark_hash_locked)
+                    handler.get()
     pool.close()
     pool.join() 

@@ -101,6 +101,7 @@ def gbd_hash(filename):
     else:
         raise Exception("Unknown CNF file-type")
 
+    eprint("Creating GBD Hash")
     hashvalue = gbd_hash_inner(file)
 
     file.close()
