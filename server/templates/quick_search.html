@@ -20,46 +20,63 @@
     </div>
 </nav>
 <hr>
-<div class="container bg-dark text-white" style="padding: 20px; border-radius: 5px">
-    <div class="container mx-auto text-center">
-        <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"
-             class="img-responsive" alt="Logo">
-    </div>
-    <div class="container-fluid">
-        <form action="#" method="post" id="args">
-            {% if has_query == True %}
-                <div class="form-group">
-                    <label for="query"></label>
-                    <input type="text" name="query" class="form-control" value="{{ query }}">
-                </div>
-            {% else %}
-                <div class="form-group">
-                    <label for="query"></label>
-                    <input type="text" name="query" class="form-control">
-                </div>
-            {% endif %}
-            <div class="form-group">
-                <label for="groups"></label>
-                {% for group in groups %}
-                    {% if group[1] == False %}
-                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
-                                                    margin-left: 0px; margin-right: 0px; display: inline">
-                            <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
-                        </div>
-                    {% else %}
-                        <div class="container" style="margin-bottom: 10px; margin-top: 0px;
-                                                    margin-left: 0px; margin-right: 0px; display: inline">
-                            <input type="checkbox" name="groups" value="{{ group[0] }}" checked> {{ group[0] }}
-                        </div>
-                    {% endif %}
-                {% endfor %}
+<div class="row" style="margin: 0;">
+    <div class="row" style="margin: 0">
+        <div class="col" style="padding-left: 5px; padding-right: 5px">
+            <div class="bg-dark text-white text-center"
+                 style="border-radius: 5px; height: 400px">Query patterns
             </div>
-            <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                    class="btn btn-primary form-group">Show
-            </button>
-        </form>
+        </div>
+        <div class="col-8" style="padding: 0">
+            <div class="bg-dark text-white" style="border-radius: 5px; padding: 5px">
+                <div class="container mx-auto text-center">
+                    <img src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}"
+                         class="img-responsive" alt="Logo">
+                </div>
+                <div class="container-fluid">
+                    <form action="#" method="post" id="args">
+                        {% if has_query == True %}
+                            <div class="form-group">
+                                <label for="query"></label>
+                                <input type="text" name="query" class="form-control" value="{{ query }}">
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <label for="query"></label>
+                                <input type="text" name="query" class="form-control">
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label for="groups"></label>
+                            {% for group in groups %}
+                                {% if group[1] == False %}
+                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
+                                                    margin-left: 0; margin-right: 0; display: inline">
+                                        <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
+                                    </div>
+                                {% else %}
+                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
+                                                    margin-left: 0; margin-right: 0; display: inline">
+                                        <input type="checkbox" name="groups" value="{{ group[0] }}"
+                                               checked> {{ group[0] }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                                class="btn btn-primary form-group">Show
+                        </button>
+                    </form>
+                {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        <div class="col" style="padding-left: 5px; padding-right: 5px">
+            <div class="bg-dark text-white text-center"
+                 style="border-radius: 5px; height: 300px;">Databases
+            </div>
+        </div>
     </div>
-    {% block content %}{% endblock %}
 </div>
 </body>
 </html>
