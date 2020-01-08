@@ -25,12 +25,16 @@
                     </table>
                 </div>
             </div>
-            <div class="container">
+            <div class="container" style="padding-top: 10px">
                 <form action="#" method="post" id="export">
                     <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
                     <input type="hidden" name="results" value='{{ results_json }}'>
                     <button formaction="{{ url_for('get_csv_file', _external=True) }}"
                             class="btn btn-secondary form-group">Export as CSV
+                    </button>
+                    <input type="hidden" name="query" value='{{ query }}'>
+                    <button formaction="{{ url_for('get_zip_file', _external=True) }}"
+                            class="btn btn-primary form-group">Download as ZIP
                     </button>
                 </form>
             </div>
