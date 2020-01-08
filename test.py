@@ -1,7 +1,7 @@
 import unittest
 import io
 
-from main.gbd_tool.hashing.gbd_hash import gbd_hash_inner as gbd_hash
+from gbd_tool.hashing.gbd_hash import gbd_hash_inner as gbd_hash
 
 class TestGBDHash(unittest.TestCase):
 

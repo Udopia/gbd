@@ -34,61 +34,6 @@ __all__ = ['gbd_hash', 'HASH_VERSION']
 
 HASH_VERSION = 2
 
-class CNFNormalizerVersion:
-    def __init__(self, filename):
-        self.space = False
-        self.skip = False
-        self.start = True
-        if filename.endswith('.cnf.gz'):
-            self.f = gzip.open(filename, 'rb')
-        elif filename.endswith('.cnf.bz2'):
-            self.f = bz2.open(filename, 'rb')
-        elif filename.endswith('.cnf.lzma'):
-            self.f = lzma.open(filename, 'rb')
-        elif filename.endswith('.cnf'):
-            self.f = open(filename, 'rb')
-        else:
-            raise Exception("Unknown CNF file-type")
-
-    def __enter__(self):
-        return self
-
-    def read(self):
-        buf = bytearray()
-        while len(buf) < 65536:
-            byte = self.f.read(1)
-            if byte == b'':
-                return buf  # end of file
-            if not self.skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
-                if self.space and not self.start:
-                    buf.append(ord(b' '))  # append pending space
-                    self.space = False
-                buf.append(ord(byte))
-                self.start = False
-            elif byte == b'c' or byte == b'p':
-                self.skip = True  # do not hash comment and header line
-            elif byte <= b' ':
-                self.space = True  # do not immediately append spaces but remember that there was at least one
-                if byte == b'\n' or byte == b'\r':
-                    self.skip = False  # comment line ended
-        return buf
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.f.close()
-
-
-def gbd_hash_old(fname):
-    start = time.time()
-    hash_md5 = hashlib.md5()
-    with CNFNormalizerVersion(fname) as f:
-        for chunk in iter(lambda: f.read(), b''):
-            hash_md5.update(chunk)
-    hash_md5.update(b'\n')
-    end = time.time()
-    print(end - start)
-    return hash_md5.hexdigest()
-
-
 def gbd_hash(filename):
     if filename.endswith('.cnf.gz'):
         file = gzip.open(filename, 'rb')
@@ -113,10 +58,12 @@ def gbd_hash_inner(file):
     space = False
     skip = False
     start = True
+    blankzero = False
     hash_md5 = hashlib.md5()
 
     for byte in iter(lambda: file.read(1), b''):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
+            blankzero = space and byte == b'0'
             if space and not start:
                 hash_md5.update(b' ')  # append pending space
                 space = False
@@ -129,7 +76,8 @@ def gbd_hash_inner(file):
             if skip and (byte == b'\n' or byte == b'\r'):
                 skip = False  # comment line ended
 
-    hash_md5.update(b'\n')
+    if not blankzero:
+        hash_md5.update(b' 0')
     
     Tend = time.time()
     eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
