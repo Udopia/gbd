@@ -89,24 +89,32 @@ def gbd_hash_old(fname):
     return hash_md5.hexdigest()
 
 
-def gbd_hash(fname):
+def gbd_hash(filename):
+    if filename.endswith('.cnf.gz'):
+        file = gzip.open(filename, 'rb')
+    elif filename.endswith('.cnf.bz2'):
+        file = bz2.open(filename, 'rb')
+    elif filename.endswith('.cnf.lzma'):
+        file = lzma.open(filename, 'rb')
+    elif filename.endswith('.cnf'):
+        file = open(filename, 'rb')
+    else:
+        raise Exception("Unknown CNF file-type")
+
+    hashvalue = gbd_hash_inner(file)
+
+    file.close()
+    return hashvalue
+    
+
+def gbd_hash_inner(file):
     Tstart = time.time()
     space = False
     skip = False
     start = True
-    if fname.endswith('.cnf.gz'):
-        f = gzip.open(fname, 'rb')
-    elif fname.endswith('.cnf.bz2'):
-        f = bz2.open(fname, 'rb')
-    elif fname.endswith('.cnf.lzma'):
-        f = lzma.open(fname, 'rb')
-    elif fname.endswith('.cnf'):
-        f = open(fname, 'rb')
-    else:
-        raise Exception("Unknown CNF file-type")
     hash_md5 = hashlib.md5()
 
-    for byte in iter(lambda: f.read(1), b''):
+    for byte in iter(lambda: file.read(1), b''):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
             if space and not start:
                 hash_md5.update(b' ')  # append pending space
@@ -117,15 +125,15 @@ def gbd_hash(fname):
             skip = True  # do not hash comment and header line
         elif byte <= b' ':
             space = True  # do not immediately append spaces but remember that there was at least one
-            if byte == b'\n' or byte == b'\r':
+            if skip and (byte == b'\n' or byte == b'\r'):
                 skip = False  # comment line ended
 
     hash_md5.update(b'\n')
-    f.close()
     
     Tend = time.time()
-    eprint("Seconds to hash: {:1.2}".format(Tend - Tstart))
+    eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
+
 
 def hash_hashlist(hashlist):
     hash_md5 = hashlib.md5()
