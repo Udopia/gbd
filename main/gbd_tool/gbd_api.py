@@ -20,7 +20,6 @@ from urllib.error import URLError
 
 # internal packages
 from . import import_data
-from .config_manager import ConfigManager
 from .database import groups, benchmark_administration, search, algo
 from .database.db import Database
 from .hashing.gbd_hash import gbd_hash
@@ -30,15 +29,11 @@ from .http_client import post_request, is_url, USER_AGENT_CLI
 class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
-    def __init__(self, config_path, database):
-        try:
-            self.config_manager = ConfigManager(config_path, database)
-        except AttributeError:
-            raise RuntimeError("Database path in arguments or in environment variable GBD_DB?")
-        self.database = self.config_manager.get_database_path()
+    def __init__(self, database):
+        self.database = database
         self.db_is_url = is_url(self.database)
 
-    # hash a CSV file
+    # hash a CNF file
     @staticmethod
     def hash_file(path):
         return gbd_hash(path)

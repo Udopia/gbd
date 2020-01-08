@@ -89,8 +89,8 @@ def register_benchmark(database, path):
     return { 'database': database, 'path': path, 'hashvalue': hashvalue }
 
 
-# todo: parallelize hashing
 def register_benchmarks(database, root):
+    eprint('Hashing CNF files in {}'.format(root))
     pool = Pool(multiprocessing.cpu_count())
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
@@ -100,6 +100,7 @@ def register_benchmarks(database, root):
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
+                    eprint('Hash in pool {}'.format(filename))
                     pool.apply_async(register_benchmark, args=(database, path), callback=safe_benchark_hash_locked)
     pool.close()
     pool.join() 
