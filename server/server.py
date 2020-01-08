@@ -245,8 +245,8 @@ def get_zip_file():
     if isfile(zipfile_ready):
         with open(zipfile_ready, 'a'):
             os.utime(zipfile_ready, None)
-        util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
         zip_mutex.release()
+        util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
         request_semaphore.release()
         app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
                                                           datetime.datetime.now()))
@@ -290,7 +290,16 @@ def get_zip_file():
     else:
         zip_mutex.release()
         request_semaphore.release()
-        return get_zip_file()
+        return render_quick_search(
+            groups=get_group_tuples(),
+            is_result=True,
+            results=None,
+            results_json=None,
+            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+            contains_error=True,
+            error_message="ZIP is being created",
+            has_query=True,
+            query=query)
 
 
 def create_zip(zipfile, zip_files, prefix):
