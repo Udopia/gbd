@@ -72,7 +72,7 @@ def create_app(application, db):
     global limiter
     limiter = Limiter(application, key_func=get_remote_address)
     global gbd_api
-    gbd_api = GbdApi(interface.SERVER_CONFIG_PATH, DATABASE)
+    gbd_api = GbdApi(DATABASE)
     return application
 
 
