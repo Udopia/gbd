@@ -30,9 +30,6 @@ from gbd_tool.util import eprint, confirm
 
 from gbd_tool.gbd_api import GbdApi
 
-config_path = join(dirname(realpath(__file__)), "cli_config")
-
-
 def cli_hash(args):
     path = os.path.abspath(args.path)
     eprint('Hashing Benchmark: {}'.format(path))
@@ -42,13 +39,13 @@ def cli_hash(args):
 def cli_import(args):
     path = os.path.abspath(args.path)
     eprint('Importing Data from CSV-File: {}'.format(path))
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     api.import_file(path, args.key, args.source, args.target, args.delimiter)
 
 
 def cli_init(args):
     path = os.path.abspath(args.path)
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     if args.path is not None:
         eprint('Removing invalid benchmarks from path: {}'.format(path))
         eprint('Registering benchmarks from path: {}'.format(path))
@@ -58,7 +55,7 @@ def cli_init(args):
 
 
 def cli_algo(args):
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     api.run_algo(args.name)
 
 # entry for modify command
@@ -66,7 +63,7 @@ def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
@@ -89,7 +86,7 @@ def cli_group(args):
 def cli_get(args):
     eprint("Querying {} ...".format(args.db))
     try:
-        api = GbdApi(config_path, args.db)
+        api = GbdApi(args.db)
         resultset = api.query_search(args.query, args.resolve)
     except ValueError as e:
         eprint(e)
@@ -105,7 +102,7 @@ def cli_get(args):
 
 # associate an attribute with a hash and a value
 def cli_set(args):
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
         api.remove_attribute(args.name, args.value, args.hashes)
     else:
@@ -113,7 +110,7 @@ def cli_set(args):
 
 
 def cli_info(args):
-    api = GbdApi(config_path, args.db)
+    api = GbdApi(args.db)
     if args.name is not None:
         if args.values:
             info = api.get_group_values(args.name)
