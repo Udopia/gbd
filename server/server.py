@@ -260,13 +260,22 @@ def get_zip_file():
             size += zf.file_size
         divisor = 1024 << 10
         if size / divisor < THRESHOLD_ZIP_SIZE:
-            create_zip(zipfile_ready, benchmark_files, ZIP_PREFIX)
-            zip_mutex.release()
             request_semaphore.release()
-            return send_file(zipfile_ready,
-                             attachment_filename="benchmarks.zip",
-                             as_attachment=True)
+            thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
+            thread.start()
+            request_semaphore.release()
+            return render_quick_search(
+                groups=get_group_tuples(),
+                is_result=True,
+                results=None,
+                results_json=None,
+                checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
+                contains_error=True,
+                error_message="ZIP is being created",
+                has_query=True,
+                query=query)
         else:
+            zip_mutex.release()
             request_semaphore.release()
             return render_quick_search(
                 groups=get_group_tuples(),
@@ -292,6 +301,7 @@ def create_zip(zipfile, zip_files, prefix):
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
     ZIP_SEMAPHORE.release()
+    zip_mutex.release()
 
 
 @app.route("/query", methods=['POST'])  # query string post
