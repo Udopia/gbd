@@ -17,17 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pkg_resources
+pkg_resources.require("global-benchmark-database-tool==2.4.1")
 
 import argparse
-import bz2
-import gzip
 import os
 import re
 import sys
 from os.path import join, dirname, realpath
 
 from gbd_tool.util import eprint, confirm
-
 from gbd_tool.gbd_api import GbdApi
 
 def cli_hash(args):
