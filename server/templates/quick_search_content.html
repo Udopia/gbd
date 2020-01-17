@@ -35,7 +35,7 @@
                 <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
                 <input type="hidden" name="query" value='{{ query }}'>
                 <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                        class="btn btn-primary form-group">Download as ZIP
+                        class="gbd-button form-group">Download as ZIP
                 </button>
             </form>
         </div>
@@ -48,7 +48,7 @@
         <form action="#" method="post" id="zip">
             <input type="hidden" name="query" value='{{ query }}'>
             <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                    class="btn btn-primary form-group">Refresh
+                    class="gbd-button form-group">Refresh
             </button>
         </form>
     {% endif %}

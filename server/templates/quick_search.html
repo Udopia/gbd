@@ -66,7 +66,7 @@
                             {% endfor %}
                         </div>
                         <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                                class="btn btn-primary form-group">Show
+                                class="gbd-button-fancy" style="vertical-align:middle"><span>Show</span>
                         </button>
                     </form>
                     {% block content %}{% endblock %}
@@ -83,7 +83,7 @@
                         Default
                         <div>
                             <button formaction="{{ url_for('get_database_file', _external=True) }}"
-                                    class="btn btn-primary btn-sm">Download
+                                    class="gbd-button gbd-small">Download
                             </button>
                         </div>
                     </form>
