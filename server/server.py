@@ -101,6 +101,8 @@ def get_group_tuples():
 def quick_search_results():
     request_semaphore.acquire()
     q = request.values.get('query')
+    if q == "":
+        q = None
     all_groups = get_group_tuples()
     checked_groups = request.values.getlist('groups')
     groups_list = []
@@ -112,12 +114,12 @@ def quick_search_results():
     all_groups = groups_list
     try:
         if len(checked_groups) == 0:
-            if q != "":
+            if q is not None:
                 results = list(gbd_api.query_search(query=q, resolve=[standard_attribute], collapse=False))
             else:
                 results = list(gbd_api.query_search(query=None, resolve=[standard_attribute], collapse=False))
         else:
-            if q == "":
+            if q is None:
                 results = list(gbd_api.query_search(query=None, resolve=checked_groups, collapse=False))
             else:
                 results = list(gbd_api.query_search(query=q, resolve=checked_groups, collapse=False))
@@ -133,7 +135,6 @@ def quick_search_results():
             groups=all_groups,
             checked_groups=json.loads(request.values.get('checked_groups')),
             warning_message="Whoops! Non-valid query...",
-            has_query=(q != ""),
             query=q)
     except ValueError:
         request_semaphore.release()
@@ -141,7 +142,6 @@ def quick_search_results():
             groups=all_groups,
             checked_groups=json.loads(request.values.get('checked_groups')),
             warning_message="Whoops! Something went wrong...",
-            has_query=(q != ""),
             query=q)
 
 
@@ -150,13 +150,14 @@ def get_csv_file():
     request_semaphore.acquire()
     results = json.loads(request.values.get('results'))
     query = request.values.get('query')
+    if query == "":
+        query = None
     if len(results) == 0:
         request_semaphore.release()
         return rendering.render_warning_page(
             groups=get_group_tuples(),
             checked_groups=json.loads(request.values.get('checked_groups')),
             warning_message="You don't want empty CSV files, believe me.",
-            has_query=(query != ""),
             query=query)
     csv_mutex.acquire()
     csv_file = create_csv_file(json.loads(request.values.get('checked_groups')), results)
@@ -184,16 +185,15 @@ def create_csv_file(checked_groups, results):
 def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
-    checked_groups = request.values.get('checked_groups')
     if query == "":
         query = None
+    checked_groups = request.values.get('checked_groups')
     result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
         return rendering.render_warning_page(
             groups=get_group_tuples(),
-            checked_groups=json.loads(request.values.get('checked_groups')),
+            checked_groups=json.loads(checked_groups),
             warning_message="You don't want empty ZIP files, believe me.",
-            has_query=(query != ""),
             query=query)
     if not os.path.isdir('{}'.format(CACHE_PATH)):
         os.makedirs('{}'.format(CACHE_PATH))
@@ -227,34 +227,27 @@ def get_zip_file():
         if size / divisor < THRESHOLD_ZIP_SIZE:
             thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
             thread.start()
-            if query is None:
-                query = ""
             request_semaphore.release()
             return rendering.render_zip_reload_page(
                 groups=get_group_tuples(),
-                checked_groups=json.loads(request.values.get('checked_groups')),
+                checked_groups=json.loads(checked_groups),
                 zip_message="ZIP is being created",
-                has_query=(query != ""),
                 query=query)
         else:
             zip_mutex.release()
-            if query is None:
-                query = ""
             request_semaphore.release()
             return rendering.render_warning_page(
                 groups=get_group_tuples(),
-                checked_groups=json.loads(request.values.get('checked_groups')),
+                checked_groups=json.loads(checked_groups),
                 warning_message="The ZIP file is too large (more than {} MB)".format(THRESHOLD_ZIP_SIZE),
-                has_query=(query != ""),
                 query=query)
     else:
         zip_mutex.release()
         request_semaphore.release()
         return rendering.render_zip_reload_page(
             groups=get_group_tuples(),
-            checked_groups=json.loads(request.values.get('checked_groups')),
+            checked_groups=json.loads(checked_groups),
             zip_message="ZIP is being created".format(THRESHOLD_ZIP_SIZE),
-            has_query=(query != ""),
             query=query)
 
 
