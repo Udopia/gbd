@@ -262,7 +262,6 @@ def get_zip_file():
             size += zf.file_size
         divisor = 1024 << 10
         if size / divisor < THRESHOLD_ZIP_SIZE:
-            request_semaphore.release()
             thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
             thread.start()
             request_semaphore.release()
