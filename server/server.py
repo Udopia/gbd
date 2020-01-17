@@ -218,6 +218,8 @@ def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
     checked_groups = request.values.get('checked_groups')
+    if query == "":
+        query = None
     result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
         return render_quick_search(
