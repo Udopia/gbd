@@ -26,7 +26,8 @@ from zipfile import ZipFile, ZipInfo
 import interface
 import tatsu
 import util
-from flask import Flask, render_template, request, send_file, json
+import rendering
+from flask import Flask, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -81,7 +82,7 @@ def quick_search():
     request_semaphore.acquire()
     all_groups = get_group_tuples()
     request_semaphore.release()
-    return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False)
+    return rendering.render_start_page(all_groups)
 
 
 def get_group_tuples():
@@ -121,78 +122,44 @@ def quick_search_results():
             else:
                 results = list(gbd_api.query_search(query=q, resolve=checked_groups, collapse=False))
         request_semaphore.release()
-        return render_quick_search(
+        return rendering.render_result_page(
             groups=all_groups,
-            is_result=True,
             results=results,
-            results_json=json.dumps(results),
             checked_groups=checked_groups,
-            checked_groups_json=json.dumps(checked_groups),
-            contains_error=False, error_message=None,
-            has_query=True,
             query=q)
     except tatsu.exceptions.FailedParse:
         request_semaphore.release()
-        return render_quick_search(
+        return rendering.render_warning_page(
             groups=all_groups,
-            is_result=True,
-            results=None,
-            results_json=None,
-            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-            contains_error=True,
-            error_message="Whoops! Non-valid query...",
-            has_query=True,
+            checked_groups=json.loads(request.values.get('checked_groups')),
+            warning_message="Whoops! Non-valid query...",
+            has_query=(q != ""),
             query=q)
     except ValueError:
         request_semaphore.release()
-        return render_quick_search(
+        return rendering.render_warning_page(
             groups=all_groups,
-            is_result=True,
-            results=None,
-            results_json=None,
-            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-            contains_error=True,
-            error_message="Whoops! Something went wrong...",
-            has_query=True,
+            checked_groups=json.loads(request.values.get('checked_groups')),
+            warning_message="Whoops! Something went wrong...",
+            has_query=(q != ""),
             query=q)
-
-
-def render_quick_search(groups,
-                        is_result, results, results_json,
-                        checked_groups, checked_groups_json,
-                        contains_error, error_message,
-                        has_query, query):
-    return render_template('quick_search_content.html',
-                           groups=groups,
-                           is_result=is_result,
-                           results=results,
-                           results_json=results_json,
-                           checked_groups=checked_groups,
-                           checked_groups_json=checked_groups_json,
-                           contains_error=contains_error,
-                           error_message=error_message,
-                           has_query=has_query,
-                           query=query)
 
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     request_semaphore.acquire()
-    checked_groups = json.loads(request.values.get('checked_groups'))
     results = json.loads(request.values.get('results'))
+    query = request.values.get('query')
     if len(results) == 0:
-        return render_quick_search(
+        request_semaphore.release()
+        return rendering.render_warning_page(
             groups=get_group_tuples(),
-            is_result=True,
-            results=None,
-            results_json=None,
-            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-            contains_error=True,
-            error_message="You don't want empty CSV files, believe me.",
-            has_query=True,
-            query=request.values.get('query'))
+            checked_groups=json.loads(request.values.get('checked_groups')),
+            warning_message="You don't want empty CSV files, believe me.",
+            has_query=(query != ""),
+            query=query)
     csv_mutex.acquire()
-    csv_file = create_csv_file(checked_groups, results)
+    csv_file = create_csv_file(json.loads(request.values.get('checked_groups')), results)
     csv_mutex.release()
     request_semaphore.release()
     app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
@@ -222,15 +189,11 @@ def get_zip_file():
         query = None
     result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
-        return render_quick_search(
+        return rendering.render_warning_page(
             groups=get_group_tuples(),
-            is_result=True,
-            results=None,
-            results_json=None,
-            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-            contains_error=True,
-            error_message="You don't want empty ZIP files, believe me.",
-            has_query=True,
+            checked_groups=json.loads(request.values.get('checked_groups')),
+            warning_message="You don't want empty ZIP files, believe me.",
+            has_query=(query != ""),
             query=query)
     if not os.path.isdir('{}'.format(CACHE_PATH)):
         os.makedirs('{}'.format(CACHE_PATH))
@@ -267,43 +230,31 @@ def get_zip_file():
             if query is None:
                 query = ""
             request_semaphore.release()
-            return render_quick_search(
+            return rendering.render_zip_reload_page(
                 groups=get_group_tuples(),
-                is_result=True,
-                results=None,
-                results_json=None,
-                checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-                contains_error=True,
-                error_message="ZIP is being created",
-                has_query=True,
+                checked_groups=json.loads(request.values.get('checked_groups')),
+                zip_message="ZIP is being created",
+                has_query=(query != ""),
                 query=query)
         else:
             zip_mutex.release()
             if query is None:
                 query = ""
             request_semaphore.release()
-            return render_quick_search(
+            return rendering.render_warning_page(
                 groups=get_group_tuples(),
-                is_result=True,
-                results=None,
-                results_json=None,
-                checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-                contains_error=True,
-                error_message="The ZIP file is too large (more than {} MB)".format(THRESHOLD_ZIP_SIZE),
-                has_query=True,
+                checked_groups=json.loads(request.values.get('checked_groups')),
+                warning_message="The ZIP file is too large (more than {} MB)".format(THRESHOLD_ZIP_SIZE),
+                has_query=(query != ""),
                 query=query)
     else:
         zip_mutex.release()
         request_semaphore.release()
-        return render_quick_search(
+        return rendering.render_zip_reload_page(
             groups=get_group_tuples(),
-            is_result=True,
-            results=None,
-            results_json=None,
-            checked_groups=checked_groups, checked_groups_json=json.dumps(checked_groups),
-            contains_error=True,
-            error_message="ZIP is being created",
-            has_query=True,
+            checked_groups=json.loads(request.values.get('checked_groups')),
+            zip_message="ZIP is being created".format(THRESHOLD_ZIP_SIZE),
+            has_query=(query != ""),
             query=query)
 
 
