@@ -262,9 +262,10 @@ def get_zip_file():
             size += zf.file_size
         divisor = 1024 << 10
         if size / divisor < THRESHOLD_ZIP_SIZE:
-            request_semaphore.release()
             thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
             thread.start()
+            if query is None:
+                query = ""
             request_semaphore.release()
             return render_quick_search(
                 groups=get_group_tuples(),
@@ -278,6 +279,8 @@ def get_zip_file():
                 query=query)
         else:
             zip_mutex.release()
+            if query is None:
+                query = ""
             request_semaphore.release()
             return render_quick_search(
                 groups=get_group_tuples(),
