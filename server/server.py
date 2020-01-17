@@ -162,9 +162,9 @@ def get_csv_file():
     csv_mutex.acquire()
     csv_file = create_csv_file(json.loads(request.values.get('checked_groups')), results)
     csv_mutex.release()
-    request_semaphore.release()
     app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
                                                       datetime.datetime.now()))
+    request_semaphore.release()
     return send_file(csv_file, attachment_filename='{}.csv'.format(CSV_FILE_NAME), as_attachment=True)
 
 
@@ -212,9 +212,9 @@ def get_zip_file():
             os.utime(zipfile_ready, None)
         zip_mutex.release()
         util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
-        request_semaphore.release()
         app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
                                                           datetime.datetime.now()))
+        request_semaphore.release()
         return send_file(zipfile_ready,
                          attachment_filename='benchmarks.zip',
                          as_attachment=True)
@@ -283,6 +283,19 @@ def query_for_cli():
     else:
         request_semaphore.release()
         return "Not allowed"
+
+
+@app.route("/getdatabase", methods=['GET'])
+def get_database_file():
+    request_semaphore.acquire()
+    global DATABASE
+    app.logger.info('Sent file {} to {} at {}'.format(DATABASE, request.remote_addr,
+                                                      datetime.datetime.now()))
+    filename = basename(DATABASE)
+    request_semaphore.release()
+    return send_file(DATABASE,
+                     attachment_filename=filename,
+                     as_attachment=True)
 
 
 if __name__ == '__main__':
