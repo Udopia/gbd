@@ -1,8 +1,10 @@
 from flask import render_template, json
+import util
 
 
-def render_start_page(groups):
-    return render_template('quick_search.html', groups=groups, is_result=False, has_query=False)
+def render_start_page(all_groups):
+    return render_template('quick_search.html', groups=all_groups, is_result=False, has_query=False,
+                           query_patterns=util.generate_query_patterns())
 
 
 def render_result_page(groups, results, checked_groups, query):
@@ -16,7 +18,8 @@ def render_result_page(groups, results, checked_groups, query):
                            checked_groups=checked_groups,
                            checked_groups_json=json.dumps(checked_groups),
                            has_query=(query != ""),
-                           query=query)
+                           query=query,
+                           query_patterns=util.generate_query_patterns())
 
 
 def render_warning_page(groups, checked_groups, warning_message, query):
@@ -29,7 +32,8 @@ def render_warning_page(groups, checked_groups, warning_message, query):
                            checked_groups_json=json.dumps(checked_groups),
                            warning_message=warning_message,
                            has_query=(query != ""),
-                           query=query)
+                           query=query,
+                           query_patterns=util.generate_query_patterns())
 
 
 def render_zip_reload_page(groups, checked_groups, zip_message, query):
@@ -42,4 +46,5 @@ def render_zip_reload_page(groups, checked_groups, zip_message, query):
                            checked_groups_json=json.dumps(checked_groups),
                            zip_message=zip_message,
                            has_query=(query != ""),
-                           query=query)
+                           query=query,
+                           query_patterns=util.generate_query_patterns())
