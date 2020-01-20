@@ -172,7 +172,7 @@ def create_csv_file(checked_groups, results):
     f = open(csv_file, 'w')
     f.write(util.create_csv_string(checked_groups, results))
     f.close()
-    util.delete_old_cached_files(interface.CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
+    util.delete_old_cached_files(CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
     return csv_file
 
 
