@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% include "header.html" %}
+    {% include "header.html" %}
 </head>
 <body>
 {% include "navbar.html" %}
@@ -11,8 +11,24 @@
         <div class="col" style="padding-left: 5px; padding-right: 5px">
             <div class="bg-dark text-white text-center"
                  style="border-radius: 5px; height: 400px">
-                <div style="padding-top: 10px;"><h5>Query Patterns</h5></div>
+                <div style="padding-top: 10px;">
+                    <h5>Query Patterns</h5>
+                </div>
                 <hr>
+                <div style="margin: 5px">
+                    {% for query_pattern in query_patterns %}
+                        <form action="#" method="post">
+                            <div>
+                                <input type="hidden" name="query" value='{{ query_pattern }}'>
+                                <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                                        class="gbd-button gbd-small">{{ query_pattern }}
+                                </button>
+                            </div>
+
+                        </form>
+                        <hr>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="col-8" style="padding: 0">
