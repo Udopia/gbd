@@ -101,8 +101,6 @@ def get_group_tuples():
 def quick_search_results():
     request_semaphore.acquire()
     q = request.values.get('query')
-    if q == "":
-        q = None
     all_groups = get_group_tuples()
     checked_groups = request.values.getlist('groups')
     groups_list = []
@@ -114,12 +112,12 @@ def quick_search_results():
     all_groups = groups_list
     try:
         if len(checked_groups) == 0:
-            if q is not None:
+            if q != "":
                 results = list(gbd_api.query_search(query=q, resolve=[standard_attribute], collapse=False))
             else:
                 results = list(gbd_api.query_search(query=None, resolve=[standard_attribute], collapse=False))
         else:
-            if q is None:
+            if q == "":
                 results = list(gbd_api.query_search(query=None, resolve=checked_groups, collapse=False))
             else:
                 results = list(gbd_api.query_search(query=q, resolve=checked_groups, collapse=False))
