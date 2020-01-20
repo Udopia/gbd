@@ -69,4 +69,4 @@ def create_csv_string(headers, contents):
 
 
 def generate_query_patterns():
-    return ['clauses < 50', 'benchmarks like %battleship%', 'variables < 100']
+    return interface.QUERY_PATTERNS

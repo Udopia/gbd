@@ -43,9 +43,6 @@ gbd_api = None
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
 CACHE_PATH = 'cache'
-MAX_HOURS = None  # time in hours the ZIP file remain in the cache
-MAX_MINUTES = 1  # time in minutes the ZIP files remain in the cache
-THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
 ZIP_SEMAPHORE = threading.Semaphore(4)
 ZIP_PREFIX = '_'
 
@@ -175,7 +172,7 @@ def create_csv_file(checked_groups, results):
     f = open(csv_file, 'w')
     f.write(util.create_csv_string(checked_groups, results))
     f.close()
-    util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
+    util.delete_old_cached_files(CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
     return csv_file
 
 
@@ -209,7 +206,7 @@ def get_zip_file():
         with open(zipfile_ready, 'a'):
             os.utime(zipfile_ready, None)
         zip_mutex.release()
-        util.delete_old_cached_files(CACHE_PATH, MAX_HOURS, MAX_MINUTES)
+        util.delete_old_cached_files(CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
         app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
                                                           datetime.datetime.now()))
         request_semaphore.release()
@@ -222,7 +219,7 @@ def get_zip_file():
             zf = ZipInfo.from_file(file, arcname=None)
             size += zf.file_size
         divisor = 1024 << 10
-        if size / divisor < THRESHOLD_ZIP_SIZE:
+        if size / divisor < interface.THRESHOLD_ZIP_SIZE:
             thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
             thread.start()
             request_semaphore.release()
@@ -237,7 +234,7 @@ def get_zip_file():
             return rendering.render_warning_page(
                 groups=get_group_tuples(),
                 checked_groups=json.loads(checked_groups),
-                warning_message="The ZIP file is too large (more than {} MB)".format(THRESHOLD_ZIP_SIZE),
+                warning_message="The ZIP file is too large (more than {} MB)".format(interface.THRESHOLD_ZIP_SIZE),
                 query=query)
     else:
         zip_mutex.release()
@@ -245,7 +242,7 @@ def get_zip_file():
         return rendering.render_zip_reload_page(
             groups=get_group_tuples(),
             checked_groups=json.loads(checked_groups),
-            zip_message="ZIP is being created".format(THRESHOLD_ZIP_SIZE),
+            zip_message="ZIP is being created".format(interface.THRESHOLD_ZIP_SIZE),
             query=query)
 
 
