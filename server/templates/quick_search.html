@@ -70,6 +70,12 @@
                         <button formaction="{{ url_for('quick_search_results', _external=True) }}"
                                 class="gbd-button-fancy" style="vertical-align:middle"><span>Show</span>
                         </button>
+                        <button formaction="{{ url_for('get_csv_file', _external=True) }}"
+                                class="gbd-button-secondary gbd-small form-group">Export as CSV
+                        </button>
+                        <button formaction="{{ url_for('get_zip_file', _external=True) }}"
+                                class="gbd-button gbd-small form-group">Download as ZIP
+                        </button>
                     </form>
                     {% block content %}{% endblock %}
                 </div>
