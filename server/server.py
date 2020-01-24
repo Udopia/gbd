@@ -145,7 +145,6 @@ def get_csv_file():
     request_semaphore.acquire()
     query = request.values.get('query')
     checked_groups = request.values.getlist('groups')
-    print(checked_groups)
     results = gbd_api.query_search(query, checked_groups, collapse=False)
     if query == "":
         query = None
