@@ -203,47 +203,56 @@ def get_zip_file():
     zipfile_ready = zipfile_busy.replace(ZIP_PREFIX, '')
 
     zip_mutex.acquire()
-    if isfile(zipfile_ready):
-        with open(zipfile_ready, 'a'):
-            os.utime(zipfile_ready, None)
-        zip_mutex.release()
-        util.delete_old_cached_files(CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
-        app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
-                                                          datetime.datetime.now()))
-        request_semaphore.release()
-        return send_file(zipfile_ready,
-                         attachment_filename='benchmarks.zip',
-                         as_attachment=True)
-    elif not isfile(zipfile_busy):
-        size = 0
-        for file in benchmark_files:
-            zf = ZipInfo.from_file(file, arcname=None)
-            size += zf.file_size
-        divisor = 1024 << 10
-        if size / divisor < interface.THRESHOLD_ZIP_SIZE:
-            thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
-            thread.start()
+    try:
+        if isfile(zipfile_ready):
+            with open(zipfile_ready, 'a'):
+                os.utime(zipfile_ready, None)
+            zip_mutex.release()
+            util.delete_old_cached_files(CACHE_PATH, interface.MAX_HOURS, interface.MAX_MINUTES)
+            app.logger.info('Sent file {} to {} at {}'.format(zipfile_ready, request.remote_addr,
+                                                              datetime.datetime.now()))
+            request_semaphore.release()
+            return send_file(zipfile_ready,
+                             attachment_filename='benchmarks.zip',
+                             as_attachment=True)
+        elif not isfile(zipfile_busy):
+            size = 0
+            for file in benchmark_files:
+                zf = ZipInfo.from_file(file, arcname=None)
+                size += zf.file_size
+            divisor = 1024 << 10
+            if size / divisor < interface.THRESHOLD_ZIP_SIZE:
+                thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
+                thread.start()
+                request_semaphore.release()
+                return rendering.render_zip_reload_page(
+                    groups=get_group_tuples(),
+                    checked_groups=checked_groups,
+                    zip_message="ZIP is being created",
+                    query=query)
+            else:
+                zip_mutex.release()
+                request_semaphore.release()
+                return rendering.render_warning_page(
+                    groups=get_group_tuples(),
+                    checked_groups=checked_groups,
+                    warning_message="The ZIP file is too large (more than {} MB)".format(interface.THRESHOLD_ZIP_SIZE),
+                    query=query)
+        else:
+            zip_mutex.release()
             request_semaphore.release()
             return rendering.render_zip_reload_page(
                 groups=get_group_tuples(),
                 checked_groups=checked_groups,
                 zip_message="ZIP is being created",
                 query=query)
-        else:
-            zip_mutex.release()
-            request_semaphore.release()
-            return rendering.render_warning_page(
-                groups=get_group_tuples(),
-                checked_groups=checked_groups,
-                warning_message="The ZIP file is too large (more than {} MB)".format(interface.THRESHOLD_ZIP_SIZE),
-                query=query)
-    else:
+    except FileNotFoundError as fnf:
         zip_mutex.release()
         request_semaphore.release()
-        return rendering.render_zip_reload_page(
+        return rendering.render_warning_page(
             groups=get_group_tuples(),
             checked_groups=checked_groups,
-            zip_message="ZIP is being created".format(interface.THRESHOLD_ZIP_SIZE),
+            warning_message="Sorry, I don't have access to the files right now :(",
             query=query)
 
 
