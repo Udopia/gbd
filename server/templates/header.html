@@ -32,7 +32,7 @@
             padding: 4px 10px;
         }
 
-        .gbd-button-fancy {
+        .gbd-button-fancy.gbd-show {
             display: inline-block;
             border-radius: 4px;
             background-color: rgba(155, 139, 116, 0.91);
@@ -47,8 +47,45 @@
             margin: 5px;
         }
 
+        .gbd-button-fancy.gbd-csv {
+            display: inline-block;
+            border-radius: 4px;
+            background-color: rgb(133, 133, 133);
+            border: 2px solid rgb(141, 141, 141);
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            width: 200px;
+            padding: 10px 24px;
+            transition: all 0.5s;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .gbd-button-fancy.gbd-zip {
+            display: inline-block;
+            border-radius: 4px;
+            background-color: rgba(155, 139, 116, 0.91);
+            border: 2px solid #9c8c77;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            width: 200px;
+            padding: 10px 24px;
+            transition: all 0.5s;
+            cursor: pointer;
+            margin: 5px;
+        }
+
         .gbd-button-fancy:hover {
             background-color: #645547;
+            border: 2px solid rgba(0, 0, 0, 0.13);
+            color: white;
+            box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+        }
+
+        .gbd-button-fancy.gbd-csv:hover {
+            background-color: rgb(101, 101, 101);
             border: 2px solid rgba(0, 0, 0, 0.13);
             color: white;
             box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
@@ -61,8 +98,26 @@
             transition: 0.5s;
         }
 
-        .gbd-button-fancy span:after {
+        .gbd-button-fancy.gbd-show span:after {
             content: '\00bb';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -10px;
+            transition: 0.5s;
+        }
+
+        .gbd-button-fancy.gbd-csv span:after {
+            content: '\2191';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -10px;
+            transition: 0.5s;
+        }
+
+        .gbd-button-fancy.gbd-zip span:after {
+            content: '\2193';
             position: absolute;
             opacity: 0;
             top: 0;
@@ -78,6 +133,7 @@
             opacity: 1;
             right: 0;
         }
+
         .gbd-button-secondary {
             background-color: rgb(133, 133, 133);
             border: 2px solid rgb(141, 141, 141);
