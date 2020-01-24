@@ -17,7 +17,7 @@
 from os.path import join, dirname, realpath
 SERVER_CONFIG_PATH = join(dirname(realpath(__file__)), "server_config")
 standard_attribute = 'benchmarks'
-QUERY_PATTERNS = ['clauses < 50', 'benchmarks like %battleship%', 'variables < 100']
+QUERY_PATTERNS = ['clauses < 50', 'benchmarks like %battleship%', 'variables < 100', '(clauses_horn / clauses) > .9']
 MAX_HOURS = None  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = 1  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 5  # size in MB the server should zip at max
