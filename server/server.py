@@ -145,9 +145,9 @@ def get_csv_file():
     request_semaphore.acquire()
     query = request.values.get('query')
     checked_groups = request.values.getlist('groups')
-    results = gbd_api.query_search(query, checked_groups, collapse=False)
     if query == "":
         query = None
+    results = gbd_api.query_search(query, checked_groups, collapse=False)
     if len(results) == 0:
         request_semaphore.release()
         return rendering.render_warning_page(
