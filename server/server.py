@@ -146,8 +146,9 @@ def get_csv_file():
     query = request.values.get('query')
     checked_groups = request.values.getlist('groups')
     if query == "":
-        query = None
-    results = gbd_api.query_search(query, checked_groups, collapse=False)
+        results = gbd_api.query_search(None, checked_groups, collapse=False)
+    else:
+        results = gbd_api.query_search(query, checked_groups, collapse=False)
     if len(results) == 0:
         request_semaphore.release()
         return rendering.render_warning_page(
@@ -182,10 +183,12 @@ def get_zip_file():
     request_semaphore.acquire()
     query = request.values.get('query')
     if query == "":
-        query = None
+        result = sorted(gbd_api.query_search(None, collapse=True))
+    else:
+        result = sorted(gbd_api.query_search(query, collapse=True))
     checked_groups = request.values.getlist('groups')
-    result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
+        request_semaphore.release()
         return rendering.render_warning_page(
             groups=get_group_tuples(),
             checked_groups=checked_groups,
@@ -201,7 +204,6 @@ def get_zip_file():
     result_hash = gbd_hash.hash_hashlist(sorted(list(hash_list)))
     zipfile_busy = ''.join('{}/{}{}.zip'.format(CACHE_PATH, ZIP_PREFIX, result_hash))
     zipfile_ready = zipfile_busy.replace(ZIP_PREFIX, '')
-
     zip_mutex.acquire()
     if isfile(zipfile_ready):
         with open(zipfile_ready, 'a'):
@@ -241,6 +243,7 @@ def get_zip_file():
                 zip_message="ZIP is being created",
                 query=query)
         except FileNotFoundError:
+            zip_mutex.release()
             request_semaphore.release()
             return rendering.render_warning_page(
                 groups=get_group_tuples(),
