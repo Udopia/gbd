@@ -1,4 +1,4 @@
-from flask import render_template, json
+from flask import render_template
 import util
 
 
@@ -14,9 +14,7 @@ def render_result_page(groups, results, checked_groups, query):
                            is_warning=False,
                            is_zip=False,
                            results=results,
-                           results_json=json.dumps(results),
                            checked_groups=checked_groups,
-                           checked_groups_json=json.dumps(checked_groups),
                            has_query=(query != ""),
                            query=query,
                            query_patterns=util.generate_query_patterns())
@@ -29,7 +27,6 @@ def render_warning_page(groups, checked_groups, warning_message, query):
                            is_warning=True,
                            is_zip=False,
                            checked_groups=checked_groups,
-                           checked_groups_json=json.dumps(checked_groups),
                            warning_message=warning_message,
                            has_query=(query != ""),
                            query=query,
@@ -43,7 +40,6 @@ def render_zip_reload_page(groups, checked_groups, zip_message, query):
                            is_warning=False,
                            is_zip=True,
                            checked_groups=checked_groups,
-                           checked_groups_json=json.dumps(checked_groups),
                            zip_message=zip_message,
                            has_query=(query != ""),
                            query=query,

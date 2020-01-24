@@ -22,23 +22,6 @@
                 </table>
             </div>
         </div>
-        <div style="padding-top: 10px; padding-bottom: 10px">
-            <form action="#" method="post" id="export">
-                <input type="hidden" name="query" value='{{ query }}'>
-                <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
-                <input type="hidden" name="results" value='{{ results_json }}'>
-                <button formaction="{{ url_for('get_csv_file', _external=True) }}"
-                        class="gbd-button-secondary gbd-small form-group">Export as CSV
-                </button>
-            </form>
-            <form action="#" method="post" id="zip">
-                <input type="hidden" name="checked_groups" value='{{ checked_groups_json }}'>
-                <input type="hidden" name="query" value='{{ query }}'>
-                <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                        class="gbd-button gbd-small form-group">Download as ZIP
-                </button>
-            </form>
-        </div>
     {% elif is_warning == True %}
         <div class="alert-warning text-center"
              style="margin: 10px; padding: 5px; border-radius: 5px">{{ warning_message }}</div>
