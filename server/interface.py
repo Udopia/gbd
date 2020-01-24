@@ -15,9 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from os.path import join, dirname, realpath
+
 SERVER_CONFIG_PATH = join(dirname(realpath(__file__)), "server_config")
 standard_attribute = 'benchmarks'
-QUERY_PATTERNS = ['clauses < 50', 'benchmarks like %battleship%', 'variables < 100', '(clauses_horn / clauses) > .9']
+QUERY_PATTERNS = ['competition_year = 2018', 'benchmarks like %battleship%', 'family = software-verification',
+                  '(clauses_horn / clauses) > .9']
 MAX_HOURS = 1  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = None  # time in minutes the ZIP files remain in the cache
 THRESHOLD_ZIP_SIZE = 500  # size in MB the server should zip at max
