@@ -68,13 +68,16 @@
                             {% endfor %}
                         </div>
                         <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                                class="gbd-button-fancy" style="vertical-align:middle"><span>Show</span>
+                                class="gbd-button-fancy gbd-show form-group" style="vertical-align:middle">
+                            <span>Show</span>
                         </button>
                         <button formaction="{{ url_for('get_csv_file', _external=True) }}"
-                                class="gbd-button-secondary gbd-small form-group">Export as CSV
+                                class="gbd-button-fancy gbd-csv form-group" style="vertical-align:middle">
+                            <span>Export as CSV</span>
                         </button>
                         <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                                class="gbd-button gbd-small form-group">Download as ZIP
+                                class="gbd-button-fancy gbd-zip orm-group" style="vertical-align:middle">
+                            <span>Download as ZIP</span>
                         </button>
                     </form>
                     {% block content %}{% endblock %}
