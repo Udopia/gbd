@@ -128,14 +128,14 @@ def quick_search_results():
         request_semaphore.release()
         return rendering.render_warning_page(
             groups=all_groups,
-            checked_groups=json.loads(request.values.get('checked_groups')),
+            checked_groups=checked_groups,
             warning_message="Whoops! Non-valid query...",
             query=q)
     except ValueError:
         request_semaphore.release()
         return rendering.render_warning_page(
             groups=all_groups,
-            checked_groups=json.loads(request.values.get('checked_groups')),
+            checked_groups=checked_groups,
             warning_message="Whoops! Something went wrong...",
             query=q)
 
@@ -143,19 +143,20 @@ def quick_search_results():
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     request_semaphore.acquire()
-    results = json.loads(request.values.get('results'))
     query = request.values.get('query')
+    checked_groups = request.values.getlist('groups')
     if query == "":
         query = None
+    results = gbd_api.query_search(query, checked_groups, collapse=False)
     if len(results) == 0:
         request_semaphore.release()
         return rendering.render_warning_page(
             groups=get_group_tuples(),
-            checked_groups=json.loads(request.values.get('checked_groups')),
+            checked_groups=checked_groups,
             warning_message="You don't want empty CSV files, believe me.",
             query=query)
     csv_mutex.acquire()
-    csv_file = create_csv_file(json.loads(request.values.get('checked_groups')), results)
+    csv_file = create_csv_file(checked_groups, results)
     csv_mutex.release()
     app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
                                                       datetime.datetime.now()))
@@ -182,12 +183,12 @@ def get_zip_file():
     query = request.values.get('query')
     if query == "":
         query = None
-    checked_groups = request.values.get('checked_groups')
+    checked_groups = request.values.getlist('groups')
     result = sorted(gbd_api.query_search(query, collapse=True))
     if len(result) == 0:
         return rendering.render_warning_page(
             groups=get_group_tuples(),
-            checked_groups=json.loads(checked_groups),
+            checked_groups=checked_groups,
             warning_message="You don't want empty ZIP files, believe me.",
             query=query)
     if not os.path.isdir('{}'.format(CACHE_PATH)):
@@ -214,35 +215,45 @@ def get_zip_file():
                          attachment_filename='benchmarks.zip',
                          as_attachment=True)
     elif not isfile(zipfile_busy):
-        size = 0
-        for file in benchmark_files:
-            zf = ZipInfo.from_file(file, arcname=None)
-            size += zf.file_size
-        divisor = 1024 << 10
-        if size / divisor < interface.THRESHOLD_ZIP_SIZE:
+        try:
+            size = 0
+            divisor = 1024 << 10
+
+            for file in benchmark_files:
+                zf = ZipInfo.from_file(file, arcname=None)
+                size += zf.file_size
+                if size / divisor > interface.THRESHOLD_ZIP_SIZE:
+                    zip_mutex.release()
+                    request_semaphore.release()
+                    return rendering.render_warning_page(
+                        groups=get_group_tuples(),
+                        checked_groups=checked_groups,
+                        warning_message="The ZIP file is too large (more than {} MB)".format(
+                            interface.THRESHOLD_ZIP_SIZE),
+                        query=query)
+
             thread = threading.Thread(target=create_zip, args=(zipfile_ready, benchmark_files, ZIP_PREFIX))
             thread.start()
             request_semaphore.release()
             return rendering.render_zip_reload_page(
                 groups=get_group_tuples(),
-                checked_groups=json.loads(checked_groups),
+                checked_groups=checked_groups,
                 zip_message="ZIP is being created",
                 query=query)
-        else:
-            zip_mutex.release()
+        except FileNotFoundError:
             request_semaphore.release()
             return rendering.render_warning_page(
                 groups=get_group_tuples(),
-                checked_groups=json.loads(checked_groups),
-                warning_message="The ZIP file is too large (more than {} MB)".format(interface.THRESHOLD_ZIP_SIZE),
+                checked_groups=checked_groups,
+                warning_message="Sorry, I don't have access to the files right now :(",
                 query=query)
     else:
         zip_mutex.release()
         request_semaphore.release()
         return rendering.render_zip_reload_page(
             groups=get_group_tuples(),
-            checked_groups=json.loads(checked_groups),
-            zip_message="ZIP is being created".format(interface.THRESHOLD_ZIP_SIZE),
+            checked_groups=checked_groups,
+            zip_message="ZIP is being created",
             query=query)
 
 
@@ -253,8 +264,8 @@ def create_zip(zipfile, zip_files, prefix):
             zf.write(file, basename(file))
     zf.close()
     os.rename(zipfile, zipfile.replace(prefix, ''))
-    ZIP_SEMAPHORE.release()
     zip_mutex.release()
+    ZIP_SEMAPHORE.release()
 
 
 @app.route("/query", methods=['POST'])  # query string post
@@ -281,7 +292,7 @@ def query_for_cli():
 
 
 @app.route("/getdatabase", methods=['GET'])
-def get_database_file():
+def get_default_database_file():
     request_semaphore.acquire()
     global DATABASE
     app.logger.info('Sent file {} to {} at {}'.format(DATABASE, request.remote_addr,
