@@ -282,7 +282,7 @@ def query_for_cli():
 
 
 @app.route("/getdatabase", methods=['GET'])
-def get_database_file():
+def get_default_database_file():
     request_semaphore.acquire()
     global DATABASE
     app.logger.info('Sent file {} to {} at {}'.format(DATABASE, request.remote_addr,
