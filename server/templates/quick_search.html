@@ -40,45 +40,50 @@
                 <div class="container-fluid">
                     <form action="#" method="post" id="args">
                         {% if has_query == True %}
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom: 0px">
                                 <label for="query"></label>
                                 <input type="text" name="query" class="form-control" value="{{ query }}">
                             </div>
                         {% else %}
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom: 0px">
                                 <label for="query"></label>
                                 <input type="text" name="query" class="form-control">
                             </div>
                         {% endif %}
-                        <div class="form-group">
-                            <label for="groups"></label>
-                            {% for group in groups %}
-                                {% if group[1] == False %}
-                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
-                                                    margin-left: 0; margin-right: 0; display: inline">
-                                        <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
-                                    </div>
-                                {% else %}
-                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
-                                                    margin-left: 0; margin-right: 0; display: inline">
-                                        <input type="checkbox" name="groups" value="{{ group[0] }}"
-                                               checked> {{ group[0] }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+                        <div class="container row" style="margin: 0px; padding: 0px">
+                            <div class="form-group">
+                                <label for="groups"></label>
+                                <ul class="checkbox-grid">
+                                    {% for group in groups %}
+                                        {% if group[1] == False %}
+                                            <li style="margin-right: 10px; margin-bottom: 3px">
+                                                <input type="checkbox" name="groups"
+                                                       value="{{ group[0] }}"> {{ group[0] }}
+                                            </li>
+                                        {% else %}
+                                            <li>
+                                                <input type="checkbox" name="groups" value="{{ group[0] }}"
+                                                       checked> {{ group[0] }}
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
-                        <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                                class="gbd-button-fancy gbd-show form-group" style="vertical-align:middle">
-                            <span>Show</span>
-                        </button>
-                        <button formaction="{{ url_for('get_csv_file', _external=True) }}"
-                                class="gbd-button-fancy gbd-csv form-group" style="vertical-align:middle">
-                            <span>Export as CSV</span>
-                        </button>
-                        <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                                class="gbd-button-fancy gbd-zip orm-group" style="vertical-align:middle">
-                            <span>Download as ZIP</span>
-                        </button>
+                        <div class="container row">
+                            <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                                    class="gbd-button-fancy gbd-show form-group" style="vertical-align:middle">
+                                <span>Show</span>
+                            </button>
+                            <button formaction="{{ url_for('get_csv_file', _external=True) }}"
+                                    class="gbd-button-fancy gbd-csv form-group" style="vertical-align:middle">
+                                <span>Export as CSV</span>
+                            </button>
+                            <button formaction="{{ url_for('get_zip_file', _external=True) }}"
+                                    class="gbd-button-fancy gbd-zip orm-group" style="vertical-align:middle">
+                                <span>Download as ZIP</span>
+                            </button>
+                        </div>
                     </form>
                     {% block content %}{% endblock %}
                     <div class="container" style="margin: 20px" id="table-spacer">
