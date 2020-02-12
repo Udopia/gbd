@@ -20,6 +20,7 @@ from multiprocessing import Pool, Lock
 from os.path import isfile
 
 from gbd_tool.database import groups
+from gbd_tool.database import search
 from gbd_tool.database.db import Database
 from gbd_tool.hashing.gbd_hash import gbd_hash
 from gbd_tool.util import eprint
@@ -73,21 +74,19 @@ def remove_benchmarks(database):
             database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
 
 
-def safe_benchark_hash_locked(arg):
+def safe_hash_locked(arg):
     mutex.acquire()
     try:
         # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
         with Database(arg['database_path']) as database:
-            add_benchmark(database, arg['hashvalue'], arg['path'])
+            add_benchmark(database, arg['hash_new'], arg['path'])
     finally:
         mutex.release()
 
-
-def register_benchmark(database_path, path):
+def compute_hash(database_path, path):
     eprint('Hashing {}'.format(path))
-    hashvalue = gbd_hash(path)
-    return { 'database_path': database_path, 'path': path, 'hashvalue': hashvalue }
-
+    hash_new = gbd_hash(path)
+    return { 'database_path': database_path, 'path': path, 'hash_new': hash_new }
 
 def register_benchmarks(database, root):
     eprint('Hashing CNF files in {}'.format(root))
@@ -101,7 +100,37 @@ def register_benchmarks(database, root):
                     eprint('Problem {} already hashed'.format(path))
                 else:
                     eprint('Hash in pool {}'.format(filename))
-                    handler = pool.apply_async(register_benchmark, args=(database.path, path), callback=safe_benchark_hash_locked)
+                    handler = pool.apply_async(compute_hash, args=(database.path, path), callback=safe_hash_locked)
                     handler.get()
+    pool.close()
+    pool.join() 
+
+
+def update_hash_locked(arg):
+    mutex.acquire()
+    try:
+        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
+        with Database(arg['database_path']) as database:
+            tables = groups.reflect(database)
+            for table in tables:
+                if not table.startswith('__'):
+                    database.submit("UPDATE {} SET hash={} WHERE hash={}".format(arg['table'], arg['hash_new'], arg['hash_old']))
+    finally:
+        mutex.release()
+
+def compute_hash_for_update(database_path, path, hash_old):
+    eprint('Computing gbd-hash for {}'.format(path))
+    hash_new = gbd_hash(path)
+    return { 'database_path': database_path, 'hash_old': hash_old, 'hash_new': hash_new }
+
+def rehash_benchmarks(database):
+    pool = Pool(multiprocessing.cpu_count())
+    resultset = search.find_hashes(database, "", "benchmarks")
+    for result in resultset:
+        hash_old = result[0]
+        filename = result[1].split(',')[0]
+        eprint("Updating gbd-hash {} for file {}".format(hash_old, filename))
+        handler = pool.apply_async(compute_hash_for_update, args=(database.path, filename, hash_old), callback=update_hash_locked)
+        handler.get()
     pool.close()
     pool.join() 
