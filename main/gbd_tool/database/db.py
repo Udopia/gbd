@@ -29,7 +29,7 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path):
+    def __init__(self, path, skip_version_check=False):
         self.create_mode = not isfile(path)
         self.path = path
         # init connections
@@ -42,7 +42,8 @@ class Database:
             eprint("Initializing DB with version {} and hash-version {}".format(VERSION, HASH_VERSION))
             self.init(VERSION, HASH_VERSION)
         # version check
-        self.version_check()
+        if not skip_version_check:
+            self.version_check()
         if not self.has_table('benchmarks'):
             raise DatabaseException('Table benchmarks is missing in db {}, initialization error?'.format(path))
 

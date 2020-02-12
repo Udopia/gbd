@@ -34,6 +34,9 @@ def cli_hash(args):
     eprint('Hashing Benchmark: {}'.format(path))
     print(GbdApi.hash_file(path))
 
+def cli_rehash(args):
+    api = GbdApi(args.db)
+    api.rehash_database()
 
 def cli_import(args):
     path = os.path.abspath(args.path)
@@ -165,9 +168,10 @@ def main():
 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
     parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
-    parser_init.add_argument('-r', '--remove', help='Remove hashes with invalid paths from benchmark table',
-                             action='store_true')
     parser_init.set_defaults(func=cli_init)
+
+    parser_init = subparsers.add_parser('rehash', help='Update and Sanitize old Database')
+    parser_init.set_defaults(func=cli_rehash)
 
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
