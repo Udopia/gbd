@@ -17,7 +17,7 @@
 import sqlite3
 from os.path import isfile
 
-from gbd_tool.hashing.gbd_hash import HASH_VERSION
+from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint
 
 VERSION = 0

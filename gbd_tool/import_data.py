@@ -17,7 +17,7 @@
 import csv
 import re
 
-from gbd_tool.database import groups, benchmark_administration
+from gbd_tool import groups, benchmark_administration
 
 
 def exists(database, cat):
