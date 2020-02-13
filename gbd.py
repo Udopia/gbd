@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pkg_resources
-pkg_resources.require("global-benchmark-database-tool==2.4.1")
-
 import argparse
 import os
 import re
