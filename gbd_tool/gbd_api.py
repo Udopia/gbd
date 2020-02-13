@@ -53,13 +53,6 @@ class GbdApi:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(database, path)
 
-    # Re-Initialize outdated GBD database. 
-    def rehash_database(self, path=None):
-        if self.db_is_url:
-            raise NotImplementedError
-        with Database(self.database, True) as database:
-            benchmark_administration.rehash_benchmarks(database)
-
     # Get information of the whole database
     def get_database_info(self):
         if self.db_is_url:

@@ -61,6 +61,9 @@ class Database:
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
+    def update_hash_version(self):
+        self.submit("UPDATE __version SET hash_version={} WHERE entry=0".format(HASH_VERSION))
+
     def has_table(self, name):
         return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
 
@@ -98,7 +101,7 @@ class Database:
                 "Version Mismatch. DB Version is at {} but script version is at {}".format(self.get_version(), VERSION))
         if self.get_hash_version() != HASH_VERSION:
             raise DatabaseException(
-                "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}".format(
+                "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}.\n Use the 'rehash' function in order to upgrade your database.".format(
                     self.get_hash_version(), HASH_VERSION))
 
     def commit(self):
