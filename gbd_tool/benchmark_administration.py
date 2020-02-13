@@ -110,7 +110,7 @@ def update_hash_locked(arg):
     mutex.acquire()
     try:
         # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path']) as database:
+        with Database(arg['database_path'], True) as database:
             tables = groups.reflect(database)
             for table in tables:
                 if not table.startswith('__'):
