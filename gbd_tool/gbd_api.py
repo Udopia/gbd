@@ -19,11 +19,10 @@ import sqlite3
 from urllib.error import URLError
 
 # internal packages
-from . import import_data
-from .database import groups, benchmark_administration, search, algo
-from .database.db import Database
-from .hashing.gbd_hash import gbd_hash
-from .http_client import post_request, is_url, USER_AGENT_CLI
+from gbd_tool import groups, benchmark_administration, search, algo, import_data
+from gbd_tool.db import Database
+from gbd_tool.gbd_hash import gbd_hash
+from gbd_tool.http_client import post_request, is_url, USER_AGENT_CLI
 
 
 class GbdApi:
@@ -53,13 +52,6 @@ class GbdApi:
         with Database(self.database) as database:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(database, path)
-
-    # Re-Initialize outdated GBD database. 
-    def rehash_database(self, path=None):
-        if self.db_is_url:
-            raise NotImplementedError
-        with Database(self.database, True) as database:
-            benchmark_administration.rehash_benchmarks(database)
 
     # Get information of the whole database
     def get_database_info(self):

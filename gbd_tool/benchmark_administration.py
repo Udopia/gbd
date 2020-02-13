@@ -19,8 +19,8 @@ import os
 from multiprocessing import Pool, Lock
 from os.path import isfile
 
-import groups
-import search
+from gbd_tool import groups
+from gbd_tool import search
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint
@@ -125,7 +125,7 @@ def compute_hash_for_update(database_path, path, hash_old):
 
 def rehash_benchmarks(database):
     pool = Pool(multiprocessing.cpu_count())
-    resultset = search.find_hashes(database, "", "benchmarks")
+    resultset = search.find_hashes(database)
     for result in resultset:
         hash_old = result[0]
         filename = result[1].split(',')[0]
