@@ -8,8 +8,7 @@ setup(name='global_benchmark_database_tool',
   url='https://github.com/Udopia/gbd',
   author='Markus Iser, Luca Springer',
   author_email='gbd@informatik.kit.edu',
-  packages=['gbd_tool', 'gbd_tool/database',
-            'gbd_tool/hashing'],
+  packages=find_packages('.'),
   include_package_data=True,
   install_requires=[
       'flask',
@@ -22,7 +21,7 @@ setup(name='global_benchmark_database_tool',
   ],
   entry_points={
     "console_scripts": [
-        "gbd = cli:main"
+        "gbd = gbd:main"
     ]
   }
 )
