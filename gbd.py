@@ -25,6 +25,8 @@ from os.path import join, dirname, realpath
 
 from gbd_tool.util import eprint, confirm
 from gbd_tool.gbd_api import GbdApi
+from gbd_tool.db import Database
+from gbd_tool import benchmark_administration
 
 def cli_hash(args):
     path = os.path.abspath(args.path)
@@ -32,8 +34,9 @@ def cli_hash(args):
     print(GbdApi.hash_file(path))
 
 def cli_rehash(args):
-    api = GbdApi(args.db)
-    api.rehash_database()
+    with Database(args.db, True) as database:
+        benchmark_administration.rehash_benchmarks(database)
+        database.update_hash_version()
 
 def cli_import(args):
     path = os.path.abspath(args.path)
