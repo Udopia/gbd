@@ -1,5 +1,5 @@
 import time
-from main.gbd_tool.http_client import post_request
+from gbd_tool.http_client import post_request
 import _thread
 
 
