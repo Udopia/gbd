@@ -32,7 +32,7 @@ __all__ = ['gbd_hash', 'HASH_VERSION']
 # Hash-Version 2: fixed bug in version 1 (do not skip -)
 # Hash-Version 3: add trailing zero to last clause if missing
 
-HASH_VERSION = 3
+HASH_VERSION = 2
 
 def gbd_hash(filename):
     if filename.endswith('.cnf.gz'):
