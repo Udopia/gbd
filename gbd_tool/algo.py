@@ -1,4 +1,6 @@
 from gbd_tool.util import eprint
+import bz2
+import gzip
 
 
 def run_horn_algo(api, database):
