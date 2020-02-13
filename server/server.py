@@ -32,7 +32,7 @@ from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
-from gbd_tool.hashing import gbd_hash
+from gbd_tool import gbd_hash
 from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
