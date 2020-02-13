@@ -125,7 +125,7 @@ def compute_hash_for_update(database_path, path, hash_old):
 
 def rehash_benchmarks(database):
     pool = Pool(multiprocessing.cpu_count())
-    resultset = search.find_hashes(database, "", "benchmarks")
+    resultset = search.find_hashes(database)
     for result in resultset:
         hash_old = result[0]
         filename = result[1].split(',')[0]
