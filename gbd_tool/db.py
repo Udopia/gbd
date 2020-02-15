@@ -44,6 +44,8 @@ class Database:
         # version check
         if not skip_version_check:
             self.version_check()
+        else:
+            eprint("Skipping version check for database")
         if not self.has_table('benchmarks'):
             raise DatabaseException('Table benchmarks is missing in db {}, initialization error?'.format(path))
 
