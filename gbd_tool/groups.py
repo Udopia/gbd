@@ -33,7 +33,7 @@ def clear(database, cat):
 
 def reflect(database, cat=None):
     if cat is None:
-        lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+        lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table' and not tbl_name like '\_\_%' escape '\\' and not tbl_name like 'sqlite\_stat_' escape '\\'")
         groups = [x[0] for x in lst]
         return groups
     else:
