@@ -113,8 +113,7 @@ def update_hash_locked(arg):
         with Database(arg['database_path'], True) as database:
             tables = groups.reflect(database)
             for table in tables:
-                if not table.startswith('__'):
-                    database.submit("UPDATE {} SET hash={} WHERE hash={}".format(arg['table'], arg['hash_new'], arg['hash_old']))
+                database.submit("UPDATE {} SET hash='{}' WHERE hash='{}'".format(table, arg['hash_new'], arg['hash_old']))
     finally:
         mutex.release()
 
