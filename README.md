@@ -5,11 +5,8 @@ Python 3
 
 ## Installation
 
-- Setup python3 (with SSL support) and pip3
-- Clone Repository
-- Install required packages: ```pip3 install -U -r requirements.txt```
-- Make sure path for `python3` in `cli.py` is correct (default: ```#!/usr/bin/python3```)
-- Create executable link: ```ln -s $respository/cli.py ~/bin/gbd```
+- Setup python3 and pip3
+- Install GBD via ```pip3 install global-benchmark-database-tool```
 - Optional: Download a database, e.g., [https://baldur.iti.kit.edu/gbd/](https://baldur.iti.kit.edu/gbd/roth.db), and safe it under /path/to/db/file.db
 - Configure DB Path: ```export GBD_DB=/path/to/db/file.db``` (and put it in your .bashrc)
 - Reinitialize paths in "benchmarks" table: ```gbd init /path/to/cnf```
@@ -27,12 +24,3 @@ Python 3
 
 ### Help on specific command
 >	```gbd [command] -h```
-
-## Documenation
-GBD was initially presented at the Pragmatics of SAT (POS) Workshop 2018 hosted at FLoC 2018 in Oxford, UK. Thus, two resources can now be used as documentation of the system.
-
-### misc/doc/
-The directory contains the Latex source of the original paper published at POS 2018.
-
-### misc/presentation/
-The directory contains the Latex source of the presentation slides as presented at POS 2018.
