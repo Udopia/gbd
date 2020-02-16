@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Global Benchmark Database Tool</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% include "header.html" %}
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a href="/" class="navbar-left"><img style="max-width:50px" src="{{ url_for('static',
-        filename='resources/gbd_logo_small.png') }}"></a>
-    <a class="navbar-brand" href="#"></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    </div>
-</nav>
+{% include "navbar.html" %}
 <hr>
 <div class="row" style="margin: 0;">
     <div class="row" style="margin: 0">
         <div class="col" style="padding-left: 5px; padding-right: 5px">
             <div class="bg-dark text-white text-center"
-                 style="border-radius: 5px; height: 400px">Query patterns
+                 style="border-radius: 5px; height: auto">
+                <div style="padding-top: 10px;">
+                    <h5>Query Patterns</h5>
+                </div>
+                <hr>
+                <div style="margin: 5px">
+                    {% for query_pattern in query_patterns %}
+                        <form action="#" method="post">
+                            <div>
+                                <input type="hidden" name="query" value='{{ query_pattern }}'>
+                                <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                                        class="gbd-button gbd-small">{{ query_pattern }}
+                                </button>
+                            </div>
+
+                        </form>
+                        <hr>
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="col-8" style="padding: 0">
@@ -36,44 +40,73 @@
                 <div class="container-fluid">
                     <form action="#" method="post" id="args">
                         {% if has_query == True %}
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom: 0px">
                                 <label for="query"></label>
                                 <input type="text" name="query" class="form-control" value="{{ query }}">
                             </div>
                         {% else %}
-                            <div class="form-group">
+                            <div class="form-group" style="margin-bottom: 0px">
                                 <label for="query"></label>
                                 <input type="text" name="query" class="form-control">
                             </div>
                         {% endif %}
-                        <div class="form-group">
-                            <label for="groups"></label>
-                            {% for group in groups %}
-                                {% if group[1] == False %}
-                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
-                                                    margin-left: 0; margin-right: 0; display: inline">
-                                        <input type="checkbox" name="groups" value="{{ group[0] }}"> {{ group[0] }}
-                                    </div>
-                                {% else %}
-                                    <div class="container" style="margin-bottom: 10px; margin-top: 0;
-                                                    margin-left: 0; margin-right: 0; display: inline">
-                                        <input type="checkbox" name="groups" value="{{ group[0] }}"
-                                               checked> {{ group[0] }}
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
+                        <div class="container row" style="margin: 0px; padding: 0px">
+                            <div class="form-group">
+                                <label for="groups"></label>
+                                <ul class="checkbox-grid">
+                                    {% for group in groups %}
+                                        {% if group[1] == False %}
+                                            <li style="margin-right: 10px; margin-bottom: 3px">
+                                                <input type="checkbox" name="groups"
+                                                       value="{{ group[0] }}"> {{ group[0] }}
+                                            </li>
+                                        {% else %}
+                                            <li>
+                                                <input type="checkbox" name="groups" value="{{ group[0] }}"
+                                                       checked> {{ group[0] }}
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
-                        <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                                class="btn btn-primary form-group">Show
-                        </button>
+                        <div class="container row">
+                            <button formaction="{{ url_for('quick_search_results', _external=True) }}"
+                                    class="gbd-button-fancy gbd-show form-group" style="vertical-align:middle">
+                                <span>Show</span>
+                            </button>
+                            <button formaction="{{ url_for('get_csv_file', _external=True) }}"
+                                    class="gbd-button-fancy gbd-csv form-group" style="vertical-align:middle">
+                                <span>Export as CSV</span>
+                            </button>
+                            <button formaction="{{ url_for('get_zip_file', _external=True) }}"
+                                    class="gbd-button-fancy gbd-zip orm-group" style="vertical-align:middle">
+                                <span>Download as ZIP</span>
+                            </button>
+                        </div>
                     </form>
-                {% block content %}{% endblock %}
+                    {% block content %}{% endblock %}
+                    <div class="container" style="margin: 20px" id="table-spacer">
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col" style="padding-left: 5px; padding-right: 5px">
             <div class="bg-dark text-white text-center"
-                 style="border-radius: 5px; height: 300px;">Databases
+                 style="border-radius: 5px; height: auto;">
+                <div style="padding-top: 10px;"><h5>Databases</h5></div>
+                <hr>
+                <div style="margin: 5px">
+                    <form action="#" method="get" id="zip">
+                        Default
+                        <div>
+                            <button formaction="{{ url_for('get_default_database_file', _external=True) }}"
+                                    class="gbd-button gbd-small">Download
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <hr>
             </div>
         </div>
     </div>

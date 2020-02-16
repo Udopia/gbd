@@ -16,7 +16,6 @@
 
 import os
 from os.path import join
-
 from flask import json
 
 config_file = 'conf.json'

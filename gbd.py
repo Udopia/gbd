@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pkg_resources
-pkg_resources.require("global-benchmark-database-tool==2.4.1")
-
 import argparse
 import os
 import re
@@ -28,12 +25,18 @@ from os.path import join, dirname, realpath
 
 from gbd_tool.util import eprint, confirm
 from gbd_tool.gbd_api import GbdApi
+from gbd_tool.db import Database
+from gbd_tool import benchmark_administration
 
 def cli_hash(args):
     path = os.path.abspath(args.path)
     eprint('Hashing Benchmark: {}'.format(path))
     print(GbdApi.hash_file(path))
 
+def cli_rehash(args):
+    with Database(args.db, True) as database:
+        benchmark_administration.rehash_benchmarks(database)
+        database.update_hash_version()
 
 def cli_import(args):
     path = os.path.abspath(args.path)
@@ -165,9 +168,10 @@ def main():
 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
     parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
-    parser_init.add_argument('-r', '--remove', help='Remove hashes with invalid paths from benchmark table',
-                             action='store_true')
     parser_init.set_defaults(func=cli_init)
+
+    parser_init = subparsers.add_parser('rehash', help='Update and Sanitize old Database')
+    parser_init.set_defaults(func=cli_rehash)
 
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")

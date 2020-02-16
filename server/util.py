@@ -66,3 +66,7 @@ def create_csv_string(headers, contents):
         content_string += "\n"
         csv_string += content_string
     return csv_string
+
+
+def generate_query_patterns():
+    return interface.QUERY_PATTERNS

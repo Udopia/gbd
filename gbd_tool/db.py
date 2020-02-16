@@ -17,7 +17,7 @@
 import sqlite3
 from os.path import isfile
 
-from gbd_tool.hashing.gbd_hash import HASH_VERSION
+from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint
 
 VERSION = 0
@@ -29,7 +29,7 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path):
+    def __init__(self, path, skip_version_check=False):
         self.create_mode = not isfile(path)
         self.path = path
         # init connections
@@ -42,7 +42,10 @@ class Database:
             eprint("Initializing DB with version {} and hash-version {}".format(VERSION, HASH_VERSION))
             self.init(VERSION, HASH_VERSION)
         # version check
-        self.version_check()
+        if not skip_version_check:
+            self.version_check()
+        else:
+            eprint("Skipping version check for database")
         if not self.has_table('benchmarks'):
             raise DatabaseException('Table benchmarks is missing in db {}, initialization error?'.format(path))
 
@@ -59,6 +62,9 @@ class Database:
         self.submit(
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
+
+    def update_hash_version(self):
+        self.submit("UPDATE __version SET hash_version={} WHERE entry=0".format(HASH_VERSION))
 
     def has_table(self, name):
         return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
@@ -97,7 +103,7 @@ class Database:
                 "Version Mismatch. DB Version is at {} but script version is at {}".format(self.get_version(), VERSION))
         if self.get_hash_version() != HASH_VERSION:
             raise DatabaseException(
-                "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}".format(
+                "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}.\n Use the 'rehash' function in order to upgrade your database.".format(
                     self.get_hash_version(), HASH_VERSION))
 
     def commit(self):
