@@ -101,7 +101,7 @@ def register_benchmarks(database, root):
                 else:
                     eprint('Hash in pool {}'.format(filename))
                     handler = pool.apply_async(compute_hash, args=(database.path, path), callback=safe_hash_locked)
-                    handler.get()
+                    #handler.get()
     pool.close()
     pool.join() 
 
