@@ -58,7 +58,7 @@ class GbdApi:
         if self.db_is_url:
             raise NotImplementedError
         with Database(self.database) as database:
-            return {'name': database, 'version': database.get_version(), 'hash-version': database.get_hash_version()}
+            return {'name': self.database, 'version': database.get_version(), 'hash-version': database.get_hash_version()}
 
     # Checks weather a group exists in given database object
     def check_group_exists(self, name):
