@@ -56,7 +56,7 @@ zip_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 def create_app(application, db):
     logging.basicConfig(filename='server.log', level=logging.DEBUG)
     logging.getLogger().addHandler(default_handler)
-    application.wsgi_app = ProxyFix(application.wsgi_app, num_proxies=1)
+    application.wsgi_app = ProxyFix(application.wsgi_app, x_for=1)
     if db is None:
         fallback = os.environ.get('GBD_DB')
         if fallback is None:
