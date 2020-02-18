@@ -113,7 +113,7 @@ class GbdApi:
         if self.db_is_url:
             raise NotImplementedError
         if name is not None:
-            return self.query_search('{} like %%%%'.format(name))
+            return self.query_search(None, [name], False)
         else:
             raise ValueError('No group given')
 
