@@ -34,6 +34,7 @@ __all__ = ['gbd_hash', 'HASH_VERSION']
 
 HASH_VERSION = 3
 
+
 def gbd_hash(filename):
     if filename.endswith('.cnf.gz'):
         file = gzip.open(filename, 'rb')
@@ -51,7 +52,7 @@ def gbd_hash(filename):
 
     file.close()
     return hashvalue
-    
+
 
 def gbd_hash_inner(file):
     Tstart = time.time()
@@ -78,7 +79,7 @@ def gbd_hash_inner(file):
 
     if not blankzero:
         hash_md5.update(b' 0')
-    
+
     Tend = time.time()
     eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
