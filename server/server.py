@@ -23,10 +23,11 @@ import random
 from os.path import basename, isfile
 from zipfile import ZipFile, ZipInfo
 
-import interface
-import tatsu
 import util
+import interface
 import rendering
+
+import tatsu
 from flask import Flask, request, send_file, json
 from flask.logging import default_handler
 from flask_limiter import Limiter
@@ -292,6 +293,47 @@ def query_for_cli():
     else:
         request_semaphore.release()
         return "Not allowed"
+
+
+@app.route('/attribute/<attribute>/<hashvalue>')
+def resolve_file(attribute, hashvalue):
+    if not (gbd_api.check_group_exists(attribute)):
+        return "Attribute was not found in our database\n"
+    else:
+        group_values = dict(gbd_api.query_search(None, [attribute], False))
+        if hashvalue not in group_values.keys():
+            return "No entry in attribute table associated with this hash\n"
+        else:
+            return dict(filter(lambda x: x[0] == hashvalue, group_values.items()))
+
+
+@app.route('/file/<hashvalue>')
+def get_file(hashvalue):
+    group_values = dict(gbd_api.query_search(None, ['benchmarks'], True))
+    if hashvalue not in group_values.keys():
+        return "No according file found in our database"
+    else:
+        file = group_values.pop(hashvalue)
+    try:
+        return send_file(file)
+    except FileNotFoundError:
+        return "Sorry, I don't have access to the files right now :(\n"
+
+
+@app.route('/info/<hashvalue>')
+def get_file_info(hashvalue):
+    groups = gbd_api.get_all_groups()
+    info = dict([])
+    for group in groups:
+        info.update(map_group_to_tuple(group, hashvalue))
+    return json.dumps(info)
+
+
+def map_group_to_tuple(group, hashvalue):
+    result = dict(gbd_api.query_search(None, [group], False))
+    key = group
+    value = result.pop(hashvalue)
+    return {key: value}
 
 
 @app.route("/getdatabase", methods=['GET'])
