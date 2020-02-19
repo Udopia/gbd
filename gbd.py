@@ -51,9 +51,9 @@ def cli_init(args):
     eprint('Registering benchmarks from path: {}'.format(path))
     api.init_database(path, args.jobs)
 
-def cli_algo(args):
+def cli_bootstrap(args):
     api = GbdApi(args.db)
-    api.run_algo(args.name, args.jobs)
+    api.bootstrap(args.jobs)
 
 # entry for modify command
 def cli_group(args):
@@ -183,9 +183,9 @@ def main():
     parser_reflect.set_defaults(func=cli_info)
 
     # define create command sub-structure
-    parser_algo = subparsers.add_parser('algo', help='Bootstrapping: Calculate a hard-coded set of instance attributes')
-    parser_algo.add_argument('name', type=column_type, help='Name of algorithm: "horn" or "vars"')
-    parser_algo.set_defaults(func=cli_algo)
+    parser_algo = subparsers.add_parser('bootstrap', help='Bootstrapping: Calculate a hard-coded set of instance attributes')
+    #parser_algo.add_argument('name', type=column_type, help='Name of algorithm: "horn" or "vars"')
+    parser_algo.set_defaults(func=cli_bootstrap)
 
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
