@@ -49,11 +49,11 @@ def cli_init(args):
     path = os.path.abspath(args.path)
     api = GbdApi(args.db)
     eprint('Registering benchmarks from path: {}'.format(path))
-    api.init_database(path, args.jobs)
+    api.init_database(path, int(args.jobs))
 
 def cli_bootstrap(args):
     api = GbdApi(args.db)
-    api.bootstrap(args.jobs)
+    api.bootstrap(int(args.jobs))
 
 # entry for modify command
 def cli_group(args):
