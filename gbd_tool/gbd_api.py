@@ -53,20 +53,11 @@ class GbdApi:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(database, path, jobs)
 
-    def run_algo(self, name, jobs=1):
+    def bootstrap(self, jobs=1):
         if self.db_is_url:
             raise NotImplementedError
-        if name is not None:
-            if name == "horn":
-                with Database(self.database) as database:
-                    algo.run_horn_algo(self, database)
-            elif name == "vars":
-                with Database(self.database) as database:
-                    algo.run_vars_algo(self, database)
-            else:
-                raise ValueError("Unknown algorithm '{}'".format(name))
-        else:
-            raise ValueError('No algorithm given')
+        with Database(self.database) as database:
+            algo.algo_horn(self, database, jobs)
 
     # Get information of the whole database
     def get_database_info(self):
