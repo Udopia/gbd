@@ -48,17 +48,12 @@ def cli_import(args):
 def cli_init(args):
     path = os.path.abspath(args.path)
     api = GbdApi(args.db)
-    if args.path is not None:
-        eprint('Removing invalid benchmarks from path: {}'.format(path))
-        eprint('Registering benchmarks from path: {}'.format(path))
-        api.init_database(path)
-    else:
-        api.init_database()
-
+    eprint('Registering benchmarks from path: {}'.format(path))
+    api.init_database(path, args.jobs)
 
 def cli_algo(args):
     api = GbdApi(args.db)
-    api.run_algo(args.name)
+    api.run_algo(args.name, args.jobs)
 
 # entry for modify command
 def cli_group(args):
@@ -126,9 +121,7 @@ def cli_info(args):
             print('number of entries: {}'.format(*info.get('entries')))
     else:
         result = api.get_database_info()
-        print("DB '{}' was created with version: {} and HASH version: {}".format(result.get('name'),
-                                                                                 result.get('version'),
-                                                                                 result.get('hash-version')))
+        print("Using '{}'".format(result.get('name')))
         print("Found tables:")
         print(*api.get_all_groups())
 
@@ -163,6 +156,7 @@ def main():
     parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
+    parser.add_argument('-j', "--jobs", help='Specify number of jobs used by init or algo', default=1, nargs='?')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
@@ -170,33 +164,26 @@ def main():
     parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
     parser_init.set_defaults(func=cli_init)
 
-    parser_init = subparsers.add_parser('rehash', help='Update and Sanitize old Database')
-    parser_init.set_defaults(func=cli_rehash)
-
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)
 
     parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")
-    parser_import.add_argument('-k', '--key', type=column_type,
-                               help="Name of the key column (the hash-value of the problem)", required=True)
-    parser_import.add_argument('-s', '--source', help="Source name of column to import (in csv-file)",
-                               required=True)
-    parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)",
-                               required=True)
+    parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (the hash-value of the problem)", required=True)
+    parser_import.add_argument('-s', '--source', help="Source name of column to import (in csv-file)", required=True)
+    parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)", required=True)
     parser_import.add_argument('-d', '--delimiter', choices=[" ", ",", ";"], default=" ", help="Delimiter")
     parser_import.set_defaults(func=cli_import)
 
     # define info
     parser_reflect = subparsers.add_parser('info', help='Get information, Display Groups')
-    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of Database if none',
-                                nargs='?')
+    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of Database if none', nargs='?')
     parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
     parser_reflect.set_defaults(func=cli_info)
 
     # define create command sub-structure
-    parser_algo = subparsers.add_parser('algo', help='Execute a named algorithm on the given benchmark and store all the data')
+    parser_algo = subparsers.add_parser('algo', help='Bootstrapping: Calculate a hard-coded set of instance attributes')
     parser_algo.add_argument('name', type=column_type, help='Name of algorithm: "horn" or "vars"')
     parser_algo.set_defaults(func=cli_algo)
 
@@ -226,8 +213,7 @@ def main():
 
     # define find command sub-structure
     parser_query = subparsers.add_parser('get', help='Query the benchmark database')
-    parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', 
-                              nargs='?')
+    parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
     parser_query.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
     parser_query.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_query.set_defaults(func=cli_get)
