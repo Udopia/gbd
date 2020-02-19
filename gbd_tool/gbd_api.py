@@ -46,12 +46,27 @@ class GbdApi:
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called
-    def init_database(self, path=None):
+    def init_database(self, path=None, jobs=1):
         if self.db_is_url:
             raise NotImplementedError
         with Database(self.database) as database:
             benchmark_administration.remove_benchmarks(database)
-            benchmark_administration.register_benchmarks(database, path)
+            benchmark_administration.register_benchmarks(database, path, jobs)
+
+    def run_algo(self, name, jobs=1):
+        if self.db_is_url:
+            raise NotImplementedError
+        if name is not None:
+            if name == "horn":
+                with Database(self.database) as database:
+                    algo.run_horn_algo(self, database)
+            elif name == "vars":
+                with Database(self.database) as database:
+                    algo.run_vars_algo(self, database)
+            else:
+                raise ValueError("Unknown algorithm '{}'".format(name))
+        else:
+            raise ValueError('No algorithm given')
 
     # Get information of the whole database
     def get_database_info(self):
@@ -116,21 +131,6 @@ class GbdApi:
             return self.query_search('{} like %%%%'.format(name))
         else:
             raise ValueError('No group given')
-
-    def run_algo(self, name):
-        if self.db_is_url:
-            raise NotImplementedError
-        if name is not None:
-            if name == "horn":
-                with Database(self.database) as database:
-                    algo.run_horn_algo(self, database)
-            elif name == "vars":
-                with Database(self.database) as database:
-                    algo.run_vars_algo(self, database)
-            else:
-                raise ValueError("Unknown algorithm '{}'".format(name))
-        else:
-            raise ValueError('No algorithm given')
 
     # Associate hashes with a hash-value in a group
     def set_attribute(self, name, value, hash_list, force):

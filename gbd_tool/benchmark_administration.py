@@ -88,9 +88,9 @@ def compute_hash(database_path, path):
     hash_new = gbd_hash(path)
     return { 'database_path': database_path, 'path': path, 'hash_new': hash_new }
 
-def register_benchmarks(database, root):
+def register_benchmarks(database, root, jobs=1):
     eprint('Hashing CNF files in {}'.format(root))
-    pool = Pool(multiprocessing.cpu_count())
+    pool = Pool(min(multiprocessing.cpu_count(), jobs))
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
