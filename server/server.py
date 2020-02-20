@@ -220,12 +220,10 @@ def get_zip_file():
     elif not isfile(zipfile_busy):
         try:
             size = 0
-            divisor = 1024 << 10
-
             for file in benchmark_files:
                 zf = ZipInfo.from_file(file, arcname=None)
                 size += zf.file_size
-                if size / divisor > interface.THRESHOLD_ZIP_SIZE:
+                if size / interface.MAGNITUDE > interface.THRESHOLD_ZIP_SIZE:
                     zip_mutex.release()
                     request_semaphore.release()
                     return rendering.render_warning_page(
