@@ -27,13 +27,13 @@ def safe_horn_locked(arg):
 def compute_horn(database_path, hashvalue, filename):
     file = None
     if filename.endswith('.cnf.gz'):
-        file = gzip.open(filename, 'rb')
+        file = gzip.open(filename, 'rt')
     elif filename.endswith('.cnf.bz2'):
-        file = bz2.open(filename, 'rb')
+        file = bz2.open(filename, 'rt')
     elif filename.endswith('.cnf.lzma'):
-        file = lzma.open(filename, 'rb')
+        file = lzma.open(filename, 'rt')
     elif filename.endswith('.cnf'):
-        file = open(filename, 'rb')
+        file = open(filename, 'rt')
     else:
         raise Exception("Unknown CNF file-type")
     c_vars = 0
@@ -72,6 +72,7 @@ def algo_horn(api, database, jobs):
         hashvalue = result[0].split(',')[0]
         filename = result[1].split(',')[0]
         eprint('Scheduling bootstrap for {}'.format(filename))
-        pool.apply_async(compute_horn, args=(database.path, hashvalue, filename), callback=safe_horn_locked)
+        handler = pool.apply_async(compute_horn, args=(database.path, hashvalue, filename), callback=safe_horn_locked)
+        #handler.get()
     pool.close()
     pool.join() 
