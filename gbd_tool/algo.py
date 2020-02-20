@@ -15,7 +15,7 @@ def safe_horn_locked(arg):
     mutex.acquire()
     try:
         # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path'], True) as database:
+        with Database(arg['database_path']) as database:
             database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_horn", arg['hashvalue'], arg['c_horn']))
             database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_positive", arg['hashvalue'], arg['c_pos']))
             database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_negative", arg['hashvalue'], arg['c_neg']))
