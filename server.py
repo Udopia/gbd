@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 # Global Benchmark Database (GBD)
 # Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
@@ -20,12 +23,16 @@ import os
 import re
 import threading
 import random
+import argparse
+import sys
+from gbd_tool.util import eprint
 from os.path import basename, isfile
 from zipfile import ZipFile, ZipInfo
 
-import util
-import interface
-import rendering
+import gbd_server
+import gbd_server.util as util
+import gbd_server.interface as interface
+import gbd_server.rendering as rendering
 
 import tatsu
 from flask import Flask, request, send_file, json
@@ -41,7 +48,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 limiter = None
 DATABASE = None
 gbd_api = None
-app = Flask(__name__, static_folder="static", template_folder="templates")
+app = Flask(__name__)
 
 CACHE_PATH = 'cache'
 ZIP_SEMAPHORE = threading.Semaphore(4)
@@ -52,27 +59,6 @@ standard_attribute = interface.standard_attribute
 request_semaphore = threading.Semaphore(10)
 csv_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
 zip_mutex = threading.Semaphore(1)  # shall stay a mutex - don't edit
-
-
-def create_app(application, db):
-    logging.basicConfig(filename='server.log', level=logging.DEBUG)
-    logging.getLogger().addHandler(default_handler)
-    application.wsgi_app = ProxyFix(application.wsgi_app, x_for=1)
-    if db is None:
-        fallback = os.environ.get('GBD_DB')
-        if fallback is None:
-            raise RuntimeError("No database given.")
-        else:
-            application.config['database'] = fallback
-    else:
-        application.config['database'] = db
-    global DATABASE
-    DATABASE = application.config['database']
-    global limiter
-    limiter = Limiter(application, key_func=get_remote_address)
-    global gbd_api
-    gbd_api = GbdApi(DATABASE)
-    return application
 
 
 @app.route("/", methods=['GET'])
@@ -155,12 +141,12 @@ def get_csv_file():
         return rendering.render_warning_page(
             groups=get_group_tuples(),
             checked_groups=checked_groups,
-            warning_message="You don't want empty CSV files, believe me.",
+            warning_message="CSV file would be empty. Aborted.",
             query=query)
     csv_mutex.acquire()
     csv_file = create_csv_file(checked_groups, results)
     csv_mutex.release()
-    app.logger.info('Sent file {} to {} at {}'.format(csv_file, request.remote_addr,
+    app.logger.info('Sending file {} to {} at {}'.format(csv_file, request.remote_addr,
                                                       datetime.datetime.now()))
     request_semaphore.release()
     return send_file(csv_file, attachment_filename='{}.csv'.format(CSV_FILE_NAME), as_attachment=True)
@@ -193,7 +179,7 @@ def get_zip_file():
         return rendering.render_warning_page(
             groups=get_group_tuples(),
             checked_groups=checked_groups,
-            warning_message="You don't want empty ZIP files, believe me.",
+            warning_message="CSV file would be empty. Aborted.",
             query=query)
     if not os.path.isdir('{}'.format(CACHE_PATH)):
         os.makedirs('{}'.format(CACHE_PATH))
@@ -247,7 +233,7 @@ def get_zip_file():
             return rendering.render_warning_page(
                 groups=get_group_tuples(),
                 checked_groups=checked_groups,
-                warning_message="Sorry, I don't have access to the files right now :(",
+                warning_message="Files are temporarily inaccessible. Aborted.",
                 query=query)
     else:
         zip_mutex.release()
@@ -294,65 +280,75 @@ def query_for_cli():
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
-def resolve_file(attribute, hashvalue):
-    if not (gbd_api.check_group_exists(attribute)):
-        return "Attribute was not found in our database\n"
-    else:
-        group_values = dict(gbd_api.query_search(None, [attribute], False))
-        if hashvalue not in group_values.keys():
-            return "No entry in attribute table associated with this hash\n"
-        else:
-            return dict(filter(lambda x: x[0] == hashvalue, group_values.items()))
+def get_attribute(attribute, hashvalue):    
+    try:
+        values = gbd_api.search(attribute, hashvalue)
+        if len(values) == 0:
+            return "No entry in attribute table associated with this hash"
+        return str(",".join(str(value) for value in values))
+    except ValueError as err:
+        return "Value Error: {}".format(err)
 
 
 @app.route('/file/<hashvalue>')
 def get_file(hashvalue):
-    group_values = dict(gbd_api.query_search(None, ['benchmarks'], True))
-    if hashvalue not in group_values.keys():
+    values = gbd_api.search("benchmarks", hashvalue)
+    if len(values) == 0:
         return "No according file found in our database"
-    else:
-        file = group_values.pop(hashvalue)
     try:
-        return send_file(file)
+        path = values.pop()
+        return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
     except FileNotFoundError:
         return "Sorry, I don't have access to the files right now :(\n"
 
 
 @app.route('/info/<hashvalue>')
-def get_file_info(hashvalue):
+def get_all_attributes(hashvalue):
     groups = gbd_api.get_all_groups()
     info = dict([])
-    for group in groups:
-        info.update(map_group_to_tuple(group, hashvalue))
+    for attribute in groups:
+        values = gbd_api.search(attribute, hashvalue)
+        info.update({attribute: str(",".join(str(value) for value in values))})
     return json.dumps(info)
-
-
-def map_group_to_tuple(group, hashvalue):
-    result = dict(gbd_api.query_search(None, [group], False))
-    key = group
-    value = result.pop(hashvalue)
-    return {key: value}
 
 
 @app.route("/getdatabase", methods=['GET'])
 def get_default_database_file():
     request_semaphore.acquire()
     global DATABASE
-    app.logger.info('Sent file {} to {} at {}'.format(DATABASE, request.remote_addr,
-                                                      datetime.datetime.now()))
+    app.logger.info('Sent file {} to {} at {}'.format(DATABASE, request.remote_addr, datetime.datetime.now()))
     filename = basename(DATABASE)
     request_semaphore.release()
-    return send_file(DATABASE,
-                     attachment_filename=filename,
-                     as_attachment=True)
+    return send_file(DATABASE, attachment_filename=filename, as_attachment=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
+    parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
+    args = parser.parse_args()
+    if not args.db:
+        eprint("""No database path is given. 
+A database path can be given in two ways:
+-- by setting the environment variable GBD_DB
+-- by giving a path via --db=[path]
+A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
+Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
+    else:
+        logging.basicConfig(filename='server.log', level=logging.DEBUG)
+        logging.getLogger().addHandler(default_handler)
+        global DATABASE
+        DATABASE = args.db
+        global gbd_api
+        gbd_api = GbdApi(DATABASE)
+        global app
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+        app.config['database'] = DATABASE
+        app.static_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
+        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates")
+        global limiter
+        limiter = Limiter(app, key_func=get_remote_address)
+        app.run(host='0.0.0.0')
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser()
-    parser.add_argument('-d')
-    args = parser.parse_args()
-    database = args.d
-    app = create_app(app, database)
-    app.run(host='0.0.0.0')
+    main()

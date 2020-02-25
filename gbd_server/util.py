@@ -18,7 +18,7 @@ import datetime
 import os
 from zipfile import ZipInfo
 
-import interface
+import gbd_server.interface as interface
 
 
 def delete_old_cached_files(directory, max_hours, max_minutes):
