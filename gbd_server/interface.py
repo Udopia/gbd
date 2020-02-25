@@ -20,7 +20,7 @@ SERVER_CONFIG_PATH = join(dirname(realpath(__file__)), "server_config")
 standard_attribute = 'benchmarks'
 QUERY_PATTERNS = ['competition_year = 2018', 'benchmarks like %battleship%', 'family = software-verification',
                   '(clauses_horn / clauses) > .9']
-MAX_HOURS = 1  # time in hours the ZIP file remain in the cache
+MAX_HOURS = 10  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = None  # time in minutes the ZIP files remain in the cache
 MAGNITUDE = 1024 << 100  # GB
 THRESHOLD_ZIP_SIZE = 5  # size in (MAGNITUDE byte) server should zip at max
