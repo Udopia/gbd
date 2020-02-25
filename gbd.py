@@ -220,8 +220,10 @@ A database path can be given in two ways:
 -- by giving a path via --db=[path]
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
-    else:
+    elif args.func:
         args.func(args)
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':

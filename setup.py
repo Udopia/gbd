@@ -24,7 +24,7 @@ setup(name='global_benchmark_database_tool',
   entry_points={
     "console_scripts": [
         "gbd = gbd:main",
-        "gbd-server = server:main"
+        "gbd-server = gbd-server:main"
     ]
   }
 )
