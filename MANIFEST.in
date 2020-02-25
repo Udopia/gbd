@@ -1,3 +1,8 @@
 include README.md
 include LICENSE
 include setup.py
+include server/templates/*.html
+include server/static/resources/*.png
+include server/static/css/*.css
+include server/static/bootstrap/css/*.css
+
