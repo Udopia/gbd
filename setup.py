@@ -9,7 +9,7 @@ setup(name='global_benchmark_database_tool',
   author='Markus Iser, Luca Springer',
   author_email='gbd@informatik.kit.edu',
   packages=["gbd_tool", "server"],
-  scripts=["gbd.py", "server.py"],
+  scripts=["gbd.py", "gbd-server.py"],
   include_package_data=True,
   install_requires=[
       'flask',
