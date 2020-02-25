@@ -140,6 +140,14 @@ class GbdApi:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, name, value, h)
 
+    def search(self, attribute, hashvalue):
+        if self.db_is_url:
+            raise NotImplementedError
+        if not attribute in self.get_all_groups():
+            raise ValueError("Attribute '{}' is not available".format(attribute))
+        with Database(self.database) as database:
+            return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
+
     # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
     # and filled with hashes and their values for the according group. Returns list of hashes
     def query_search(self, query=None, resolve=[], collapse=False):
