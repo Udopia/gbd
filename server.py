@@ -29,9 +29,10 @@ from gbd_tool.util import eprint
 from os.path import basename, isfile
 from zipfile import ZipFile, ZipInfo
 
-import server.util as util
-import server.interface as interface
-import server.rendering as rendering
+import gbd_server
+import gbd_server.util as util
+import gbd_server.interface as interface
+import gbd_server.rendering as rendering
 
 import tatsu
 from flask import Flask, request, send_file, json
@@ -47,7 +48,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 limiter = None
 DATABASE = None
 gbd_api = None
-app = Flask(__name__, static_folder="server/static", template_folder="server/templates")
+app = Flask(__name__)
 
 CACHE_PATH = 'cache'
 ZIP_SEMAPHORE = threading.Semaphore(4)
@@ -342,6 +343,8 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         global app
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = DATABASE
+        app.static_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
+        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates")
         global limiter
         limiter = Limiter(app, key_func=get_remote_address)
         app.run(host='0.0.0.0')

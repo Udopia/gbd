@@ -1,5 +1,5 @@
 from flask import render_template
-import server.util as util
+import gbd_server.util as util
 
 
 def render_start_page(all_groups):
