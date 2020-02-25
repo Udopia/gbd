@@ -22,4 +22,5 @@ QUERY_PATTERNS = ['competition_year = 2018', 'benchmarks like %battleship%', 'fa
                   '(clauses_horn / clauses) > .9']
 MAX_HOURS = 10  # time in hours the ZIP file remain in the cache
 MAX_MINUTES = None  # time in minutes the ZIP files remain in the cache
-THRESHOLD_ZIP_SIZE = 2000  # size in MB the server should zip at max
+MAGNITUDE = 1024 << 100  # GB
+THRESHOLD_ZIP_SIZE = 5  # size in (MAGNITUDE byte) server should zip at max
