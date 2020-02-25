@@ -1,8 +1,8 @@
 include README.md
 include LICENSE
 include setup.py
-include server/templates/*.html
-include server/static/resources/*.png
-include server/static/css/*.css
-include server/static/bootstrap/css/*.css
+include gbd_server/templates/*.html
+include gbd_server/static/resources/*.png
+include gbd_server/static/css/*.css
+include gbd_server/static/bootstrap/css/*.css
 
