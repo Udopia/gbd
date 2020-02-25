@@ -20,9 +20,8 @@
 import argparse
 import os
 import re
-import sys
 from os.path import join, dirname, realpath
-
+import sys
 from gbd_tool.util import eprint, confirm
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.db import Database
@@ -190,15 +189,10 @@ def main():
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
     parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
-    parser_group.add_argument('-u', '--unique', help='Specify if the group stores unique or '
-                              '(by default) several attributes per benchmark (expects default value which has to match '
-                              'type if set)')
-    parser_group.add_argument('-t', '--type', help='Specify the value type of the group (default: text)',
-                              default="text", choices=['text', 'integer', 'real'])
-    parser_group.add_argument('-r', '--remove', action='store_true',
-                              help='If group exists: remove the group with the specified name')
-    parser_group.add_argument('-c', '--clear', action='store_true',
-                              help='If group exists: remove all values in the group with the specified name')
+    parser_group.add_argument('-u', '--unique', help='Attribute has one unique value per benchmark (expects a default value)')
+    parser_group.add_argument('-t', '--type', help='Specify the value type of the group (default: text)', default="text", choices=['text', 'integer', 'real'])
+    parser_group.add_argument('-r', '--remove', action='store_true', help='If group exists: remove the group with the specified name')
+    parser_group.add_argument('-c', '--clear', action='store_true', help='If group exists: remove all values in the group with the specified name')
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure
@@ -206,8 +200,7 @@ def main():
     parser_tag.add_argument('hashes', help='Hashes', nargs='+')
     parser_tag.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
     parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
-    parser_tag.add_argument('-r', '--remove', action='store_true',
-                            help='Remove attribute from hashes if present, instead of adding it')
+    parser_tag.add_argument('-r', '--remove', action='store_true', help='Remove attribute from hashes if present, instead of adding it')
     parser_tag.add_argument('-f', '--force', action='store_true', help='Overwrite existing values')
     parser_tag.set_defaults(func=cli_set)
 
@@ -219,11 +212,16 @@ def main():
     parser_query.set_defaults(func=cli_get)
 
     # evaluate arguments
-    if len(sys.argv) > 1:
-        args = parser.parse_args()
-        args.func(args)
+    args = parser.parse_args()
+    if not args.db:
+            eprint("""No database path is given. 
+A database path can be given in two ways:
+-- by setting the environment variable GBD_DB
+-- by giving a path via --db=[path]
+A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
+Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
     else:
-        parser.print_help()
+        args.func(args)
 
 
 if __name__ == '__main__':
