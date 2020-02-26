@@ -1,7 +1,7 @@
 {% extends "quick_search.html" %}
 
 {% block content %}
-    {% if is_result == True %}
+    {% if results is defined and results|length %}
         <hr>
         <div class="container" style="display: block; max-height: 700px; overflow-y: auto; padding-left: 0;">
             <div style="background: #32383e; margin-left: 0; margin-bottom: 5px;">
@@ -22,17 +22,5 @@
                 </table>
             </div>
         </div>
-    {% elif is_warning == True %}
-        <div class="alert-warning text-center"
-             style="margin: 10px; padding: 5px; border-radius: 5px">{{ warning_message }}</div>
-    {% elif is_zip == True %}
-        <div class="alert-warning text-center" style="margin: 10px; padding: 5px; border-radius: 5px">{{ zip_message }}
-        </div>
-        <form action="#" method="post" id="zip">
-            <input type="hidden" name="query" value='{{ query }}'>
-            <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                    class="gbd-button gbd-small form-group">Refresh
-            </button>
-        </form>
     {% endif %}
 {% endblock %}
