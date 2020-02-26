@@ -20,11 +20,9 @@
                         <form action="#" method="post">
                             <div>
                                 <input type="hidden" name="query" value='{{ query_pattern }}'>
-                                <button formaction="{{ url_for('quick_search_results', _external=True) }}"
-                                        class="gbd-button gbd-small">{{ query_pattern }}
+                                <button formaction="{{ url_for('quick_search_results', _external=True) }}" class="gbd-button gbd-small">{{ query_pattern }}
                                 </button>
                             </div>
-
                         </form>
                         <hr>
                     {% endfor %}
@@ -39,7 +37,7 @@
                 </div>
                 <div class="container-fluid">
                     <form action="#" method="post" id="args">
-                        {% if has_query == True %}
+                        {% if query is defined and query|length %}
                             <div class="form-group" style="margin-bottom: 0px">
                                 <label for="query"></label>
                                 <input type="text" name="query" class="form-control" value="{{ query }}">
@@ -55,15 +53,13 @@
                                 <label for="groups"></label>
                                 <ul class="checkbox-grid">
                                     {% for group in groups %}
-                                        {% if group[1] == False %}
+                                        {% if group in checked_groups %}
                                             <li style="margin-right: 10px; margin-bottom: 3px">
-                                                <input type="checkbox" name="groups"
-                                                       value="{{ group[0] }}"> {{ group[0] }}
+                                                <input type="checkbox" name="groups" value="{{ group }}" checked> {{ group }}
                                             </li>
                                         {% else %}
-                                            <li>
-                                                <input type="checkbox" name="groups" value="{{ group[0] }}"
-                                                       checked> {{ group[0] }}
+                                            <li style="margin-right: 10px; margin-bottom: 3px">
+                                                <input type="checkbox" name="groups" value="{{ group }}"> {{ group }}
                                             </li>
                                         {% endif %}
                                     {% endfor %}
@@ -79,8 +75,8 @@
                                     class="gbd-button-fancy gbd-csv form-group" style="vertical-align:middle">
                                 <span>Download Attributes</span>
                             </button>
-                            <button formaction="{{ url_for('get_zip_file', _external=True) }}"
-                                    class="gbd-button-fancy gbd-zip orm-group" style="vertical-align:middle">
+                            <button formaction="{{ url_for('get_url_file', _external=True) }}"
+                                    class="gbd-button-fancy gbd-zip form-group" style="vertical-align:middle">
                                 <span>Download Instances</span>
                             </button>
                         </div>
@@ -98,10 +94,9 @@
                 <hr>
                 <div style="margin: 5px">
                     <form action="#" method="get" id="zip">
-                        Default
                         <div>
                             <button formaction="{{ url_for('get_default_database_file', _external=True) }}"
-                                    class="gbd-button gbd-small">Download
+                                    class="gbd-button gbd-small">Download Database
                             </button>
                         </div>
                     </form>

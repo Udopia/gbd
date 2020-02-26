@@ -26,7 +26,7 @@ def find_hashes(database, query=None, resolve=[]):
     s_conditions = "1=1"
     tables = { "benchmarks" }
     
-    if query is not None:
+    if query is not None and query:
         try:
             ast = parse(GRAMMAR, query)
         except exceptions.FailedParse as err:
