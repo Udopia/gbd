@@ -83,10 +83,3 @@ def gbd_hash_inner(file):
     Tend = time.time()
     eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
-
-
-def hash_hashlist(hashlist):
-    hash_md5 = hashlib.md5()
-    for entry in hashlist:
-        hash_md5.update(entry.encode('utf-8'))
-    return hash_md5.hexdigest()

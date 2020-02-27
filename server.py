@@ -50,9 +50,9 @@ gbd_api = None
 app = Flask(__name__)
 
 QUERY_PATTERNS = [
-    'competition_year = 2019', 
-    'benchmarks like %battleship%', 
-    'family = software-verification', 
+    'competition_track = main_2019', 
+    'benchmarks like %vliw%', 
+    'variables > 5000000', 
     '(clauses_horn / clauses) > .9'
 ]
 
@@ -67,12 +67,12 @@ def quick_search():
 def quick_search_results():
     query = request.values.get('query')
     selected_groups = request.values.getlist('groups')
-    available_groups = gbd_api.get_all_groups()
-    groups = list(set(available_groups) & set(selected_groups))
+    available_groups = sorted(gbd_api.get_all_groups())
+    groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
         rows = list(gbd_api.query_search(query, groups))
         return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups, 
+            groups=available_groups, checked_groups=selected_groups if len(selected_groups) else ["benchmarks"], 
             results=rows, query=query, query_patterns=QUERY_PATTERNS)
     except tatsu.exceptions.FailedParse:
         return Response("Malformed Query", status=400)
