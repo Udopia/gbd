@@ -88,7 +88,7 @@ def get_csv_file():
     headers = ["hash", "benchmarks"] if len(checked_groups) == 0 else ["hash"] + checked_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(" ".join(headers) + "\n" + content, mimetype='text/csv')
+    return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
 
 
 @app.route("/getinstances", methods=['POST'])
@@ -98,7 +98,7 @@ def get_url_file():
     hashes = [row[0] for row in result]
     content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(content, mimetype='text/uri-list')
+    return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
 
 
 @app.route("/query", methods=['POST'])  # query string post
