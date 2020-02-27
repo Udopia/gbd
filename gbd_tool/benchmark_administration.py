@@ -23,7 +23,7 @@ from gbd_tool import groups
 from gbd_tool import search
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
-from gbd_tool.util import eprint
+from gbd_tool.util import eprint, confirm
 
 mutex = Lock()
 
@@ -67,11 +67,13 @@ def add_benchmark(database, hash, path):
 
 
 def remove_benchmarks(database):
+    eprint("Sanitizing local path entries ... ")
     paths = database.value_query("SELECT value FROM benchmarks")
-    for p in paths:
-        if not isfile(p):
-            eprint("Problem '{}' not found. Removing...".format(p))
-            database.submit("DELETE FROM benchmarks WHERE value='{}'".format(p))
+    sanitize = list(filter(lambda path: not isfile(path), paths))
+    if len(sanitize) and confirm("{} files not found, remove path entry from database?".format(len(sanitize))):
+        for path in paths:
+            eprint("File '{}' not found, removing path entry.".format(path))
+            database.submit("DELETE FROM benchmarks WHERE value='{}'".format(path))
 
 
 def safe_hash_locked(arg):
@@ -89,7 +91,6 @@ def compute_hash(database_path, path):
     return { 'database_path': database_path, 'path': path, 'hash_new': hash_new }
 
 def register_benchmarks(database, root, jobs=1):
-    eprint('Hashing CNF files in {}'.format(root))
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
@@ -99,7 +100,7 @@ def register_benchmarks(database, root, jobs=1):
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
-                    eprint('Hash in pool {}'.format(filename))
+                    #eprint('Hash in pool {}'.format(filename))
                     handler = pool.apply_async(compute_hash, args=(database.path, path), callback=safe_hash_locked)
                     #handler.get()
     pool.close()
