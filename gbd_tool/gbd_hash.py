@@ -45,9 +45,8 @@ def gbd_hash(filename):
     elif filename.endswith('.cnf'):
         file = open(filename, 'rb')
     else:
-        raise Exception("Unknown CNF file-type")
+        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
 
-    eprint("Creating GBD Hash")
     hashvalue = gbd_hash_inner(file)
 
     file.close()
@@ -55,7 +54,7 @@ def gbd_hash(filename):
 
 
 def gbd_hash_inner(file):
-    Tstart = time.time()
+    #Tstart = time.time()
     space = False
     skip = False
     start = True
@@ -80,6 +79,6 @@ def gbd_hash_inner(file):
     if not blankzero:
         hash_md5.update(b' 0')
 
-    Tend = time.time()
-    eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
+    #Tend = time.time()
+    #eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()

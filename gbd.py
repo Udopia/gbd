@@ -29,7 +29,6 @@ from gbd_tool import benchmark_administration
 
 def cli_hash(args):
     path = os.path.abspath(args.path)
-    eprint('Hashing Benchmark: {}'.format(path))
     print(GbdApi.hash_file(path))
 
 def cli_import(args):
@@ -42,7 +41,6 @@ def cli_import(args):
 def cli_init(args):
     path = os.path.abspath(args.path)
     api = GbdApi(args.db)
-    eprint('Registering benchmarks from path: {}'.format(path))
     api.init_database(path, int(args.jobs))
 
 def cli_bootstrap(args):
