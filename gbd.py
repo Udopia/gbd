@@ -32,11 +32,6 @@ def cli_hash(args):
     eprint('Hashing Benchmark: {}'.format(path))
     print(GbdApi.hash_file(path))
 
-def cli_rehash(args):
-    with Database(args.db, True) as database:
-        benchmark_administration.rehash_benchmarks(database)
-        database.update_hash_version()
-
 def cli_import(args):
     path = os.path.abspath(args.path)
     eprint('Importing Data from CSV-File: {}'.format(path))

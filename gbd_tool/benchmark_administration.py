@@ -104,32 +104,3 @@ def register_benchmarks(database, root, jobs=1):
                     #handler.get()
     pool.close()
     pool.join() 
-
-
-def update_hash_locked(arg):
-    mutex.acquire()
-    try:
-        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path'], True) as database:
-            tables = groups.reflect(database)
-            for table in tables:
-                database.submit("UPDATE {} SET hash='{}' WHERE hash='{}'".format(table, arg['hash_new'], arg['hash_old']))
-    finally:
-        mutex.release()
-
-def compute_hash_for_update(database_path, path, hash_old):
-    eprint('Computing gbd-hash for {}'.format(path))
-    hash_new = gbd_hash(path)
-    return { 'database_path': database_path, 'hash_old': hash_old, 'hash_new': hash_new }
-
-def rehash_benchmarks(database):
-    pool = Pool(multiprocessing.cpu_count())
-    resultset = search.find_hashes(database)
-    for result in resultset:
-        hash_old = result[0]
-        filename = result[1].split(',')[0]
-        eprint("Updating gbd-hash {} for file {}".format(hash_old, filename))
-        handler = pool.apply_async(compute_hash_for_update, args=(database.path, filename, hash_old), callback=update_hash_locked)
-        handler.get()
-    pool.close()
-    pool.join() 

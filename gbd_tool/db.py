@@ -102,9 +102,7 @@ class Database:
             raise DatabaseException(
                 "Version Mismatch. DB Version is at {} but script version is at {}".format(self.get_version(), VERSION))
         if self.get_hash_version() != HASH_VERSION:
-            raise DatabaseException(
-                "Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}.\n Use the 'rehash' function in order to upgrade your database.".format(
-                    self.get_hash_version(), HASH_VERSION))
+            raise DatabaseException("Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}.".format(self.get_hash_version(), HASH_VERSION))
 
     def commit(self):
         self.connection.commit()
