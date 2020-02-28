@@ -58,8 +58,10 @@ QUERY_PATTERNS = [
 
 @app.route("/", methods=['GET'])
 def quick_search():
+    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
     return render_template('quick_search.html', 
-        groups=sorted(gbd_api.get_all_groups()), checked_groups=["local"], 
+        groups=available_groups, checked_groups=["filename"], 
         results=[], query="", query_patterns=QUERY_PATTERNS)
 
 
@@ -67,12 +69,15 @@ def quick_search():
 def quick_search_results():
     query = request.values.get('query')
     selected_groups = request.values.getlist('groups')
+    if not len(selected_groups):
+        selected_groups.append("filename")
     available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
     groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
         rows = list(gbd_api.query_search(query, groups))
         return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups if len(selected_groups) else ["local"], 
+            groups=available_groups, checked_groups=selected_groups, 
             results=rows, query=query, query_patterns=QUERY_PATTERNS)
     except tatsu.exceptions.FailedParse:
         return Response("Malformed Query", status=400)
@@ -85,7 +90,7 @@ def get_csv_file():
     query = request.values.get('query')
     checked_groups = request.values.getlist('groups')
     results = gbd_api.query_search(query, checked_groups)
-    headers = ["hash", "local"] if len(checked_groups) == 0 else ["hash"] + checked_groups
+    headers = ["hash", "filename"] if len(checked_groups) == 0 else ["hash"] + checked_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
@@ -95,8 +100,9 @@ def get_csv_file():
 def get_url_file():
     query = request.values.get('query')
     result = gbd_api.query_search(query)
-    hashes = [row[0] for row in result]
-    content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+    #hashes = [row[0] for row in result]
+    #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+    content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
 
@@ -122,8 +128,9 @@ def get_attribute(attribute, hashvalue):
         return "Value Error: {}".format(err)
 
 
-@app.route('/file/<hashvalue>')
-def get_file(hashvalue):
+@app.route('/file/<hashvalue>', defaults={'filename': None})
+@app.route('/file/<hashvalue>/<filename>')
+def get_file(hashvalue, filename):
     values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
         return "No according file found in our database"

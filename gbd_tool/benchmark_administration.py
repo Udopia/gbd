@@ -58,6 +58,7 @@ def remove_tag(database, cat, tag, hash):
 
 def add_benchmark(database, hash, path):
     database.submit('INSERT INTO local (hash, value) VALUES ("{}", "{}")'.format(hash, path))
+    database.submit('INSERT INTO filename (hash, value) VALUES ("{}", "{}")'.format(hash, os.path.basename(path)))
     g = groups.reflect(database)
     for group in g:
         info = groups.reflect(database, group)

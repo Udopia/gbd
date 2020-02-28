@@ -62,6 +62,7 @@ class Database:
         self.submit(
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         self.submit("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        self.submit("CREATE TABLE filename (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
     def update_hash_version(self):
         self.submit("UPDATE __version SET hash_version={} WHERE entry=0".format(HASH_VERSION))
