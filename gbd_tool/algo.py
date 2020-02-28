@@ -67,7 +67,7 @@ def algo_horn(api, database, jobs):
     api.add_attribute_group("clauses", "integer", 0)
 
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
-    resultset = api.query_search("clauses = 0", ["benchmarks"])
+    resultset = api.query_search("clauses = 0", ["local"])
     for result in resultset:
         hashvalue = result[0].split(',')[0]
         filename = result[1].split(',')[0]

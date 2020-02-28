@@ -57,7 +57,7 @@ def remove_tag(database, cat, tag, hash):
 
 
 def add_benchmark(database, hash, path):
-    database.submit('INSERT INTO benchmarks (hash, value) VALUES ("{}", "{}")'.format(hash, path))
+    database.submit('INSERT INTO local (hash, value) VALUES ("{}", "{}")'.format(hash, path))
     g = groups.reflect(database)
     for group in g:
         info = groups.reflect(database, group)
@@ -68,12 +68,12 @@ def add_benchmark(database, hash, path):
 
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")
-    paths = database.value_query("SELECT value FROM benchmarks")
+    paths = database.value_query("SELECT value FROM local")
     sanitize = list(filter(lambda path: not isfile(path), paths))
-    if len(sanitize) and confirm("{} files not found, remove path entry from database?".format(len(sanitize))):
+    if len(sanitize) and confirm("{} files not found, remove local path entries from database?".format(len(sanitize))):
         for path in paths:
             eprint("File '{}' not found, removing path entry.".format(path))
-            database.submit("DELETE FROM benchmarks WHERE value='{}'".format(path))
+            database.submit("DELETE FROM local WHERE value='{}'".format(path))
 
 
 def safe_hash_locked(arg):
@@ -96,7 +96,7 @@ def register_benchmarks(database, root, jobs=1):
         for filename in filenames:
             path = os.path.join(root, filename)
             if path.endswith(".cnf") or path.endswith(".cnf.gz") or path.endswith(".cnf.lzma") or path.endswith(".cnf.bz2"):
-                hashes = database.value_query("SELECT hash FROM benchmarks WHERE value = '{}'".format(path))
+                hashes = database.value_query("SELECT hash FROM local WHERE value = '{}'".format(path))
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:

@@ -20,7 +20,7 @@ def add(database, cat, unique=False, type='text', default=None):
     database.submit(
         'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value {} NOT NULL {})'.format(cat, ustr, type, dstr))
     if default is not None:
-        database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM benchmarks'.format(cat))
+        database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(cat))
 
 
 def remove(database, cat):
