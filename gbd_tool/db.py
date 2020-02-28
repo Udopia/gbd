@@ -46,8 +46,8 @@ class Database:
             self.version_check()
         else:
             eprint("Skipping version check for database")
-        if not self.has_table('benchmarks'):
-            raise DatabaseException('Table benchmarks is missing in db {}, initialization error?'.format(path))
+        if not self.has_table('local'):
+            raise DatabaseException('Table "local" is missing in db {}, initialization error?'.format(path))
 
     def __enter__(self):
         return self
@@ -61,7 +61,7 @@ class Database:
         self.submit("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         self.submit(
             "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
-        self.submit("CREATE TABLE benchmarks (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        self.submit("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
 
     def update_hash_version(self):
         self.submit("UPDATE __version SET hash_version={} WHERE entry=0".format(HASH_VERSION))

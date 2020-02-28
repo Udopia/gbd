@@ -20,11 +20,11 @@ import pprint
 
 
 def find_hashes(database, query=None, resolve=[]):
-    statement = "SELECT DISTINCT {} FROM benchmarks {} WHERE {} GROUP BY benchmarks.hash"
-    s_attributes = "benchmarks.hash"
+    statement = "SELECT DISTINCT {} FROM local {} WHERE {} GROUP BY local.hash"
+    s_attributes = "local.hash"
     s_tables = ""
     s_conditions = "1=1"
-    tables = { "benchmarks" }
+    tables = { "local" }
     
     if query is not None and query:
         try:
@@ -40,11 +40,11 @@ def find_hashes(database, query=None, resolve=[]):
 
     if resolve is not None:
         if len(resolve) == 0:
-            resolve.append("benchmarks")
-        s_attributes = "benchmarks.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
+            resolve.append("local")
+        s_attributes = "local.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
         tables.update(resolve)
 
-    s_tables = " ".join(['INNER JOIN {} ON benchmarks.hash = {}.hash'.format(table, table) for table in tables if table != "benchmarks"])
+    s_tables = " ".join(['INNER JOIN {} ON local.hash = {}.hash'.format(table, table) for table in tables if table != "local"])
 
     eprint(statement.format(s_attributes, s_tables, s_conditions))
 

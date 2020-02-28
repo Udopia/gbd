@@ -51,7 +51,7 @@ app = Flask(__name__)
 
 QUERY_PATTERNS = [
     'competition_track = main_2019', 
-    'benchmarks like %vliw%', 
+    'local like %vliw%', 
     'variables > 5000000', 
     '(clauses_horn / clauses) > .9'
 ]
@@ -59,7 +59,7 @@ QUERY_PATTERNS = [
 @app.route("/", methods=['GET'])
 def quick_search():
     return render_template('quick_search.html', 
-        groups=sorted(gbd_api.get_all_groups()), checked_groups=["benchmarks"], 
+        groups=sorted(gbd_api.get_all_groups()), checked_groups=["local"], 
         results=[], query="", query_patterns=QUERY_PATTERNS)
 
 
@@ -72,7 +72,7 @@ def quick_search_results():
     try:
         rows = list(gbd_api.query_search(query, groups))
         return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups if len(selected_groups) else ["benchmarks"], 
+            groups=available_groups, checked_groups=selected_groups if len(selected_groups) else ["local"], 
             results=rows, query=query, query_patterns=QUERY_PATTERNS)
     except tatsu.exceptions.FailedParse:
         return Response("Malformed Query", status=400)
@@ -85,7 +85,7 @@ def get_csv_file():
     query = request.values.get('query')
     checked_groups = request.values.getlist('groups')
     results = gbd_api.query_search(query, checked_groups)
-    headers = ["hash", "benchmarks"] if len(checked_groups) == 0 else ["hash"] + checked_groups
+    headers = ["hash", "local"] if len(checked_groups) == 0 else ["hash"] + checked_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
@@ -124,7 +124,7 @@ def get_attribute(attribute, hashvalue):
 
 @app.route('/file/<hashvalue>')
 def get_file(hashvalue):
-    values = gbd_api.search("benchmarks", hashvalue)
+    values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
         return "No according file found in our database"
     try:

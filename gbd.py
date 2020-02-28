@@ -212,7 +212,7 @@ A database path can be given in two ways:
 -- by setting the environment variable GBD_DB
 -- by giving a path via --db=[path]
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
-Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
+Initialize your database with local paths to your benchmark instances by using the init-command. """)
     elif len(sys.argv) > 1:
         try:
             args.func(args)
