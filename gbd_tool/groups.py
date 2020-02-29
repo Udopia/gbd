@@ -57,6 +57,10 @@ def reflect(database, cat=None):
             colid = index_info['table_rank']
             table_infos[colid]['unique'] = values['unique']
 
+        # workaround quoted default-value (temporary sqlite issue?):
+        if table_infos[1]['default_value'] is not None:
+            table_infos[1]['default_value'] = table_infos[1]['default_value'].strip('"')
+
         return table_infos
 
 
