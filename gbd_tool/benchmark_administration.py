@@ -38,14 +38,13 @@ def add_tag(database, cat, tag, hash, force=False):
             if (len(res) == 0):
                 database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
             else:
-                value = res[0][0]
-                if value == info[1]['default_value']:
-                    eprint("Overwriting default-value {} with new value {} for hash {}".format(value, tag, hash))
+                existing_value = res[0][0]
+                default_value = info[1]['default_value']
+                if existing_value == default_value:
+                    eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, tag, hash))
                     database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
-                elif value != tag:
-                    eprint(
-                        "Unable to insert tag ({}, {}) into unique '{}' as a different value is already set: '{}'".format(
-                            hash, tag, cat, value))
+                elif existing_value != tag:
+                    eprint("Unable to insert tag ({}, {}) into unique '{} (default: {})' as a different value is already set: '{}'".format(hash, tag, cat, default_value, existing_value))
     else:
         res = database.value_query("SELECT hash FROM {} WHERE hash='{}' AND value='{}'".format(cat, hash, tag))
         if (len(res) == 0):

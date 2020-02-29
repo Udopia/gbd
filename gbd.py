@@ -216,7 +216,8 @@ Initialize your database with local paths to your benchmark instances by using t
     elif len(sys.argv) > 1:
         try:
             args.func(args)
-        except AttributeError:
+        except AttributeError as e:
+            eprint(e)
             parser.print_help()
     else:
         parser.print_help()
