@@ -35,7 +35,7 @@ __all__ = ['gbd_hash', 'HASH_VERSION']
 HASH_VERSION = 3
 
 
-def gbd_hash(filename):
+def gbd_hash(filename, sorted=False):
     if filename.endswith('.cnf.gz'):
         file = gzip.open(filename, 'rb')
     elif filename.endswith('.cnf.bz2'):
@@ -47,7 +47,10 @@ def gbd_hash(filename):
     else:
         raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
 
-    hashvalue = gbd_hash_inner(file)
+    if sorted:
+        hashvalue = gbd_hash_sorted(file)
+    else:
+        hashvalue = gbd_hash_inner(file)
 
     file.close()
     return hashvalue
@@ -81,4 +84,26 @@ def gbd_hash_inner(file):
 
     #Tend = time.time()
     #eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
+    return hash_md5.hexdigest()
+
+
+def gbd_hash_sorted(file):
+    clauses = []
+    for line in file:
+        if line.strip() and len(line.strip().split()) > 1:
+            parts = line.strip().split()[:-1]
+            if parts[0][0] == 'c' or parts[0][0] == 'p' or len(parts) == 0:
+                continue
+            clauses.append([int(part) for part in parts].sort())
+
+    clauses.sort(key = lambda clause: (len(clause), clause))
+
+    hash_md5 = hashlib.md5()
+    start = True
+    for clause in clauses:
+        if not start:
+            hash_md5.update(b' ')
+        hash_md5.update(" ".join([str(num) for num in clause+[0]]).encode())
+        start = False
+
     return hash_md5.hexdigest()

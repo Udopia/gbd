@@ -1,9 +1,12 @@
 from gbd_tool.util import eprint
 from gbd_tool.db import Database
+from gbd_tool.gbd_hash import gbd_hash
 
 import bz2
 import gzip
 import lzma
+
+import io
 
 import multiprocessing
 from multiprocessing import Pool, Lock
@@ -73,6 +76,49 @@ def algo_horn(api, database, jobs):
         filename = result[1].split(',')[0]
         eprint('Scheduling bootstrap for {}'.format(filename))
         handler = pool.apply_async(compute_horn, args=(database.path, hashvalue, filename), callback=safe_horn_locked)
+        #handler.get()
+    pool.close()
+    pool.join() 
+
+
+
+def safe_sorted_hash_locked(arg):
+    mutex.acquire()
+    try:
+        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
+        with Database(arg['database_path']) as database:
+            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("sorted_hash", arg['hashvalue'], arg['sorted_hash']))
+    finally:
+        mutex.release()
+
+def compute_sorted_hash(database_path, hashvalue, filename):
+    file = None
+    if filename.endswith('.cnf.gz'):
+        file = gzip.open(filename, 'rt')
+    elif filename.endswith('.cnf.bz2'):
+        file = bz2.open(filename, 'rt')
+    elif filename.endswith('.cnf.lzma'):
+        file = lzma.open(filename, 'rt')
+    elif filename.endswith('.cnf'):
+        file = open(filename, 'rt')
+    else:
+        raise Exception("Unknown CNF file-type")
+
+    eprint('Computing sorted_hash attribute for {}'.format(filename))
+    sorted_hash = gbd_hash.gbd_hash(file, sorted=True)
+
+    file.close()
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'sorted_hash': sorted_hash }
+
+def algo_sorted_hash(api, database, jobs):
+    api.add_attribute_group("sorted_hash", "text", None)
+    pool = Pool(min(multiprocessing.cpu_count(), jobs))
+    resultset = api.query_search("sorted_hash = None", ["local"])
+    for result in resultset:
+        hashvalue = result[0].split(',')[0]
+        filename = result[1].split(',')[0]
+        eprint('Scheduling bootstrap for {}'.format(filename))
+        handler = pool.apply_async(compute_sorted_hash, args=(database.path, hashvalue, filename), callback=safe_sorted_hash_locked)
         #handler.get()
     pool.close()
     pool.join() 
