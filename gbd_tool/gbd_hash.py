@@ -72,12 +72,12 @@ def gbd_hash_inner(file):
                 space = False
             hash_md5.update(byte)
             start = False
-        elif byte == b'c' or byte == b'p':
-            skip = True  # do not hash comment and header line
         elif byte <= b' ':
             space = True  # do not immediately append spaces but remember that there was at least one
             if skip and (byte == b'\n' or byte == b'\r'):
                 skip = False  # comment line ended
+        elif byte == b'c' or byte == b'p':
+            skip = True  # do not hash comment and header line
 
     if not blankzero:
         hash_md5.update(b' 0')
@@ -88,13 +88,39 @@ def gbd_hash_inner(file):
 
 
 def gbd_hash_sorted(file):
+    #print(file)
     clauses = []
-    for line in file:
-        if line.strip() and len(line.strip().split()) > 1:
-            parts = line.strip().split()[:-1]
-            if parts[0][0] == 'c' or parts[0][0] == 'p' or len(parts) == 0:
-                continue
-            clauses.append([int(part) for part in parts].sort())
+    clause = []
+    literal = b''
+    
+    space = False
+    skip = False
+    for byte in iter(lambda: file.read(1), b''):
+        if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
+            if space:
+                space = False
+                if len(literal):
+                    clause.append(int(literal))
+                    literal = b''
+                if byte == b'0':
+                    clauses.append(sorted(clause))
+                    clause = []
+                else:
+                    literal = literal + byte
+            else:
+                literal = literal + byte
+        elif byte <= b' ':
+            space = True  # remember whitespace
+            if skip and (byte == b'\n' or byte == b'\r'):
+                skip = False  # comment line ended
+        elif byte == b'c' or byte == b'p':
+            skip = True  # skip comment and header line
+    
+    if len(literal):
+        clause.append(int(literal))
+    if len(clause):
+        clauses.append(sorted(clause))
+        clause = []
 
     clauses.sort(key = lambda clause: (len(clause), clause))
 
@@ -103,7 +129,7 @@ def gbd_hash_sorted(file):
     for clause in clauses:
         if not start:
             hash_md5.update(b' ')
-        hash_md5.update(" ".join([str(num) for num in clause+[0]]).encode())
+        hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause+[0]]))
         start = False
 
     return hash_md5.hexdigest()
