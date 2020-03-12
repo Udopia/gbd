@@ -15,8 +15,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import bz2
+import gzip
+import lzma
+import io
 
-__all__ = ['eprint', 'read_hashes', 'confirm']
+__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file']
+
+
+def open_cnf_file(filename, mode):
+    """
+    Opens a CNF file (this is badly guarded, by file-extension only)
+    """
+    if filename.endswith('.cnf.gz'):
+        return gzip.open(filename, mode)
+    elif filename.endswith('.cnf.bz2'):
+        return bz2.open(filename, mode)
+    elif filename.endswith('.cnf.lzma'):
+        return lzma.open(filename, mode)
+    elif filename.endswith('.cnf'):
+        return open(filename, mode)
+    else:
+        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
 
 
 def eprint(*args, **kwargs):

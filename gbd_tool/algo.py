@@ -1,10 +1,7 @@
-from gbd_tool.util import eprint
+from gbd_tool.util import eprint, open_cnf_file
 from gbd_tool.db import Database
-from gbd_tool.gbd_hash import gbd_hash
 
-import bz2
-import gzip
-import lzma
+from gbd_tool.gbd_hash import gbd_hash_sorted
 
 import io
 
@@ -28,23 +25,13 @@ def safe_horn_locked(arg):
         mutex.release()
 
 def compute_horn(database_path, hashvalue, filename):
-    file = None
-    if filename.endswith('.cnf.gz'):
-        file = gzip.open(filename, 'rt')
-    elif filename.endswith('.cnf.bz2'):
-        file = bz2.open(filename, 'rt')
-    elif filename.endswith('.cnf.lzma'):
-        file = lzma.open(filename, 'rt')
-    elif filename.endswith('.cnf'):
-        file = open(filename, 'rt')
-    else:
-        raise Exception("Unknown CNF file-type")
+    eprint('Computing bootstrap attributes for {}'.format(filename))
+    file = open_cnf_file(filename, 'rt')
     c_vars = 0
     c_clauses = 0
     c_horn = 0
     c_pos = 0
     c_neg = 0
-    eprint('Computing bootstrap attributes for {}'.format(filename))
     for line in file:
         if line.strip() and len(line.strip().split()) > 1:
             parts = line.strip().split()[:-1]
@@ -92,21 +79,9 @@ def safe_sorted_hash_locked(arg):
         mutex.release()
 
 def compute_sorted_hash(database_path, hashvalue, filename):
-    file = None
-    if filename.endswith('.cnf.gz'):
-        file = gzip.open(filename, 'rt')
-    elif filename.endswith('.cnf.bz2'):
-        file = bz2.open(filename, 'rt')
-    elif filename.endswith('.cnf.lzma'):
-        file = lzma.open(filename, 'rt')
-    elif filename.endswith('.cnf'):
-        file = open(filename, 'rt')
-    else:
-        raise Exception("Unknown CNF file-type")
-
     eprint('Computing sorted_hash attribute for {}'.format(filename))
-    sorted_hash = gbd_hash.gbd_hash(file, sorted=True)
-
+    file = open_cnf_file(filename, 'rt')
+    sorted_hash = gbd_hash.gbd_hash_sorted(file)
     file.close()
     return { 'database_path': database_path, 'hashvalue': hashvalue, 'sorted_hash': sorted_hash }
 

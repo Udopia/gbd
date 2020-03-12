@@ -14,16 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import bz2
-import gzip
-import lzma
-import hashlib
 import io
+import hashlib
 import re
 import sys
 import time
 
-from gbd_tool.util import eprint
+from gbd_tool.util import eprint, open_cnf_file
 
 __all__ = ['gbd_hash', 'HASH_VERSION']
 
@@ -36,16 +33,7 @@ HASH_VERSION = 3
 
 
 def gbd_hash(filename, sorted=False):
-    if filename.endswith('.cnf.gz'):
-        file = gzip.open(filename, 'rb')
-    elif filename.endswith('.cnf.bz2'):
-        file = bz2.open(filename, 'rb')
-    elif filename.endswith('.cnf.lzma'):
-        file = lzma.open(filename, 'rb')
-    elif filename.endswith('.cnf'):
-        file = open(filename, 'rb')
-    else:
-        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
+    file = open_cnf_file(filename, 'rb')
 
     if sorted:
         hashvalue = gbd_hash_sorted(file)
