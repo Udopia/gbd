@@ -11,21 +11,44 @@ from multiprocessing import Pool, Lock
 mutex = Lock()
 
 
-def safe_horn_locked(arg):
+def bootstrap(api, database, named_algo, jobs):
+    if named_algo == 'clause_types':
+        api.add_attribute_group("clauses_horn", "integer", 0)
+        api.add_attribute_group("clauses_positive", "integer", 0)
+        api.add_attribute_group("clauses_negative", "integer", 0)
+        api.add_attribute_group("variables", "integer", 0)
+        api.add_attribute_group("clauses", "integer", 0)
+        resultset = api.query_search("clauses = 0", ["local"])
+        schedule_bootstrap(database.path, jobs, resultset, compute_clause_types)
+    elif named_algo == 'sorted_hash':
+        api.add_attribute_group("sorted_hash", "text", "empty")
+        resultset = api.query_search("sorted_hash = empty", ["local"])
+        schedule_bootstrap(database.path, jobs, resultset, compute_sorted_hash)
+    else:
+        raise NotImplementedError
+
+def schedule_bootstrap(database_path, jobs, resultset, func):
+    pool = Pool(min(multiprocessing.cpu_count(), jobs))
+    for result in resultset:
+        hashvalue = result[0]
+        filename = result[1].split(',')[0]
+        pool.apply_async(func, args=(database_path, hashvalue, filename), callback=safe_locked)
+    pool.close()
+    pool.join() 
+
+def safe_locked(arg):
     mutex.acquire()
     try:
         # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
         with Database(arg['database_path']) as database:
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_horn", arg['hashvalue'], arg['c_horn']))
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_positive", arg['hashvalue'], arg['c_pos']))
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses_negative", arg['hashvalue'], arg['c_neg']))
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("variables", arg['hashvalue'], arg['c_vars']))
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("clauses", arg['hashvalue'], arg['c_clauses']))
+            for attr in arg['attributes']:
+                database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(attr[0], arg['hashvalue'], attr[1]))
     finally:
         mutex.release()
 
-def compute_horn(database_path, hashvalue, filename):
-    eprint('Computing bootstrap attributes for {}'.format(filename))
+
+def compute_clause_types(database_path, hashvalue, filename):
+    eprint('Computing clause_types for {}'.format(filename))
     file = open_cnf_file(filename, 'rt')
     c_vars = 0
     c_clauses = 0
@@ -47,53 +70,14 @@ def compute_horn(database_path, hashvalue, filename):
             if n_neg == len(parts):
                 c_neg += 1
     file.close()
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'c_horn': c_horn, 'c_pos': c_pos, 'c_neg': c_neg, 'c_vars': c_vars, 'c_clauses': c_clauses }
+    attributes = [ ('clauses_horn', c_horn), ('clauses_positive', c_pos), ('clauses_negative', c_neg), ('variables', c_vars), ('clauses', c_clauses) ]
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
 
-def algo_horn(api, database, jobs):
-    api.add_attribute_group("clauses_horn", "integer", 0)
-    api.add_attribute_group("clauses_positive", "integer", 0)
-    api.add_attribute_group("clauses_negative", "integer", 0)
-    api.add_attribute_group("variables", "integer", 0)
-    api.add_attribute_group("clauses", "integer", 0)
-
-    pool = Pool(min(multiprocessing.cpu_count(), jobs))
-    resultset = api.query_search("clauses = 0", ["local"])
-    for result in resultset:
-        hashvalue = result[0].split(',')[0]
-        filename = result[1].split(',')[0]
-        eprint('Scheduling bootstrap for {}'.format(filename))
-        handler = pool.apply_async(compute_horn, args=(database.path, hashvalue, filename), callback=safe_horn_locked)
-        #handler.get()
-    pool.close()
-    pool.join() 
-
-
-
-def safe_sorted_hash_locked(arg):
-    mutex.acquire()
-    try:
-        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path']) as database:
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format("sorted_hash", arg['hashvalue'], arg['sorted_hash']))
-    finally:
-        mutex.release()
 
 def compute_sorted_hash(database_path, hashvalue, filename):
-    eprint('Computing sorted_hash attribute for {}'.format(filename))
-    file = open_cnf_file(filename, 'rt')
-    sorted_hash = gbd_hash.gbd_hash_sorted(file)
+    eprint('Computing sorted_hash for {}'.format(filename))
+    file = open_cnf_file(filename, 'rb')
+    sorted_hash = gbd_hash_sorted(file)
     file.close()
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'sorted_hash': sorted_hash }
-
-def algo_sorted_hash(api, database, jobs):
-    api.add_attribute_group("sorted_hash", "text", None)
-    pool = Pool(min(multiprocessing.cpu_count(), jobs))
-    resultset = api.query_search("sorted_hash = None", ["local"])
-    for result in resultset:
-        hashvalue = result[0].split(',')[0]
-        filename = result[1].split(',')[0]
-        eprint('Scheduling bootstrap for {}'.format(filename))
-        handler = pool.apply_async(compute_sorted_hash, args=(database.path, hashvalue, filename), callback=safe_sorted_hash_locked)
-        #handler.get()
-    pool.close()
-    pool.join() 
+    print('Return {}\n'.format(sorted_hash))
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('sorted_hash', sorted_hash) ] }

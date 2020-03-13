@@ -60,11 +60,11 @@ class GbdApi:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(database, path, jobs)
 
-    def bootstrap(self, jobs=1):
+    def bootstrap(self, named_algo, jobs=1):
         if self.db_is_url:
             raise NotImplementedError
         with Database(self.database) as database:
-            algo.algo_horn(self, database, jobs)
+            algo.bootstrap(self, database, named_algo, jobs)
 
     # Get information of the whole database
     def get_database_info(self):

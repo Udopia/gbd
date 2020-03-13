@@ -45,7 +45,7 @@ def cli_init(args):
 
 def cli_bootstrap(args):
     api = GbdApi(args.db)
-    api.bootstrap(int(args.jobs))
+    api.bootstrap(args.algo, int(args.jobs))
 
 # entry for modify command
 def cli_group(args):
@@ -156,11 +156,12 @@ def main():
     parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
     parser_init.set_defaults(func=cli_init)
 
-    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
-    parser_hash.set_defaults(func=cli_hash)
+    # define create command sub-structure
+    parser_algo = subparsers.add_parser('bootstrap', help='Calculate hard-coded sets of instance attributes')
+    parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'sorted_hash'])
+    parser_algo.set_defaults(func=cli_bootstrap)
 
-    parser_import = subparsers.add_parser('import', help='Import attributes from comma-separated csv-file with header')
+    parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")
     parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (the hash-value of the problem)", required=True)
     parser_import.add_argument('-s', '--source', help="Source name of column to import (in csv-file)", required=True)
@@ -174,10 +175,9 @@ def main():
     parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
     parser_reflect.set_defaults(func=cli_info)
 
-    # define create command sub-structure
-    parser_algo = subparsers.add_parser('bootstrap', help='Bootstrapping: Calculate a hard-coded set of instance attributes')
-    #parser_algo.add_argument('name', type=column_type, help='Name of algorithm: "horn" or "vars"')
-    parser_algo.set_defaults(func=cli_bootstrap)
+    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
+    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_hash.set_defaults(func=cli_hash)
 
     # define create command sub-structure
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
@@ -189,7 +189,7 @@ def main():
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure
-    parser_tag = subparsers.add_parser('set', help='Sets the value of attribute [name] to [value] for benchmark [hash]')
+    parser_tag = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
     parser_tag.add_argument('hashes', help='Hashes', nargs='+')
     parser_tag.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
     parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
