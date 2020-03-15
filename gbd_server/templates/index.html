@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GBD Vue.js test page</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+<body>
+<div id="app">
+    <input v-model="query">
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            query: ''
+        }
+    })
+</script>
+</html>
