@@ -166,6 +166,7 @@ def get_default_database_file():
 
 @app.route("/getgroups", methods=['GET'])
 def get_all_groups():
+    #  TODO: don't show group "local"
     return json.dumps(gbd_api.get_all_groups())
 
 
