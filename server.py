@@ -56,6 +56,7 @@ QUERY_PATTERNS = [
     '(clauses_horn / clauses) > .9'
 ]
 
+
 @app.route("/", methods=['GET'])
 def quick_search():
     available_groups = sorted(gbd_api.get_all_groups())
@@ -63,6 +64,11 @@ def quick_search():
     return render_template('quick_search.html', 
         groups=available_groups, checked_groups=["filename"], 
         results=[], query="", query_patterns=QUERY_PATTERNS)
+
+
+@app.route("/testpage", methods=['GET'])
+def get_test_page():
+    return render_template('index.html')
 
 
 @app.route("/results", methods=['POST'])
@@ -156,6 +162,11 @@ def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+
+
+@app.route("/getgroups", methods=['GET'])
+def get_all_groups():
+    return json.dumps(gbd_api.get_all_groups())
 
 
 def main():
