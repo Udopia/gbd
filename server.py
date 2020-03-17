@@ -161,7 +161,7 @@ def get_default_database_file():
 def main():
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
-    parser.add_argument('-p', "--port", help='Specify port on which to listen', default=5000)
+    parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
     args = parser.parse_args()
     if not args.db:
         eprint("""No database path is given. 
@@ -184,7 +184,7 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates")
         global limiter
         limiter = Limiter(app, key_func=get_remote_address)
-        app.run(host='0.0.0.0', port=int(args.port))
+        app.run(host='0.0.0.0', port=args.port)
 
 
 if __name__ == '__main__':
