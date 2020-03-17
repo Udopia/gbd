@@ -30,7 +30,7 @@ def bootstrap(api, database, named_algo, jobs):
 def schedule_bootstrap(database_path, jobs, resultset, func):
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
     for result in resultset:
-        hashvalue = result[0]
+        hashvalue = result[0].split(',')[0]
         filename = result[1].split(',')[0]
         pool.apply_async(func, args=(database_path, hashvalue, filename), callback=safe_locked)
     pool.close()
@@ -79,5 +79,4 @@ def compute_sorted_hash(database_path, hashvalue, filename):
     file = open_cnf_file(filename, 'rb')
     sorted_hash = gbd_hash_sorted(file)
     file.close()
-    print('Return {}\n'.format(sorted_hash))
     return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('sorted_hash', sorted_hash) ] }

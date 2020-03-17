@@ -19,9 +19,10 @@ from tatsu import parse, exceptions
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[]):
-    statement = "SELECT DISTINCT {} FROM local {} WHERE {} GROUP BY local.hash"
+def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None):
+    statement = "SELECT {} FROM local {} WHERE {} GROUP BY {}"
     s_attributes = "local.hash"
+    s_group_by = 'local.hash'
     s_tables = ""
     s_conditions = "1=1"
     tables = { "local" }
@@ -31,7 +32,7 @@ def find_hashes(database, query=None, resolve=[]):
             ast = parse(GRAMMAR, query)
         except exceptions.FailedParse as err:
             eprint(err)
-            eprint("Parser Exception: The query-parser threw an exception (try using more brackets)")
+            eprint("Exception in Query-Parser: Put any arithmetic expression in parentheses.")
             return list() 
         #pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(ast)
@@ -41,14 +42,21 @@ def find_hashes(database, query=None, resolve=[]):
     if resolve is not None:
         if len(resolve) == 0:
             resolve.append("local")
-        s_attributes = "local.hash, " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
+        if collapse:
+            s_attributes = "MIN(DISTINCT(local.hash)), " + ", ".join(['MIN(DISTINCT({}.value))'.format(table) for table in resolve])
+        else:
+            s_attributes = "GROUP_CONCAT(DISTINCT(local.hash)), " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
         tables.update(resolve)
+
+    if group_by is not None:
+        s_group_by = group_by + ".value"
+        tables.add(group_by)
 
     s_tables = " ".join(['INNER JOIN {} ON local.hash = {}.hash'.format(table, table) for table in tables if table != "local"])
 
-    eprint(statement.format(s_attributes, s_tables, s_conditions))
+    eprint(statement.format(s_attributes, s_tables, s_conditions, s_group_by))
 
-    return database.query(statement.format(s_attributes, s_tables, s_conditions))
+    return database.query(statement.format(s_attributes, s_tables, s_conditions, s_group_by))
 
 
 def build_where(ast):
