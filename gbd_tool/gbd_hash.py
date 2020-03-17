@@ -22,6 +22,8 @@ import time
 
 from gbd_tool.util import eprint, open_cnf_file
 
+import numpy as np
+
 __all__ = ['gbd_hash', 'HASH_VERSION']
 
 # Hash-Version 0: initial version (regex based normaliation)
@@ -110,11 +112,16 @@ def gbd_hash_sorted(file):
         clauses.append(sorted(clause))
         clause = []
 
-    clauses.sort(key = lambda clause: (len(clause), clause))
+    eprint("Loaded data into memory. Pre-Sorting...")
+    clauses.sort(key = lambda clause: len(clause))
+    eprint("Done with sorting by length. Sorting...")
+    np_clauses = np.array(clauses)
+    np_clauses.sort(axis=0, kind='stable')
+    eprint("Done with sorting. Hashing...")
 
     hash_md5 = hashlib.md5()
     start = True
-    for clause in clauses:
+    for clause in np_clauses:
         if not start:
             hash_md5.update(b' ')
         hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause+[0]]))
