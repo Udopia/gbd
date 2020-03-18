@@ -19,6 +19,7 @@ import hashlib
 import re
 import sys
 import time
+import array
 
 from gbd_tool.util import eprint, open_cnf_file
 
@@ -86,6 +87,7 @@ def gbd_hash_sorted(file):
     space = False
     skip = False
     sign = False
+    eprint("Opened it. Reading...")
     for byte in iter(lambda: file.read(1), b''):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
             if space:
@@ -95,8 +97,9 @@ def gbd_hash_sorted(file):
                     literal = 0
                     sign = False
                 if byte == b'0':
-                    clauses.append(sorted(clause))
-                    clause = []
+                    clause.sort()
+                    clauses.append(array.array('i', clause))
+                    clause.clear()
             if byte != b'0':
                 if byte == b'-':
                     sign = True
@@ -114,10 +117,13 @@ def gbd_hash_sorted(file):
     if literal > 0:
         clause.append(literal)
     if len(clause):
-        clauses.append(sorted(clause))
-        clause = []
+        clause.sort()
+        clauses.append(array.array('i', clause))
+        clause.clear()
 
+    eprint("Read it all. Sorting...")
     clauses.sort(key = lambda clause: (len(clause), clause))
+    eprint("Sorted it all. Hashing...")
 
     hash_md5 = hashlib.md5()
     start = True
