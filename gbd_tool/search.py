@@ -26,6 +26,8 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None)
     s_tables = ""
     s_conditions = "1=1"
     tables = { "local" }
+    if resolve is None:
+        resolve = []
     
     if query is not None and query:
         try:
@@ -39,18 +41,19 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None)
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
 
-    if resolve is not None:
-        if len(resolve) == 0:
-            resolve.append("local")
-        if collapse:
-            s_attributes = "MIN(DISTINCT(local.hash)), " + ", ".join(['MIN(DISTINCT({}.value))'.format(table) for table in resolve])
-        else:
-            s_attributes = "GROUP_CONCAT(DISTINCT(local.hash)), " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
-        tables.update(resolve)
-
     if group_by is not None:
         s_group_by = group_by + ".value"
-        tables.add(group_by)
+        resolve.append(group_by)
+
+    if collapse:
+        s_attributes = "MIN(DISTINCT(local.hash))"
+        if len(resolve):
+            s_attributes = s_attributes + ", " + ", ".join(['MIN(DISTINCT({}.value))'.format(table) for table in resolve])
+    else:
+        s_attributes = "GROUP_CONCAT(DISTINCT(local.hash))"
+        if len(resolve):
+            s_attributes = s_attributes + ", " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
+    tables.update(resolve)
 
     s_tables = " ".join(['INNER JOIN {} ON local.hash = {}.hash'.format(table, table) for table in tables if table != "local"])
 
