@@ -193,7 +193,7 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = DATABASE
         app.static_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
-        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates")
+        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         global limiter
         limiter = Limiter(app, key_func=get_remote_address)
         app.run(host='0.0.0.0', port=args.port)
