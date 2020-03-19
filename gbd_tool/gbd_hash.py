@@ -19,8 +19,11 @@ import hashlib
 import re
 import sys
 import time
+import array
 
 from gbd_tool.util import eprint, open_cnf_file
+
+#import numpy as np
 
 __all__ = ['gbd_hash', 'HASH_VERSION']
 
@@ -79,24 +82,31 @@ def gbd_hash_sorted(file):
     #print(file)
     clauses = []
     clause = []
-    literal = b''
+    literal = 0
     
     space = False
     skip = False
+    sign = False
+    eprint("Opened it. Reading...")
     for byte in iter(lambda: file.read(1), b''):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
             if space:
                 space = False
-                if len(literal):
-                    clause.append(int(literal))
-                    literal = b''
+                if literal != 0:
+                    clause.append(literal)
+                    literal = 0
+                    sign = False
                 if byte == b'0':
-                    clauses.append(sorted(clause))
-                    clause = []
+                    clause.sort()
+                    clauses.append(array.array('i', clause))
+                    clause.clear()
+            if byte != b'0':
+                if byte == b'-':
+                    sign = True
+                elif sign:
+                    literal = literal * 10 - int(byte)
                 else:
-                    literal = literal + byte
-            else:
-                literal = literal + byte
+                    literal = literal * 10 + int(byte)
         elif byte <= b' ':
             space = True  # remember whitespace
             if skip and (byte == b'\n' or byte == b'\r'):
@@ -104,20 +114,25 @@ def gbd_hash_sorted(file):
         elif byte == b'c' or byte == b'p':
             skip = True  # skip comment and header line
     
-    if len(literal):
-        clause.append(int(literal))
+    if literal > 0:
+        clause.append(literal)
     if len(clause):
-        clauses.append(sorted(clause))
-        clause = []
+        clause.sort()
+        clauses.append(array.array('i', clause))
+        clause.clear()
 
+    eprint("Read it all. Sorting...")
     clauses.sort(key = lambda clause: (len(clause), clause))
+    eprint("Sorted it all. Hashing...")
 
     hash_md5 = hashlib.md5()
     start = True
     for clause in clauses:
         if not start:
             hash_md5.update(b' ')
+            #eprint(' ')
         hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause+[0]]))
+        #eprint(str(' '.join([str(num) for num in clause+[0]])))
         start = False
 
     return hash_md5.hexdigest()

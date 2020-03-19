@@ -155,13 +155,11 @@ class GbdApi:
         with Database(self.database) as database:
             return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
 
-    # Search for benchmarks which have to pertain to the query semantics. Before searching, some groups must be added
-    # and filled with hashes and their values for the according group. Returns list of hashes
-    def query_search(self, query=None, resolve=[], collapse=False):
+    def query_search(self, query=None, resolve=[], collapse=False, group_by=None):
         # remote queries
         if self.db_is_url:
             try:
-                # TODO: make sure to to generate the same datastructure and resultset as with local queries:
+                # TODO: use the same data-structure and resultset as with local queries:
                 return set(post_request("{}/query".format(self.database), {'query': query}, {'User-Agent': USER_AGENT_CLI}))
             except URLError:
                 raise ValueError('Cannot send request to host')
@@ -169,17 +167,6 @@ class GbdApi:
         else:
             with Database(self.database) as database:
                 try:
-                    resultset = search.find_hashes(database, query, resolve)
-                    if collapse:
-                        returnset = list()
-                        for result in resultset:
-                            result_list = list(result)
-                            return_list = list()
-                            for item in result_list:
-                                item = "".join([item.split(',')[0]])
-                                return_list.append(item)
-                            returnset.append(tuple(return_list))
-                        resultset = returnset
+                    return search.find_hashes(database, query, resolve, collapse, group_by)
                 except sqlite3.OperationalError as err:
                     raise ValueError("Query error for database '{}': {}".format(self.database, err))
-                return resultset
