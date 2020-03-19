@@ -68,7 +68,6 @@ def cli_group(args):
     else:
         if args.clear and confirm("Clear group '{}'?".format(args.name)):
             api.clear_group(args.name)
-    return
 
 
 # entry for query command
@@ -76,17 +75,13 @@ def cli_get(args):
     eprint("Querying {} ...".format(args.db))
     try:
         api = GbdApi(args.db)
-        resultset = api.query_search(args.query, args.resolve)
+        eprint(str(args))
+        resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
     except ValueError as e:
         eprint(e)
         return
-    if args.collapse:
-        for result in resultset:
-            print(" ".join([item.split(',')[0] for item in result]))
-    else:
-        for result in resultset:
-            print(" ".join([(item or '') for item in result]))
-    return
+    for result in resultset:
+        print(" ".join([(str(item or '')) for item in result]))
 
 
 # associate an attribute with a hash and a value
@@ -202,6 +197,7 @@ def main():
     parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
     parser_query.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
     parser_query.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
+    parser_query.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
     parser_query.set_defaults(func=cli_get)
 
     # evaluate arguments
