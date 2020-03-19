@@ -63,9 +63,9 @@ def quick_search():
 
 
 @app.route("/results", methods=['POST'])
-def quick_search_results():
+def quick_search_results_json():
     query = request.values.get('query')
-    selected_groups = request.values.getlist('groups')
+    selected_groups = request.values.getlist('selected_groups')
     if not len(selected_groups):
         selected_groups.append("filename")
     available_groups = sorted(gbd_api.get_all_groups())
@@ -73,13 +73,18 @@ def quick_search_results():
     groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
         rows = list(gbd_api.query_search(query, groups))
-        return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups, 
-            results=rows, query=query, query_patterns=QUERY_PATTERNS)
+        return Response(json.dumps(rows), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
+        return Response("Malformed Query", status=400, mimetype="text/plain")
     except ValueError:
-        return Response("Attribute not Available", status=404)
+        return Response("Attribute not Available", status=404, mimetype="text/plain")
+
+
+@app.route("/getgroups", methods=['GET'])
+def get_all_groups():
+    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
+    return Response(json.dumps(available_groups), status=200, mimetype="application/json")
 
 
 @app.route("/exportcsv", methods=['POST'])
@@ -111,7 +116,7 @@ def query_for_cli():
         hashset = gbd_api.query_search(query)
         return json.dumps(list(hashset))
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
+        return Response("Malformed Query", status=400, mimetype="text/plain")
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
@@ -153,13 +158,6 @@ def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
-
-
-@app.route("/getgroups", methods=['GET'])
-def get_all_groups():
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
-    return json.dumps(available_groups)
 
 
 def main():
