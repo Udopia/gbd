@@ -7,10 +7,13 @@
 <body>
 {% raw %}
 <div id="app">
+    <form>
     <input v-model="query">
     <div v-for="group in groups">
-        <input type="checkbox" v-bind:value="group.name" v-model="checkedGroups">{{ group.name }}
+        <input type="checkbox" v-bind:value="group.name" v-model="selected_groups">{{ group.name }}
     </div>
+        <button v-on:click="submitQuery">Submit Query</button>
+    </form>
 </div>
 {% endraw %}
 </body>

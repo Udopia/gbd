@@ -64,8 +64,11 @@ def quick_search():
 
 @app.route("/results", methods=['POST'])
 def quick_search_results_json():
-    query = request.values.get('query')
-    selected_groups = request.values.getlist('selected_groups')
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+        return Response("Bad Request", status=400, mimetype="text/plain")
+    query = data.get('query')
+    selected_groups = data.get('selected_groups')
     if not len(selected_groups):
         selected_groups.append("filename")
     available_groups = sorted(gbd_api.get_all_groups())
