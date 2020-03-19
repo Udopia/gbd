@@ -59,15 +59,6 @@ QUERY_PATTERNS = [
 
 @app.route("/", methods=['GET'])
 def quick_search():
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
-    return render_template('quick_search.html', 
-        groups=available_groups, checked_groups=["filename"], 
-        results=[], query="", query_patterns=QUERY_PATTERNS)
-
-
-@app.route("/testpage", methods=['GET'])
-def get_test_page():
     return render_template('index.html')
 
 
@@ -166,8 +157,9 @@ def get_default_database_file():
 
 @app.route("/getgroups", methods=['GET'])
 def get_all_groups():
-    #  TODO: don't show group "local"
-    return json.dumps(gbd_api.get_all_groups())
+    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
+    return json.dumps(available_groups)
 
 
 def main():
