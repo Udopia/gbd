@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='global_benchmark_database_tool',
-  version='2.7.2',
+  version='2.7.3',
   description='Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -12,9 +12,10 @@ setup(name='global_benchmark_database_tool',
   scripts=["gbd.py", "server.py"],
   include_package_data=True,
   install_requires=[
+      'setuptools',
+      'wheel',
       'flask',
       'flask_limiter',
-      'setuptools',
       'tatsu',
   ],
   classifiers=[
