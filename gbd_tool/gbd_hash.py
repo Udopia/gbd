@@ -23,8 +23,6 @@ import array
 
 from gbd_tool.util import eprint, open_cnf_file
 
-#import numpy as np
-
 __all__ = ['gbd_hash', 'HASH_VERSION']
 
 # Hash-Version 0: initial version (regex based normaliation)
@@ -131,7 +129,8 @@ def gbd_hash_sorted(file):
         if not start:
             hash_md5.update(b' ')
             #eprint(' ')
-        hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause+[0]]))
+        hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause]))
+        hash_md5.update(b' 0')
         #eprint(str(' '.join([str(num) for num in clause+[0]])))
         start = False
 
