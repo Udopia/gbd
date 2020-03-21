@@ -20,14 +20,9 @@
 import datetime
 import logging
 import os
-import re
-import threading
-import random
 import argparse
-import sys
 from gbd_tool.util import eprint
-from os.path import basename, isfile
-from zipfile import ZipFile, ZipInfo
+from os.path import basename
 
 import gbd_server
 
@@ -39,8 +34,6 @@ from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
-from gbd_tool import gbd_hash
-from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
