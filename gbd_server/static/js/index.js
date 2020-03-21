@@ -47,6 +47,7 @@ var app = new Vue({
                         alert('Something went wrong. Check the console for details.');
                     }
                 });
+                event.preventDefault();
             },
         },
         mounted: function () {
