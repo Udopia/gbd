@@ -28,13 +28,19 @@ def bootstrap(api, database, named_algo, jobs):
         raise NotImplementedError
 
 def schedule_bootstrap(database_path, jobs, resultset, func):
-    pool = Pool(min(multiprocessing.cpu_count(), jobs))
-    for result in resultset:
-        hashvalue = result[0].split(',')[0]
-        filename = result[1].split(',')[0]
-        pool.apply_async(func, args=(database_path, hashvalue, filename), callback=safe_locked)
-    pool.close()
-    pool.join() 
+    if jobs == 1:
+        for result in resultset:
+            hashvalue = result[0].split(',')[0]
+            filename = result[1].split(',')[0]
+            safe_locked(func(database_path, hashvalue, filename))
+    else:
+        pool = Pool(min(multiprocessing.cpu_count(), jobs))
+        for result in resultset:
+            hashvalue = result[0].split(',')[0]
+            filename = result[1].split(',')[0]
+            pool.apply_async(func, args=(database_path, hashvalue, filename), callback=safe_locked)
+        pool.close()
+        pool.join() 
 
 def safe_locked(arg):
     mutex.acquire()
