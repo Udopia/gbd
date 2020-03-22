@@ -67,8 +67,14 @@ def quick_search_results_json():
     available_groups = sorted(gbd_api.get_all_groups())
     available_groups.remove("local")
     groups = sorted(list(set(available_groups) & set(selected_groups)))
+    eprint(groups)
     try:
         rows = list(gbd_api.query_search(query, groups))
+        result = []
+        groups.insert(0, "GBD-Hash")
+        for row in rows:
+            result_dict = dict((groups[index], row[index]) for index in range(0, len(groups)))
+            result.append(result_dict)
         return Response(json.dumps(rows), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
         return Response("Malformed Query", status=400, mimetype="text/plain")
