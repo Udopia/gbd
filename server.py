@@ -99,9 +99,10 @@ def get_csv_file():
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
     query = request.values.get('query')
-    result = gbd_api.query_search(query)
+    result = gbd_api.query_search(query, ["local"])
     #hashes = [row[0] for row in result]
     #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+    print(str(result))
     content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
@@ -111,7 +112,7 @@ def get_url_file():
 def query_for_cli():
     query = request.values.get('query')
     try:
-        hashset = gbd_api.query_search(query)
+        hashset = gbd_api.query_search(query, ["local"])
         return json.dumps(list(hashset))
     except tatsu.exceptions.FailedParse:
         return Response("Malformed Query", status=400)
