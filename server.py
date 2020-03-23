@@ -70,7 +70,7 @@ def quick_search_results_json():
     eprint(groups)
     try:
         rows = list(gbd_api.query_search(query, groups))
-        groups.insert(0, "GBD-Hash")
+        groups.insert(0, "GBDhash")
         result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
