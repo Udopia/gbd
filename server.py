@@ -67,7 +67,6 @@ def quick_search_results_json():
     available_groups = sorted(gbd_api.get_all_groups())
     available_groups.remove("local")
     groups = sorted(list(set(available_groups) & set(selected_groups)))
-    eprint(groups)
     try:
         rows = list(gbd_api.query_search(query, groups))
         groups.insert(0, "GBDhash")
