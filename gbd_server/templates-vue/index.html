@@ -38,14 +38,7 @@
             </div>
         </template>
     </div>
-    <div style="margin-top: 60px">
-        <b-pagination
-                v-model="current_page"
-                :total-rows="rows"
-                :per-page="per_page"
-                align="center"
-                aria-controls="result-table"
-        ></b-pagination>
+    <div style="margin-top: 20px">
         <p class="mt-3">Current Page: {{ current_page }}</p>
         <b-table
                 id="result-table"
@@ -65,6 +58,13 @@
                 </div>
             </template>
         </b-table>
+        <b-pagination
+                v-model="current_page"
+                :total-rows="rows"
+                :per-page="per_page"
+                align="center"
+                aria-controls="result-table"
+        ></b-pagination>
     </div>
 </div>
 {% endraw %}
