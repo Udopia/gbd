@@ -5,8 +5,14 @@
     {% include "header.html" %}
 </head>
 <body>
-{% raw %}
-<div class="container" id="app">
+<b-container id="app">
+    <b-container>
+        <div>
+            <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
+                   alt="GBD-Logo"></b-img>
+        </div>
+    </b-container>
+    {% raw %}
     <b-container>
         <div style="margin-top: 10px">
             <b-form @submit="submitQuery" @reset="onReset">
@@ -33,7 +39,7 @@
         </div>
     </b-container>
     <b-container>
-        <b-row>
+        <b-row style="margin-top: 20px">
             <b-col>
                 <p class="mt-3">Current Page: {{ table.current_page }}</p>
             </b-col>
@@ -42,36 +48,38 @@
             </b-col>
         </b-row>
         <b-row>
-            <b-table
-                    id="result-table"
-                    :head-variant="table.head_variant"
-                    :items="result"
-                    :per-page="table.per_page"
-                    :current-page="table.current_page"
-                    :busy="table.table_busy"
-                    hover
-                    show-empty
-                    striped
-                    small
-            >
-                <template v-slot:table-busy>
-                    <div class="text-center text-danger my-2">
-                        <b-spinner class="align-middle"></b-spinner>
-                        <strong>Loading...</strong>
-                    </div>
-                </template>
-            </b-table>
-            <b-pagination
-                    v-model="table.current_page"
-                    :total-rows="rows"
-                    :per-page="table.per_page"
-                    align="center"
-                    aria-controls="result-table"
-            ></b-pagination>
+            <b-col>
+                <b-table
+                        id="result-table"
+                        :head-variant="table.head_variant"
+                        :items="result"
+                        :per-page="table.per_page"
+                        :current-page="table.current_page"
+                        :busy="table.table_busy"
+                        hover
+                        show-empty
+                        striped
+                        small
+                >
+                    <template v-slot:table-busy>
+                        <div class="text-center text-primary my-2">
+                            <b-spinner type="grow" variant="primary" class="align-middle"></b-spinner>
+                            <strong>Loading...</strong>
+                        </div>
+                    </template>
+                </b-table>
+                <b-pagination
+                        v-model="table.current_page"
+                        :total-rows="rows"
+                        :per-page="table.per_page"
+                        align="center"
+                        aria-controls="result-table"
+                ></b-pagination>
+            </b-col>
         </b-row>
     </b-container>
-</div>
-{% endraw %}
+    {% endraw %}
+</b-container>
 </body>
 <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
 </script>
