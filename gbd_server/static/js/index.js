@@ -8,14 +8,17 @@ var app = new Vue({
             selected_groups: [],
         },
         result: [],
+        fields: [],
         table: {
+            sortBy: null,
+            sortDesc: false,
             table_busy: false,
             current_page: 1,
             per_page: 10,
             options: [
-                { value: 10 , text: "Show 10 per page"},
-                { value: 20 , text: "Show 20 per page"},
-                { value: 30 , text: "Show 30 per page"},
+                {value: 10, text: "Show 10 per page"},
+                {value: 20, text: "Show 20 per page"},
+                {value: 30, text: "Show 30 per page"},
             ],
             head_variant: "dark",
         },
@@ -56,7 +59,14 @@ var app = new Vue({
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (result) {
+                    app.fields = [];
+                    app.table.sortBy = null;
+                    app.table.sortDesc = false;
                     app.result = result;
+                    var entry = result[0];
+                    for (var attribute in entry) {
+                        app.fields.push({key: attribute.toString(), sortable: true});
+                    }
                     app.table.table_busy = false;
                 },
                 error: function (error) {

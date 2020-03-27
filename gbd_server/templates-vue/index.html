@@ -53,9 +53,14 @@
                         id="result-table"
                         :head-variant="table.head_variant"
                         :items="result"
+                        :fields="fields"
                         :per-page="table.per_page"
                         :current-page="table.current_page"
                         :busy="table.table_busy"
+                        :sort-by.sync="table.sortBy"
+                        :sort-desc.sync="table.sortDesc"
+                        responsive="sm"
+                        sort-icon-left
                         hover
                         show-empty
                         striped
