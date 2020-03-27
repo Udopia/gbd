@@ -75,15 +75,6 @@ var app = new Vue({
                 this.show_form = true;
             });
         },
-        changePerPage: function (parameter) {
-            try {
-                if (this.per_page != parameter) {
-                    this.per_page = parameter;
-                }
-            } catch (typeError) {
-                console.log("Wrong parameter type for changing pagination")
-            }
-        }
     },
     mounted: function () {
         this.$nextTick(function () {
