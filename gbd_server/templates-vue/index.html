@@ -49,12 +49,14 @@
         <p class="mt-3">Current Page: {{ current_page }}</p>
         <b-table
                 id="result-table"
+                :head-variant="head_variant"
                 :items="result"
                 :per-page="per_page"
                 :current-page="current_page"
                 :busy="table_busy"
-                small
+                hover
                 show-empty
+                striped
         >
             <template v-slot:table-busy>
                 <div class="text-center text-danger my-2">

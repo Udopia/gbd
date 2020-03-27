@@ -11,6 +11,7 @@ var app = new Vue({
         table_busy: false,
         current_page: 1,
         per_page: 5,
+        head_variant: "dark",
     },
     methods: {
         getHost: function () {
