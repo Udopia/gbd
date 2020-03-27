@@ -7,65 +7,69 @@
 <body>
 {% raw %}
 <div class="container" id="app">
-    <div>
-        <template>
-            <div>
-                <b-form @submit="submitQuery" @reset="onReset">
-                    <b-form-group
+    <b-container>
+        <div style="margin-top: 10px">
+            <b-form @submit="submitQuery" @reset="onReset">
+                <b-form-group id="query">
+                    <b-form-input
                             id="query"
-                            label="Query for GBD"
-                            label-for="query"
-                    >
-                        <b-form-input
-                                id="query"
-                                v-model="form.query"
-                                placeholder="Enter query"
-                        ></b-form-input>
-                    </b-form-group>
+                            v-model="form.query"
+                            placeholder="Enter query"
+                    ></b-form-input>
+                </b-form-group>
 
-                    <b-form-group id="group-selection">
-                        <b-form-checkbox-group v-model="form.checked">
-                            <b-form-checkbox-group
-                                    v-model="form.selected_groups"
-                                    :options="form.groups"
-                                    name="attributes"
-                            ></b-form-checkbox-group>
-                        </b-form-checkbox-group>
-                    </b-form-group>
-                    <b-button type="submit" variant="primary">Submit</b-button>
-                    <b-button type="reset" variant="danger">Reset</b-button>
-                </b-form>
-            </div>
-        </template>
-    </div>
-    <div style="margin-top: 20px">
-        <p class="mt-3">Current Page: {{ current_page }}</p>
-        <b-table
-                id="result-table"
-                :head-variant="head_variant"
-                :items="result"
-                :per-page="per_page"
-                :current-page="current_page"
-                :busy="table_busy"
-                hover
-                show-empty
-                striped
-        >
-            <template v-slot:table-busy>
-                <div class="text-center text-danger my-2">
-                    <b-spinner class="align-middle"></b-spinner>
-                    <strong>Loading...</strong>
-                </div>
-            </template>
-        </b-table>
-        <b-pagination
-                v-model="current_page"
-                :total-rows="rows"
-                :per-page="per_page"
-                align="center"
-                aria-controls="result-table"
-        ></b-pagination>
-    </div>
+                <b-form-group id="group-selection">
+                    <b-form-checkbox-group v-model="form.checked">
+                        <b-form-checkbox-group
+                                v-model="form.selected_groups"
+                                :options="form.groups"
+                                name="attributes"
+                        ></b-form-checkbox-group>
+                    </b-form-checkbox-group>
+                </b-form-group>
+                <b-button type="submit" variant="primary">Submit</b-button>
+                <b-button type="reset" variant="danger">Reset</b-button>
+            </b-form>
+        </div>
+    </b-container>
+    <b-container>
+        <b-row>
+            <b-col>
+                <p class="mt-3">Current Page: {{ table.current_page }}</p>
+            </b-col>
+            <b-col>
+                <b-form-select v-model="table.per_page" :options="table.options"></b-form-select>
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-table
+                    id="result-table"
+                    :head-variant="table.head_variant"
+                    :items="result"
+                    :per-page="table.per_page"
+                    :current-page="table.current_page"
+                    :busy="table.table_busy"
+                    hover
+                    show-empty
+                    striped
+                    small
+            >
+                <template v-slot:table-busy>
+                    <div class="text-center text-danger my-2">
+                        <b-spinner class="align-middle"></b-spinner>
+                        <strong>Loading...</strong>
+                    </div>
+                </template>
+            </b-table>
+            <b-pagination
+                    v-model="table.current_page"
+                    :total-rows="rows"
+                    :per-page="table.per_page"
+                    align="center"
+                    aria-controls="result-table"
+            ></b-pagination>
+        </b-row>
+    </b-container>
 </div>
 {% endraw %}
 </body>

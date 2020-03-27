@@ -1,17 +1,24 @@
 var app = new Vue({
     el: '#app',
     data: {
+        show_form: true,
         form: {
             query: '',
             groups: [],
             selected_groups: [],
         },
-        show_form: true,
         result: [],
-        table_busy: false,
-        current_page: 1,
-        per_page: 5,
-        head_variant: "dark",
+        table: {
+            table_busy: false,
+            current_page: 1,
+            per_page: 10,
+            options: [
+                { value: 10 , text: "Show 10 per page"},
+                { value: 20 , text: "Show 20 per page"},
+                { value: 30 , text: "Show 30 per page"},
+            ],
+            head_variant: "dark",
+        },
     },
     methods: {
         getHost: function () {
@@ -37,7 +44,7 @@ var app = new Vue({
             })
         },
         submitQuery: function (event) {
-            app.table_busy = true;
+            app.table.table_busy = true;
             var jsonData = {
                 query: this.form.query,
                 selected_groups: this.form.selected_groups,
@@ -50,7 +57,7 @@ var app = new Vue({
                 dataType: 'json',
                 success: function (result) {
                     app.result = result;
-                    app.table_busy = false;
+                    app.table.table_busy = false;
                 },
                 error: function (error) {
                     console.log('Error: '.concat(error.toString()));
@@ -63,10 +70,19 @@ var app = new Vue({
             event.preventDefault();
             this.form.query = '';
             this.form.selected_groups = [];
-            this.show = false;
+            this.show_form = false;
             this.$nextTick(() => {
-                this.show = true;
+                this.show_form = true;
             });
+        },
+        changePerPage: function (parameter) {
+            try {
+                if (this.per_page != parameter) {
+                    this.per_page = parameter;
+                }
+            } catch (typeError) {
+                console.log("Wrong parameter type for changing pagination")
+            }
         }
     },
     mounted: function () {
