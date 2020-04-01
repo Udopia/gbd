@@ -58,65 +58,79 @@ QUERY_PATTERNS = [
 
 @app.route("/", methods=['GET'])
 def quick_search():
-    #available_groups = sorted(gbd_api.get_all_groups())
-    #available_groups.remove("local")
-    return "System is under Maintenance (2020 April 1st)"
-    #return render_template('quick_search.html', 
-    #    groups=available_groups, checked_groups=["filename"], 
-    #    results=[], query="", query_patterns=QUERY_PATTERNS)
+    try:
+        available_groups = sorted(gbd_api.get_all_groups())
+        available_groups.remove("local")
+        return render_template('quick_search.html', 
+            groups=available_groups, checked_groups=["filename"], 
+            results=[], query="", query_patterns=QUERY_PATTERNS)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    query = request.values.get('query')
-    selected_groups = request.values.getlist('groups')
-    if not len(selected_groups):
-        selected_groups.append("filename")
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
-    groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
-        rows = list(gbd_api.query_search(query, groups))
-        return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups, 
-            results=rows, query=query, query_patterns=QUERY_PATTERNS)
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
-    except ValueError:
-        return Response("Attribute not Available", status=404)
+        query = request.values.get('query')
+        selected_groups = request.values.getlist('groups')
+        if not len(selected_groups):
+            selected_groups.append("filename")
+        available_groups = sorted(gbd_api.get_all_groups())
+        available_groups.remove("local")
+        groups = sorted(list(set(available_groups) & set(selected_groups)))
+        try:
+            rows = list(gbd_api.query_search(query, groups))
+            return render_template('quick_search_content.html', 
+                groups=available_groups, checked_groups=selected_groups, 
+                results=rows, query=query, query_patterns=QUERY_PATTERNS)
+        except tatsu.exceptions.FailedParse:
+            return Response("Malformed Query", status=400)
+        except ValueError:
+            return Response("Attribute not Available", status=404)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
-    query = request.values.get('query')
-    checked_groups = request.values.getlist('groups')
-    results = gbd_api.query_search(query, checked_groups)
-    headers = ["hash", "filename"] if len(checked_groups) == 0 else ["hash"] + checked_groups
-    content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
-    app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
+    try:
+        query = request.values.get('query')
+        checked_groups = request.values.getlist('groups')
+        results = gbd_api.query_search(query, checked_groups)
+        headers = ["hash", "filename"] if len(checked_groups) == 0 else ["hash"] + checked_groups
+        content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
+        app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
+        return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
-    query = request.values.get('query')
-    result = gbd_api.query_search(query, ["local"])
-    #hashes = [row[0] for row in result]
-    #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
-    print(str(result))
-    content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
-    app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
+    try:
+        query = request.values.get('query')
+        result = gbd_api.query_search(query, ["local"])
+        #hashes = [row[0] for row in result]
+        #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+        print(str(result))
+        content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
+        app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
+        return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route("/query", methods=['POST'])  # query string post
 def query_for_cli():
-    query = request.values.get('query')
     try:
-        hashset = gbd_api.query_search(query, ["local"])
-        return json.dumps(list(hashset))
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
+        query = request.values.get('query')
+        try:
+            hashset = gbd_api.query_search(query, ["local"])
+            return json.dumps(list(hashset))
+        except tatsu.exceptions.FailedParse:
+            return Response("Malformed Query", status=400)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
@@ -128,36 +142,46 @@ def get_attribute(attribute, hashvalue):
         return str(",".join(str(value) for value in values))
     except ValueError as err:
         return "Value Error: {}".format(err)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
 @app.route('/file/<hashvalue>/<filename>')
 def get_file(hashvalue, filename):
-    values = gbd_api.search("local", hashvalue)
-    if len(values) == 0:
-        return "No according file found in our database"
     try:
-        path = values.pop()
-        return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
-    except FileNotFoundError:
-        return "Sorry, I don't have access to the files right now :(\n"
+        values = gbd_api.search("local", hashvalue)
+        if len(values) == 0:
+            return "No according file found in our database"
+        try:
+            path = values.pop()
+            return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
+        except FileNotFoundError:
+            return "Sorry, I don't have access to the files right now :(\n"
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    groups = gbd_api.get_all_groups()
-    info = dict([])
-    for attribute in groups:
-        values = gbd_api.search(attribute, hashvalue)
-        info.update({attribute: str(",".join(str(value) for value in values))})
-    return json.dumps(info)
-
+    try:
+        groups = gbd_api.get_all_groups()
+        info = dict([])
+        for attribute in groups:
+            values = gbd_api.search(attribute, hashvalue)
+            info.update({attribute: str(",".join(str(value) for value in values))})
+        return json.dumps(info)
+    except:
+        return "System is temporarily under maintenance"
 
 @app.route("/getdatabase", methods=['GET'])
 def get_default_database_file():
-    global DATABASE
-    app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+    try:
+        global DATABASE
+        app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
+        return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+    except:
+        return "System is temporarily under maintenance"
 
 
 def main():
