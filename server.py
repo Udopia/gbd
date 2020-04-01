@@ -58,8 +58,8 @@ QUERY_PATTERNS = [
 
 @app.route("/", methods=['GET'])
 def quick_search():
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
+    #available_groups = sorted(gbd_api.get_all_groups())
+    #available_groups.remove("local")
     return "System is under Maintenance (2020 April 1st)"
     #return render_template('quick_search.html', 
     #    groups=available_groups, checked_groups=["filename"], 
