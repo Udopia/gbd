@@ -59,7 +59,7 @@
         <b-row style="margin-top: 20px; margin-bottom: 10px">
             <b-col>
                 <div>
-                    <b-dropdown variant="primary">
+                    <b-dropdown variant="light">
                         <template v-slot:button-content>
                             <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
                             Table Settings
@@ -94,8 +94,8 @@
                         small
                 >
                     <template v-slot:table-busy>
-                        <div class="text-center text-primary my-2">
-                            <b-spinner type="grow" variant="primary" class="align-middle"></b-spinner>
+                        <div class="text-center text-danger my-2">
+                            <b-spinner type="grow" variant="danger" class="align-middle"></b-spinner>
                             <strong>Loading...</strong>
                         </div>
                     </template>
