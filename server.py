@@ -54,7 +54,7 @@ QUERY_PATTERNS = [
 def quick_search():
     return render_template('index.html')
 
-
+# TODO: Trycatch System temporarily under maintanence
 @app.route("/results", methods=['POST'])
 def quick_search_results_json():
     data = request.get_json(force=True, silent=True)
