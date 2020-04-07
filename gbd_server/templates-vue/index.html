@@ -7,7 +7,7 @@
 </head>
 <body>
 <b-container id="app">
-    <b-container>
+    <b-container style="margin-top: 20px">
         <div>
             <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
                    alt="GBD-Logo"></b-img>
@@ -34,9 +34,24 @@
                         ></b-form-checkbox-group>
                     </b-form-checkbox-group>
                 </b-form-group>
-                <b-button type="submit" variant="primary">Submit Query</b-button>
-                <b-button type="button" variant="secondary" @click="getCsvFile">Download Attributes</b-button>
-                <b-button type="button" variant="primary" @click="getUrlFile">Download Instances</b-button>
+                <template>
+                    <div>
+                        <b-button-group>
+                            <b-button type="submit" variant="outline-dark">
+                                <b-icon icon="search" style="margin-right: 5px"></b-icon>
+                                Submit Query
+                            </b-button>
+                            <b-button type="button" @click="getCsvFile" variant="outline-dark">
+                                <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                                Download Attributes
+                            </b-button>
+                            <b-button type="button" @click="getUrlFile" variant="outline-dark">
+                                <b-icon icon="download" style="margin-right: 5px"></b-icon>
+                                Download Instances
+                            </b-button>
+                        </b-button-group>
+                    </div>
+                </template>
             </b-form>
         </div>
     </b-container>
@@ -85,6 +100,9 @@
             </b-col>
         </b-row>
     </b-container>
+
+    <v-footer>
+    </v-footer>
     {% endraw %}
 </b-container>
 </body>
