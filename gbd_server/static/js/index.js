@@ -19,9 +19,9 @@ var app = new Vue({
             current_page: 1,
             per_page: 10,
             options: [
-                {value: 10, text: "Show 10 per page"},
-                {value: 20, text: "Show 20 per page"},
-                {value: 30, text: "Show 30 per page"},
+                {value: 10, text: "10"},
+                {value: 20, text: "20"},
+                {value: 30, text: "30"},
             ],
             head_variant: "dark",
         },

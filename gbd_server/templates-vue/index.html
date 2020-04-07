@@ -56,12 +56,22 @@
         </div>
     </b-container>
     <b-container>
-        <b-row style="margin-top: 20px">
+        <b-row style="margin-top: 20px; margin-bottom: 10px">
             <b-col>
-                <p class="mt-3">Current Page: {{ table.current_page }}</p>
-            </b-col>
-            <b-col>
-                <b-form-select v-model="table.per_page" :options="table.options"></b-form-select>
+                <div>
+                    <b-dropdown variant="primary">
+                        <template v-slot:button-content>
+                            <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
+                            Table Settings
+                        </template>
+                        <b-dropdown-group header="Show per page">
+                            <div style="padding: 5px">
+                                <b-form-radio-group v-model="table.per_page" :options="table.options"
+                                                    stacked></b-form-radio-group>
+                            </div>
+                        </b-dropdown-group>
+                    </b-dropdown>
+                </div>
             </b-col>
         </b-row>
         <b-row>
@@ -91,6 +101,7 @@
                     </template>
                 </b-table>
                 <b-pagination
+                        pills
                         v-model="table.current_page"
                         :total-rows="rows"
                         :per-page="table.per_page"
