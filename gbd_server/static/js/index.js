@@ -7,6 +7,9 @@ var app = new Vue({
             groups: [],
             selected_groups: [],
         },
+        download_animation: false,
+        archive_animation: false,
+        search_animation: false,
         result: [],
         fields: [],
         table: {
@@ -133,7 +136,7 @@ var app = new Vue({
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
             link.click();
-        }
+        },
     },
     mounted: function () {
         this.$nextTick(function () {
