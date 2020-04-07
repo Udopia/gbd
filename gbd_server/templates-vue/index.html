@@ -6,116 +6,150 @@
     {% include "header.html" %}
 </head>
 <body>
-<b-container id="app">
-    <b-container style="margin-top: 20px">
-        <div>
-            <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
-                   alt="GBD-Logo"></b-img>
-        </div>
-    </b-container>
-    {% raw %}
+<div class="position-relative" id="app">
     <b-container>
-        <div style="margin-top: 10px">
-            <b-form @submit="submitQuery">
-                <b-form-group id="query">
-                    <b-form-input
-                            id="query"
-                            v-model="form.query"
-                            placeholder="Enter query"
-                    ></b-form-input>
-                </b-form-group>
+        <b-container>
+            <div>
+                <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
+                       alt="GBD-Logo"></b-img>
+            </div>
+        </b-container>
+        {% raw %}
+        <b-container>
+            <div style="margin-top: 10px">
+                <b-form @submit="submitQuery">
+                    <b-form-group id="query">
+                        <b-form-input
+                                id="query"
+                                v-model="form.query"
+                                placeholder="Enter query"
+                        ></b-form-input>
+                    </b-form-group>
 
-                <b-form-group id="group-selection">
-                    <b-form-checkbox-group v-model="form.checked">
-                        <b-form-checkbox-group
-                                v-model="form.selected_groups"
-                                :options="form.groups"
-                                name="attributes"
-                        ></b-form-checkbox-group>
-                    </b-form-checkbox-group>
-                </b-form-group>
-                <template>
-                    <div>
-                        <b-button-group>
-                            <b-button type="submit" variant="outline-dark">
-                                <b-icon icon="search" style="margin-right: 5px"></b-icon>
-                                Submit Query
-                            </b-button>
-                            <b-button type="button" @click="getCsvFile" variant="outline-dark">
-                                <b-icon icon="archive" style="margin-right: 5px"></b-icon>
-                                Download Attributes
-                            </b-button>
-                            <b-button type="button" @click="getUrlFile" variant="outline-dark">
-                                <b-icon icon="download" style="margin-right: 5px"></b-icon>
-                                Download Instances
-                            </b-button>
-                        </b-button-group>
-                    </div>
-                </template>
-            </b-form>
-        </div>
-    </b-container>
-    <b-container>
-        <b-row style="margin-top: 20px; margin-bottom: 10px">
-            <b-col>
-                <div>
-                    <b-dropdown variant="light">
-                        <template v-slot:button-content>
-                            <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
-                            Table Settings
-                        </template>
-                        <b-dropdown-group header="Show per page">
-                            <div style="padding: 5px">
-                                <b-form-radio-group v-model="table.per_page" :options="table.options"
-                                                    stacked></b-form-radio-group>
-                            </div>
-                        </b-dropdown-group>
-                    </b-dropdown>
-                </div>
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col>
-                <b-table
-                        id="result-table"
-                        :head-variant="table.head_variant"
-                        :items="result"
-                        :fields="fields"
-                        :per-page="table.per_page"
-                        :current-page="table.current_page"
-                        :busy="table.table_busy"
-                        :sort-by.sync="table.sortBy"
-                        :sort-desc.sync="table.sortDesc"
-                        responsive="sm"
-                        sort-icon-left
-                        hover
-                        show-empty
-                        striped
-                        small
-                >
-                    <template v-slot:table-busy>
-                        <div class="text-center text-danger my-2">
-                            <b-spinner type="grow" variant="danger" class="align-middle"></b-spinner>
-                            <strong>Loading...</strong>
+                    <b-form-group id="group-selection">
+                        <b-form-checkbox-group v-model="form.checked">
+                            <b-form-checkbox-group
+                                    v-model="form.selected_groups"
+                                    :options="form.groups"
+                                    name="attributes"
+                            ></b-form-checkbox-group>
+                        </b-form-checkbox-group>
+                    </b-form-group>
+                    <template>
+                        <div>
+                            <b-button-group>
+                                <b-button type="submit" variant="outline-dark">
+                                    <b-icon icon="search" style="margin-right: 5px"></b-icon>
+                                    Submit Query
+                                </b-button>
+                                <b-button type="button" @click="getCsvFile" variant="outline-dark">
+                                    <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                                    Download Attributes
+                                </b-button>
+                                <b-button type="button" @click="getUrlFile" variant="outline-dark">
+                                    <b-icon icon="download" style="margin-right: 5px"></b-icon>
+                                    Download Instances
+                                </b-button>
+                            </b-button-group>
                         </div>
                     </template>
-                </b-table>
-                <b-pagination
-                        pills
-                        v-model="table.current_page"
-                        :total-rows="rows"
-                        :per-page="table.per_page"
-                        align="center"
-                        aria-controls="result-table"
-                ></b-pagination>
-            </b-col>
-        </b-row>
+                </b-form>
+            </div>
+        </b-container>
+        <b-container>
+            <b-row style="margin-top: 20px; margin-bottom: 10px">
+                <b-col>
+                    <div>
+                        <b-dropdown variant="light">
+                            <template v-slot:button-content>
+                                <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
+                                Table Settings
+                            </template>
+                            <b-dropdown-group header="Show per page">
+                                <div style="padding: 5px">
+                                    <b-form-radio-group v-model="table.per_page" :options="table.options"
+                                                        stacked></b-form-radio-group>
+                                </div>
+                            </b-dropdown-group>
+                        </b-dropdown>
+                    </div>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col>
+                    <b-table
+                            id="result-table"
+                            :head-variant="table.head_variant"
+                            :items="result"
+                            :fields="fields"
+                            :per-page="table.per_page"
+                            :current-page="table.current_page"
+                            :busy="table.table_busy"
+                            :sort-by.sync="table.sortBy"
+                            :sort-desc.sync="table.sortDesc"
+                            responsive="sm"
+                            sort-icon-left
+                            hover
+                            show-empty
+                            striped
+                            small
+                    >
+                        <template v-slot:table-busy>
+                            <div class="text-center text-success my-2">
+                                <b-spinner type="grow" variant="success" class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                    </b-table>
+                    <b-pagination
+                            pills
+                            v-model="table.current_page"
+                            :total-rows="rows"
+                            :per-page="table.per_page"
+                            align="center"
+                            aria-controls="result-table"
+                    ></b-pagination>
+                </b-col>
+            </b-row>
+            {% endraw %}
+        </b-container>
     </b-container>
+    <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
+    variant="light">
+    </b-overlay>
 
-    <v-footer>
-    </v-footer>
-    {% endraw %}
-</b-container>
+<footer class="container py-5">
+  <div class="row">
+    <div class="col-12 col-md">
+
+      <small class="d-block mb-3 text-muted">&copy; 2019-2020</small>
+        <small class="d-block mb-3 text-muted">Markus Iser</small>
+        <small class="d-block mb-3 text-muted">Luca Springer</small>
+        <small class="d-block mb-3 text-muted">Carsten Sinz</small>
+    </div>
+    <div class="col-6 col-md">
+      <h5>Features</h5>
+      <ul class="list-unstyled text-small">
+        <li><a class="text-muted" href="https://github.com/NLeSC/IEEE-eScience-Tutorial-Designing-Benchmarks">Designing Benchmarks</a></li>
+      </ul>
+    </div>
+    <div class="col-6 col-md">
+      <h5>Resources</h5>
+      <ul class="list-unstyled text-small">
+        <li><a class="text-muted" href="https://github.com/Udopia/gbd/tree/master">Github</a></li>
+          <li><a class="text-muted" href="http://satcompetition.org">SAT Competitions</a></li>
+      </ul>
+    </div>
+    <div class="col-6 col-md">
+      <h5>About</h5>
+      <ul class="list-unstyled text-small">
+        <li><a class="text-muted" href="https://www.kit.edu">Karlsruher Institut für Technologie</a></li>
+        <li><a class="text-muted" href="https://verialg.iti.kit.edu/english/index.php">Team</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+</div>
 </body>
 <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
 </script>

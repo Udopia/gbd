@@ -93,7 +93,6 @@ var app = new Vue({
                 data: JSON.stringify(jsonData),
                 contentType: 'application/json; charset=utf-8',
                 success: function (response, status, xhr) {
-                    app.loading = false;
                     app.initializeDownload(response, status, xhr, window, document);
                 },
                 error: function (error) {
@@ -116,7 +115,6 @@ var app = new Vue({
                 data: JSON.stringify(jsonData),
                 contentType: 'application/json; charset=utf-8',
                 success: function (response, status, xhr) {
-                    app.loading = false;
                     app.initializeDownload(response, status, xhr, window, document);
                 },
                 error: function (error) {
@@ -135,6 +133,7 @@ var app = new Vue({
             var URL = window.URL || window.webkitURL;
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
+            app.loading = false;
             link.click();
         },
     },
