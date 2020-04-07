@@ -22,6 +22,7 @@ var app = new Vue({
             ],
             head_variant: "dark",
         },
+        loading: false,
     },
     methods: {
         getHost: function () {
@@ -70,12 +71,69 @@ var app = new Vue({
                     app.table.table_busy = false;
                 },
                 error: function (error) {
+                    app.table.table_busy = false;
                     console.log('Error: '.concat(error.toString()));
                     alert('Something went wrong. Check the console for details.');
                 }
             });
             event.preventDefault();
         },
+        getCsvFile: function (event) {
+            app.loading = true;
+            var jsonData = {
+                query: this.form.query,
+                selected_groups: this.form.selected_groups,
+            };
+            $.ajax({
+                url: this.getHost().concat("/exportcsv"),
+                type: 'POST',
+                data: JSON.stringify(jsonData),
+                contentType: 'application/json; charset=utf-8',
+                success: function (response, status, xhr) {
+                    app.loading = false;
+                    app.initializeDownload(response, status, xhr, window, document);
+                },
+                error: function (error) {
+                    app.loading = false;
+                    console.log('Error: '.concat(error.toString()));
+                    alert('Something went wrong. Check the console for details.');
+                }
+            });
+            event.preventDefault();
+        },
+        getUrlFile: function (event) {
+            app.loading = true;
+            var jsonData = {
+                query: this.form.query,
+                selected_groups: this.form.selected_groups,
+            };
+            $.ajax({
+                url: this.getHost().concat("/getinstances"),
+                type: 'POST',
+                data: JSON.stringify(jsonData),
+                contentType: 'application/json; charset=utf-8',
+                success: function (response, status, xhr) {
+                    app.loading = false;
+                    app.initializeDownload(response, status, xhr, window, document);
+                },
+                error: function (error) {
+                    app.loading = false;
+                    console.log('Error: '.concat(error.toString()));
+                    alert('Something went wrong. Check the console for details.');
+                }
+            });
+            event.preventDefault();
+        },
+        initializeDownload: function (response, status, xhr, window, document) {
+            const type = xhr.getResponseHeader("Content-Type");
+            var blob = new Blob([response], {type: type});
+            var fileName = xhr.getResponseHeader("filename");
+            var link = document.createElement('a');
+            var URL = window.URL || window.webkitURL;
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
     },
     mounted: function () {
         this.$nextTick(function () {

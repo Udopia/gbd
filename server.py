@@ -43,9 +43,9 @@ gbd_api = None
 app = Flask(__name__)
 
 QUERY_PATTERNS = [
-    'competition_track = main_2019', 
-    'local like %vliw%', 
-    'variables > 5000000', 
+    'competition_track = main_2019',
+    'local like %vliw%',
+    'variables > 5000000',
     '(clauses_horn / clauses) > .9'
 ]
 
@@ -87,25 +87,39 @@ def get_all_groups():
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
-    query = request.values.get('query')
-    checked_groups = request.values.getlist('groups')
-    results = gbd_api.query_search(query, checked_groups)
-    headers = ["hash", "filename"] if len(checked_groups) == 0 else ["hash"] + checked_groups
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+        return Response("Bad Request", status=400, mimetype="text/plain")
+    query = data.get('query')
+    selected_groups = data.get('selected_groups')
+    results = gbd_api.query_search(query, selected_groups)
+    headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
+    file_name = "query_result.csv"
+    return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
+                    headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
+                             "filename": "{}".format(file_name)})
 
 
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
-    query = request.values.get('query')
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+        return Response("Bad Request", status=400, mimetype="text/plain")
+    query = data.get('query')
     result = gbd_api.query_search(query, ["local"])
-    #hashes = [row[0] for row in result]
-    #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+    # hashes = [row[0] for row in result]
+    # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
     print(str(result))
-    content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
+    content = "\n".join(
+        [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
+         result])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
+    file_name = "query_result.uri"
+    return Response(content, mimetype='text/uri-list',
+                    headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
+                             "filename": "{}".format(file_name)})
 
 
 @app.route("/query", methods=['POST'])  # query string post
@@ -119,7 +133,7 @@ def query_for_cli():
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
-def get_attribute(attribute, hashvalue):    
+def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
@@ -181,8 +195,8 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         global app
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = DATABASE
-        app.static_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
-        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
+        app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
+        app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         global limiter
         limiter = Limiter(app, key_func=get_remote_address)
         app.run(host='0.0.0.0', port=args.port)
