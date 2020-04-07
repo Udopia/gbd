@@ -124,12 +124,15 @@ def get_url_file():
 
 @app.route("/query", methods=['POST'])  # query string post
 def query_for_cli():
-    query = request.values.get('query')
     try:
-        hashset = gbd_api.query_search(query, ["local"])
-        return json.dumps(list(hashset))
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400, mimetype="text/plain")
+        query = request.values.get('query')
+        try:
+            hashset = gbd_api.query_search(query, ["local"])
+            return json.dumps(list(hashset))
+        except tatsu.exceptions.FailedParse:
+            return Response("Malformed Query", status=400)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
@@ -141,36 +144,46 @@ def get_attribute(attribute, hashvalue):
         return str(",".join(str(value) for value in values))
     except ValueError as err:
         return "Value Error: {}".format(err)
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
 @app.route('/file/<hashvalue>/<filename>')
 def get_file(hashvalue, filename):
-    values = gbd_api.search("local", hashvalue)
-    if len(values) == 0:
-        return "No according file found in our database"
     try:
-        path = values.pop()
-        return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
-    except FileNotFoundError:
-        return "Sorry, I don't have access to the files right now :(\n"
+        values = gbd_api.search("local", hashvalue)
+        if len(values) == 0:
+            return "No according file found in our database"
+        try:
+            path = values.pop()
+            return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
+        except FileNotFoundError:
+            return "Sorry, I don't have access to the files right now :(\n"
+    except:
+        return "System is temporarily under maintenance"
 
 
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    groups = gbd_api.get_all_groups()
-    info = dict([])
-    for attribute in groups:
-        values = gbd_api.search(attribute, hashvalue)
-        info.update({attribute: str(",".join(str(value) for value in values))})
-    return json.dumps(info)
-
+    try:
+        groups = gbd_api.get_all_groups()
+        info = dict([])
+        for attribute in groups:
+            values = gbd_api.search(attribute, hashvalue)
+            info.update({attribute: str(",".join(str(value) for value in values))})
+        return json.dumps(info)
+    except:
+        return "System is temporarily under maintenance"
 
 @app.route("/getdatabase", methods=['GET'])
 def get_default_database_file():
-    global DATABASE
-    app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+    try:
+        global DATABASE
+        app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
+        return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+    except:
+        return "System is temporarily under maintenance"
 
 
 def main():
