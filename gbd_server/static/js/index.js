@@ -76,15 +76,6 @@ var app = new Vue({
             });
             event.preventDefault();
         },
-        onReset: function (event) {
-            event.preventDefault();
-            this.form.query = '';
-            this.form.selected_groups = [];
-            this.show_form = false;
-            this.$nextTick(() => {
-                this.show_form = true;
-            });
-        },
     },
     mounted: function () {
         this.$nextTick(function () {
