@@ -16,7 +16,7 @@
     {% raw %}
     <b-container>
         <div style="margin-top: 10px">
-            <b-form @submit="submitQuery" @reset="onReset">
+            <b-form @submit="submitQuery">
                 <b-form-group id="query">
                     <b-form-input
                             id="query"
@@ -35,7 +35,6 @@
                     </b-form-checkbox-group>
                 </b-form-group>
                 <b-button type="submit" variant="primary">Submit</b-button>
-                <b-button type="reset" variant="danger">Reset</b-button>
             </b-form>
         </div>
     </b-container>
