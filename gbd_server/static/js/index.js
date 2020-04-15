@@ -44,9 +44,8 @@ var app = new Vue({
                         app.form.groups.push({'text': result[object], 'value': result[object]});
                     }
                 },
-                error: function (error) {
-                    console.log('Error: '.concat(error.toString()));
-                    alert('Something went wrong. Check the console for details.');
+                error: function (request, status, error) {
+                    app.showErrorModal();
                 }
             })
         },
@@ -73,10 +72,9 @@ var app = new Vue({
                     }
                     app.table.table_busy = false;
                 },
-                error: function (error) {
+                error: function (request, status, error) {
                     app.table.table_busy = false;
-                    console.log('Error: '.concat(error.toString()));
-                    alert('Something went wrong. Check the console for details.');
+                    app.showErrorModal();
                 }
             });
             event.preventDefault();
@@ -95,10 +93,9 @@ var app = new Vue({
                 success: function (response, status, xhr) {
                     app.initializeDownload(response, status, xhr, window, document);
                 },
-                error: function (error) {
+                error: function (request, status, error) {
                     app.loading = false;
-                    console.log('Error: '.concat(error.toString()));
-                    alert('Something went wrong. Check the console for details.');
+                    app.showErrorModal();
                 }
             });
             event.preventDefault();
@@ -117,10 +114,9 @@ var app = new Vue({
                 success: function (response, status, xhr) {
                     app.initializeDownload(response, status, xhr, window, document);
                 },
-                error: function (error) {
+                error: function (request, status, error) {
                     app.loading = false;
-                    console.log('Error: '.concat(error.toString()));
-                    alert('Something went wrong. Check the console for details.');
+                    app.showErrorModal();
                 }
             });
             event.preventDefault();
@@ -135,6 +131,12 @@ var app = new Vue({
             link.download = fileName;
             app.loading = false;
             link.click();
+        },
+        showErrorModal() {
+            this.$refs['error-modal'].show()
+        },
+        hideErrorModal() {
+            this.$refs['error-modal'].hide()
         },
     },
     mounted: function () {
