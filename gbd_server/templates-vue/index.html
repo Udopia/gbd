@@ -113,6 +113,22 @@
             </b-row>
             {% endraw %}
         </b-container>
+        <b-container>
+            <b-button v-b-toggle.sidebar-1 class="m-1" variant="light">
+                Databases
+                <b-icon icon="layout-sidebar" aria-hidden="true"></b-icon>
+            </b-button>
+            <b-sidebar id="sidebar-1" title="" shadow>
+                <div class="px-3 py-2">
+                    <p class="h3 mb-2">
+                        <b-icon icon="server" aria-hidden="true"></b-icon>
+                    </p>
+                    <p>
+                        All available databases are listed here. You can download all listed databases on your device.
+                    </p>
+                </div>
+            </b-sidebar>
+        </b-container>
     </b-container>
     <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
                variant="light">
