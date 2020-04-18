@@ -7,17 +7,17 @@
 </head>
 <body>
 <div class="position-relative" id="app">
-    <b-container>
-        <b-modal ref="error-modal" hide-footer title="Something went wrong!">
-            <div class="d-block text-center">
-                <h3>We're sorry ...</h3>
-            </div>
-            <p>
-                please check if the attribute in the query exists in the listed attributes below the query input
-                field and contact the administration for further troubleshooting.
-            </p>
-            <b-button class="mt-3" variant="outline-danger" @click="hideErrorModal">Close</b-button>
-        </b-modal>
+    <b-modal ref="error-modal" hide-footer title="Something went wrong!">
+        <div class="d-block text-center">
+            <h3>We're sorry ...</h3>
+        </div>
+        <p>
+            please check if the attribute in the query exists in the listed attributes below the query input
+            field and contact the administration for further troubleshooting.
+        </p>
+        <b-button class="mt-3" variant="outline-danger" @click="hideErrorModal">Close</b-button>
+    </b-modal>
+    <b-container id="input-form">
         <b-container>
             <div>
                 <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
@@ -42,7 +42,6 @@
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
-
                     <b-form-group id="group-selection">
                         <b-form-checkbox-group v-model="form.checked">
                             <b-form-checkbox-group
@@ -52,7 +51,6 @@
                             ></b-form-checkbox-group>
                         </b-form-checkbox-group>
                     </b-form-group>
-
                     <b-button-group class="mx-1">
                         <b-button type="button" @click="getCsvFile" variant="outline-dark">
                             <b-icon icon="archive" style="margin-right: 5px"></b-icon>
@@ -88,14 +86,33 @@
                         </div>
                     </b-sidebar>
                     <b-sidebar id="sidebar-2" title="" right shadow>
-                        <div class="px-3 py-2">
+                        <div class="px-3 py-2 overflow-auto">
                             <p class="h2 mb-2" align="center">Needing help?</p>
                             <div class="text-info">
                                 <hr style="width: 50%; horiz-align: center;">
                             </div>
-                            <p>
-                                A guide to this UI is coming soon!
-                            </p>
+                            <ul>
+                                <li>
+                                    Enter your query in the input field. Make sure that attributes mentioned in the query
+                                    are existent in the listed attributes underneath the input field
+                                </li>
+                                <br>
+                                <li>
+                                    (Optional) Select attributes. Each GBD-Hash which matches your query is resolved
+                                    against these attributes. This affects the values shown in the table and given in the csv file
+                                    ("Download attributes")
+                                </li>
+                                <br>
+                                <li>
+                                    Press the enter button or press the search button right next to the input field to
+                                    populate the table with your results.
+                                </li>
+                                <br>
+                                <li>
+                                    You can download the result of the query as csv file or get a list of URLs for the
+                                    instances to download them
+                                </li>
+                            </ul>
                             <div class="text-info">
                                 <hr style="width: 50%; horiz-align: center;">
                             </div>
