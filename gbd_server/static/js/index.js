@@ -2,16 +2,14 @@ var app = new Vue({
     el: '#app',
     data: {
         show_form: true,
+        result: [],
+        fields: [],
+        loading: false,
         form: {
             query: '',
             groups: [],
             selected_groups: [],
         },
-        download_animation: false,
-        archive_animation: false,
-        search_animation: false,
-        result: [],
-        fields: [],
         table: {
             sortBy: null,
             sortDesc: false,
@@ -25,7 +23,6 @@ var app = new Vue({
             ],
             head_variant: "dark",
         },
-        loading: false,
     },
     methods: {
         getHost: function () {
