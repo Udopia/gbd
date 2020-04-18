@@ -86,11 +86,15 @@
                         </div>
                     </b-sidebar>
                     <b-sidebar id="sidebar-2" title="" right shadow>
-                        <div class="px-3 py-2 overflow-auto">
-                            {% endraw %}
-                            {% include "help.html" %}
-                            {% raw %}
-                        </div>
+                        <template v-slot:default="{ hide }">
+                            <div class="px-3 py-2 overflow-auto">
+                                {% endraw %}
+                                {% include "help.html" %}
+                                {% raw %}
+                            </div>
+                            <b-button style="display: block; margin: 0 auto;" @click="hide" variant="danger">Ok
+                            </b-button>
+                        </template>
                     </b-sidebar>
                 </b-form>
             </div>
