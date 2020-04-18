@@ -29,11 +29,18 @@
             <div style="margin-top: 10px">
                 <b-form @submit="submitQuery">
                     <b-form-group id="query">
-                        <b-form-input
-                                id="query"
-                                v-model="form.query"
-                                placeholder="Enter query"
-                        ></b-form-input>
+                        <b-input-group>
+                            <b-form-input
+                                    id="query"
+                                    v-model="form.query"
+                                    placeholder="Enter query"
+                            ></b-form-input>
+                            <b-input-group-append>
+                                <b-button type="submit" variant="outline-dark">
+                                    <b-icon icon="search"></b-icon>
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
                     </b-form-group>
 
                     <b-form-group id="group-selection">
@@ -47,10 +54,6 @@
                     </b-form-group>
 
                     <b-button-group class="mx-1">
-                        <b-button type="submit" variant="outline-dark">
-                            <b-icon icon="search" style="margin-right: 5px"></b-icon>
-                            Submit Query
-                        </b-button>
                         <b-button type="button" @click="getCsvFile" variant="outline-dark">
                             <b-icon icon="archive" style="margin-right: 5px"></b-icon>
                             Download Attributes
