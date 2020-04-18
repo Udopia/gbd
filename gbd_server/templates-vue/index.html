@@ -36,6 +36,17 @@
                                     placeholder="Enter query"
                             ></b-form-input>
                             <b-input-group-append>
+                                <b-dropdown variant="outline-dark">
+                                    <template v-slot:button-content>
+                                        Patterns
+                                    </template>
+                                    <b-dropdown-group header="Choose query pattern">
+                                        <div style="padding: 5px">
+                                            <b-form-radio-group v-model="form.query" :options="patterns.query_patterns"
+                                                                stacked></b-form-radio-group>
+                                        </div>
+                                    </b-dropdown-group>
+                                </b-dropdown>
                                 <b-button type="submit" variant="outline-dark">
                                     <b-icon icon="search"></b-icon>
                                 </b-button>
