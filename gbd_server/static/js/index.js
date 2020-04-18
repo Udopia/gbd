@@ -23,6 +23,14 @@ var app = new Vue({
             ],
             head_variant: "dark",
         },
+        patterns: {
+            query_patterns: [
+                {value: 'competition_track = main_2019', text: "competition_track = main_2019"},
+                {value: 'local like %vliw%', text: "local like %vliw%"},
+                {value: 'variables > 5000000', text: "variables > 5000000"},
+                {value: '(clauses_horn / clauses) > .9', text: "(clauses_horn / clauses) > .9"},
+            ],
+        }
     },
     methods: {
         getHost: function () {
