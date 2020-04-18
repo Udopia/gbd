@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Global Benchmark Database</title>
+    {% include "header_content.html" %}
+</head>
+<body>
+<div class="position-relative" id="app">
+    <b-modal ref="error-modal" hide-footer title="Something went wrong!">
+        <div class="d-block text-center">
+            <h3>We're sorry ...</h3>
+        </div>
+        <p>
+            ...please check if the attribute in the query exists in the listed attributes below the query input
+            field and contact the administration for further troubleshooting.
+        </p>
+        <b-button class="mt-3" variant="outline-danger" @click="hideErrorModal">Close</b-button>
+    </b-modal>
+    <b-container id="input-form">
+        <b-container>
+            <div>
+                <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
+                       alt="GBD-Logo"></b-img>
+            </div>
+        </b-container>
+        {% raw %}
+        <b-container>
+            <div style="margin-top: 10px">
+                <b-form @submit="submitQuery">
+                    <b-form-group id="query">
+                        <b-input-group>
+                            <b-form-input
+                                    id="query"
+                                    v-model="form.query"
+                                    placeholder="Enter query"
+                            ></b-form-input>
+                            <b-input-group-append>
+                                <b-dropdown variant="outline-dark">
+                                    <template v-slot:button-content>
+                                        Patterns
+                                    </template>
+                                    <b-dropdown-group header="Choose query pattern">
+                                        <div style="padding: 5px">
+                                            <b-form-radio-group v-model="form.query" :options="patterns.query_patterns"
+                                                                stacked></b-form-radio-group>
+                                        </div>
+                                    </b-dropdown-group>
+                                </b-dropdown>
+                                <b-button type="submit" variant="outline-dark">
+                                    <b-icon icon="search"></b-icon>
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </b-form-group>
+                    <b-form-group id="group-selection">
+                        <b-form-checkbox-group v-model="form.checked">
+                            <b-form-checkbox-group
+                                    v-model="form.selected_groups"
+                                    :options="form.groups"
+                                    name="attributes"
+                            ></b-form-checkbox-group>
+                        </b-form-checkbox-group>
+                    </b-form-group>
+                    <b-button-group class="mx-1">
+                        <b-button type="button" @click="getCsvFile" variant="outline-dark">
+                            <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                            Download Attributes
+                        </b-button>
+                        <b-button type="button" @click="getUrlFile" variant="outline-dark">
+                            <b-icon icon="download" style="margin-right: 5px"></b-icon>
+                            Download Instances
+                        </b-button>
+                        <b-button type="button" v-b-toggle.sidebar-1 variant="outline-dark">
+                            <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
+                            Databases
+                        </b-button>
+                        <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
+                            <b-icon icon="question" aria-hidden="true"></b-icon>
+                        </b-button>
+                    </b-button-group>
+                    <b-sidebar id="sidebar-1" title="" shadow>
+                        <template v-slot:default="{ hide }">
+                            <div class="px-3 py-2">
+                                {% endraw %}
+                                {% include "databases.html" %}
+                                {% raw %}
+                            </div>
+                            <b-button style="display: block; margin: 0 auto;" @click="hide" variant="danger">Ok
+                            </b-button>
+                        </template>
+                    </b-sidebar>
+                    <b-sidebar id="sidebar-2" title="" right shadow>
+                        <template v-slot:default="{ hide }">
+                            <div class="px-3 py-2 overflow-auto">
+                                {% endraw %}
+                                {% include "help.html" %}
+                                {% raw %}
+                            </div>
+                            <b-button style="display: block; margin: 0 auto;" @click="hide" variant="danger">Ok
+                            </b-button>
+                        </template>
+                    </b-sidebar>
+                </b-form>
+            </div>
+        </b-container>
+        <b-container>
+            <b-row style="margin-top: 20px; margin-bottom: 10px">
+                <b-col>
+                    <div>
+                        <b-dropdown variant="light">
+                            <template v-slot:button-content>
+                                <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
+                                Table Settings
+                            </template>
+                            <b-dropdown-group header="Show per page">
+                                <div style="padding: 5px">
+                                    <b-form-radio-group v-model="table.per_page" :options="table.options"
+                                                        stacked></b-form-radio-group>
+                                </div>
+                            </b-dropdown-group>
+                        </b-dropdown>
+                    </div>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col>
+                    <b-table
+                            id="result-table"
+                            :head-variant="table.head_variant"
+                            :items="result"
+                            :fields="fields"
+                            :per-page="table.per_page"
+                            :current-page="table.current_page"
+                            :busy="table.table_busy"
+                            :sort-by.sync="table.sortBy"
+                            :sort-desc.sync="table.sortDesc"
+                            responsive
+                            sort-icon-left
+                            hover
+                            show-empty
+                            striped
+                            small
+                    >
+                        <template v-slot:table-busy>
+                            <div class="text-center text-success my-2">
+                                <b-spinner type="grow" variant="success" class="align-middle"></b-spinner>
+                                <strong>Loading...</strong>
+                            </div>
+                        </template>
+                    </b-table>
+                    <b-pagination
+                            pills
+                            v-model="table.current_page"
+                            :total-rows="rows"
+                            :per-page="table.per_page"
+                            align="center"
+                            aria-controls="result-table"
+                    ></b-pagination>
+                </b-col>
+            </b-row>
+            {% endraw %}
+        </b-container>
+    </b-container>
+    <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
+               variant="light">
+    </b-overlay>
+    <footer class="container py-5">
+        {% include "footer_content.html" %}
+    </footer>
+</div>
+</body>
+<script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
+</script>
+</html>
