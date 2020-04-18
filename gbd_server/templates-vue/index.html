@@ -69,21 +69,15 @@
                         </b-button>
                     </b-button-group>
                     <b-sidebar id="sidebar-1" title="" shadow>
-                        <div class="px-3 py-2">
-                            <p class="h2 mb-2" align="center">
-                                <b-icon icon="server" aria-hidden="true"></b-icon>
-                            </p>
-                            <div class="text-info">
-                                <hr style="width: 50%; horiz-align: center;">
+                        <template v-slot:default="{ hide }">
+                            <div class="px-3 py-2">
+                                {% endraw %}
+                                {% include "databases.html" %}
+                                {% raw %}
                             </div>
-                            <p>
-                                All available databases are listed here. You can download all listed databases
-                                on your device.
-                            </p>
-                            <div class="text-info">
-                                <hr style="width: 50%; horiz-align: center;">
-                            </div>
-                        </div>
+                            <b-button style="display: block; margin: 0 auto;" @click="hide" variant="danger">Ok
+                            </b-button>
+                        </template>
                     </b-sidebar>
                     <b-sidebar id="sidebar-2" title="" right shadow>
                         <template v-slot:default="{ hide }">
