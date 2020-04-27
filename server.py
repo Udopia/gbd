@@ -58,37 +58,31 @@ QUERY_PATTERNS = [
 
 @app.route("/", methods=['GET'])
 def quick_search():
-    try:
-        available_groups = sorted(gbd_api.get_all_groups())
-        available_groups.remove("local")
-        return render_template('quick_search.html', 
-            groups=available_groups, checked_groups=["filename"], 
-            results=[], query="", query_patterns=QUERY_PATTERNS)
-    except:
-        return "System is temporarily under maintenance"
+    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
+    return render_template('quick_search.html', 
+        groups=available_groups, checked_groups=["filename"], 
+        results=[], query="", query_patterns=QUERY_PATTERNS)
 
 
 @app.route("/results", methods=['POST'])
 def quick_search_results():
+    query = request.values.get('query')
+    selected_groups = request.values.getlist('groups')
+    if not len(selected_groups):
+        selected_groups.append("filename")
+    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups.remove("local")
+    groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
-        query = request.values.get('query')
-        selected_groups = request.values.getlist('groups')
-        if not len(selected_groups):
-            selected_groups.append("filename")
-        available_groups = sorted(gbd_api.get_all_groups())
-        available_groups.remove("local")
-        groups = sorted(list(set(available_groups) & set(selected_groups)))
-        try:
-            rows = list(gbd_api.query_search(query, groups))
-            return render_template('quick_search_content.html', 
-                groups=available_groups, checked_groups=selected_groups, 
-                results=rows, query=query, query_patterns=QUERY_PATTERNS)
-        except tatsu.exceptions.FailedParse:
-            return Response("Malformed Query", status=400)
-        except ValueError:
-            return Response("Attribute not Available", status=404)
-    except:
-        return "System is temporarily under maintenance"
+        rows = list(gbd_api.query_search(query, groups))
+        return render_template('quick_search_content.html', 
+            groups=available_groups, checked_groups=selected_groups, 
+            results=rows, query=query, query_patterns=QUERY_PATTERNS)
+    except tatsu.exceptions.FailedParse:
+        return Response("Malformed Query", status=400)
+    except ValueError:
+        return Response("Attribute not Available", status=404)
 
 
 @app.route("/exportcsv", methods=['POST'])
