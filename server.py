@@ -20,14 +20,9 @@
 import datetime
 import logging
 import os
-import re
-import threading
-import random
 import argparse
-import sys
 from gbd_tool.util import eprint
-from os.path import basename, isfile
-from zipfile import ZipFile, ZipInfo
+from os.path import basename
 
 import gbd_server
 
@@ -39,8 +34,6 @@ from flask.logging import default_handler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from gbd_tool.gbd_api import GbdApi
-from gbd_tool import gbd_hash
-from gbd_tool.http_client import USER_AGENT_CLI
 from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -49,69 +42,92 @@ DATABASE = None
 gbd_api = None
 app = Flask(__name__)
 
-QUERY_PATTERNS = [
-    'competition_track = main_2019', 
-    'local like %vliw%', 
-    'variables > 5000000', 
-    '(clauses_horn / clauses) > .9'
-]
 
 @app.route("/", methods=['GET'])
 def quick_search():
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
-    return render_template('quick_search.html', 
-        groups=available_groups, checked_groups=["filename"], 
-        results=[], query="", query_patterns=QUERY_PATTERNS)
+    try:
+        return render_template('index.html')
+    except:
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route("/results", methods=['POST'])
-def quick_search_results():
-    query = request.values.get('query')
-    selected_groups = request.values.getlist('groups')
-    if not len(selected_groups):
-        selected_groups.append("filename")
-    available_groups = sorted(gbd_api.get_all_groups())
-    available_groups.remove("local")
-    groups = sorted(list(set(available_groups) & set(selected_groups)))
+def quick_search_results_json():
     try:
-        rows = list(gbd_api.query_search(query, groups))
-        return render_template('quick_search_content.html', 
-            groups=available_groups, checked_groups=selected_groups, 
-            results=rows, query=query, query_patterns=QUERY_PATTERNS)
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
-    except ValueError:
-        return Response("Attribute not Available", status=404)
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return Response("Bad Request", status=400, mimetype="text/plain")
+        query = data.get('query')
+        selected_groups = data.get('selected_groups')
+        if not len(selected_groups):
+            selected_groups.append("filename")
+        available_groups = sorted(gbd_api.get_all_groups())
+        available_groups.remove("local")
+        groups = sorted(list(set(available_groups) & set(selected_groups)))
+        try:
+            rows = list(gbd_api.query_search(query, groups))
+            groups.insert(0, "GBDhash")
+            result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
+            return Response(json.dumps(result), status=200, mimetype="application/json")
+        except tatsu.exceptions.FailedParse:
+            return Response("Malformed Query", status=400, mimetype="text/plain")
+        except ValueError:
+            return Response("Attribute not Available", status=404, mimetype="text/plain")
+    except:
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
+
+
+@app.route("/getgroups", methods=['GET'])
+def get_all_groups():
+    try:
+        available_groups = sorted(gbd_api.get_all_groups())
+        available_groups.remove("local")
+        return Response(json.dumps(available_groups), status=200, mimetype="application/json")
+    except:
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     try:
-        query = request.values.get('query')
-        checked_groups = request.values.getlist('groups')
-        results = gbd_api.query_search(query, checked_groups)
-        headers = ["hash", "filename"] if len(checked_groups) == 0 else ["hash"] + checked_groups
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return Response("Bad Request", status=400, mimetype="text/plain")
+        query = data.get('query')
+        selected_groups = data.get('selected_groups')
+        results = gbd_api.query_search(query, selected_groups)
+        headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
         app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-        return Response(" ".join(headers) + "\n" + content, mimetype='text/csv', headers={"Content-Disposition": "attachment; filename=\"query_result.csv\""})
+        file_name = "query_result.csv"
+        return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
+                        headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
+                                 "filename": "{}".format(file_name)})
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
     try:
-        query = request.values.get('query')
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return Response("Bad Request", status=400, mimetype="text/plain")
+        query = data.get('query')
         result = gbd_api.query_search(query, ["local"])
-        #hashes = [row[0] for row in result]
-        #content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
+        # hashes = [row[0] for row in result]
+        # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
         print(str(result))
-        content = "\n".join([os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in result])
+        content = "\n".join(
+            [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
+             result])
         app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-        return Response(content, mimetype='text/uri-list', headers={"Content-Disposition": "attachment; filename=\"query_result.uri\""})
+        file_name = "query_result.uri"
+        return Response(content, mimetype='text/uri-list',
+                        headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
+                                 "filename": "{}".format(file_name)})
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route("/query", methods=['POST'])  # query string post
@@ -124,11 +140,11 @@ def query_for_cli():
         except tatsu.exceptions.FailedParse:
             return Response("Malformed Query", status=400)
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
-def get_attribute(attribute, hashvalue):    
+def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
@@ -137,7 +153,7 @@ def get_attribute(attribute, hashvalue):
     except ValueError as err:
         return "Value Error: {}".format(err)
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -153,7 +169,7 @@ def get_file(hashvalue, filename):
         except FileNotFoundError:
             return "Sorry, I don't have access to the files right now :(\n"
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 @app.route('/info/<hashvalue>')
@@ -166,7 +182,8 @@ def get_all_attributes(hashvalue):
             info.update({attribute: str(",".join(str(value) for value in values))})
         return json.dumps(info)
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
+
 
 @app.route("/getdatabase", methods=['GET'])
 def get_default_database_file():
@@ -175,7 +192,7 @@ def get_default_database_file():
         app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
         return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
     except:
-        return "System is temporarily under maintenance"
+        return Response("System is temporarily under maintenance", status=503, mimetype="text/plain")
 
 
 def main():
@@ -200,8 +217,8 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         global app
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = DATABASE
-        app.static_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
-        app.template_folder=os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates")
+        app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
+        app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         global limiter
         limiter = Limiter(app, key_func=get_remote_address)
         app.run(host='0.0.0.0', port=args.port)

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='global_benchmark_database_tool',
-  version='2.7.6',
+  version='2.7.8',
   description='Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
