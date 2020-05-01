@@ -50,25 +50,24 @@ def gbd_hash_inner(file):
     space = False
     skip = False
     start = True
-    blankzero = False
+    cldelim = True
     hash_md5 = hashlib.md5()
 
     for byte in iter(lambda: file.read(1), b''):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
-            blankzero = space and byte == b'0'
-            if space and not start:
-                hash_md5.update(b' ')  # append pending space
-                space = False
-            hash_md5.update(byte)
+            cldelim = byte == b'0' and (space or start)
             start = False
+            if space:
+                space = False
+                hash_md5.update(b' ')
+            hash_md5.update(byte)
         elif byte <= b' ':
-            space = True  # do not immediately append spaces but remember that there was at least one
-            if skip and (byte == b'\n' or byte == b'\r'):
-                skip = False  # comment line ended
-        elif byte == b'c' or byte == b'p':
+            space = not start # remember non-leading space characters 
+            skip = skip and byte != b'\n' and byte != b'\r' # comment line ended
+        else: #byte == b'c' or byte == b'p':
             skip = True  # do not hash comment and header line
 
-    if not blankzero:
+    if not cldelim:
         hash_md5.update(b' 0')
 
     #Tend = time.time()
