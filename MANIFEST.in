@@ -1,8 +1,8 @@
 include README.md
 include LICENSE
-include setup.py
-include gbd_server/templates/*.html
+include gbd_server/templates-vue/*.html
 include gbd_server/static/resources/*.png
+include gbd_server/static/resources/*.jpg
 include gbd_server/static/css/*.css
-include gbd_server/static/bootstrap/css/*.css
+include gbd_server/static/js/*.js
 

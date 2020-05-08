@@ -38,10 +38,10 @@
                             <b-input-group-append>
                                 <b-dropdown variant="outline-dark">
                                     <template v-slot:button-content>
-                                        Patterns
+                                        Examples
                                     </template>
-                                    <b-dropdown-group header="Choose query pattern">
-                                        <div style="padding: 5px">
+                                    <b-dropdown-group>
+                                        <div style="padding: 5px; width: 300px">
                                             <b-form-radio-group v-model="form.query" :options="patterns.query_patterns"
                                                                 stacked></b-form-radio-group>
                                         </div>
@@ -165,9 +165,9 @@
     <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
                variant="light">
     </b-overlay>
-    <footer class="container py-5">
+    <!--<footer class="container py-5">
         {% include "footer_content.html" %}
-    </footer>
+    </footer>-->
 </div>
 </body>
 <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
