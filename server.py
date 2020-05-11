@@ -163,7 +163,7 @@ def get_all_attributes(hashvalue):
 def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return send_file(DATABASE, attachment_filename=basename(DATABASE), as_attachment=True)
+    return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE), mimetype='application/x-sqlite3')
 
 
 def main():

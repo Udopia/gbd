@@ -71,9 +71,10 @@
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
                             Download Instances
                         </b-button>
-                        <b-button type="button" v-b-toggle.sidebar-1 variant="outline-dark">
+                        <b-button type="button" variant="outline-dark">
+							<a href="getdatabase">
                             <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                            Databases
+                            Download Database</a>
                         </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
@@ -165,9 +166,9 @@
     <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
                variant="light">
     </b-overlay>
-    <!--<footer class="container py-5">
+    <footer class="container py-5">
         {% include "footer_content.html" %}
-    </footer>-->
+    </footer>
 </div>
 </body>
 <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
