@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='global_benchmark_database_tool',
-  version='2.8.4',
+  version='2.8.5',
   description='Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -17,6 +17,7 @@ setup(name='global_benchmark_database_tool',
       'flask',
       'flask_limiter',
       'tatsu',
+      'numpy'
   ],
   classifiers=[
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

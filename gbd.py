@@ -153,7 +153,7 @@ def main():
 
     # define create command sub-structure
     parser_algo = subparsers.add_parser('bootstrap', help='Calculate hard-coded sets of instance attributes')
-    parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'sorted_hash'])
+    parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'degree_sequence_hash'])
     parser_algo.set_defaults(func=cli_bootstrap)
 
     parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
