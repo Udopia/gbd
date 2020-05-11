@@ -27,16 +27,22 @@ def open_cnf_file(filename, mode):
     """
     Opens a CNF file (this is badly guarded, by file-extension only)
     """
+    obj = None
     if filename.endswith('.cnf.gz'):
-        return io.BufferedReader(gzip.open(filename, mode), io.DEFAULT_BUFFER_SIZE * 8)
+        obj = gzip.open(filename, mode)
     elif filename.endswith('.cnf.bz2'):
-        return io.BufferedReader(bz2.open(filename, mode), io.DEFAULT_BUFFER_SIZE * 8)
+        obj = bz2.open(filename, mode)
     elif filename.endswith('.cnf.lzma'):
-        return io.BufferedReader(lzma.open(filename, mode), io.DEFAULT_BUFFER_SIZE * 8)
+        obj = lzma.open(filename, mode)
     elif filename.endswith('.cnf'):
-        return io.BufferedReader(open(filename, mode), io.DEFAULT_BUFFER_SIZE * 8)
+        obj = open(filename, mode)
     else:
         raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
+    
+    if 'b' in mode:
+        return io.BufferedReader(obj, io.DEFAULT_BUFFER_SIZE * 8)
+    else:
+        return obj
 
 
 def eprint(*args, **kwargs):

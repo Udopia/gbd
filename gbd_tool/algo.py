@@ -4,6 +4,7 @@ from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash_sorted
 
 import io
+import hashlib
 
 import multiprocessing
 from multiprocessing import Pool, Lock
@@ -20,10 +21,10 @@ def bootstrap(api, database, named_algo, jobs):
         api.add_attribute_group("clauses", "integer", 0)
         resultset = api.query_search("clauses = 0", ["local"])
         schedule_bootstrap(database.path, jobs, resultset, compute_clause_types)
-    elif named_algo == 'sorted_hash':
-        api.add_attribute_group("sorted_hash", "text", "empty")
-        resultset = api.query_search("sorted_hash = empty", ["local"])
-        schedule_bootstrap(database.path, jobs, resultset, compute_sorted_hash)
+    elif named_algo == 'degree_sequence_hash':
+        api.add_attribute_group("degree_sequence_hash", "text", "empty")
+        resultset = api.query_search("degree_sequence_hash = empty", ["local"])
+        schedule_bootstrap(database.path, jobs, resultset, compute_degree_sequence_hash)
     else:
         raise NotImplementedError
 
@@ -55,34 +56,52 @@ def safe_locked(arg):
 
 def compute_clause_types(database_path, hashvalue, filename):
     eprint('Computing clause_types for {}'.format(filename))
-    file = open_cnf_file(filename, 'rt')
     c_vars = 0
     c_clauses = 0
     c_horn = 0
     c_pos = 0
     c_neg = 0
-    for line in file:
-        if line.strip() and len(line.strip().split()) > 1:
-            parts = line.strip().split()[:-1]
-            if parts[0][0] == 'c' or parts[0][0] == 'p' or len(parts) == 0:
-                continue
-            c_vars = max(c_vars, max(int(part) for part in parts))
+    f = open_cnf_file(filename, 'rt')
+    for line in f:
+        line = line.strip()
+        if line and line[0] not in ['p', 'c']:
+            clause = [int(lit) for lit in line.split()[:-1]]
+            c_vars = max(c_vars, max(abs(lit) for lit in clause))
             c_clauses += 1
-            n_neg = sum(int(part) < 0 for part in parts)
-            if n_neg < 2:
+            n_pos = sum(lit > 0 for lit in clause)
+            if n_pos < 2:
                 c_horn += 1
-                if n_neg == 0:
-                    c_pos += 1
-            if n_neg == len(parts):
-                c_neg += 1
-    file.close()
+                if n_pos == 0:
+                    c_neg += 1
+            if n_pos == len(clause):
+                c_pos += 1
+    f.close()
     attributes = [ ('clauses_horn', c_horn), ('clauses_positive', c_pos), ('clauses_negative', c_neg), ('variables', c_vars), ('clauses', c_clauses) ]
     return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
 
 
-def compute_sorted_hash(database_path, hashvalue, filename):
+def compute_degree_sequence_hash(database_path, hashvalue, filename):
     eprint('Computing sorted_hash for {}'.format(filename))
-    file = open_cnf_file(filename, 'rb')
-    sorted_hash = gbd_hash_sorted(file)
-    file.close()
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('sorted_hash', sorted_hash) ] }
+    hash_md5 = hashlib.md5()
+    degrees = dict()
+    f = open_cnf_file(filename, 'rt')
+    for line in f:
+        line = line.strip()
+        if line and line[0] not in ['p', 'c']:
+            for lit in line.split()[:-1]:
+                num = int(lit)
+                tup = degrees.get(abs(num), (0,0))
+                degrees[abs(num)] = (tup[0], tup[1]+1) if num < 0 else (tup[0]+1, tup[1])
+
+    degree_list = list(degrees.values())
+    degree_list.sort(key=lambda t: (t[0]+t[1], abs(t[0]-t[1])))
+    
+    for t in degree_list:
+        hash_md5.update(str(t[0]+t[1]).encode('utf-8'))
+        hash_md5.update(b' ')
+        hash_md5.update(str(abs(t[0]-t[1])).encode('utf-8'))
+        hash_md5.update(b' ')
+
+    f.close()
+
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('degree_sequence_hash', hash_md5.hexdigest()) ] }
