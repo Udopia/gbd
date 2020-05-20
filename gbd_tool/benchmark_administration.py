@@ -71,7 +71,7 @@ def remove_benchmarks(database):
     paths = database.value_query("SELECT value FROM local")
     sanitize = list(filter(lambda path: not isfile(path), paths))
     if len(sanitize) and confirm("{} files not found, remove local path entries from database?".format(len(sanitize))):
-        for path in paths:
+        for path in sanitize:
             eprint("File '{}' not found, removing path entry.".format(path))
             database.submit("DELETE FROM local WHERE value='{}'".format(path))
 

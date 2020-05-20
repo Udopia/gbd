@@ -115,16 +115,6 @@ def get_url_file():
                              "filename": "{}".format(file_name)})
 
 
-@app.route("/query", methods=['POST'])  # query string post
-def query_for_cli():
-    query = request.values.get('query')
-    try:
-        hashset = gbd_api.query_search(query, ["local"])
-        return json.dumps(list(hashset))
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
-
-
 @app.route('/attribute/<attribute>/<hashvalue>')
 def get_attribute(attribute, hashvalue):
     try:
