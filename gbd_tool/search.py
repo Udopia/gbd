@@ -69,7 +69,6 @@ def build_where(ast):
     elif ast["qop"] is not None:
         result = '(' + build_where(ast["left"]) + " " + ast["qop"] + " " + build_where(ast["right"]) + ')'
     elif ast["sop"] is not None:
-        eprint(ast["right"])
         result = ast["left"] + ".value " + ast["sop"] + " \"" + ast["right"] + "\""
     elif ast["aop"] is not None:
         result = build_where(ast["left"]) + " " + ast["aop"] + " " + build_where(ast["right"])
