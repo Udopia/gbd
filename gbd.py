@@ -22,7 +22,7 @@ import os
 import re
 from os.path import join, dirname, realpath
 import sys
-from gbd_tool.util import eprint, confirm
+from gbd_tool.util import eprint, confirm, read_hashes
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.db import Database
 from gbd_tool import benchmark_administration
@@ -46,6 +46,10 @@ def cli_init(args):
 def cli_bootstrap(args):
     api = GbdApi(args.db)
     api.bootstrap(args.algo, int(args.jobs))
+
+def cli_sanitize(args):
+    api = GbdApi(args.db)
+    api.sanitize(args.hashes, int(args.jobs))
 
 # entry for modify command
 def cli_group(args):
@@ -74,9 +78,16 @@ def cli_group(args):
 def cli_get(args):
     eprint("Querying {} ...".format(args.db))
     try:
-        api = GbdApi(args.db)
-        eprint(str(args))
-        resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
+        if not sys.stdin.isatty():
+            # read hashes from stdin
+            if len(args.query):
+                eprint("Warning: Found hashes on stdin, discarding query")
+            hashes = read_hashes()
+            
+        else:
+            # use query
+            api = GbdApi(args.db)
+            resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
     except ValueError as e:
         eprint(e)
         return
@@ -155,6 +166,10 @@ def main():
     parser_algo = subparsers.add_parser('bootstrap', help='Calculate hard-coded sets of instance attributes')
     parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'degree_sequence_hash'])
     parser_algo.set_defaults(func=cli_bootstrap)
+
+    parser_sanitize = subparsers.add_parser('sanitize', help='Print sanitation info for given hashes')
+    parser_sanitize.add_argument('hashes', help='Hashes', nargs='+')
+    parser_sanitize.set_defaults(func=cli_sanitize)
 
     parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")

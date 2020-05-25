@@ -50,13 +50,13 @@ def eprint(*args, **kwargs):
 
 
 def read_hashes():
-    hashes = set()
+    hashes = list()
     try:
         while True:
-            line = sys.stdin.readline()
-            if len(line.strip()) == 0:
+            line = sys.stdin.readline().split()
+            if len(line) == 0:
                 return hashes
-            hashes.add(line.strip())
+            hashes.extend(line)
     except KeyboardInterrupt:
         return hashes
     return hashes
