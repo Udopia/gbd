@@ -23,6 +23,7 @@ def sanitize_file(path, h):
     print("Hash {}".format(h), file=lf)
     lc = 0
     preamble_done = False
+    skipped_misplaced_comments = 0
     decl_clauses = 0
     decl_variables = 0
     num_clauses = 0
@@ -46,7 +47,7 @@ def sanitize_file(path, h):
                     print("Warning: invalid preamble at {}".format(lc), file=lf)
         elif line[0] == 'c':
             if preamble_done:
-                print("Fixed: skipping misplaced comment after preamble at {}".format(lc), file=lf)
+                skipped_misplaced_comments = skipped_misplaced_comments + 1
             else:
                 print(line, file=sf)
         else:
@@ -55,17 +56,19 @@ def sanitize_file(path, h):
                 preamble_done = True
             try:
                 print(line, file=sf)
-                clause = [abs(int(part)) for part in line.split()]
+                clause = [int(part) for part in line.split()]
                 num_clauses = num_clauses + 1
-                num_variables = max(num_variables, max(clause))
+                num_variables = max(num_variables, max([abs(lit) for lit in clause]))
                 if 0 in clause[:-1]:
                     print("Warning: more than one clause per line at {}".format(lc), file=lf)
                 if clause[-1] != 0:
                     print("Warning: clause not delimited by 0 at {}".format(lc), file=lf)
                 if len(clause) > len(set(clause)):
-                    print("Warning: clause contains duplicate literal or is tautologic at {}".format(lc), file=lf) 
+                    print("Warning: clause contains duplicate literal at {}".format(lc), file=lf) 
             except:
                 print("Warning: unreadable literal in clause at {}".format(lc), file=lf)
+    if skipped_misplaced_comments > 0:
+        print("Fixed: skipped {} misplaced comment after preamble".format(skipped_misplaced_comments), file=lf)
     if num_variables > decl_variables:
         print("Warning: found more variables than declared", file=lf)
     if decl_clauses > num_clauses:
