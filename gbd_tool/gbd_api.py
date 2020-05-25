@@ -57,6 +57,10 @@ class GbdApi:
         with Database(self.database) as database:
             algo.bootstrap(self, database, named_algo, jobs)
 
+    def sanitize(self, hashes, jobs=1):
+        with Database(self.database) as database:
+            algo.sanitize(self, database, hashes, jobs)
+
     # Get information of the whole database
     def get_database_info(self):
         with Database(self.database) as database:
