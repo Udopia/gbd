@@ -78,12 +78,11 @@ def cli_group(args):
 def cli_get(args):
     eprint("Querying {} ...".format(args.db))
     try:
-        if not sys.stdin.isatty():
+        if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
             # read hashes from stdin
-            if len(args.query):
-                eprint("Warning: Found hashes on stdin, discarding query")
             hashes = read_hashes()
-            
+            api = GbdApi(args.db)
+            resultset = api.hash_search(hashes, args.resolve, args.collapse, args.group_by)
         else:
             # use query
             api = GbdApi(args.db)

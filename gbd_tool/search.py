@@ -19,7 +19,7 @@ from tatsu import parse, exceptions
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None):
+def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None, hashes=[]):
     statement = "SELECT {} FROM local {} WHERE {} GROUP BY {}"
     s_attributes = "local.hash"
     s_group_by = 'local.hash'
@@ -36,10 +36,10 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None)
             eprint(err)
             eprint("Exception in Query-Parser: Put any arithmetic expression in parentheses.")
             return list() 
-        #pp = pprint.PrettyPrinter(indent=4)
-        #pp.pprint(ast)
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
+    elif len(hashes) > 0:
+        s_conditions = "local.hash in ('{}')".format("', '".join(hashes))
 
     if group_by is not None:
         s_group_by = group_by + ".value"

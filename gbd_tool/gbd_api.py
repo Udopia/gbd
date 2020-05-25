@@ -128,6 +128,13 @@ class GbdApi:
         with Database(self.database) as database:
             return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
 
+    def hash_search(self, hashes=[], resolve=[], collapse=False, group_by=None):
+        with Database(self.database) as database:
+            try:
+                return search.find_hashes(database, None, resolve, collapse, group_by, hashes)
+            except sqlite3.OperationalError as err:
+                raise ValueError("Query error for database '{}': {}".format(self.database, err))
+
     def query_search(self, query=None, resolve=[], collapse=False, group_by=None):
         with Database(self.database) as database:
             try:
