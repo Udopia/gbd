@@ -21,6 +21,9 @@ import datetime
 import logging
 import os
 import argparse
+
+import werkzeug
+
 from gbd_tool.util import eprint
 from os.path import basename
 
@@ -164,6 +167,21 @@ def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE), mimetype='application/x-sqlite3')
+
+
+@app.route("/provoke", methods=['GET'])
+def provoke_server():
+    raise ProvokeError()
+
+
+@app.errorhandler(werkzeug.exceptions.HTTPException)
+def provoke_handler(e):
+    return e.get_response()
+
+
+class ProvokeError(werkzeug.exceptions.HTTPException):
+    code = 500
+    description = 'Hey! :('
 
 
 def main():
