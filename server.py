@@ -55,7 +55,7 @@ def quick_search():
 def quick_search_results_json():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
+        raise CustomError("Bad Request")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
     if not len(selected_groups):
@@ -69,9 +69,9 @@ def quick_search_results_json():
         result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400, mimetype="text/plain")
+        raise CustomError("Malformed Query")
     except ValueError:
-        return Response("Attribute not Available", status=404, mimetype="text/plain")
+        raise CustomError("Attribute not Available")
 
 
 @app.route("/getgroups", methods=['GET'])
@@ -85,7 +85,7 @@ def get_all_groups():
 def get_csv_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
+        raise CustomError("Bad Request")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
     results = gbd_api.query_search(query, selected_groups)
@@ -102,7 +102,7 @@ def get_csv_file():
 def get_url_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
+        raise CustomError("Bad Request")
     query = data.get('query')
     result = gbd_api.query_search(query, ["local"])
     # hashes = [row[0] for row in result]
@@ -123,9 +123,9 @@ def query_for_cli():
     query = request.values.get('query')
     try:
         hashset = gbd_api.query_search(query, ["local"])
-        return json.dumps(list(hashset))
+        raise json.dumps(list(hashset))
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
+        raise CustomError("Malformed Query")
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
@@ -133,10 +133,10 @@ def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
-            return "No entry in attribute table associated with this hash"
+            raise CustomError("No entry in attribute table associated with this hash")
         return str(",".join(str(value) for value in values))
     except ValueError as err:
-        return "Value Error: {}".format(err)
+        raise CustomError("Value Error: {}".format(err))
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -144,12 +144,12 @@ def get_attribute(attribute, hashvalue):
 def get_file(hashvalue, filename):
     values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
-        return "No according file found in our database"
+        raise CustomError("No according file found in our database")
     try:
         path = values.pop()
         return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
     except FileNotFoundError:
-        return Response("Files temporarily not accessible", status=503, mimetype="text/plain")
+        raise CustomError("Files temporarily not accessible")
 
 
 @app.route('/info/<hashvalue>')
@@ -169,19 +169,13 @@ def get_default_database_file():
     return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE), mimetype='application/x-sqlite3')
 
 
-@app.route("/provoke", methods=['GET'])
-def provoke_server():
-    raise ProvokeError()
-
-
 @app.errorhandler(werkzeug.exceptions.HTTPException)
-def provoke_handler(e):
+def error_handler(e):
     return e.get_response()
 
 
-class ProvokeError(werkzeug.exceptions.HTTPException):
+class CustomError(werkzeug.exceptions.HTTPException):
     code = 500
-    description = 'Hey! :('
 
 
 def main():
