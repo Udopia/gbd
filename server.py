@@ -104,7 +104,6 @@ def get_url_file():
     result = gbd_api.query_search(query, ["local"])
     # hashes = [row[0] for row in result]
     # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
-    print(str(result))
     content = "\n".join(
         [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
          result])
