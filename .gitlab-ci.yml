@@ -83,6 +83,6 @@ deploy_dev:
     - ssh-add ~/.ssh/id_rsa
     - ssh-keyscan -H baldur3.iti.kit.edu >> ~/.ssh/known_hosts
   script:
-    - ssh deploy@baldur3.iti.kit.edu "docker-compose -f /srv/docker/compose/gbd-staging/docker-compose.yml stop; docker-compose -f /srv/docker/compose-staging/gbd/docker-compose.yml rm --force"
+    - ssh deploy@baldur3.iti.kit.edu "docker-compose -f /srv/docker/compose/gbd-staging/docker-compose.yml stop; docker-compose -f /srv/docker/compose/gbd-staging/docker-compose.yml rm --force"
     - ssh deploy@baldur3.iti.kit.edu "sed -i 's/image: qpr-registry.iti.kit.edu\/gbd\/gbd:.*/image: qpr-registry.iti.kit.edu\/gbd\/gbd:$CI_COMMIT_SHA/g' /srv/docker/compose/gbd-staging/docker-compose.yml"
     - ssh deploy@baldur3.iti.kit.edu "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose -f /srv/docker/compose/gbd-staging/docker-compose.yml pull; docker-compose -f /srv/docker/compose/gbd-staging/docker-compose.yml up -d; docker logout ${CI_REGISTRY}"
