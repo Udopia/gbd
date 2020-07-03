@@ -63,19 +63,27 @@
                         </b-form-checkbox-group>
                     </b-form-group>
                     <b-button-group class="mx-1">
-                        <b-button type="button" @click="getCsvFile" variant="outline-dark">
-                            <b-icon icon="archive" style="margin-right: 5px"></b-icon>
-                            Download Attributes
-                        </b-button>
-                        <b-button type="button" @click="getUrlFile" variant="outline-dark">
-                            <b-icon icon="download" style="margin-right: 5px"></b-icon>
-                            Download Instances
-                        </b-button>
-                        <b-button type="button" variant="outline-dark">
-							<a href="getdatabase">
-                            <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                            Download Database</a>
-                        </b-button>
+                        <form action="/getinstances" method="post" target="_self">
+                            <input type="hidden" name="query" v-bind:value="form.query">
+                            <b-button type="submit" variant="outline-dark">
+                                <b-icon icon="download" style="margin-right: 5px"></b-icon>
+                                Download instances
+                            </b-button>
+                        </form>
+                        <form action="/exportcsv" method="post" target="_self">
+                            <input type="hidden" name="query" v-bind:value="form.query">
+                            <input type="hidden" name="selected_groups" v-bind:value="form.selected_groups">
+                            <b-button type="submit" variant="outline-dark">
+                                <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                                Download attributes
+                            </b-button>
+                        </form>
+                        <form action="/getdatabase" method="get" target="_self">
+                            <b-button type="submit" variant="outline-dark">
+                                <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
+                                Download Database
+                            </b-button>
+                        </form>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
                         </b-button>

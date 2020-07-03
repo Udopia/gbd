@@ -83,11 +83,9 @@ def get_all_groups():
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text")
-    query = data.get('query')
-    selected_groups = data.get('selected_groups')
+    query = request.form.get('query')
+    ## TODO: parse list group1,group2,... to actual list -> is this really what we want?
+    selected_groups = request.form.get('selected_groups')
     results = gbd_api.query_search(query, selected_groups)
     headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
@@ -100,10 +98,7 @@ def get_csv_file():
 
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text")
-    query = data.get('query')
+    query = request.form.get('query')
     result = gbd_api.query_search(query, ["local"])
     # hashes = [row[0] for row in result]
     # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
