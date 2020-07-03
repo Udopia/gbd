@@ -84,59 +84,6 @@ var app = new Vue({
             });
             event.preventDefault();
         },
-        getCsvFile: function (event) {
-            app.loading = true;
-            var jsonData = {
-                query: this.form.query,
-                selected_groups: this.form.selected_groups,
-            };
-            $.ajax({
-                url: this.getHost().concat("/exportcsv"),
-                type: 'POST',
-                data: JSON.stringify(jsonData),
-                contentType: 'application/json; charset=utf-8',
-                success: function (response, status, xhr) {
-                    app.initializeDownload(response, status, xhr, window, document);
-                },
-                error: function (request, status, error) {
-                    app.loading = false;
-                    app.showErrorModal();
-                }
-            });
-            event.preventDefault();
-        },
-        getUrlFile: function (event) {
-            app.loading = true;
-            var jsonData = {
-                query: this.form.query,
-                selected_groups: this.form.selected_groups,
-            };
-            $.ajax({
-                url: this.getHost().concat("/getinstances"),
-                type: 'POST',
-                data: JSON.stringify(jsonData),
-                contentType: 'application/json; charset=utf-8',
-                success: function (response, status, xhr) {
-                    app.initializeDownload(response, status, xhr, window, document);
-                },
-                error: function (request, status, error) {
-                    app.loading = false;
-                    app.showErrorModal();
-                }
-            });
-            event.preventDefault();
-        },
-        initializeDownload: function (response, status, xhr, window, document) {
-            const type = xhr.getResponseHeader("Content-Type");
-            var blob = new Blob([response], {type: type});
-            var fileName = xhr.getResponseHeader("filename");
-            var link = document.createElement('a');
-            var URL = window.URL || window.webkitURL;
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            app.loading = false;
-            link.click();
-        },
         showErrorModal() {
             this.$refs['error-modal'].show()
         },
