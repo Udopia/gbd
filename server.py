@@ -55,7 +55,7 @@ def quick_search():
 def quick_search_results_json():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        raise CustomError("Bad Request")
+        return Response("Bad Request", status=400, mimetype="text/plain")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
     if not len(selected_groups):
@@ -69,9 +69,9 @@ def quick_search_results_json():
         result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
-        raise CustomError("Malformed Query")
+        return Response("Malformed query", status=400, mimetype="text/plain")
     except ValueError:
-        raise CustomError("Attribute not Available")
+        return Response("Attribute not Available", status=400, mimetype="text/plain")
 
 
 @app.route("/getgroups", methods=['GET'])
@@ -85,7 +85,7 @@ def get_all_groups():
 def get_csv_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        raise CustomError("Bad Request")
+        return Response("Bad Request", status=400, mimetype="text")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
     results = gbd_api.query_search(query, selected_groups)
@@ -102,7 +102,7 @@ def get_csv_file():
 def get_url_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        raise CustomError("Bad Request")
+        return Response("Bad Request", status=400, mimetype="text")
     query = data.get('query')
     result = gbd_api.query_search(query, ["local"])
     # hashes = [row[0] for row in result]
@@ -122,9 +122,9 @@ def query_for_cli():
     query = request.values.get('query')
     try:
         hashset = gbd_api.query_search(query, ["local"])
-        raise json.dumps(list(hashset))
+        return json.dumps(list(hashset))
     except tatsu.exceptions.FailedParse:
-        raise CustomError("Malformed Query")
+        Response("Malformed query", status=400, mimetype="text/plain")
 
 
 @app.route('/attribute/<attribute>/<hashvalue>')
@@ -132,10 +132,10 @@ def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
-            raise CustomError("No entry in attribute table associated with this hash")
+            return Response("No entry in attribute table associated with this hash", status=404, mimetype="text/plain")
         return str(",".join(str(value) for value in values))
     except ValueError as err:
-        raise CustomError("Value Error: {}".format(err))
+        return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -143,12 +143,12 @@ def get_attribute(attribute, hashvalue):
 def get_file(hashvalue, filename):
     values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
-        raise CustomError("No according file found in our database")
+        return Response("No according file found in our database", status=404, mimetype="text/plain")
     try:
         path = values.pop()
         return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
     except FileNotFoundError:
-        raise CustomError("Files temporarily not accessible")
+        return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
 
 
 @app.route('/info/<hashvalue>')
@@ -158,7 +158,7 @@ def get_all_attributes(hashvalue):
     for attribute in groups:
         values = gbd_api.search(attribute, hashvalue)
         info.update({attribute: str(",".join(str(value) for value in values))})
-    return json.dumps(info)
+    return Response(json.dumps(info), status=200, mimetype="application/json")
 
 
 @app.route("/getdatabase", methods=['GET'])
@@ -166,15 +166,6 @@ def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE), mimetype='application/x-sqlite3')
-
-
-@app.errorhandler(werkzeug.exceptions.HTTPException)
-def error_handler(e):
-    return e.get_response()
-
-
-class CustomError(werkzeug.exceptions.HTTPException):
-    code = 500
 
 
 def main():
