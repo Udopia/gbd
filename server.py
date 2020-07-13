@@ -21,6 +21,9 @@ import datetime
 import logging
 import os
 import argparse
+
+import werkzeug
+
 from gbd_tool.util import eprint
 from os.path import basename
 
@@ -66,9 +69,9 @@ def quick_search_results_json():
         result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400, mimetype="text/plain")
+        return Response("Malformed query", status=400, mimetype="text/plain")
     except ValueError:
-        return Response("Attribute not Available", status=404, mimetype="text/plain")
+        return Response("Attribute not Available", status=400, mimetype="text/plain")
 
 
 @app.route("/getgroups", methods=['GET'])
@@ -82,7 +85,7 @@ def get_all_groups():
 def get_csv_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
+        return Response("Bad Request", status=400, mimetype="text")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
     results = gbd_api.query_search(query, selected_groups)
@@ -99,12 +102,11 @@ def get_csv_file():
 def get_url_file():
     data = request.get_json(force=True, silent=True)
     if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
+        return Response("Bad Request", status=400, mimetype="text")
     query = data.get('query')
     result = gbd_api.query_search(query, ["local"])
     # hashes = [row[0] for row in result]
     # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
-    print(str(result))
     content = "\n".join(
         [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
          result])
@@ -120,10 +122,10 @@ def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
-            return "No entry in attribute table associated with this hash"
+            return Response("No entry in attribute table associated with this hash", status=404, mimetype="text/plain")
         return str(",".join(str(value) for value in values))
     except ValueError as err:
-        return "Value Error: {}".format(err)
+        return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -131,12 +133,12 @@ def get_attribute(attribute, hashvalue):
 def get_file(hashvalue, filename):
     values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
-        return "No according file found in our database"
+        return Response("No according file found in our database", status=404, mimetype="text/plain")
     try:
         path = values.pop()
         return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
     except FileNotFoundError:
-        return Response("Files temporarily not accessible", status=503, mimetype="text/plain")
+        return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
 
 
 @app.route('/info/<hashvalue>')
@@ -146,7 +148,7 @@ def get_all_attributes(hashvalue):
     for attribute in groups:
         values = gbd_api.search(attribute, hashvalue)
         info.update({attribute: str(",".join(str(value) for value in values))})
-    return json.dumps(info)
+    return Response(json.dumps(info), status=200, mimetype="application/json")
 
 
 @app.route("/getdatabase", methods=['GET'])
