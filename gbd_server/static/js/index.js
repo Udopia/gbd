@@ -23,7 +23,6 @@ var app = new Vue({
                 {value: 30, text: "30"},
             ],
             filter: null,
-            filterOn: [],
             head_variant: "dark",
         },
         patterns: {
