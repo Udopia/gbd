@@ -168,7 +168,11 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
     else:
-        logging.basicConfig(filename='server.log', level=logging.DEBUG)
+        logging_dir = "gbd-server-logs"
+        logging_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), logging_dir)
+        if not os.path.exists(logging_path):
+            os.makedirs(logging_path)
+        logging.basicConfig(filename='{}/server.log'.format(logging_path), level=logging.DEBUG)
         logging.getLogger().addHandler(default_handler)
         global DATABASE
         DATABASE = args.db

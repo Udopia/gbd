@@ -21,7 +21,7 @@ import multiprocessing
 from urllib.error import URLError
 
 # internal packages
-from gbd_tool import groups, benchmark_administration, search, algo, import_data
+from gbd_tool import groups, benchmark_administration, search, bootstrap, import_data, sanitize
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint
@@ -55,11 +55,11 @@ class GbdApi:
 
     def bootstrap(self, named_algo, jobs=1):
         with Database(self.database) as database:
-            algo.bootstrap(self, database, named_algo, jobs)
+            bootstrap.bootstrap(self, database, named_algo, jobs)
 
     def sanitize(self, hashes, jobs=1):
         with Database(self.database) as database:
-            algo.sanitize(self, database, hashes, jobs)
+            sanitize.sanitize(self, database, hashes, jobs)
 
     # Get information of the whole database
     def get_database_info(self):
