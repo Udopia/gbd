@@ -32,12 +32,12 @@ def open_cnf_file(filename, mode):
         obj = gzip.open(filename, mode)
     elif filename.endswith('.cnf.bz2'):
         obj = bz2.open(filename, mode)
-    elif filename.endswith('.cnf.lzma'):
+    elif filename.endswith('.cnf.lzma') or filename.endswith('.cnf.xz'):
         obj = lzma.open(filename, mode)
     elif filename.endswith('.cnf'):
         obj = open(filename, mode)
     else:
-        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
+        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, .cnf.xz, or .cnf.gz")
     
     if 'b' in mode:
         return io.BufferedReader(obj, io.DEFAULT_BUFFER_SIZE * 8)
