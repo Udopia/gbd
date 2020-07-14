@@ -88,6 +88,8 @@ def get_csv_file():
         return Response("Bad Request", status=400, mimetype="text")
     query = data.get('query')
     selected_groups = data.get('selected_groups')
+    if not len(selected_groups):
+        selected_groups.append("filename")
     results = gbd_api.query_search(query, selected_groups)
     headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
