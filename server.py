@@ -85,6 +85,8 @@ def get_all_groups():
 def get_csv_file():
     query = request.form.get('query')
     selected_groups = list(filter(lambda x : x != '', request.form.get('selected_groups').split(',')))
+    if not len(selected_groups):
+        selected_groups.append("filename")
     results = gbd_api.query_search(query, selected_groups)
     headers = ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
