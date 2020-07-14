@@ -72,9 +72,9 @@
                             Download Instances
                         </b-button>
                         <b-button type="button" variant="outline-dark">
-							<a href="getdatabase">
-                            <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                            Download Database</a>
+                            <a href="getdatabase">
+                                <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
+                                Download Database</a>
                         </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
@@ -123,6 +123,28 @@
                         </b-dropdown>
                     </div>
                 </b-col>
+                <b-col lg="6" class="my-1">
+                    <b-form-group
+                            label="Filter"
+                            label-cols-sm="3"
+                            label-align-sm="right"
+                            label-size="sm"
+                            label-for="filterInput"
+                            class="mb-0"
+                    >
+                        <b-input-group size="sm">
+                            <b-form-input
+                                    v-model="table.filter"
+                                    type="search"
+                                    id="filterInput"
+                                    placeholder="Type to Search"
+                            ></b-form-input>
+                            <b-input-group-append>
+                                <b-button :disabled="!table.filter || table.busy" @click="table.filter = ''">Clear</b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </b-form-group>
+                </b-col>
             </b-row>
             <b-row>
                 <b-col>
@@ -136,6 +158,9 @@
                             :busy="table.table_busy"
                             :sort-by.sync="table.sortBy"
                             :sort-desc.sync="table.sortDesc"
+                            :filter="table.filter"
+                            :filterIncludedFields="table.filterOn"
+                            @filtered="onFiltered"
                             responsive
                             sort-icon-left
                             hover
@@ -153,7 +178,7 @@
                     <b-pagination
                             pills
                             v-model="table.current_page"
-                            :total-rows="rows"
+                            :total-rows="table.rows"
                             :per-page="table.per_page"
                             align="center"
                             aria-controls="result-table"
