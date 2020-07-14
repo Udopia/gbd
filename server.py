@@ -85,7 +85,9 @@ def get_all_groups():
 def get_csv_file():
     query = request.form.get('query')
     ## TODO: parse list group1,group2,... to actual list -> is this really what we want?
-    selected_groups = request.form.get('selected_groups')
+    selected_groups = request.form.get('selected_groups').split(',')
+    if selected_groups[0] == '':
+        selected_groups = []
     results = gbd_api.query_search(query, selected_groups)
     headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
