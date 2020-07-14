@@ -91,7 +91,7 @@ def get_csv_file():
     if not len(selected_groups):
         selected_groups.append("filename")
     results = gbd_api.query_search(query, selected_groups)
-    headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
+    headers = ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     file_name = "query_result.csv"
