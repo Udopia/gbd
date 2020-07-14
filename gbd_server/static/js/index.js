@@ -58,6 +58,7 @@ var app = new Vue({
             })
         },
         submitQuery: function (event) {
+            app.table.filter = ''
             app.table.table_busy = true;
             var jsonData = {
                 query: this.form.query,
