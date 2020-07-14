@@ -11,6 +11,7 @@ var app = new Vue({
             selected_groups: [],
         },
         table: {
+            rows: 0,
             sortBy: null,
             sortDesc: false,
             table_busy: false,
@@ -21,6 +22,8 @@ var app = new Vue({
                 {value: 20, text: "20"},
                 {value: 30, text: "30"},
             ],
+            filter: null,
+            filterOn: [],
             head_variant: "dark",
         },
         patterns: {
@@ -71,6 +74,7 @@ var app = new Vue({
                     app.table.sortBy = null;
                     app.table.sortDesc = false;
                     app.result = result;
+                    app.table.rows = result.length
                     var entry = result[0];
                     for (var attribute in entry) {
                         app.fields.push({key: attribute.toString(), sortable: true});
@@ -142,6 +146,11 @@ var app = new Vue({
         },
         hideErrorModal() {
             this.$refs['error-modal'].hide()
+        },
+        onFiltered(filteredItems) {
+            // Trigger pagination to update the number of buttons/pages due to filtering
+            this.table.rows = filteredItems.length
+            this.table.current_page = 1
         },
     },
     mounted: function () {
