@@ -21,7 +21,7 @@ import multiprocessing
 from urllib.error import URLError
 
 # internal packages
-from gbd_tool import groups, benchmark_administration, search, bootstrap, import_data, sanitize
+from gbd_tool import groups, benchmark_administration, search, bootstrap, sanitize
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint
@@ -41,7 +41,7 @@ class GbdApi:
     # Import CSV file
     def import_file(self, path, key, source, target, delimiter):
         with Database(self.database) as database:
-            import_data.import_csv(database, path, key, source, target, delimiter)
+            benchmark_administration.import_csv(database, path, key, source, target, delimiter)
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called
