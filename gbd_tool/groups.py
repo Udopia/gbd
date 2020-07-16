@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def add(database, cat, unique=False, type='text', default=None):
+def add(database, cat, unique=False, default=None):
     ustr = "UNIQUE" if unique else ""
     dstr = "DEFAULT \"{}\"".format(default) if default is not None else ""
     database.submit(
-        'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value {} NOT NULL {})'.format(cat, ustr, type, dstr))
+        'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value TEXT NOT NULL {})'.format(cat, ustr, dstr))
     if default is not None:
         database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(cat))
 
