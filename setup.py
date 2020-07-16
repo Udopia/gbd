@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='2.9.1',
+  version='2.9.2',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -19,7 +19,7 @@ setup(name='gbd_tools',
       'tatsu',
       'numpy'
   ],
-  install_obsoletes=['global-benchmark-database-tools'],
+  install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3"
