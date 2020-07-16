@@ -60,8 +60,8 @@ def cli_group(args):
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
-        eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(
-            args.name, args.unique is not None, args.type, args.unique))
+        eprint("Adding or modifying group '{}', unique {}, default-value {}".format(
+            args.name, args.unique is not None, args.unique))
         api.add_attribute_group(args.name, args.unique)
         return
     if not api.check_group_exists(args.name):
@@ -231,7 +231,6 @@ Initialize your database with local paths to your benchmark instances by using t
             args.func(args)
         except AttributeError as e:
             eprint(e)
-            parser.print_help()
     else:
         parser.print_help()
 

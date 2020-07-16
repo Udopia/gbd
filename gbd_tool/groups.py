@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from gbd_tool.util import eprint
+
 def add(database, cat, unique=False, default=None):
     ustr = "UNIQUE" if unique else ""
     dstr = "DEFAULT \"{}\"".format(default) if default is not None else ""
@@ -32,14 +34,21 @@ def clear(database, cat):
 
 
 def reflect(database, cat=None):
+    lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table' and not tbl_name like '\_\_%' escape '\\' and not tbl_name like 'sqlite\_stat_' escape '\\'")
+    groups = [x[0] for x in lst]
     if cat is None:
-        lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table' and not tbl_name like '\_\_%' escape '\\' and not tbl_name like 'sqlite\_stat_' escape '\\'")
-        groups = [x[0] for x in lst]
         return groups
+    elif cat not in groups:
+        eprint("Error, group '{}' does not exist".format(cat))
+        eprint(groups)
+        return []
     else:
         lst = database.query("PRAGMA table_info({})".format(cat))
         columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
-        table_infos = [dict(zip(columns, values)) for values in lst]
+        try:
+            table_infos = [dict(zip(columns, values)) for values in lst]
+        except Exception as err:
+            eprint(err)
 
         lst = database.query("PRAGMA index_list({})".format(cat))
         columns = ('seq', 'name', 'unique', 'origin', 'partial')
