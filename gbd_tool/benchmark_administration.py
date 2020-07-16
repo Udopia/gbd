@@ -16,6 +16,8 @@
 
 import multiprocessing
 import os
+import csv
+
 from multiprocessing import Pool, Lock
 from os.path import isfile
 
@@ -27,6 +29,15 @@ from gbd_tool.util import eprint, confirm
 
 mutex = Lock()
 
+def import_csv(database, filename, key, source, target, delim_=' '):
+    if target not in groups.reflect(database):
+        print("Target group {} does not exist. Import canceled.".format(target))
+    with open(filename, newline='') as csvfile:
+        csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
+        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source].strip()]
+        print("Inserting {} values into group {}".format(len(lst), target))
+        for (hash_, value_) in lst:
+            add_tag(database, target, value_, hash_, False)
 
 def add_tag(database, cat, tag, hash, force=False):
     info = groups.reflect(database, cat)

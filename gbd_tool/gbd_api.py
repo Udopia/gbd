@@ -72,9 +72,9 @@ class GbdApi:
             return name in groups.reflect(database)
 
     # Adds a group to given database representing for example an attribute of a benchmark
-    def add_attribute_group(self, name, type, unique):
+    def add_attribute_group(self, name, unique):
         with Database(self.database) as database:
-            groups.add(database, name, unique is not None, type, unique)
+            groups.add(database, name, unique is not None, unique)
 
     # Remove group from database
     def remove_attribute_group(self, name):

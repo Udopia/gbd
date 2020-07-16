@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Global Benchmark Database (GBD)
+# GBD Benchmark Database (GBD)
 # Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -62,7 +62,7 @@ def cli_group(args):
     elif not args.remove and not args.clear:
         eprint("Adding or modifying group '{}', unique {}, type {}, default-value {}".format(
             args.name, args.unique is not None, args.type, args.unique))
-        api.add_attribute_group(args.name, args.type, args.unique)
+        api.add_attribute_group(args.name, args.unique)
         return
     if not api.check_group_exists(args.name):
         eprint("Group '{}' does not exist".format(args.name))
@@ -99,6 +99,10 @@ def cli_set(args):
     api = GbdApi(args.db)
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
         api.remove_attribute(args.name, args.value, args.hashes)
+    elif (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
+        # read hashes from stdin
+        hashes = read_hashes()
+        api.set_attribute(args.name, args.value, hashes, args.force)
     else:
         api.set_attribute(args.name, args.value, args.hashes, args.force)
 
@@ -192,14 +196,13 @@ def main():
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
     parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
     parser_group.add_argument('-u', '--unique', help='Attribute has one unique value per benchmark (expects a default value)')
-    parser_group.add_argument('-t', '--type', help='Specify the value type of the group (default: text)', default="text", choices=['text', 'integer', 'real'])
     parser_group.add_argument('-r', '--remove', action='store_true', help='If group exists: remove the group with the specified name')
     parser_group.add_argument('-c', '--clear', action='store_true', help='If group exists: remove all values in the group with the specified name')
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure
     parser_tag = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
-    parser_tag.add_argument('hashes', help='Hashes', nargs='+')
+    parser_tag.add_argument('hashes', help='Hashes', nargs='*')
     parser_tag.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
     parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
     parser_tag.add_argument('-r', '--remove', action='store_true', help='Remove attribute from hashes if present, instead of adding it')
