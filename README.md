@@ -1,4 +1,4 @@
-# gbd (Global Benchmark Database)
+# GBD Benchmark Database Tools
 
 ## Programming Language
 Python 3
