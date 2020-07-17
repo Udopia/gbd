@@ -115,16 +115,12 @@ def cli_info(args):
             print(*info, sep='\n')
         else:
             info = api.get_group_info(args.name)
-            print('name: {}'.format(info.get('name')))
-            print('type: {}'.format(info.get('type')))
-            print('uniqueness: {}'.format(info.get('uniqueness')))
-            print('default value: {}'.format(info.get('default')))
-            print('number of entries: {}'.format(*info.get('entries')))
+            for k,v in info.items():
+                print(k, v)
     else:
         result = api.get_database_info()
         print("Using '{}'".format(result.get('name')))
-        print("Found tables:")
-        print(*api.get_all_groups())
+        print("Found tables: {}".format(",".join(api.get_all_groups())))
 
 
 # define directory type for argparse
