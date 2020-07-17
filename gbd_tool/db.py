@@ -107,3 +107,26 @@ class Database:
 
     def commit(self):
         self.connection.commit()
+
+    def tables(self):
+        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        return [x[0] for x in lst]
+
+    def table_info(self, table):
+        lst = self.query("PRAGMA table_info({})".format(table))
+        columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
+        table_infos = [dict(zip(columns, values)) for values in lst]
+        return table_infos
+
+    def index_list(self, table):
+        lst = self.query("PRAGMA index_list({})".format(table))
+        columns = ('seq', 'name', 'unique', 'origin', 'partial')
+        index_list = [dict(zip(columns, values)) for values in lst]
+        return index_list
+    
+    def index_info(self, index):
+        tup = self.query("PRAGMA index_info({})".format(index))
+        columns = ('index_rank', 'table_rank', 'name')
+        index_info = dict(zip(columns, tup[0]))
+        return index_info
+
