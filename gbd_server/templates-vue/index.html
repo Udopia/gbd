@@ -27,11 +27,11 @@
         {% raw %}
         <b-container>
             <div style="margin-top: 10px">
-                <b-form @submit="submitQuery">
-                    <b-form-group id="query">
+                <b-form>
+                    <b-form-group>
                         <b-input-group>
                             <b-form-input
-                                    id="query"
+                                    name="query"
                                     v-model="form.query"
                                     placeholder="Enter query"
                             ></b-form-input>
@@ -47,7 +47,7 @@
                                         </div>
                                     </b-dropdown-group>
                                 </b-dropdown>
-                                <b-button type="submit" variant="outline-dark">
+                                <b-button @click="submitQuery" variant="outline-dark">
                                     <b-icon icon="search"></b-icon>
                                 </b-button>
                             </b-input-group-append>
@@ -63,27 +63,22 @@
                         </b-form-checkbox-group>
                     </b-form-group>
                     <b-button-group class="mx-1">
-                        <form action="/getinstances" method="post" target="_self">
-                            <input type="hidden" name="query" v-bind:value="form.query">
-                            <b-button type="submit" variant="outline-dark">
-                                <b-icon icon="download" style="margin-right: 5px"></b-icon>
-                                Download instances
-                            </b-button>
-                        </form>
-                        <form action="/exportcsv" method="post" target="_self">
-                            <input type="hidden" name="query" v-bind:value="form.query">
-                            <input type="hidden" name="selected_groups" v-bind:value="form.selected_groups">
-                            <b-button type="submit" variant="outline-dark">
-                                <b-icon icon="archive" style="margin-right: 5px"></b-icon>
-                                Download attributes
-                            </b-button>
-                        </form>
-                        <form action="/getdatabase" method="get" target="_self">
-                            <b-button type="submit" variant="outline-dark">
-                                <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                                Download Database
-                            </b-button>
-                        </form>
+                        <b-button type="submit" formmethod="post" formaction="/getinstances" variant="outline-dark"
+                                  formtarget="_self">
+                            <b-icon icon="download" style="margin-right: 5px"></b-icon>
+                            Download instances
+                        </b-button>
+                        <input type="hidden" name="selected_groups" v-bind:value="form.selected_groups">
+                        <b-button type="submit" formmethod="post" formaction="/exportcsv" variant="outline-dark"
+                                  formtarget="_self">
+                            <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                            Download attributes
+                        </b-button>
+                        <b-button type="submit" formmethod="get" formaction="/getdatabase" variant="outline-dark"
+                                  formtarget="_self">
+                            <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
+                            Download Database
+                        </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
                         </b-button>
