@@ -40,8 +40,7 @@ def import_csv(database, filename, key, source, target, delim_=' '):
             add_tag(database, target, value_, hash_, False)
 
 def add_tag(database, name, value, hash, force=False):
-    info = groups.reflect(database, name)
-    if (info[0]['unique']):
+    if database.table_unique(name):
         if force:
             database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
         else:
@@ -50,7 +49,7 @@ def add_tag(database, name, value, hash, force=False):
                 database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
             else:
                 existing_value = res[0][0]
-                default_value = info[1]['default_value']
+                default_value = database.table_default_value(name)
                 if existing_value == default_value:
                     eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, value, hash))
                     database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))

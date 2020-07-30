@@ -59,8 +59,7 @@ def cli_group(args):
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
-        eprint("Adding or modifying group '{}', unique {}, default-value {}".format(
-            args.name, args.unique is not None, args.unique))
+        eprint("Adding group '{}', unique default-value {}".format(args.name, args.unique or "None"))
         api.add_attribute_group(args.name, args.unique)
         return
     if not api.check_group_exists(args.name):
@@ -68,10 +67,8 @@ def cli_group(args):
         return
     if args.remove and confirm("Delete group '{}'?".format(args.name)):
         api.remove_attribute_group(args.name)
-    else:
-        if args.clear and confirm("Clear group '{}'?".format(args.name)):
-            api.clear_group(args.name)
-
+    elif args.clear and confirm("Clear group '{}'?".format(args.name)):
+        api.clear_group(args.name)
 
 # entry for query command
 def cli_get(args):
