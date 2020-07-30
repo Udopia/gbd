@@ -30,8 +30,9 @@ from gbd_tool.util import eprint
 class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
-    def __init__(self, database):
+    def __init__(self, database, jobs):
         self.database = database
+        self.jobs = jobs
         self.mutex = multiprocessing.Lock()
 
     # hash a CNF file
@@ -54,18 +55,13 @@ class GbdApi:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(self, database, path, jobs)
 
-    def bootstrap(self, named_algo, jobs=1):
+    def bootstrap(self, named_algo):
         with Database(self.database) as database:
-            bootstrap.bootstrap(self, database, named_algo, jobs)
+            bootstrap.bootstrap(self, database, named_algo, self.jobs)
 
-    def sanitize(self, hashes, jobs=1):
+    def sanitize(self, hashes):
         with Database(self.database) as database:
-            sanitize.sanitize(self, database, hashes, jobs)
-
-    # Get information of the whole database
-    def get_database_info(self):
-        with Database(self.database) as database:
-            return {'name': self.database }
+            sanitize.sanitize(self, database, hashes, self.jobs)
 
     # Checks weather a group exists in given database object
     def check_group_exists(self, name):
@@ -98,9 +94,9 @@ class GbdApi:
             raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             return {'name': attribute, 
-                    'uniqueness': groups.reflect_unique(database, attribute),
-                    'default': groups.reflect_default(database, attribute),
-                    'entries': groups.reflect_size(database, attribute)}
+                    'uniqueness': database.table_unique(attribute),
+                    'default': database.table_default_value(attribute),
+                    'entries': database.table_size(attribute)}
 
     # Retrieve all values the given group contains
     def get_group_values(self, attribute):        
@@ -109,17 +105,15 @@ class GbdApi:
         return self.query_search(None, [attribute], False)
 
     def callback_set_attributes_locked(self, arg):
-        self.set_attributes_locked(arg['database_path'], arg['hashvalue'], arg['attributes'])
+        self.set_attributes_locked(arg['hashvalue'], arg['attributes'])
 
-    def set_attributes_locked(self, database_path, hash, attributes):
+    def set_attributes_locked(self, hash, attributes):
         self.mutex.acquire()
         try:
             # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-            with Database(database_path) as database:
+            with Database(self.database) as database:
                 for attr in attributes:
-                    cmd = attr[0]
-                    name = attr[1]
-                    value = attr[2]
+                    cmd, name, value = attr[0], attr[1], attr[2]
                     database.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
         finally:
             self.mutex.release()

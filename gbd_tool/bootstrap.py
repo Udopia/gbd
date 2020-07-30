@@ -22,30 +22,30 @@ def bootstrap(api, database, named_algo, jobs):
         api.add_attribute_group("variables", 0)
         api.add_attribute_group("clauses", 0)
         resultset = api.query_search("clauses = 0", ["local"])
-        schedule_bootstrap(api, database.paths[0], jobs, resultset, compute_clause_types)
+        schedule_bootstrap(api, jobs, resultset, compute_clause_types)
     elif named_algo == 'degree_sequence_hash':
         api.add_attribute_group("degree_sequence_hash", "empty")
         resultset = api.query_search("degree_sequence_hash = empty", ["local"])
-        schedule_bootstrap(api, database.paths[0], jobs, resultset, compute_degree_sequence_hash)
+        schedule_bootstrap(api, jobs, resultset, compute_degree_sequence_hash)
     else:
         raise NotImplementedError
 
-def schedule_bootstrap(api, database_path, jobs, resultset, func):
+def schedule_bootstrap(api, jobs, resultset, func):
     if jobs == 1:
         for result in resultset:
             hashvalue = result[0].split(',')[0]
             filename = result[1].split(',')[0]
-            api.callback_set_attributes_locked(func(database_path, hashvalue, filename))
+            api.callback_set_attributes_locked(func(hashvalue, filename))
     else:
         pool = Pool(min(multiprocessing.cpu_count(), jobs))
         for result in resultset:
             hashvalue = result[0].split(',')[0]
             filename = result[1].split(',')[0]
-            pool.apply_async(func, args=(database_path, hashvalue, filename), callback=api.callback_set_attributes_locked)
+            pool.apply_async(func, args=(hashvalue, filename), callback=api.callback_set_attributes_locked)
         pool.close()
         pool.join()
 
-def compute_clause_types(database_path, hashvalue, filename):
+def compute_clause_types(hashvalue, filename):
     eprint('Computing clause_types for {}'.format(filename))
     c_vars = 0
     c_clauses = 0
@@ -71,10 +71,10 @@ def compute_clause_types(database_path, hashvalue, filename):
     f.close()
     attributes = [ ('REPLACE', 'clauses_horn', c_horn), ('REPLACE', 'clauses_positive', c_pos), ('REPLACE', 'clauses_negative', c_neg), 
                    ('REPLACE', 'variables', c_vars), ('REPLACE', 'clauses', c_clauses) ]
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
+    return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
-def compute_degree_sequence_hash(database_path, hashvalue, filename):
+def compute_degree_sequence_hash(hashvalue, filename):
     eprint('Computing sorted_hash for {}'.format(filename))
     hash_md5 = hashlib.md5()
     degrees = dict()
@@ -98,4 +98,4 @@ def compute_degree_sequence_hash(database_path, hashvalue, filename):
 
     f.close()
 
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('REPLACE', 'degree_sequence_hash', hash_md5.hexdigest()) ] }
+    return { 'hashvalue': hashvalue, 'attributes': [ ('REPLACE', 'degree_sequence_hash', hash_md5.hexdigest()) ] }
