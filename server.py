@@ -60,7 +60,7 @@ def quick_search_results_json():
     selected_groups = data.get('selected_groups')
     if not len(selected_groups):
         selected_groups.append("filename")
-    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups = sorted(gbd_api.get_features())
     available_groups.remove("local")
     groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
@@ -76,7 +76,7 @@ def quick_search_results_json():
 
 @app.route("/getgroups", methods=['GET'])
 def get_all_groups():
-    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups = sorted(gbd_api.get_features())
     available_groups.remove("local")
     return Response(json.dumps(available_groups), status=200, mimetype="application/json")
 
@@ -145,7 +145,7 @@ def get_file(hashvalue, filename):
 
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    groups = gbd_api.get_all_groups()
+    groups = gbd_api.get_features()
     info = dict([])
     for attribute in groups:
         values = gbd_api.search(attribute, hashvalue)

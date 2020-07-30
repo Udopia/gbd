@@ -16,15 +16,15 @@ mutex = Lock()
 
 def bootstrap(api, database, named_algo, jobs):
     if named_algo == 'clause_types':
-        api.add_attribute_group("clauses_horn", 0)
-        api.add_attribute_group("clauses_positive", 0)
-        api.add_attribute_group("clauses_negative", 0)
-        api.add_attribute_group("variables", 0)
-        api.add_attribute_group("clauses", 0)
+        api.create_feature("clauses_horn", 0)
+        api.create_feature("clauses_positive", 0)
+        api.create_feature("clauses_negative", 0)
+        api.create_feature("variables", 0)
+        api.create_feature("clauses", 0)
         resultset = api.query_search("clauses = 0", ["local"])
         schedule_bootstrap(api, jobs, resultset, compute_clause_types)
     elif named_algo == 'degree_sequence_hash':
-        api.add_attribute_group("degree_sequence_hash", "empty")
+        api.create_feature("degree_sequence_hash", "empty")
         resultset = api.query_search("degree_sequence_hash = empty", ["local"])
         schedule_bootstrap(api, jobs, resultset, compute_degree_sequence_hash)
     else:

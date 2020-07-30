@@ -56,19 +56,17 @@ def cli_group(args):
         eprint("Names starting with '__' are reserved for system tables")
         return
     api = GbdApi(args.db, int(args.jobs))
-    if api.check_group_exists(args.name):
+    if api.feature_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
         eprint("Adding group '{}', unique default-value {}".format(args.name, args.unique or "None"))
-        api.add_attribute_group(args.name, args.unique)
+        api.create_feature(args.name, args.unique)
         return
-    if not api.check_group_exists(args.name):
+    if not api.feature_exists(args.name):
         eprint("Group '{}' does not exist".format(args.name))
         return
     if args.remove and confirm("Delete group '{}'?".format(args.name)):
-        api.remove_attribute_group(args.name)
-    elif args.clear and confirm("Clear group '{}'?".format(args.name)):
-        api.clear_group(args.name)
+        api.remove_feature(args.name)
 
 # entry for query command
 def cli_get(args):
@@ -107,15 +105,15 @@ def cli_info(args):
     api = GbdApi(args.db, int(args.jobs))
     if args.name is not None:
         if args.values:
-            info = api.get_group_values(args.name)
+            info = api.get_feature_values(args.name)
             print(*info, sep='\n')
         else:
-            info = api.get_group_info(args.name)
+            info = api.get_feature_info(args.name)
             for k,v in info.items():
                 print(k, v)
     else:
         print("Using '{}'".format(args.db))
-        print("Found tables: {}".format(",".join(api.get_all_groups())))
+        print("Found tables: {}".format(",".join(api.get_features())))
 
 
 # define directory type for argparse
@@ -187,8 +185,7 @@ def main():
     parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
     parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
     parser_group.add_argument('-u', '--unique', help='Attribute has one unique value per benchmark (expects a default value)')
-    parser_group.add_argument('-r', '--remove', action='store_true', help='If group exists: remove the group with the specified name')
-    parser_group.add_argument('-c', '--clear', action='store_true', help='If group exists: remove all values in the group with the specified name')
+    parser_group.add_argument('-r', '--remove', action='store_true', help='Remove group with the specified name')
     parser_group.set_defaults(func=cli_group)
 
     # define set command sub-structure

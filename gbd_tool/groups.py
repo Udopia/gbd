@@ -29,6 +29,3 @@ def add(database, name, unique=False, default=None):
 def remove(database, name):
     database.submit('DROP TABLE IF EXISTS {}'.format(name))
     database.submit('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-
-def clear(database, name):
-    database.submit('DELETE FROM {}'.format(name))

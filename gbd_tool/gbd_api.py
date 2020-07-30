@@ -64,33 +64,28 @@ class GbdApi:
             sanitize.sanitize(self, database, hashes, self.jobs)
 
     # Checks weather a group exists in given database object
-    def check_group_exists(self, name):
+    def feature_exists(self, name):
         with Database(self.database) as database:
             return name in database.tables()
 
     # Adds a group to given database representing for example an attribute of a benchmark
-    def add_attribute_group(self, name, default_value):
+    def create_feature(self, name, default_value):
         with Database(self.database) as database:
             groups.add(database, name, default_value is not None, default_value)
 
     # Remove group from database
-    def remove_attribute_group(self, name):
+    def remove_feature(self, name):
         with Database(self.database) as database:
             groups.remove(database, name)
 
     # Get all groups which are in the database
-    def get_all_groups(self):
+    def get_features(self):
         with Database(self.database) as database:
             return database.tables()
 
-    # Delete entries in groups from database, but don't delete the according group
-    def clear_group(self, name):
-        with Database(self.database) as database:
-            groups.remove(database, name)
-
     # Retrieve information about a specific group
-    def get_group_info(self, attribute):
-        if not attribute in self.get_all_groups():
+    def get_feature_info(self, attribute):
+        if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             return {'name': attribute, 
@@ -99,8 +94,8 @@ class GbdApi:
                     'entries': database.table_size(attribute)}
 
     # Retrieve all values the given group contains
-    def get_group_values(self, attribute):        
-        if not attribute in self.get_all_groups():
+    def get_feature_values(self, attribute):        
+        if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         return self.query_search(None, [attribute], False)
 
@@ -120,7 +115,7 @@ class GbdApi:
 
     # Associate hashes with a hash-value in a group
     def set_attribute(self, attribute, value, hash_list, force):
-        if not attribute in self.get_all_groups():
+        if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             print("Setting {} to {} for benchmarks {}".format(attribute, value, hash_list))
@@ -129,14 +124,14 @@ class GbdApi:
 
     # Remove association of a hash with a hash-value in a group
     def remove_attribute(self, attribute, value, hash_list):
-        if not attribute in self.get_all_groups():
+        if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, attribute, value, h)
 
     def search(self, attribute, hashvalue):
-        if not attribute in self.get_all_groups():
+        if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
