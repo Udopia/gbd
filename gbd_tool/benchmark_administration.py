@@ -65,17 +65,6 @@ def add_tag(database, name, value, hash, force=False):
 def remove_tag(database, name, value, hash):
     database.submit("DELETE FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
 
-
-def add_benchmark(database, hash, path):
-    database.submit('INSERT INTO local (hash, value) VALUES ("{}", "{}")'.format(hash, path))
-    database.submit('INSERT INTO filename (hash, value) VALUES ("{}", "{}")'.format(hash, os.path.basename(path)))
-    for group in database.tables():
-        info = groups.reflect(database, group)
-        dval = info[1]['default_value']
-        if (dval is not None):
-            database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))
-
-
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")
     paths = database.value_query("SELECT value FROM local")
@@ -85,22 +74,21 @@ def remove_benchmarks(database):
             eprint("File '{}' not found, removing path entry.".format(path))
             database.submit("DELETE FROM local WHERE value='{}'".format(path))
 
-
-def safe_hash_locked(arg):
-    mutex.acquire()
-    try:
-        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path']) as database:
-            add_benchmark(database, arg['hash_new'], arg['path'])
-    finally:
-        mutex.release()
-
 def compute_hash(database_path, path):
     eprint('Hashing {}'.format(path))
-    hash_new = gbd_hash(path)
-    return { 'database_path': database_path, 'path': path, 'hash_new': hash_new }
+    hashvalue = gbd_hash(path)
 
-def register_benchmarks(database, root, jobs=1):
+    attributes = [ ('INSERT', 'local', path), ('INSERT', 'filename', os.path.basename(path)) ]
+    with Database(database_path) as database:
+        for group in database.tables():
+            info = groups.reflect(database, group)
+            dval = info[1]['default_value']
+            if (dval is not None):
+                attributes.append( ('INSERT OR IGNORE', group, dval) )
+
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
+
+def register_benchmarks(api, database, root, jobs=1):
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
@@ -110,8 +98,7 @@ def register_benchmarks(database, root, jobs=1):
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
-                    #eprint('Hash in pool {}'.format(filename))
-                    handler = pool.apply_async(compute_hash, args=(database.path, path), callback=safe_hash_locked)
+                    handler = pool.apply_async(compute_hash, args=(database.paths[0], path), callback=api.callback_set_attributes_locked)
                     #handler.get()
     pool.close()
     pool.join() 
