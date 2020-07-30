@@ -16,44 +16,34 @@ mutex = Lock()
 
 def bootstrap(api, database, named_algo, jobs):
     if named_algo == 'clause_types':
-        api.add_attribute_group("clauses_horn", "integer", 0)
-        api.add_attribute_group("clauses_positive", "integer", 0)
-        api.add_attribute_group("clauses_negative", "integer", 0)
-        api.add_attribute_group("variables", "integer", 0)
-        api.add_attribute_group("clauses", "integer", 0)
+        api.add_attribute_group("clauses_horn", 0)
+        api.add_attribute_group("clauses_positive", 0)
+        api.add_attribute_group("clauses_negative", 0)
+        api.add_attribute_group("variables", 0)
+        api.add_attribute_group("clauses", 0)
         resultset = api.query_search("clauses = 0", ["local"])
-        schedule_bootstrap(database.path, jobs, resultset, compute_clause_types)
+        schedule_bootstrap(api, database.paths[0], jobs, resultset, compute_clause_types)
     elif named_algo == 'degree_sequence_hash':
-        api.add_attribute_group("degree_sequence_hash", "text", "empty")
+        api.add_attribute_group("degree_sequence_hash", "empty")
         resultset = api.query_search("degree_sequence_hash = empty", ["local"])
-        schedule_bootstrap(database.path, jobs, resultset, compute_degree_sequence_hash)
+        schedule_bootstrap(api, database.paths[0], jobs, resultset, compute_degree_sequence_hash)
     else:
         raise NotImplementedError
 
-def schedule_bootstrap(database_path, jobs, resultset, func):
+def schedule_bootstrap(api, database_path, jobs, resultset, func):
     if jobs == 1:
         for result in resultset:
             hashvalue = result[0].split(',')[0]
             filename = result[1].split(',')[0]
-            safe_locked(func(database_path, hashvalue, filename))
+            api.callback_set_attributes_locked(func(database_path, hashvalue, filename))
     else:
         pool = Pool(min(multiprocessing.cpu_count(), jobs))
         for result in resultset:
             hashvalue = result[0].split(',')[0]
             filename = result[1].split(',')[0]
-            pool.apply_async(func, args=(database_path, hashvalue, filename), callback=safe_locked)
+            pool.apply_async(func, args=(database_path, hashvalue, filename), callback=api.callback_set_attributes_locked)
         pool.close()
-        pool.join() 
-
-def safe_locked(arg):
-    mutex.acquire()
-    try:
-        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path']) as database:
-            for attr in arg['attributes']:
-                database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(attr[0], arg['hashvalue'], attr[1]))
-    finally:
-        mutex.release()
+        pool.join()
 
 def compute_clause_types(database_path, hashvalue, filename):
     eprint('Computing clause_types for {}'.format(filename))
@@ -79,7 +69,8 @@ def compute_clause_types(database_path, hashvalue, filename):
             if n_pos == len(clause):
                 c_pos += 1
     f.close()
-    attributes = [ ('clauses_horn', c_horn), ('clauses_positive', c_pos), ('clauses_negative', c_neg), ('variables', c_vars), ('clauses', c_clauses) ]
+    attributes = [ ('REPLACE', 'clauses_horn', c_horn), ('REPLACE', 'clauses_positive', c_pos), ('REPLACE', 'clauses_negative', c_neg), 
+                   ('REPLACE', 'variables', c_vars), ('REPLACE', 'clauses', c_clauses) ]
     return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
 
 
@@ -107,4 +98,4 @@ def compute_degree_sequence_hash(database_path, hashvalue, filename):
 
     f.close()
 
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('degree_sequence_hash', hash_md5.hexdigest()) ] }
+    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': [ ('REPLACE', 'degree_sequence_hash', hash_md5.hexdigest()) ] }

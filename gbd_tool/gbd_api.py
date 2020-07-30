@@ -32,6 +32,7 @@ class GbdApi:
     # constructor and cannot be changed
     def __init__(self, database):
         self.database = database
+        self.mutex = multiprocessing.Lock()
 
     # hash a CNF file
     @staticmethod
@@ -51,7 +52,7 @@ class GbdApi:
             eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
         with Database(self.database) as database:
             benchmark_administration.remove_benchmarks(database)
-            benchmark_administration.register_benchmarks(database, path, jobs)
+            benchmark_administration.register_benchmarks(self, database, path, jobs)
 
     def bootstrap(self, named_algo, jobs=1):
         with Database(self.database) as database:
@@ -64,7 +65,7 @@ class GbdApi:
     # Get information of the whole database
     def get_database_info(self):
         with Database(self.database) as database:
-            return {'name': self.database, 'version': database.get_version(), 'hash-version': database.get_hash_version()}
+            return {'name': self.database }
 
     # Checks weather a group exists in given database object
     def check_group_exists(self, name):
@@ -72,9 +73,9 @@ class GbdApi:
             return name in database.tables()
 
     # Adds a group to given database representing for example an attribute of a benchmark
-    def add_attribute_group(self, name, unique):
+    def add_attribute_group(self, name, default_value):
         with Database(self.database) as database:
-            groups.add(database, name, unique is not None, unique)
+            groups.add(database, name, default_value is not None, default_value)
 
     # Remove group from database
     def remove_attribute_group(self, name):
@@ -106,6 +107,22 @@ class GbdApi:
         if not attribute in self.get_all_groups():
             raise ValueError("Attribute '{}' is not available".format(attribute))
         return self.query_search(None, [attribute], False)
+
+    def callback_set_attributes_locked(self, arg):
+        self.set_attributes_locked(arg['database_path'], arg['hashvalue'], arg['attributes'])
+
+    def set_attributes_locked(self, database_path, hash, attributes):
+        self.mutex.acquire()
+        try:
+            # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
+            with Database(database_path) as database:
+                for attr in attributes:
+                    cmd = attr[0]
+                    name = attr[1]
+                    value = attr[2]
+                    database.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
+        finally:
+            self.mutex.release()
 
     # Associate hashes with a hash-value in a group
     def set_attribute(self, attribute, value, hash_list, force):
