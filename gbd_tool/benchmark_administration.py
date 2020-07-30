@@ -74,19 +74,11 @@ def remove_benchmarks(database):
             eprint("File '{}' not found, removing path entry.".format(path))
             database.submit("DELETE FROM local WHERE value='{}'".format(path))
 
-def compute_hash(database_path, path):
+def compute_hash(path):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
-
     attributes = [ ('INSERT', 'local', path), ('INSERT', 'filename', os.path.basename(path)) ]
-    with Database(database_path) as database:
-        for group in database.tables():
-            info = groups.reflect(database, group)
-            dval = info[1]['default_value']
-            if (dval is not None):
-                attributes.append( ('INSERT OR IGNORE', group, dval) )
-
-    return { 'database_path': database_path, 'hashvalue': hashvalue, 'attributes': attributes }
+    return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 def register_benchmarks(api, database, root, jobs=1):
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
@@ -98,7 +90,7 @@ def register_benchmarks(api, database, root, jobs=1):
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
-                    handler = pool.apply_async(compute_hash, args=(database.paths[0], path), callback=api.callback_set_attributes_locked)
+                    handler = pool.apply_async(compute_hash, args=(path,), callback=api.callback_set_attributes_locked)
                     #handler.get()
     pool.close()
     pool.join() 

@@ -122,3 +122,29 @@ class Database:
         index_info = dict(zip(columns, tup[0]))
         return index_info
 
+    def table_info_augmented(self, table):
+        table_infos = [info.update({'unique': False}) or info for info in self.table_info(table)]
+        
+        # determine unique columns
+        index_list = self.index_list(table)
+        for index in [e for e in index_list if e['unique']]:
+            col = self.index_info(index['name'])['table_rank']
+            table_infos[col]['unique'] = True
+
+        for info in table_infos:
+            if info['default_value'] is not None:
+                info['default_value'] = info['default_value'].strip('"')
+        
+        return table_infos
+
+    def table_values(self, table):
+        return self.value_query('SELECT DISTINCT value FROM {}'.format(table))
+
+    def table_size(self, table):
+        return self.value_query('SELECT COUNT(*) FROM {}'.format(table))
+
+    def table_unique(self, table):
+        return self.table_info_augmented(table)[0]['unique']
+
+    def table_default_value(self, table):
+        return self.table_info_augmented(table)[1]['default_value']

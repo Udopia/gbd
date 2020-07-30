@@ -34,29 +34,28 @@ def cli_hash(args):
 def cli_import(args):
     path = os.path.abspath(args.path)
     eprint('Importing Data from CSV-File: {}'.format(path))
-    api = GbdApi(args.db)
+    api = GbdApi(args.db, int(args.jobs))
     api.import_file(path, args.key, args.source, args.target, args.delimiter)
-
 
 def cli_init(args):
     path = os.path.abspath(args.path)
-    api = GbdApi(args.db)
-    api.init_database(path, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs))
+    api.init_database(path)
 
 def cli_bootstrap(args):
-    api = GbdApi(args.db)
-    api.bootstrap(args.algo, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs))
+    api.bootstrap(args.algo)
 
 def cli_sanitize(args):
-    api = GbdApi(args.db)
-    api.sanitize(args.hashes, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs))
+    api.sanitize(args.hashes)
 
 # entry for modify command
 def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    api = GbdApi(args.db)
+    api = GbdApi(args.db, int(args.jobs))
     if api.check_group_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
@@ -81,11 +80,11 @@ def cli_get(args):
         if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
             # read hashes from stdin
             hashes = read_hashes()
-            api = GbdApi(args.db)
+            api = GbdApi(args.db, int(args.jobs))
             resultset = api.hash_search(hashes, args.resolve, args.collapse, args.group_by)
         else:
             # use query
-            api = GbdApi(args.db)
+            api = GbdApi(args.db, int(args.jobs))
             resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
     except ValueError as e:
         eprint(e)
@@ -96,7 +95,7 @@ def cli_get(args):
 
 # associate an attribute with a hash and a value
 def cli_set(args):
-    api = GbdApi(args.db)
+    api = GbdApi(args.db, int(args.jobs))
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
         api.remove_attribute(args.name, args.value, args.hashes)
     elif (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
@@ -108,7 +107,7 @@ def cli_set(args):
 
 
 def cli_info(args):
-    api = GbdApi(args.db)
+    api = GbdApi(args.db, int(args.jobs))
     if args.name is not None:
         if args.values:
             info = api.get_group_values(args.name)
@@ -118,8 +117,7 @@ def cli_info(args):
             for k,v in info.items():
                 print(k, v)
     else:
-        result = api.get_database_info()
-        print("Using '{}'".format(result.get('name')))
+        print("Using '{}'".format(args.db))
         print("Found tables: {}".format(",".join(api.get_all_groups())))
 
 
