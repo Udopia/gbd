@@ -39,13 +39,13 @@ class Database:
             else:
                 self.check(path, VERSION, HASH_VERSION)
         # init connection
-        eprint("Main connection: {}".format(self.paths[0]))
+        #eprint("Main connection: {}".format(self.paths[0]))
         self.connection = sqlite3.connect(self.paths[0])
         self.cursor = self.connection.cursor()
         # attach additional databases
         for path in self.paths[1:]:
             name = os.path.splitext(os.path.basename(path))[0]
-            eprint("Attaching '{}' as {}".format(path, name))
+            #eprint("Attaching '{}' as {}".format(path, name))
             self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
         # basic consistency test
         if not "local" in self.tables():
@@ -107,6 +107,10 @@ class Database:
 
     def tables(self):
         lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        return [x[0] for x in lst]
+
+    def views(self):
+        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='view' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
         return [x[0] for x in lst]
 
     def table_info(self, table):
