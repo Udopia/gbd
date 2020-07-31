@@ -28,75 +28,82 @@ from gbd_tool.util import eprint
 
 
 class GbdApi:
-    # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
-    # constructor and cannot be changed
-    def __init__(self, database, jobs=1, separator=" ", inner_separator=",", join_type="INNER"):
-        self.database = database
+    # Create a new GbdApi object which operates on the given databases
+    def __init__(self, db_string, jobs=1, separator=" ", inner_separator=",", join_type="INNER"):
+        self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.separator = separator
         self.inner_separator = inner_separator
         self.join_type = join_type
 
-    # hash a CNF file
+    # Calculate GBD hash
     @staticmethod
     def hash_file(path):
         return gbd_hash(path)
 
-    # Import CSV file
+    # Import data from CSV file
     def import_file(self, path, key, source, target):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             benchmark_administration.import_csv(database, path, key, source, target, self.separator)
 
-    # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
-    # otherwise. With the constructor of a database object the __init__ method in db.py will be called
+    # Initialize table 'local' with instances found under given path
     def init_database(self, path=None):
         eprint('Initializing local path entries {} using {} cores'.format(path, self.jobs))
         if self.jobs == 1 and multiprocessing.cpu_count() > 1:
             eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             benchmark_administration.remove_benchmarks(database)
             benchmark_administration.register_benchmarks(self, database, path, self.jobs)
 
     def bootstrap(self, named_algo):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             bootstrap.bootstrap(self, database, named_algo, self.jobs)
 
     def sanitize(self, hashes):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             sanitize.sanitize(self, database, hashes, self.jobs)
 
-    # Checks weather a group exists in given database object
+    def get_databases(self):
+        return self.databases
+
+    # Get all features (or those of given db)
+    def get_features(self, path=None):
+        if path == None:
+            with Database(self.databases) as database:
+                return database.tables()
+        elif path in self.databases:
+            with Database(path) as database:
+                return database.tables()
+        else:
+            return []
+
+    # Check for existence of given feature
     def feature_exists(self, name):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             return name in database.tables()
 
-    # Adds a group to given database representing for example an attribute of a benchmark
+    # Creates the given feature
     def create_feature(self, name, default_value):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             groups.add(database, name, default_value is not None, default_value)
 
-    # Remove group from database
+    # Removes the given feature
     def remove_feature(self, name):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             groups.remove(database, name)
 
-    # Get all groups which are in the database
-    def get_features(self):
-        with Database(self.database) as database:
-            return database.tables()
-
-    # Retrieve information about a specific group
+    # Retrieve information about a specific feature
     def get_feature_info(self, attribute):
         if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             return {'name': attribute, 
                     'uniqueness': database.table_unique(attribute),
                     'default': database.table_default_value(attribute),
                     'entries': database.table_size(attribute)}
 
-    # Retrieve all values the given group contains
+    # Retrieve all values the given feature contains
     def get_feature_values(self, attribute):        
         if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
@@ -109,46 +116,46 @@ class GbdApi:
         self.mutex.acquire()
         try:
             # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-            with Database(self.database) as database:
+            with Database(self.databases) as database:
                 for attr in attributes:
                     cmd, name, value = attr[0], attr[1], attr[2]
                     database.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
         finally:
             self.mutex.release()
 
-    # Associate hashes with a hash-value in a group
+    # Set the attribute value for the given hashes
     def set_attribute(self, attribute, value, hash_list, force):
         if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             print("Setting {} to {} for benchmarks {}".format(attribute, value, hash_list))
             for h in hash_list:
                 benchmark_administration.add_tag(database, attribute, value, h, force)
 
-    # Remove association of a hash with a hash-value in a group
+    # Remove the attribute value for the given hashes
     def remove_attribute(self, attribute, value, hash_list):
         if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, attribute, value, h)
 
     def search(self, attribute, hashvalue):
         if not attribute in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(attribute))
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
 
     def hash_search(self, hashes=[], resolve=[], collapse=False, group_by=None):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             try:
                 return search.find_hashes(database, None, resolve, collapse, group_by, hashes, self.inner_separator, self.join_type)
             except sqlite3.OperationalError as err:
-                raise ValueError("Query error for database '{}': {}".format(self.database, err))
+                raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
     def query_search(self, query=None, resolve=[], collapse=False, group_by=None):
-        with Database(self.database) as database:
+        with Database(self.databases) as database:
             try:
                 return search.find_hashes(database, query, resolve, collapse, group_by, [], self.inner_separator, self.join_type)
             except sqlite3.OperationalError as err:
-                raise ValueError("Query error for database '{}': {}".format(self.database, err))
+                raise ValueError("Query error for database '{}': {}".format(self.databases, err))

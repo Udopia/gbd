@@ -29,8 +29,8 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path_var):
-        self.paths = path_var.split(":")
+    def __init__(self, path_list):
+        self.paths = path_list
         # init non-existent databases and check existing databases
         for path in self.paths:
             if not os.path.isfile(path):
@@ -64,7 +64,7 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
-        cur.execute("CREATE TABLE filename (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         con.commit()
         con.close()
 
@@ -80,6 +80,11 @@ class Database:
             eprint("WARNING: DB Version is {} but tool version is {}".format(__version[0][0], version))
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
+
+        if "filename" in lst:
+            cur.execute("DROP TABLE IF EXISTS filename")
+            cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
+
         con.close()
 
     def value_query(self, q):
