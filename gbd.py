@@ -113,7 +113,7 @@ def cli_info(args):
                 print(k, v)
     else:
         print("Using '{}'".format(args.db))
-        print("Tables: {}".format(",".join(api.get_features())))
+        print("Tables: {}".format(",".join(api.get_material_features())))
         print("Virtual Tables: {}".format(",".join(api.get_virtual_features())))
 
 
