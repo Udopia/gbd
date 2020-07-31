@@ -30,10 +30,13 @@ from gbd_tool.util import eprint
 class GbdApi:
     # create a new GbdApi object which operates on a database. The file for this database is parameterized in the
     # constructor and cannot be changed
-    def __init__(self, database, jobs):
+    def __init__(self, database, jobs=1, separator=" ", inner_separator=",", join_type="INNER"):
         self.database = database
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
+        self.separator = separator
+        self.inner_separator = inner_separator
+        self.join_type = join_type
 
     # hash a CNF file
     @staticmethod
@@ -41,19 +44,19 @@ class GbdApi:
         return gbd_hash(path)
 
     # Import CSV file
-    def import_file(self, path, key, source, target, delimiter):
+    def import_file(self, path, key, source, target):
         with Database(self.database) as database:
-            benchmark_administration.import_csv(database, path, key, source, target, delimiter)
+            benchmark_administration.import_csv(database, path, key, source, target, self.separator)
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called
-    def init_database(self, path=None, jobs=1):
-        eprint('Initializing local path entries {} using {} cores'.format(path, jobs))
-        if jobs == 1 and multiprocessing.cpu_count() > 1:
+    def init_database(self, path=None):
+        eprint('Initializing local path entries {} using {} cores'.format(path, self.jobs))
+        if self.jobs == 1 and multiprocessing.cpu_count() > 1:
             eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
         with Database(self.database) as database:
             benchmark_administration.remove_benchmarks(database)
-            benchmark_administration.register_benchmarks(self, database, path, jobs)
+            benchmark_administration.register_benchmarks(self, database, path, self.jobs)
 
     def bootstrap(self, named_algo):
         with Database(self.database) as database:
@@ -139,13 +142,13 @@ class GbdApi:
     def hash_search(self, hashes=[], resolve=[], collapse=False, group_by=None):
         with Database(self.database) as database:
             try:
-                return search.find_hashes(database, None, resolve, collapse, group_by, hashes)
+                return search.find_hashes(database, None, resolve, collapse, group_by, hashes, self.inner_separator, self.join_type)
             except sqlite3.OperationalError as err:
                 raise ValueError("Query error for database '{}': {}".format(self.database, err))
 
     def query_search(self, query=None, resolve=[], collapse=False, group_by=None):
         with Database(self.database) as database:
             try:
-                return search.find_hashes(database, query, resolve, collapse, group_by)
+                return search.find_hashes(database, query, resolve, collapse, group_by, [], self.inner_separator, self.join_type)
             except sqlite3.OperationalError as err:
                 raise ValueError("Query error for database '{}': {}".format(self.database, err))
