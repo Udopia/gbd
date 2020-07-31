@@ -76,7 +76,7 @@ def remove_benchmarks(database):
 def compute_hash(path):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
-    attributes = [ ('INSERT', 'local', path), ('INSERT', 'filename', os.path.basename(path)) ]
+    attributes = [ ('INSERT', 'local', path) ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 def register_benchmarks(api, database, root, jobs=1):
