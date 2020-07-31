@@ -113,7 +113,8 @@ def cli_info(args):
                 print(k, v)
     else:
         print("Using '{}'".format(args.db))
-        print("Found tables: {}".format(",".join(api.get_features())))
+        print("Tables: {}".format(",".join(api.get_features())))
+        print("Virtual Tables: {}".format(",".join(api.get_virtual_features())))
 
 
 # define directory type for argparse

@@ -78,6 +78,17 @@ class GbdApi:
         else:
             return []
 
+    # Get all features (or those of given db)
+    def get_virtual_features(self, path=None):
+        if path == None:
+            with Database(self.databases) as database:
+                return database.views()
+        elif path in self.databases:
+            with Database(path) as database:
+                return database.views()
+        else:
+            return []
+
     # Check for existence of given feature
     def feature_exists(self, name):
         with Database(self.databases) as database:
