@@ -71,6 +71,17 @@ class GbdApi:
     def get_features(self, path=None):
         if path == None:
             with Database(self.databases) as database:
+                return database.tables_and_views()
+        elif path in self.databases:
+            with Database(path) as database:
+                return database.tables_and_views()
+        else:
+            return []
+
+    # Get all features (or those of given db)
+    def get_material_features(self, path=None):
+        if path == None:
+            with Database(self.databases) as database:
                 return database.tables()
         elif path in self.databases:
             with Database(path) as database:

@@ -81,8 +81,9 @@ class Database:
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
+        # upgrade legacy data-model
         if "filename" in lst:
-            cur.execute("DROP TABLE IF EXISTS filename")
+            cur.execute("DROP TABLE IF EXISTS filename")        
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
 
         con.close()
@@ -104,6 +105,10 @@ class Database:
 
     def commit(self):
         self.connection.commit()
+
+    def tables_and_views(self):
+        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        return [x[0] for x in lst]
 
     def tables(self):
         lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
