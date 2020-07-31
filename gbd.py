@@ -34,20 +34,20 @@ def cli_hash(args):
 def cli_import(args):
     path = os.path.abspath(args.path)
     eprint('Importing Data from CSV-File: {}'.format(path))
-    api = GbdApi(args.db, int(args.jobs))
-    api.import_file(path, args.key, args.source, args.target, args.delimiter)
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+    api.import_file(path, args.key, args.source, args.target)
 
 def cli_init(args):
     path = os.path.abspath(args.path)
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     api.init_database(path)
 
 def cli_bootstrap(args):
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     api.bootstrap(args.algo)
 
 def cli_sanitize(args):
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     api.sanitize(args.hashes)
 
 # entry for modify command
@@ -55,7 +55,7 @@ def cli_group(args):
     if args.name.startswith("__"):
         eprint("Names starting with '__' are reserved for system tables")
         return
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if api.feature_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
     elif not args.remove and not args.clear:
@@ -75,22 +75,22 @@ def cli_get(args):
         if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
             # read hashes from stdin
             hashes = read_hashes()
-            api = GbdApi(args.db, int(args.jobs))
+            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
             resultset = api.hash_search(hashes, args.resolve, args.collapse, args.group_by)
         else:
             # use query
-            api = GbdApi(args.db, int(args.jobs))
+            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
             resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
     except ValueError as e:
         eprint(e)
         return
     for result in resultset:
-        print(" ".join([(str(item or '')) for item in result]))
+        print(args.separator.join([(str(item or '')) for item in result]))
 
 
 # associate an attribute with a hash and a value
 def cli_set(args):
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
         api.remove_attribute(args.name, args.value, args.hashes)
     elif (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
@@ -102,7 +102,7 @@ def cli_set(args):
 
 
 def cli_info(args):
-    api = GbdApi(args.db, int(args.jobs))
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if args.name is not None:
         if args.values:
             info = api.get_feature_values(args.name)
@@ -146,7 +146,12 @@ def main():
     parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
-    parser.add_argument('-j', "--jobs", help='Specify number of jobs used by init or algo', default=1, nargs='?')
+    parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
+
+    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator")
+    parser.add_argument('-i', "--inner-separator", choices=[" ", ",", ";"], default=",", help="Inner separator for multi-valued features")
+    
+    parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="INNER", help="Join Type: treatment of missing values in queries")
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
