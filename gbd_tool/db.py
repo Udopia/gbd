@@ -72,7 +72,8 @@ class Database:
         con = sqlite3.connect(path)
         cur = con.cursor()
         lst = cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
-        if not "__version" in [x[0] for x in lst]:
+        tables = [x[0] for x in lst]
+        if not "__version" in tables:
             eprint("WARNING: Version info not available in database {}".format(path))
             return
         __version = cur.execute("SELECT version, hash_version FROM __version").fetchall()
@@ -82,7 +83,7 @@ class Database:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
         # upgrade legacy data-model
-        if "filename" in lst:
+        if "filename" in tables:
             cur.execute("DROP TABLE IF EXISTS filename")        
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
 
