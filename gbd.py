@@ -50,15 +50,20 @@ def cli_create(api: GbdApi, args):
     if not api.feature_exists(args.name):
         api.create_feature(args.name, args.unique)
     else:
-        eprint("Group '{}' does already exist".format(args.name))
+        eprint("Feature '{}' does already exist".format(args.name))
 
 # delete feature
 def cli_delete(api: GbdApi, args):
     if api.feature_exists(args.name):
-        if args.force or confirm("Delete group '{}'?".format(args.name)):
+        if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
+            args.hashes = read_hashes()
+        if args.hashes and len(args.hashes) > 0:
+            if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
+                api.remove_attribute(args.name, args.value, args.hashes)
+        elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
             api.remove_feature(args.name)
     else:
-        eprint("Group '{}' does not exist".format(args.name))
+        eprint("Feature '{}' does not exist".format(args.name))
 
 # entry for query command
 def cli_get(api: GbdApi, args):
@@ -76,13 +81,6 @@ def cli_set(api: GbdApi, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
         args.hashes = read_hashes()
     api.set_attribute(args.name, args.value, args.hashes, args.force)
-
-# remove specified attribute value
-def cli_unset(api: GbdApi, args):
-    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-        args.hashes = read_hashes()
-    if args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name)):
-        api.remove_attribute(args.name, args.value, args.hashes)
 
 
 def cli_meta_get(api: GbdApi, args):
@@ -147,7 +145,7 @@ def main():
     parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
     parser_init.set_defaults(func=cli_init)
 
-    # define create command sub-structure
+    # define bootstrap command sub-structure
     parser_algo = subparsers.add_parser('bootstrap', help='Calculate hard-coded sets of instance attributes')
     parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'degree_sequence_hash'])
     parser_algo.set_defaults(func=cli_bootstrap)
@@ -168,6 +166,38 @@ def main():
     parser_reflect.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_reflect.set_defaults(func=cli_info)
 
+    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
+    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_hash.set_defaults(func=cli_hash)
+
+    # define create command sub-structure
+    parser_create = subparsers.add_parser('create', help='Create a new feature')
+    parser_create.add_argument('name', type=column_type, help='Name of feature')
+    parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
+    parser_create.set_defaults(func=cli_create)
+
+    parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes and remove feature if no hashes are given')
+    parser_delete.add_argument('hashes', help='Hashes', nargs='*')
+    parser_delete.add_argument('name', type=column_type, help='Name of feature')
+    parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
+    parser_delete.set_defaults(func=cli_delete)
+
+    # define set command sub-structure
+    parser_set = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
+    parser_set.add_argument('hashes', help='Hashes', nargs='*')
+    parser_set.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
+    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
+    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
+    parser_set.set_defaults(func=cli_set)
+
+    # define get command sub-structure
+    parser_get = subparsers.add_parser('get', help='Query the benchmark database')
+    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
+    parser_get.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
+    parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
+    parser_get.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
+    parser_get.set_defaults(func=cli_get)
+
     # meta-features
     parser_meta = subparsers.add_parser('meta', help='Control meta-features')
     parser_meta_subparsers = parser_meta.add_subparsers(help='Sub-Commands')
@@ -185,45 +215,6 @@ def main():
     parser_meta_clear.add_argument('feature', type=column_type, help='Specify feature')
     parser_meta_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
     parser_meta_clear.set_defaults(func=cli_meta_clear)
-
-    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
-    parser_hash.set_defaults(func=cli_hash)
-
-    # define create command sub-structure
-    parser_create = subparsers.add_parser('create', help='Create a new feature')
-    parser_create.add_argument('name', type=column_type, help='Name of feature')
-    parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
-    parser_create.set_defaults(func=cli_create)
-
-    parser_delete = subparsers.add_parser('delete', help='Delete a feature and all assiociated values')
-    parser_delete.add_argument('name', type=column_type, help='Name of feature')
-    parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
-    parser_delete.set_defaults(func=cli_delete)
-
-    # define set command sub-structure
-    parser_set = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
-    parser_set.add_argument('hashes', help='Hashes', nargs='*')
-    parser_set.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
-    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
-    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
-    parser_set.set_defaults(func=cli_set)
-
-    # define unset command sub-structure
-    parser_unset = subparsers.add_parser('unset', help='Remove specified attribute value from given hashes')
-    parser_unset.add_argument('hashes', help='Hashes', nargs='*')
-    parser_unset.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
-    parser_unset.add_argument('-v', '--value', help='Attribute value', required=True)
-    parser_unset.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
-    parser_unset.set_defaults(func=cli_unset)
-
-    # define get command sub-structure
-    parser_get = subparsers.add_parser('get', help='Query the benchmark database')
-    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_get.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
-    parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
-    parser_get.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
-    parser_get.set_defaults(func=cli_get)
 
     # evaluate arguments
     args = parser.parse_args()
