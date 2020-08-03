@@ -86,6 +86,7 @@ class Database:
         if "filename" in tables:
             cur.execute("DROP TABLE IF EXISTS filename")        
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
+            con.commit()
 
         con.close()
 
