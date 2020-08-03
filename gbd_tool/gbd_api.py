@@ -78,7 +78,7 @@ class GbdApi:
         else:
             return []
 
-    # Get all features (or those of given db)
+    # Get all material features (or those of given db)
     def get_material_features(self, path=None):
         if path == None:
             with Database(self.databases) as database:
@@ -89,7 +89,7 @@ class GbdApi:
         else:
             return []
 
-    # Get all features (or those of given db)
+    # Get all virtual features (or those of given db)
     def get_virtual_features(self, path=None):
         if path == None:
             with Database(self.databases) as database:
@@ -147,8 +147,8 @@ class GbdApi:
 
     # Set the attribute value for the given hashes
     def set_attribute(self, attribute, value, hash_list, force):
-        if not attribute in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(attribute))
+        if not attribute in self.get_material_features():
+            raise ValueError("Attribute '{}' is not available (or virtual)".format(attribute))
         with Database(self.databases) as database:
             print("Setting {} to {} for benchmarks {}".format(attribute, value, hash_list))
             for h in hash_list:
@@ -156,8 +156,8 @@ class GbdApi:
 
     # Remove the attribute value for the given hashes
     def remove_attribute(self, attribute, value, hash_list):
-        if not attribute in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(attribute))
+        if not attribute in self.get_material_features():
+            raise ValueError("Attribute '{}' is not available (or virtual)".format(attribute))
         with Database(self.databases) as database:
             for h in hash_list:
                 benchmark_administration.remove_tag(database, attribute, value, h)
