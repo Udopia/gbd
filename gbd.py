@@ -27,104 +27,83 @@ from gbd_tool.gbd_api import GbdApi
 from gbd_tool.db import Database
 from gbd_tool import benchmark_administration
 
-def cli_hash(args):
+def cli_hash(api: GbdApi, args):
     path = os.path.abspath(args.path)
     print(GbdApi.hash_file(path))
 
-def cli_import(args):
+def cli_import(api: GbdApi, args):
     path = os.path.abspath(args.path)
-    eprint('Importing Data from CSV-File: {}'.format(path))
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     api.import_file(path, args.key, args.source, args.target)
 
-def cli_init(args):
+def cli_init(api: GbdApi, args):
     path = os.path.abspath(args.path)
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     api.init_database(path)
 
-def cli_bootstrap(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_bootstrap(api: GbdApi, args):
     api.bootstrap(args.algo)
 
-def cli_sanitize(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_sanitize(api: GbdApi, args):
     api.sanitize(args.hashes)
 
-# entry for modify command
-def cli_group(args):
-    if args.name.startswith("__"):
-        eprint("Names starting with '__' are reserved for system tables")
-        return
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
-    if api.feature_exists(args.name):
-        eprint("Group {} does already exist".format(args.name))
-    elif not args.remove:
-        eprint("Adding group '{}', unique default-value {}".format(args.name, args.unique or "None"))
-        api.create_feature(args.name, args.unique)
-        return
+# create feature
+def cli_create(api: GbdApi, args):
     if not api.feature_exists(args.name):
+        api.create_feature(args.name, args.unique)
+    else:
+        eprint("Group '{}' does already exist".format(args.name))
+
+# delete feature
+def cli_delete(api: GbdApi, args):
+    if api.feature_exists(args.name):
+        if args.force or confirm("Delete group '{}'?".format(args.name)):
+            api.remove_feature(args.name)
+    else:
         eprint("Group '{}' does not exist".format(args.name))
-        return
-    if args.remove and confirm("Delete group '{}'?".format(args.name)):
-        api.remove_feature(args.name)
 
 # entry for query command
-def cli_get(args):
-    eprint("Querying {} ...".format(args.db))
-    try:
-        if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
-            # read hashes from stdin
-            hashes = read_hashes()
-            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
-            resultset = api.hash_search(hashes, args.resolve, args.collapse, args.group_by)
-        else:
-            # use query
-            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
-            resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
-    except ValueError as e:
-        eprint(e)
-        return
+def cli_get(api: GbdApi, args):
+    if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
+        hashes = read_hashes()
+        resultset = api.hash_search(hashes, args.resolve, args.collapse, args.group_by)
+    else:
+        resultset = api.query_search(args.query, args.resolve, args.collapse, args.group_by)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
 
 # associate an attribute with a hash and a value
-def cli_set(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
-    if args.remove and (args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name))):
+def cli_set(api: GbdApi, args):
+    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
+        args.hashes = read_hashes()
+    api.set_attribute(args.name, args.value, args.hashes, args.force)
+
+# remove specified attribute value
+def cli_unset(api: GbdApi, args):
+    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
+        args.hashes = read_hashes()
+    if args.force or confirm("Delete tag '{}' from '{}'?".format(args.value, args.name)):
         api.remove_attribute(args.name, args.value, args.hashes)
-    elif (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-        # read hashes from stdin
-        hashes = read_hashes()
-        api.set_attribute(args.name, args.value, hashes, args.force)
-    else:
-        api.set_attribute(args.name, args.value, args.hashes, args.force)
 
 
-def cli_meta_get(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_meta_get(api: GbdApi, args):
     info = api.meta_get(args.feature)
     print(info)
 
-def cli_meta_set(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_meta_set(api: GbdApi, args):
     api.meta_set(args.feature, args.name, args.value)
 
-def cli_meta_clear(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_meta_clear(api: GbdApi, args):
     api.meta_clear(args.feature, args.name)
 
 
-def cli_info(args):
-    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+def cli_info(api: GbdApi, args):
     if args.name is not None:
         info = api.get_feature_info(args.name)
         for k,v in info.items():
             print("{}: {}".format(k, v))
     else:
-        print("Using '{}'".format(args.db))
-        print("Tables: {}".format(" ".join(api.get_material_features())))
-        print("Virtual Tables: {}".format(" ".join(api.get_virtual_features())))
+        print("Features: {}".format(" ".join(api.get_material_features())))
+        print("Virtual Features: {}".format(" ".join(api.get_virtual_features())))
 
 
 # define directory type for argparse
@@ -136,7 +115,6 @@ def directory_type(dir):
     else:
         raise argparse.ArgumentTypeError('{0} is not readable'.format(dir))
 
-
 def file_type(path):
     if not os.path.isfile(path):
         raise argparse.ArgumentTypeError('{0} is not a regular file'.format(path))
@@ -144,7 +122,6 @@ def file_type(path):
         return path
     else:
         raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
-
 
 def column_type(s):
     pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
@@ -214,28 +191,39 @@ def main():
     parser_hash.set_defaults(func=cli_hash)
 
     # define create command sub-structure
-    parser_group = subparsers.add_parser('group', help='Create or modify an attribute group')
-    parser_group.add_argument('name', type=column_type, help='Name of group to create (or modify)')
-    parser_group.add_argument('-u', '--unique', help='Attribute has one unique value per benchmark (expects a default value)')
-    parser_group.add_argument('-r', '--remove', action='store_true', help='Remove group with the specified name')
-    parser_group.set_defaults(func=cli_group)
+    parser_create = subparsers.add_parser('create', help='Create a new feature')
+    parser_create.add_argument('name', type=column_type, help='Name of feature')
+    parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
+    parser_create.set_defaults(func=cli_create)
+
+    parser_delete = subparsers.add_parser('delete', help='Delete a feature and all assiociated values')
+    parser_delete.add_argument('name', type=column_type, help='Name of feature')
+    parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
+    parser_delete.set_defaults(func=cli_delete)
 
     # define set command sub-structure
-    parser_tag = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
-    parser_tag.add_argument('hashes', help='Hashes', nargs='*')
-    parser_tag.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
-    parser_tag.add_argument('-v', '--value', help='Attribute value', required=True)
-    parser_tag.add_argument('-r', '--remove', action='store_true', help='Remove attribute from hashes if present, instead of adding it')
-    parser_tag.add_argument('-f', '--force', action='store_true', help='Overwrite existing values')
-    parser_tag.set_defaults(func=cli_set)
+    parser_set = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
+    parser_set.add_argument('hashes', help='Hashes', nargs='*')
+    parser_set.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
+    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
+    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
+    parser_set.set_defaults(func=cli_set)
 
-    # define find command sub-structure
-    parser_query = subparsers.add_parser('get', help='Query the benchmark database')
-    parser_query.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_query.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
-    parser_query.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
-    parser_query.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
-    parser_query.set_defaults(func=cli_get)
+    # define unset command sub-structure
+    parser_unset = subparsers.add_parser('unset', help='Remove specified attribute value from given hashes')
+    parser_unset.add_argument('hashes', help='Hashes', nargs='*')
+    parser_unset.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
+    parser_unset.add_argument('-v', '--value', help='Attribute value', required=True)
+    parser_unset.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
+    parser_unset.set_defaults(func=cli_unset)
+
+    # define get command sub-structure
+    parser_get = subparsers.add_parser('get', help='Query the benchmark database')
+    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
+    parser_get.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
+    parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
+    parser_get.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
+    parser_get.set_defaults(func=cli_get)
 
     # evaluate arguments
     args = parser.parse_args()
@@ -247,8 +235,10 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Initialize your database with local paths to your benchmark instances by using the init-command. """)
     elif len(sys.argv) > 1:
+        print("Database: {}".format(args.db))
         try:
-            args.func(args)
+            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+            args.func(api, args)
         except AttributeError as e:
             eprint(e)
     else:
