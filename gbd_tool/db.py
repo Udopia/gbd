@@ -103,7 +103,10 @@ class Database:
         self.commit()
 
     def bulk_insert(self, table, lst):
-        self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
+        if self.table_unique(table):
+            self.cursor.executemany("REPLACE INTO {} VALUES (?,?)".format(table), lst)
+        else:
+            self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
 
     def commit(self):
         self.connection.commit()
