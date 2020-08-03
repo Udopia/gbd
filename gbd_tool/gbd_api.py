@@ -159,11 +159,11 @@ class GbdApi:
                 benchmark_administration.add_tag(database, feature, value, h, force)
 
     # Remove the attribute value for the given hashes
-    def remove_attributes(self, feature, value, hash_list):
+    def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
         with Database(self.databases) as database:
-            benchmark_administration.remove_tag(database, feature, hash_list)
+            benchmark_administration.remove_tags(database, feature, hash_list)
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():
