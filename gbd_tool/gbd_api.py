@@ -116,20 +116,20 @@ class GbdApi:
             groups.remove(database, name)
 
     # Retrieve information about a specific feature
-    def get_feature_info(self, attribute):
-        if not attribute in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(attribute))
+    def get_feature_info(self, name):
+        if not name in self.get_features():
+            raise ValueError("Attribute '{}' is not available".format(name))
         with Database(self.databases) as database:
-            return {'name': attribute, 
-                    'uniqueness': database.table_unique(attribute),
-                    'default': database.table_default_value(attribute),
-                    'entries': database.table_size(attribute)}
+            return {'name': name, 
+                    'uniqueness': database.table_unique(name),
+                    'default': database.table_default_value(name),
+                    'entries': database.table_size(name)}
 
     # Retrieve all values the given feature contains
-    def get_feature_values(self, attribute):        
-        if not attribute in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(attribute))
-        return self.query_search(None, [attribute], False)
+    def get_feature_values(self, name):        
+        if not name in self.get_features():
+            raise ValueError("Attribute '{}' is not available".format(name))
+        return self.query_search(None, [name], False)
 
     def callback_set_attributes_locked(self, arg):
         self.set_attributes_locked(arg['hashvalue'], arg['attributes'])
@@ -146,27 +146,27 @@ class GbdApi:
             self.mutex.release()
 
     # Set the attribute value for the given hashes
-    def set_attribute(self, attribute, value, hash_list, force):
-        if not attribute in self.get_material_features():
-            raise ValueError("Attribute '{}' is not available (or virtual)".format(attribute))
+    def set_attribute(self, feature, value, hash_list, force):
+        if not feature in self.get_material_features():
+            raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
         with Database(self.databases) as database:
-            print("Setting {} to {} for benchmarks {}".format(attribute, value, hash_list))
+            print("Setting {} to {} for benchmarks {}".format(feature, value, hash_list))
             for h in hash_list:
-                benchmark_administration.add_tag(database, attribute, value, h, force)
+                benchmark_administration.add_tag(database, feature, value, h, force)
 
     # Remove the attribute value for the given hashes
-    def remove_attribute(self, attribute, value, hash_list):
-        if not attribute in self.get_material_features():
-            raise ValueError("Attribute '{}' is not available (or virtual)".format(attribute))
+    def remove_attribute(self, feature, value, hash_list):
+        if not feature in self.get_material_features():
+            raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
         with Database(self.databases) as database:
             for h in hash_list:
-                benchmark_administration.remove_tag(database, attribute, value, h)
+                benchmark_administration.remove_tag(database, feature, value, h)
 
-    def search(self, attribute, hashvalue):
-        if not attribute in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(attribute))
+    def search(self, feature, hashvalue):
+        if not feature in self.get_features():
+            raise ValueError("Attribute '{}' is not available".format(feature))
         with Database(self.databases) as database:
-            return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(attribute, hashvalue))
+            return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def hash_search(self, hashes=[], resolve=[], collapse=False, group_by=None):
         with Database(self.databases) as database:
