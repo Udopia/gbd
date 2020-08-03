@@ -104,17 +104,13 @@ def cli_set(args):
 def cli_info(args):
     api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if args.name is not None:
-        if args.values:
-            info = api.get_feature_values(args.name)
-            print(*info, sep='\n')
-        else:
-            info = api.get_feature_info(args.name)
-            for k,v in info.items():
-                print(k, v)
+        info = api.get_feature_info(args.name)
+        for k,v in info.items():
+            print("{}: {}".format(k, v))
     else:
         print("Using '{}'".format(args.db))
-        print("Tables: {}".format(",".join(api.get_material_features())))
-        print("Virtual Tables: {}".format(",".join(api.get_virtual_features())))
+        print("Tables: {}".format(" ".join(api.get_material_features())))
+        print("Virtual Tables: {}".format(" ".join(api.get_virtual_features())))
 
 
 # define directory type for argparse
@@ -177,9 +173,8 @@ def main():
     parser_import.set_defaults(func=cli_import)
 
     # define info
-    parser_reflect = subparsers.add_parser('info', help='Get information, Display Groups')
-    parser_reflect.add_argument('name', type=column_type, help='Display Details on Group, info of Database if none', nargs='?')
-    parser_reflect.add_argument('-v', '--values', action='store_true', help='Display Distinct Values of Group if given')
+    parser_reflect = subparsers.add_parser('info', help='Print info about available features')
+    parser_reflect.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_reflect.set_defaults(func=cli_info)
 
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')

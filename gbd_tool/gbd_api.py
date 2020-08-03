@@ -120,10 +120,14 @@ class GbdApi:
         if not name in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(name))
         with Database(self.databases) as database:
+            values = database.table_values(name)
             return {'name': name, 
-                    'uniqueness': database.table_unique(name),
-                    'default': database.table_default_value(name),
-                    'entries': database.table_size(name)}
+                    'unique': database.table_unique(name),
+                    'default-value': database.table_default_value(name),
+                    'num-entries': database.table_size(name),
+                    'numeric-min': values['numeric'][0], 
+                    'numeric-max': values['numeric'][1], 
+                    'non-numeric': " ".join(values['discrete']) }
 
     # Retrieve all values the given feature contains
     def get_feature_values(self, name):        
