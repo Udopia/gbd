@@ -16,6 +16,7 @@
 
 import sqlite3
 import os
+import json
 
 from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint, is_number
@@ -87,6 +88,9 @@ class Database:
             cur.execute("DROP TABLE IF EXISTS filename")        
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
             con.commit()
+
+        if not "__meta" in tables:
+            cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
 
         con.close()
 
@@ -180,3 +184,22 @@ class Database:
 
     def table_default_value(self, table):
         return self.table_info_augmented(table)[1]['default_value']
+
+    def meta_get(self, table):
+        return self.value_query("SELECT value FROM __meta WHERE name = '{}'".format(table)).pop() or "{}"
+
+    def meta_clear(self, table, meta_feature=None):
+        if not meta_feature:
+            self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
+        else:
+            values = json.loads(self.meta_get(table))
+            if meta_feature in values:
+                values.pop(meta_feature)
+            self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+
+    def meta_set(self, table, meta_feature, value):
+        values = json.loads(self.meta_get(table))
+        values[meta_feature] = value
+        self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+
+
