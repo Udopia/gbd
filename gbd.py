@@ -59,7 +59,7 @@ def cli_delete(api: GbdApi, args):
             args.hashes = read_hashes()
         if args.hashes and len(args.hashes) > 0:
             if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
-                api.remove_attribute(args.name, args.value, args.hashes)
+                api.remove_attributes(args.name, args.hashes)
         elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
             api.remove_feature(args.name)
     else:
