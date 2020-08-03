@@ -34,7 +34,7 @@ def import_csv(database, filename, key, source, target, delim_=' '):
         print("Target group {} does not exist. Import canceled.".format(target))
     with open(filename, newline='') as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
-        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source].strip()]
+        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
         print("Inserting {} values into group {}".format(len(lst), target))
         database.bulk_insert(target, lst)
         #for (hash_, value_) in lst:
