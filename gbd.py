@@ -149,8 +149,8 @@ def main():
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
 
-    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator")
-    parser.add_argument('-i', "--inner-separator", choices=[" ", ",", ";"], default=",", help="Inner separator for multi-valued features")
+    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator (outer delimiter used in import and output)")
+    parser.add_argument('-i', "--inner-separator", choices=[" ", ",", ";"], default=",", help="Inner separator (used to group multiple values in one column)")
     
     parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="INNER", help="Join Type: treatment of missing values in queries")
 
@@ -171,10 +171,9 @@ def main():
 
     parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")
-    parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (the hash-value of the problem)", required=True)
-    parser_import.add_argument('-s', '--source', help="Source name of column to import (in csv-file)", required=True)
-    parser_import.add_argument('-t', '--target', type=column_type, help="Target name of column to import (in Database)", required=True)
-    parser_import.add_argument('-d', '--delimiter', choices=[" ", ",", ";"], default=" ", help="Delimiter")
+    parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (gbd-hash)", required=True)
+    parser_import.add_argument('-s', '--source', help="Name of source column in csv-file", required=True)
+    parser_import.add_argument('-t', '--target', type=column_type, help="Name of target column (in database)", required=True)
     parser_import.set_defaults(func=cli_import)
 
     # define info
