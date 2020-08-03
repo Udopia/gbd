@@ -52,12 +52,16 @@ def quick_search():
 
 
 @app.route("/results", methods=['POST'])
-def quick_search_results_json():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
-    query = data.get('query')
-    selected_groups = data.get('selected_groups')
+def quick_search_results():
+    if request.mimetype == 'application/json':
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return Response("Bad Request", status=400, mimetype="text/plain")
+        query = data.get('query')
+        selected_groups = data.get('selected_groups')
+    else:
+        query = request.form.get('query')
+        selected_groups = request.form.get('selected_groups')
     if not len(selected_groups):
         selected_groups.append("filename")
     available_groups = sorted(gbd_api.get_all_groups())
