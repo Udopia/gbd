@@ -185,3 +185,17 @@ class GbdApi:
                 return search.find_hashes(database, query, resolve, collapse, group_by, [], self.inner_separator, self.join_type)
             except sqlite3.OperationalError as err:
                 raise ValueError("Query error for database '{}': {}".format(self.databases, err))
+
+    def meta_set(self, feature, meta_feature, value):
+        with Database(self.databases) as database:
+            database.meta_set(feature, meta_feature, value)
+
+    def meta_get(self, feature):
+        with Database(self.databases) as database:
+            return database.meta_get(feature)
+
+    # clears sepcified meta-features of feature 
+    # if meta_feature is not specified, clears all meta-features
+    def meta_clear(self, feature, meta_feature=None):
+        with Database(self.databases) as database:
+            database.meta_clear(feature, meta_feature)

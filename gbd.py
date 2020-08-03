@@ -101,6 +101,20 @@ def cli_set(args):
         api.set_attribute(args.name, args.value, args.hashes, args.force)
 
 
+def cli_meta_get(args):
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+    info = api.meta_get(args.feature)
+    print(info)
+
+def cli_meta_set(args):
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+    api.meta_set(args.feature, args.name, args.value)
+
+def cli_meta_clear(args):
+    api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
+    api.meta_clear(args.feature, args.name)
+
+
 def cli_info(args):
     api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if args.name is not None:
@@ -176,6 +190,24 @@ def main():
     parser_reflect = subparsers.add_parser('info', help='Print info about available features')
     parser_reflect.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_reflect.set_defaults(func=cli_info)
+
+    # meta-features
+    parser_meta = subparsers.add_parser('meta', help='Control meta-features')
+    parser_meta_subparsers = parser_meta.add_subparsers(help='Sub-Commands')
+    parser_meta_get = parser_meta_subparsers.add_parser('get', help='Get feature meta-info')
+    parser_meta_get.add_argument('feature', type=column_type, help='Specify feature')
+    parser_meta_get.set_defaults(func=cli_meta_get)
+
+    parser_meta_set = parser_meta_subparsers.add_parser('set', help='Set feature meta-info')
+    parser_meta_set.add_argument('feature', type=column_type, help='Specify feature')
+    parser_meta_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
+    parser_meta_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
+    parser_meta_set.set_defaults(func=cli_meta_set)
+
+    parser_meta_clear = parser_meta_subparsers.add_parser('clear', help='Clear feature meta-info')
+    parser_meta_clear.add_argument('feature', type=column_type, help='Specify feature')
+    parser_meta_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
+    parser_meta_clear.set_defaults(func=cli_meta_clear)
 
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
