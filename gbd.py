@@ -58,7 +58,7 @@ def cli_group(args):
     api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
     if api.feature_exists(args.name):
         eprint("Group {} does already exist".format(args.name))
-    elif not args.remove and not args.clear:
+    elif not args.remove:
         eprint("Adding group '{}', unique default-value {}".format(args.name, args.unique or "None"))
         api.create_feature(args.name, args.unique)
         return
