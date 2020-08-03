@@ -60,8 +60,8 @@ def add_tag(database, name, value, hash, force=False):
             database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
 
 
-def remove_tag(database, name, value, hash):
-    database.submit("DELETE FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
+def remove_tags(database, name, hash_list):
+    database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(name, "', '".join(hash_list)))
 
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")
