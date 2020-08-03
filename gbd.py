@@ -101,7 +101,7 @@ def cli_info(api: GbdApi, args):
             print("{}: {}".format(k, v))
     else:
         print("Features: {}".format(" ".join(api.get_material_features())))
-        print("Virtual Features: {}".format(" ".join(api.get_virtual_features())))
+        print("Virtual: {}".format(" ".join(api.get_virtual_features())))
 
 
 # define directory type for argparse
