@@ -36,8 +36,9 @@ def import_csv(database, filename, key, source, target, delim_=' '):
         csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
         lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source].strip()]
         print("Inserting {} values into group {}".format(len(lst), target))
-        for (hash_, value_) in lst:
-            add_tag(database, target, value_, hash_)
+        database.bulk_insert(target, lst)
+        #for (hash_, value_) in lst:
+        #    add_tag(database, target, value_, hash_)
 
 def add_tag(database, name, value, hash, force=False):
     if database.table_unique(name):
