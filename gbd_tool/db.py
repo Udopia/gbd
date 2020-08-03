@@ -18,7 +18,7 @@ import sqlite3
 import os
 
 from gbd_tool.gbd_hash import HASH_VERSION
-from gbd_tool.util import eprint
+from gbd_tool.util import eprint, is_number
 
 VERSION = 0
 
@@ -156,11 +156,24 @@ class Database:
         
         return table_infos
 
+    # return list of distinct values and value-range for numeric values
     def table_values(self, table):
-        return self.value_query('SELECT DISTINCT value FROM {}'.format(table))
+        result = { "numeric" : [None, None], "discrete" : [] }
+        values = self.value_query('SELECT DISTINCT value FROM {}'.format(table))
+        for value in values:
+            if is_number(value):
+                if result["numeric"][0] == None:
+                    result["numeric"] = [value, value]
+                elif value < result["numeric"][0]:
+                    result["numeric"][0] = value
+                elif value > result["numeric"][1]:
+                    result["numeric"][1] = value
+            else:
+                result["discrete"].append(value)
+        return result
 
     def table_size(self, table):
-        return self.value_query('SELECT COUNT(*) FROM {}'.format(table))
+        return self.value_query('SELECT COUNT(*) FROM {}'.format(table)).pop()
 
     def table_unique(self, table):
         return self.table_info_augmented(table)[0]['unique']
