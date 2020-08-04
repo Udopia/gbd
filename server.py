@@ -53,15 +53,8 @@ def quick_search():
 
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    if request.mimetype == 'application/json':
-        data = request.get_json(force=True, silent=True)
-        if data is None:
-            return Response("Bad Request", status=400, mimetype="text/plain")
-        query = data.get('query')
-        selected_features = data.get('selected_features')
-    else:
-        query = request.form.get('query')
-        selected_features = request.form.get('selected_features')
+    query = request.form.get('query')
+    selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
     if not len(selected_features):
         selected_features.append("filename")
     available_features = sorted(gbd_api.get_features())

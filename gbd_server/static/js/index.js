@@ -59,15 +59,13 @@ var app = new Vue({
         submitQuery: function (event) {
             app.table.filter = ''
             app.table.table_busy = true;
-            var jsonData = {
-                query: this.form.query,
-                selected_features: this.form.selected_features,
-            };
+
+            var form = $('#gbdForm');
+
             $.ajax({
                 url: this.getHost().concat("/results"),
                 type: 'POST',
-                data: JSON.stringify(jsonData),
-                contentType: 'application/json; charset=utf-8',
+                data: form.serialize(),
                 dataType: 'json',
                 success: function (result) {
                     app.fields = [];
