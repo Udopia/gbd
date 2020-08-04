@@ -22,7 +22,6 @@ var app = new Vue({
                 {value: 20, text: "20"},
                 {value: 30, text: "30"},
             ],
-            filter: null,
             head_variant: "dark",
         },
         patterns: {
@@ -57,17 +56,14 @@ var app = new Vue({
             })
         },
         submitQuery: function (event) {
-            app.table.filter = ''
             app.table.table_busy = true;
-            var jsonData = {
-                query: this.form.query,
-                selected_features: this.form.selected_features,
-            };
+
+            var form = $('#gbdForm');
+
             $.ajax({
                 url: this.getHost().concat("/results"),
                 type: 'POST',
-                data: JSON.stringify(jsonData),
-                contentType: 'application/json; charset=utf-8',
+                data: form.serialize(),
                 dataType: 'json',
                 success: function (result) {
                     app.fields = [];
@@ -93,11 +89,6 @@ var app = new Vue({
         },
         hideErrorModal() {
             this.$refs['error-modal'].hide()
-        },
-        onFiltered(filteredItems) {
-            // Trigger pagination to update the number of buttons/pages due to filtering
-            this.table.rows = filteredItems.length
-            this.table.current_page = 1
         },
     },
     mounted: function () {
