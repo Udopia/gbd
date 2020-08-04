@@ -1,5 +1,5 @@
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ def gbd_hash(filename, sorted=False):
 
     file.close()
     return hashvalue
-
 
 def gbd_hash_inner(file):
     #Tstart = time.time()
