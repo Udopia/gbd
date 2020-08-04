@@ -7,8 +7,8 @@ var app = new Vue({
         loading: false,
         form: {
             query: '',
-            groups: [],
-            selected_groups: [],
+            features: [],
+            selected_features: [],
         },
         table: {
             rows: 0,
@@ -22,15 +22,14 @@ var app = new Vue({
                 {value: 20, text: "20"},
                 {value: 30, text: "30"},
             ],
-            filter: null,
             head_variant: "dark",
         },
         patterns: {
             query_patterns: [
-                {value: 'competition_track = main_2019', text: "competition_track = main_2019"},
-                {value: 'local like %vliw%', text: "local like %vliw%"},
-                {value: 'variables > 5000000', text: "variables > 5000000"},
-                {value: '(clauses_horn / clauses) > .9', text: "(clauses_horn / clauses) > .9"},
+                {value: 'competition_track = main_2020', text: "Main Track 2020"},
+                {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
+                {value: 'competition_track = main_2019', text: "Main Track 2019"},
+                {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
             ],
         }
     },
@@ -41,14 +40,14 @@ var app = new Vue({
             var port = location.port;
             return slashes.concat(window.location.hostname).concat(':').concat(port);
         },
-        getGroups: function () {
+        getFeatures: function () {
             $.ajax({
-                url: this.getHost().concat("/getgroups"),
+                url: this.getHost().concat("/getfeatures"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
                     for (let object in result) {
-                        app.form.groups.push({'text': result[object], 'value': result[object]});
+                        app.form.features.push({'text': result[object], 'value': result[object]});
                     }
                 },
                 error: function (request, status, error) {
@@ -57,17 +56,14 @@ var app = new Vue({
             })
         },
         submitQuery: function (event) {
-            app.table.filter = ''
             app.table.table_busy = true;
-            var jsonData = {
-                query: this.form.query,
-                selected_groups: this.form.selected_groups,
-            };
+
+            var form = $('#gbdForm');
+
             $.ajax({
                 url: this.getHost().concat("/results"),
                 type: 'POST',
-                data: JSON.stringify(jsonData),
-                contentType: 'application/json; charset=utf-8',
+                data: form.serialize(),
                 dataType: 'json',
                 success: function (result) {
                     app.fields = [];
@@ -94,15 +90,10 @@ var app = new Vue({
         hideErrorModal() {
             this.$refs['error-modal'].hide()
         },
-        onFiltered(filteredItems) {
-            // Trigger pagination to update the number of buttons/pages due to filtering
-            this.table.rows = filteredItems.length
-            this.table.current_page = 1
-        },
     },
     mounted: function () {
         this.$nextTick(function () {
-            this.getGroups();
+            this.getFeatures();
         })
     },
     computed: {
