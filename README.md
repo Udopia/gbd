@@ -1,11 +1,11 @@
-# gbd (Global Benchmark Database)
+# GBD Benchmark Database Tools
 
 ## Programming Language
 Python 3
 
 ## Installation
 - Setup python3 and pip3
-- Install GBD via ```pip3 install global-benchmark-database-tool```
+- Install GBD via ```pip3 install gbd-tools```
 
 ## Configuration
 - Download a database, e.g., [http://gbd.iti.kit.edu/getdatabase/](http://gbd.iti.kit.edu/getdatabase/), and safe it as [path/file]

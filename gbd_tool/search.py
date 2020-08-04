@@ -1,5 +1,5 @@
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ from tatsu import parse, exceptions
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None):
+def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None, hashes=[], separator=",", join_type="INNER"):
     statement = "SELECT {} FROM local {} WHERE {} GROUP BY {}"
     s_attributes = "local.hash"
     s_group_by = 'local.hash'
@@ -36,10 +36,10 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None)
             eprint(err)
             eprint("Exception in Query-Parser: Put any arithmetic expression in parentheses.")
             return list() 
-        #pp = pprint.PrettyPrinter(indent=4)
-        #pp.pprint(ast)
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
+    elif len(hashes) > 0:
+        s_conditions = "local.hash in ('{}')".format("', '".join(hashes))
 
     if group_by is not None:
         s_group_by = group_by + ".value"
@@ -50,12 +50,12 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None)
         if len(resolve):
             s_attributes = s_attributes + ", " + ", ".join(['MIN(DISTINCT({}.value))'.format(table) for table in resolve])
     else:
-        s_attributes = "GROUP_CONCAT(DISTINCT(local.hash))"
+        s_attributes = 'REPLACE( GROUP_CONCAT(DISTINCT(local.hash)), ",", "{}" )'.format(separator)
         if len(resolve):
-            s_attributes = s_attributes + ", " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
+            s_attributes = s_attributes + ", " + ", ".join(['REPLACE( GROUP_CONCAT(DISTINCT({}.value)), ",", "{}" )'.format(table, separator) for table in resolve])
     tables.update(resolve)
 
-    s_tables = " ".join(['INNER JOIN {} ON local.hash = {}.hash'.format(table, table) for table in tables if table != "local"])
+    s_tables = " ".join(['{} JOIN {} ON local.hash = {}.hash'.format(join_type, table, table) for table in tables if table != "local"])
 
     eprint(statement.format(s_attributes, s_tables, s_conditions, s_group_by))
 
@@ -69,7 +69,6 @@ def build_where(ast):
     elif ast["qop"] is not None:
         result = '(' + build_where(ast["left"]) + " " + ast["qop"] + " " + build_where(ast["right"]) + ')'
     elif ast["sop"] is not None:
-        eprint(ast["right"])
         result = ast["left"] + ".value " + ast["sop"] + " \"" + ast["right"] + "\""
     elif ast["aop"] is not None:
         result = build_where(ast["left"]) + " " + ast["aop"] + " " + build_where(ast["right"])
@@ -121,7 +120,7 @@ GRAMMAR = r'''
     term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
     num = /[0-9\.\-]+/ ;
-    alnum = /[a-zA-Z0-9_\.\-\/]+/ ;
-    likean = /[\%]?[a-zA-Z0-9_\.\-\/]+[\%]?/;
+    alnum = /[a-zA-Z0-9_\.\-\/\?]+/ ;
+    likean = /[\%]?[a-zA-Z0-9_\.\-\/\?]+[\%]?/;
     colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
 '''

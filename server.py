@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@ import datetime
 import logging
 import os
 import argparse
+
+import werkzeug
+
 from gbd_tool.util import eprint
 from os.path import basename
 
@@ -49,15 +52,19 @@ def quick_search():
 
 
 @app.route("/results", methods=['POST'])
-def quick_search_results_json():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
-    query = data.get('query')
-    selected_groups = data.get('selected_groups')
+def quick_search_results():
+    if request.mimetype == 'application/json':
+        data = request.get_json(force=True, silent=True)
+        if data is None:
+            return Response("Bad Request", status=400, mimetype="text/plain")
+        query = data.get('query')
+        selected_groups = data.get('selected_groups')
+    else:
+        query = request.form.get('query')
+        selected_groups = request.form.get('selected_groups')
     if not len(selected_groups):
         selected_groups.append("filename")
-    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups = sorted(gbd_api.get_features())
     available_groups.remove("local")
     groups = sorted(list(set(available_groups) & set(selected_groups)))
     try:
@@ -66,27 +73,26 @@ def quick_search_results_json():
         result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400, mimetype="text/plain")
+        return Response("Malformed query", status=400, mimetype="text/plain")
     except ValueError:
-        return Response("Attribute not Available", status=404, mimetype="text/plain")
+        return Response("Attribute not Available", status=400, mimetype="text/plain")
 
 
 @app.route("/getgroups", methods=['GET'])
 def get_all_groups():
-    available_groups = sorted(gbd_api.get_all_groups())
+    available_groups = sorted(gbd_api.get_features())
     available_groups.remove("local")
     return Response(json.dumps(available_groups), status=200, mimetype="application/json")
 
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
-    query = data.get('query')
-    selected_groups = data.get('selected_groups')
+    query = request.form.get('query')
+    selected_groups = list(filter(lambda x : x != '', request.form.get('selected_groups').split(',')))
+    if not len(selected_groups):
+        selected_groups.append("filename")
     results = gbd_api.query_search(query, selected_groups)
-    headers = ["hash", "filename"] if len(selected_groups) == 0 else ["hash"] + selected_groups
+    headers = ["hash"] + selected_groups
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     file_name = "query_result.csv"
@@ -97,16 +103,9 @@ def get_csv_file():
 
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
-    data = request.get_json(force=True, silent=True)
-    if data is None:
-        return Response("Bad Request", status=400, mimetype="text/plain")
-    query = data.get('query')
-    result = gbd_api.query_search(query, ["local"])
-    # hashes = [row[0] for row in result]
-    # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
-    content = "\n".join(
-        [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
-         result])
+    query = request.form.get('query')
+    result = gbd_api.query_search(query, ["filename"])
+    content = "\n".join([flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     file_name = "query_result.uri"
     return Response(content, mimetype='text/uri-list',
@@ -114,25 +113,15 @@ def get_url_file():
                              "filename": "{}".format(file_name)})
 
 
-@app.route("/query", methods=['POST'])  # query string post
-def query_for_cli():
-    query = request.values.get('query')
-    try:
-        hashset = gbd_api.query_search(query, ["local"])
-        return json.dumps(list(hashset))
-    except tatsu.exceptions.FailedParse:
-        return Response("Malformed Query", status=400)
-
-
 @app.route('/attribute/<attribute>/<hashvalue>')
 def get_attribute(attribute, hashvalue):
     try:
         values = gbd_api.search(attribute, hashvalue)
         if len(values) == 0:
-            return "No entry in attribute table associated with this hash"
+            return Response("No entry in attribute table associated with this hash", status=404, mimetype="text/plain")
         return str(",".join(str(value) for value in values))
     except ValueError as err:
-        return "Value Error: {}".format(err)
+        return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
 
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -140,22 +129,22 @@ def get_attribute(attribute, hashvalue):
 def get_file(hashvalue, filename):
     values = gbd_api.search("local", hashvalue)
     if len(values) == 0:
-        return "No according file found in our database"
+        return Response("No according file found in our database", status=404, mimetype="text/plain")
     try:
         path = values.pop()
         return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
     except FileNotFoundError:
-        return Response("Files temporarily not accessible", status=503, mimetype="text/plain")
+        return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
 
 
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    groups = gbd_api.get_all_groups()
+    groups = gbd_api.get_features()
     info = dict([])
     for attribute in groups:
         values = gbd_api.search(attribute, hashvalue)
         info.update({attribute: str(",".join(str(value) for value in values))})
-    return json.dumps(info)
+    return Response(json.dumps(info), status=200, mimetype="application/json")
 
 
 @app.route("/getdatabase", methods=['GET'])
@@ -178,7 +167,11 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
     else:
-        logging.basicConfig(filename='server.log', level=logging.DEBUG)
+        logging_dir = "gbd-server-logs"
+        logging_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), logging_dir)
+        if not os.path.exists(logging_path):
+            os.makedirs(logging_path)
+        logging.basicConfig(filename='{}/server.log'.format(logging_path), level=logging.DEBUG)
         logging.getLogger().addHandler(default_handler)
         global DATABASE
         DATABASE = args.db
