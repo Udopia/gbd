@@ -21,7 +21,7 @@ import multiprocessing
 from urllib.error import URLError
 
 # internal packages
-from gbd_tool import groups, benchmark_administration, search, bootstrap, import_data, sanitize
+from gbd_tool import groups, benchmark_administration, search, bootstrap, sanitize
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint
@@ -41,7 +41,7 @@ class GbdApi:
     # Import CSV file
     def import_file(self, path, key, source, target, delimiter):
         with Database(self.database) as database:
-            import_data.import_csv(database, path, key, source, target, delimiter)
+            benchmark_administration.import_csv(database, path, key, source, target, delimiter)
 
     # Initialize the GBD database. Create benchmark entries in database if path is given, just create a database
     # otherwise. With the constructor of a database object the __init__ method in db.py will be called
@@ -69,12 +69,12 @@ class GbdApi:
     # Checks weather a group exists in given database object
     def check_group_exists(self, name):
         with Database(self.database) as database:
-            return name in groups.reflect(database)
+            return name in database.tables()
 
     # Adds a group to given database representing for example an attribute of a benchmark
-    def add_attribute_group(self, name, type, unique):
+    def add_attribute_group(self, name, unique):
         with Database(self.database) as database:
-            groups.add(database, name, unique is not None, type, unique)
+            groups.add(database, name, unique is not None, unique)
 
     # Remove group from database
     def remove_attribute_group(self, name):
@@ -84,7 +84,7 @@ class GbdApi:
     # Get all groups which are in the database
     def get_all_groups(self):
         with Database(self.database) as database:
-            return groups.reflect(database)
+            return database.tables()
 
     # Delete entries in groups from database, but don't delete the according group
     def clear_group(self, name):
@@ -92,35 +92,37 @@ class GbdApi:
             groups.remove(database, name)
 
     # Retrieve information about a specific group
-    def get_group_info(self, name):
-        if name is not None:
-            with Database(self.database) as database:
-                return {'name': name, 'type': groups.reflect_type(database, name),
-                        'uniqueness': groups.reflect_unique(database, name),
-                        'default': groups.reflect_default(database, name),
-                        'entries': groups.reflect_size(database, name)}
-        else:
-            raise ValueError('No group given')
+    def get_group_info(self, attribute):
+        if not attribute in self.get_all_groups():
+            raise ValueError("Attribute '{}' is not available".format(attribute))
+        with Database(self.database) as database:
+            return {'name': attribute, 
+                    'uniqueness': groups.reflect_unique(database, attribute),
+                    'default': groups.reflect_default(database, attribute),
+                    'entries': groups.reflect_size(database, attribute)}
 
     # Retrieve all values the given group contains
-    def get_group_values(self, name):
-        if name is not None:
-            return self.query_search(None, [name], False)
-        else:
-            raise ValueError('No group given')
+    def get_group_values(self, attribute):        
+        if not attribute in self.get_all_groups():
+            raise ValueError("Attribute '{}' is not available".format(attribute))
+        return self.query_search(None, [attribute], False)
 
     # Associate hashes with a hash-value in a group
-    def set_attribute(self, name, value, hash_list, force):
+    def set_attribute(self, attribute, value, hash_list, force):
+        if not attribute in self.get_all_groups():
+            raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
-            print("Setting {} to {} for benchmarks {}".format(name, value, hash_list))
+            print("Setting {} to {} for benchmarks {}".format(attribute, value, hash_list))
             for h in hash_list:
-                benchmark_administration.add_tag(database, name, value, h, force)
+                benchmark_administration.add_tag(database, attribute, value, h, force)
 
     # Remove association of a hash with a hash-value in a group
-    def remove_attribute(self, name, value, hash_list):
+    def remove_attribute(self, attribute, value, hash_list):
+        if not attribute in self.get_all_groups():
+            raise ValueError("Attribute '{}' is not available".format(attribute))
         with Database(self.database) as database:
             for h in hash_list:
-                benchmark_administration.remove_tag(database, name, value, h)
+                benchmark_administration.remove_tag(database, attribute, value, h)
 
     def search(self, attribute, hashvalue):
         if not attribute in self.get_all_groups():
