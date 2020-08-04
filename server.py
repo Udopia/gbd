@@ -78,6 +78,19 @@ def quick_search_results():
         return Response("Attribute not Available", status=400, mimetype="text/plain")
 
 
+@app.route("/getdatabases", methods=["GET"])
+def get_databases():
+    return json.dumps(gbd_api.get_databases())
+
+
+@app.route("/getfeatures/<database>", methods=['GET'])
+def get_features_from_database(database):
+    if database not in gbd_api.get_databases():
+        return Response("Database does not exist in the running instance of GBD server", status=404,
+                        mimetype="text/plain")
+    return gbd_api.get_features(database)
+
+
 @app.route("/getgroups", methods=['GET'])
 def get_all_groups():
     available_groups = sorted(gbd_api.get_features())
@@ -88,7 +101,7 @@ def get_all_groups():
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     query = request.form.get('query')
-    selected_groups = list(filter(lambda x : x != '', request.form.get('selected_groups').split(',')))
+    selected_groups = list(filter(lambda x: x != '', request.form.get('selected_groups').split(',')))
     if not len(selected_groups):
         selected_groups.append("filename")
     results = gbd_api.query_search(query, selected_groups)
@@ -155,7 +168,8 @@ def get_all_attributes(hashvalue):
 def get_default_database_file():
     global DATABASE
     app.logger.info('Sending database to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
-    return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE), mimetype='application/x-sqlite3')
+    return send_file(DATABASE, as_attachment=True, attachment_filename=os.path.basename(DATABASE),
+                     mimetype='application/x-sqlite3')
 
 
 def main():
