@@ -34,14 +34,12 @@ def import_csv(database, filename, key, source, target, delim_=' '):
         print("Target group {} does not exist. Import canceled.".format(target))
     with open(filename, newline='') as csvfile:
         csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
-        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source].strip()]
+        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
         print("Inserting {} values into group {}".format(len(lst), target))
-        for (hash_, value_) in lst:
-            add_tag(database, target, value_, hash_, False)
+        database.bulk_insert(target, lst)
 
 def add_tag(database, name, value, hash, force=False):
-    info = groups.reflect(database, name)
-    if (info[0]['unique']):
+    if database.table_unique(name):
         if force:
             database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
         else:
@@ -50,7 +48,7 @@ def add_tag(database, name, value, hash, force=False):
                 database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
             else:
                 existing_value = res[0][0]
-                default_value = info[1]['default_value']
+                default_value = database.table_default_value(name)
                 if existing_value == default_value:
                     eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, value, hash))
                     database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
@@ -62,19 +60,8 @@ def add_tag(database, name, value, hash, force=False):
             database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
 
 
-def remove_tag(database, name, value, hash):
-    database.submit("DELETE FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
-
-
-def add_benchmark(database, hash, path):
-    database.submit('INSERT INTO local (hash, value) VALUES ("{}", "{}")'.format(hash, path))
-    database.submit('INSERT INTO filename (hash, value) VALUES ("{}", "{}")'.format(hash, os.path.basename(path)))
-    for group in database.tables():
-        info = groups.reflect(database, group)
-        dval = info[1]['default_value']
-        if (dval is not None):
-            database.submit('INSERT OR IGNORE INTO {} (hash) VALUES ("{}")'.format(group, hash))
-
+def remove_tags(database, name, hash_list):
+    database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(name, "', '".join(hash_list)))
 
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")
@@ -85,22 +72,13 @@ def remove_benchmarks(database):
             eprint("File '{}' not found, removing path entry.".format(path))
             database.submit("DELETE FROM local WHERE value='{}'".format(path))
 
-
-def safe_hash_locked(arg):
-    mutex.acquire()
-    try:
-        # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-        with Database(arg['database_path']) as database:
-            add_benchmark(database, arg['hash_new'], arg['path'])
-    finally:
-        mutex.release()
-
-def compute_hash(database_path, path):
+def compute_hash(path):
     eprint('Hashing {}'.format(path))
-    hash_new = gbd_hash(path)
-    return { 'database_path': database_path, 'path': path, 'hash_new': hash_new }
+    hashvalue = gbd_hash(path)
+    attributes = [ ('INSERT', 'local', path) ]
+    return { 'hashvalue': hashvalue, 'attributes': attributes }
 
-def register_benchmarks(database, root, jobs=1):
+def register_benchmarks(api, database, root, jobs=1):
     pool = Pool(min(multiprocessing.cpu_count(), jobs))
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
@@ -110,8 +88,7 @@ def register_benchmarks(database, root, jobs=1):
                 if len(hashes) is not 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
-                    #eprint('Hash in pool {}'.format(filename))
-                    handler = pool.apply_async(compute_hash, args=(database.path, path), callback=safe_hash_locked)
+                    handler = pool.apply_async(compute_hash, args=(path,), callback=api.callback_set_attributes_locked)
                     #handler.get()
     pool.close()
     pool.join() 

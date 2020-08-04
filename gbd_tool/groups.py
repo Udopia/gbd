@@ -23,43 +23,9 @@ def add(database, name, unique=False, default=None):
         'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value TEXT NOT NULL {})'.format(name, ustr, dstr))
     if default is not None:
         database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
+        database.submit('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
+                INSERT INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
 
 def remove(database, name):
     database.submit('DROP TABLE IF EXISTS {}'.format(name))
-
-def clear(database, name):
-    database.submit('DELETE FROM {}'.format(name))
-
-
-def reflect(database, name):
-    table_infos = [info.update({'unique': False}) or info for info in database.table_info(name)]
-       
-    # determine unique columns
-    index_list = database.index_list(name)
-    for index in [e for e in index_list if e['unique']]:
-        col = database.index_info(index['name'])['table_rank']
-        table_infos[col]['unique'] = True
-
-    for info in table_infos:
-        if info['default_value'] is not None:
-            info['default_value'] = info['default_value'].strip('"')
-    
-    return table_infos
-
-
-def reflect_tags(database, name):
-    return database.value_query('SELECT DISTINCT value FROM {}'.format(name))
-
-
-def reflect_size(database, name):
-    return database.value_query('SELECT count(*) FROM {}'.format(name))
-
-
-def reflect_unique(database, name):
-    info = reflect(database, name)
-    return info[0]['unique']
-
-
-def reflect_default(database, name):
-    info = reflect(database, name)
-    return info[1]['default_value']
+    database.submit('DROP TRIGGER IF EXISTS {}_dval'.format(name))
