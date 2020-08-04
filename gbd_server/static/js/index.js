@@ -94,6 +94,9 @@ var app = new Vue({
     mounted: function () {
         this.$nextTick(function () {
             this.getFeatures();
+            app.form.query = '';
+            app.form.selected_features = [];
+            this.submitQuery();
         })
     },
     computed: {
