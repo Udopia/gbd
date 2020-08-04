@@ -58,19 +58,19 @@ def quick_search_results():
         if data is None:
             return Response("Bad Request", status=400, mimetype="text/plain")
         query = data.get('query')
-        selected_groups = data.get('selected_groups')
+        selected_features = data.get('selected_features')
     else:
         query = request.form.get('query')
-        selected_groups = request.form.get('selected_groups')
-    if not len(selected_groups):
-        selected_groups.append("filename")
-    available_groups = sorted(gbd_api.get_features())
-    available_groups.remove("local")
-    groups = sorted(list(set(available_groups) & set(selected_groups)))
+        selected_features = request.form.get('selected_features')
+    if not len(selected_features):
+        selected_features.append("filename")
+    available_features = sorted(gbd_api.get_features())
+    available_features.remove("local")
+    features = sorted(list(set(available_features) & set(selected_features)))
     try:
-        rows = list(gbd_api.query_search(query, groups))
-        groups.insert(0, "GBDhash")
-        result = list(dict((groups[index], row[index]) for index in range(0, len(groups))) for row in rows)
+        rows = list(gbd_api.query_search(query, features))
+        features.insert(0, "GBDhash")
+        result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
         return Response(json.dumps(result), status=200, mimetype="application/json")
     except tatsu.exceptions.FailedParse:
         return Response("Malformed query", status=400, mimetype="text/plain")
@@ -91,21 +91,21 @@ def get_features_from_database(database):
     return gbd_api.get_features(database)
 
 
-@app.route("/getgroups", methods=['GET'])
-def get_all_groups():
-    available_groups = sorted(gbd_api.get_features())
-    available_groups.remove("local")
-    return Response(json.dumps(available_groups), status=200, mimetype="application/json")
+@app.route("/getfeatures", methods=['GET'])
+def get_all_features():
+    available_features = sorted(gbd_api.get_features())
+    available_features.remove("local")
+    return Response(json.dumps(available_features), status=200, mimetype="application/json")
 
 
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     query = request.form.get('query')
-    selected_groups = list(filter(lambda x: x != '', request.form.get('selected_groups').split(',')))
-    if not len(selected_groups):
-        selected_groups.append("filename")
-    results = gbd_api.query_search(query, selected_groups)
-    headers = ["hash"] + selected_groups
+    selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
+    if not len(selected_features):
+        selected_features.append("filename")
+    results = gbd_api.query_search(query, selected_features)
+    headers = ["hash"] + selected_features
     content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
     app.logger.info('Sending CSV file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     file_name = "query_result.csv"
@@ -156,11 +156,11 @@ def get_file(hashvalue, filename):
 
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    groups = gbd_api.get_features()
+    features = gbd_api.get_features()
     info = dict([])
-    for attribute in groups:
-        values = gbd_api.search(attribute, hashvalue)
-        info.update({attribute: str(",".join(str(value) for value in values))})
+    for feature in features:
+        values = gbd_api.search(feature, hashvalue)
+        info.update({feature: str(",".join(str(value) for value in values))})
     return Response(json.dumps(info), status=200, mimetype="application/json")
 
 
