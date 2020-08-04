@@ -53,11 +53,11 @@
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
-                    <b-form-group id="group-selection">
-                        <b-form-checkbox-group v-model="form.checked">
+                    <b-form-group id="feature-selection">
+                        <b-form-checkbox-group>
                             <b-form-checkbox-group
-                                    v-model="form.selected_groups"
-                                    :options="form.groups"
+                                    v-model="form.selected_features"
+                                    :options="form.features"
                                     name="attributes"
                             ></b-form-checkbox-group>
                         </b-form-checkbox-group>
@@ -68,7 +68,7 @@
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
                             Download instances
                         </b-button>
-                        <input type="hidden" name="selected_groups" v-bind:value="form.selected_groups">
+                        <input type="hidden" name="selected_features" v-bind:value="form.selected_features">
                         <b-button type="submit" formmethod="post" formaction="/exportcsv" variant="outline-dark"
                                   formtarget="_self">
                             <b-icon icon="archive" style="margin-right: 5px"></b-icon>
