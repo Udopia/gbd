@@ -14,74 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def add(database, cat, unique=False, type='text', default=None):
+from gbd_tool.util import eprint
+
+def add(database, name, unique=False, default=None):
     ustr = "UNIQUE" if unique else ""
     dstr = "DEFAULT \"{}\"".format(default) if default is not None else ""
     database.submit(
-        'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value {} NOT NULL {})'.format(cat, ustr, type, dstr))
+        'CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value TEXT NOT NULL {})'.format(name, ustr, dstr))
     if default is not None:
-        database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(cat))
+        database.submit('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
+        database.submit('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
+                INSERT INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
 
-
-def remove(database, cat):
-    database.submit('DROP TABLE IF EXISTS {}'.format(cat))
-
-
-def clear(database, cat):
-    database.submit('DELETE FROM {}'.format(cat))
-
-
-def reflect(database, cat=None):
-    if cat is None:
-        lst = database.query("SELECT tbl_name FROM sqlite_master WHERE type='table' and not tbl_name like '\_\_%' escape '\\' and not tbl_name like 'sqlite\_stat_' escape '\\'")
-        groups = [x[0] for x in lst]
-        return groups
-    else:
-        lst = database.query("PRAGMA table_info({})".format(cat))
-        columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
-        table_infos = [dict(zip(columns, values)) for values in lst]
-
-        lst = database.query("PRAGMA index_list({})".format(cat))
-        columns = ('seq', 'name', 'unique', 'origin', 'partial')
-        index_list = [dict(zip(columns, values)) for values in lst]
-
-        # create key default
-        for info in table_infos:
-            info['unique'] = 0
-
-        # determine unique columns
-        for values in index_list:
-            tup = database.query("PRAGMA index_info({})".format(values['name']))
-            columns = ('index_rank', 'table_rank', 'name')
-            index_info = dict(zip(columns, tup[0]))
-            colid = index_info['table_rank']
-            table_infos[colid]['unique'] = values['unique']
-
-        # workaround quoted default-value (temporary sqlite issue?):
-        if table_infos[1]['default_value'] is not None:
-            table_infos[1]['default_value'] = table_infos[1]['default_value'].strip('"')
-
-        return table_infos
-
-
-def reflect_tags(database, cat):
-    return database.value_query('SELECT DISTINCT value FROM {}'.format(cat))
-
-
-def reflect_size(database, cat):
-    return database.value_query('SELECT count(*) FROM {}'.format(cat))
-
-
-def reflect_unique(database, cat):
-    info = reflect(database, cat)
-    return info[0]['unique']
-
-
-def reflect_default(database, cat):
-    info = reflect(database, cat)
-    return info[1]['default_value']
-
-
-def reflect_type(database, cat):
-    info = reflect(database, cat)
-    return info[1]['type']
+def remove(database, name):
+    database.submit('DROP TABLE IF EXISTS {}'.format(name))
+    database.submit('DROP TRIGGER IF EXISTS {}_dval'.format(name))

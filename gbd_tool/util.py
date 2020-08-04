@@ -20,8 +20,15 @@ import gzip
 import lzma
 import io
 
-__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file']
+__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def open_cnf_file(filename, mode):
     """
@@ -50,6 +57,7 @@ def eprint(*args, **kwargs):
 
 
 def read_hashes():
+    eprint("Reading hashes from stdin ...")
     hashes = list()
     try:
         while True:

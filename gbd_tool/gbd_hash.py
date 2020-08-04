@@ -44,7 +44,6 @@ def gbd_hash(filename, sorted=False):
     file.close()
     return hashvalue
 
-
 def gbd_hash_inner(file):
     #Tstart = time.time()
     space = False
