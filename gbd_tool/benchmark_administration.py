@@ -16,6 +16,8 @@
 
 import multiprocessing
 import os
+import csv
+
 from multiprocessing import Pool, Lock
 from os.path import isfile
 
@@ -27,39 +29,47 @@ from gbd_tool.util import eprint, confirm
 
 mutex = Lock()
 
+def import_csv(database, filename, key, source, target, delim_=' '):
+    if target not in database.tables():
+        print("Target group {} does not exist. Import canceled.".format(target))
+    with open(filename, newline='') as csvfile:
+        csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
+        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source].strip()]
+        print("Inserting {} values into group {}".format(len(lst), target))
+        for (hash_, value_) in lst:
+            add_tag(database, target, value_, hash_, False)
 
-def add_tag(database, cat, tag, hash, force=False):
-    info = groups.reflect(database, cat)
+def add_tag(database, name, value, hash, force=False):
+    info = groups.reflect(database, name)
     if (info[0]['unique']):
         if force:
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
         else:
-            res = database.query("SELECT value FROM {} WHERE hash='{}'".format(cat, hash))
+            res = database.query("SELECT value FROM {} WHERE hash='{}'".format(name, hash))
             if (len(res) == 0):
-                database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+                database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
             else:
                 existing_value = res[0][0]
                 default_value = info[1]['default_value']
                 if existing_value == default_value:
-                    eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, tag, hash))
-                    database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
-                elif existing_value != tag:
-                    eprint("Unable to insert tag ({}, {}) into unique '{} (default: {})' as a different value is already set: '{}'".format(hash, tag, cat, default_value, existing_value))
+                    eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, value, hash))
+                    database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
+                elif existing_value != value:
+                    eprint("Unable to insert tag ({}, {}) into unique '{} (default: {})' as a different value is already set: '{}'".format(hash, value, name, default_value, existing_value))
     else:
-        res = database.value_query("SELECT hash FROM {} WHERE hash='{}' AND value='{}'".format(cat, hash, tag))
+        res = database.value_query("SELECT hash FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
         if (len(res) == 0):
-            database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(cat, hash, tag))
+            database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
 
 
-def remove_tag(database, cat, tag, hash):
-    database.submit("DELETE FROM {} WHERE hash='{}' AND value='{}'".format(cat, hash, tag))
+def remove_tag(database, name, value, hash):
+    database.submit("DELETE FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
 
 
 def add_benchmark(database, hash, path):
     database.submit('INSERT INTO local (hash, value) VALUES ("{}", "{}")'.format(hash, path))
     database.submit('INSERT INTO filename (hash, value) VALUES ("{}", "{}")'.format(hash, os.path.basename(path)))
-    g = groups.reflect(database)
-    for group in g:
+    for group in database.tables():
         info = groups.reflect(database, group)
         dval = info[1]['default_value']
         if (dval is not None):

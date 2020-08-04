@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sqlite3
-from os.path import isfile
+import os
 
 from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint
@@ -29,25 +29,27 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path, skip_version_check=False):
-        self.create_mode = not isfile(path)
-        self.path = path
-        # init connections
-        self.connection = sqlite3.connect(path)
+    def __init__(self, path_var):
+        self.paths = path_var.split(":")
+        # init non-existent databases and check existing databases
+        for path in self.paths:
+            if not os.path.isfile(path):
+                eprint("Initializing DB '{}' with version {} and hash-version {}".format(path, VERSION, HASH_VERSION))
+                self.init(path, VERSION, HASH_VERSION)
+            else:
+                self.check(path, VERSION, HASH_VERSION)
+        # init connection
+        eprint("Main connection: {}".format(self.paths[0]))
+        self.connection = sqlite3.connect(self.paths[0])
         self.cursor = self.connection.cursor()
-        self.inlining_connection = sqlite3.connect(path)
-        self.inlining_connection.row_factory = lambda cursor, row: row[0]
-        # create mode
-        if self.create_mode:
-            eprint("Initializing DB with version {} and hash-version {}".format(VERSION, HASH_VERSION))
-            self.init(VERSION, HASH_VERSION)
-        # version check
-        if not skip_version_check:
-            self.version_check()
-        else:
-            eprint("Skipping version check for database")
-        if not self.has_table('local'):
-            raise DatabaseException('Table "local" is missing in db {}, initialization error?'.format(path))
+        # attach additional databases
+        for path in self.paths[1:]:
+            name = os.path.splitext(os.path.basename(path))[0]
+            eprint("Attaching '{}' as {}".format(path, name))
+            self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
+        # basic consistency test
+        if not "local" in self.tables():
+            raise DatabaseException("Table 'local' not available in database {}".format(path))
 
     def __enter__(self):
         return self
@@ -55,37 +57,34 @@ class Database:
     def __exit__(self, exception_type, exception_value, traceback):
         self.commit()
         self.connection.close()
-        self.inlining_connection.close()
 
-    def init(self, version, hash_version):
-        self.submit("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
-        self.submit(
-            "INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
-        self.submit("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
-        self.submit("CREATE TABLE filename (hash TEXT NOT NULL, value TEXT NOT NULL)")
+    def init(self, path, version, hash_version):
+        con = sqlite3.connect(path)
+        cur = con.cursor()
+        cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
+        cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
+        cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        cur.execute("CREATE TABLE filename (hash TEXT NOT NULL, value TEXT NOT NULL)")
+        con.commit()
+        con.close()
 
-    def update_hash_version(self):
-        self.submit("UPDATE __version SET hash_version={} WHERE entry=0".format(HASH_VERSION))
-
-    def has_table(self, name):
-        return len(self.value_query("SELECT * FROM sqlite_master WHERE tbl_name = '{}'".format(name))) != 0
-
-    def get_version(self):
-        if self.has_table('__version'):
-            return self.value_query("SELECT version FROM __version").pop()
-        else:
-            return 0
-
-    def get_hash_version(self):
-        if self.has_table('__version'):
-            return self.value_query("SELECT hash_version FROM __version").pop()
-        else:
-            return 0
+    def check(self, path, version, hash_version):
+        con = sqlite3.connect(path)
+        cur = con.cursor()
+        lst = cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+        if not "__version" in [x[0] for x in lst]:
+            eprint("WARNING: Version info not available in database {}".format(path))
+            return
+        __version = cur.execute("SELECT version, hash_version FROM __version").fetchall()
+        if __version[0][0] != version:
+            eprint("WARNING: DB Version is {} but tool version is {}".format(__version[0][0], version))
+        if __version[0][1] != hash_version:
+            eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
+        con.close()
 
     def value_query(self, q):
-        cur = self.inlining_connection.cursor()
-        lst = cur.execute(q).fetchall()
-        return set(lst)
+        lst = self.cursor.execute(q).fetchall()
+        return set([row[0] for row in lst])
 
     def query(self, q):
         return self.cursor.execute(q).fetchall()
@@ -98,12 +97,28 @@ class Database:
     def bulk_insert(self, table, lst):
         self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
 
-    def version_check(self):
-        if self.get_version() != VERSION:
-            raise DatabaseException(
-                "Version Mismatch. DB Version is at {} but script version is at {}".format(self.get_version(), VERSION))
-        if self.get_hash_version() != HASH_VERSION:
-            raise DatabaseException("Hash-Version Mismatch. DB Hash-Version is at {} but script hash-version is at {}.".format(self.get_hash_version(), HASH_VERSION))
-
     def commit(self):
         self.connection.commit()
+
+    def tables(self):
+        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        return [x[0] for x in lst]
+
+    def table_info(self, table):
+        lst = self.query("PRAGMA table_info({})".format(table))
+        columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
+        table_infos = [dict(zip(columns, values)) for values in lst]
+        return table_infos
+
+    def index_list(self, table):
+        lst = self.query("PRAGMA index_list({})".format(table))
+        columns = ('seq', 'name', 'unique', 'origin', 'partial')
+        index_list = [dict(zip(columns, values)) for values in lst]
+        return index_list
+    
+    def index_info(self, index):
+        tup = self.query("PRAGMA index_info({})".format(index))
+        columns = ('index_rank', 'table_rank', 'name')
+        index_info = dict(zip(columns, tup[0]))
+        return index_info
+
