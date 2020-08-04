@@ -7,8 +7,8 @@ var app = new Vue({
         loading: false,
         form: {
             query: '',
-            groups: [],
-            selected_groups: [],
+            features: [],
+            selected_features: [],
         },
         table: {
             rows: 0,
@@ -41,14 +41,14 @@ var app = new Vue({
             var port = location.port;
             return slashes.concat(window.location.hostname).concat(':').concat(port);
         },
-        getGroups: function () {
+        getFeatures: function () {
             $.ajax({
-                url: this.getHost().concat("/getgroups"),
+                url: this.getHost().concat("/getfeatures"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
                     for (let object in result) {
-                        app.form.groups.push({'text': result[object], 'value': result[object]});
+                        app.form.features.push({'text': result[object], 'value': result[object]});
                     }
                 },
                 error: function (request, status, error) {
@@ -61,7 +61,7 @@ var app = new Vue({
             app.table.table_busy = true;
             var jsonData = {
                 query: this.form.query,
-                selected_groups: this.form.selected_groups,
+                selected_features: this.form.selected_features,
             };
             $.ajax({
                 url: this.getHost().concat("/results"),
@@ -102,7 +102,7 @@ var app = new Vue({
     },
     mounted: function () {
         this.$nextTick(function () {
-            this.getGroups();
+            this.getFeatures();
         })
     },
     computed: {
