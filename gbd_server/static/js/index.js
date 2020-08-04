@@ -26,10 +26,10 @@ var app = new Vue({
         },
         patterns: {
             query_patterns: [
-                {value: 'competition_track = main_2019', text: "competition_track = main_2019"},
-                {value: 'local like %vliw%', text: "local like %vliw%"},
-                {value: 'variables > 5000000', text: "variables > 5000000"},
-                {value: '(clauses_horn / clauses) > .9', text: "(clauses_horn / clauses) > .9"},
+                {value: 'competition_track = main_2020', text: "Main Track 2020"},
+                {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
+                {value: 'competition_track = main_2019', text: "Main Track 2019"},
+                {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
             ],
         }
     },
