@@ -27,11 +27,11 @@
         {% raw %}
         <b-container>
             <div style="margin-top: 10px">
-                <b-form @submit="submitQuery">
-                    <b-form-group id="query">
+                <b-form>
+                    <b-form-group>
                         <b-input-group>
                             <b-form-input
-                                    id="query"
+                                    name="query"
                                     v-model="form.query"
                                     placeholder="Enter query"
                             ></b-form-input>
@@ -47,7 +47,7 @@
                                         </div>
                                     </b-dropdown-group>
                                 </b-dropdown>
-                                <b-button type="submit" variant="outline-dark">
+                                <b-button @click="submitQuery" variant="outline-dark">
                                     <b-icon icon="search"></b-icon>
                                 </b-button>
                             </b-input-group-append>
@@ -63,18 +63,21 @@
                         </b-form-checkbox-group>
                     </b-form-group>
                     <b-button-group class="mx-1">
-                        <b-button type="button" @click="getCsvFile" variant="outline-dark">
-                            <b-icon icon="archive" style="margin-right: 5px"></b-icon>
-                            Download Attributes
-                        </b-button>
-                        <b-button type="button" @click="getUrlFile" variant="outline-dark">
+                        <b-button type="submit" formmethod="post" formaction="/getinstances" variant="outline-dark"
+                                  formtarget="_self">
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
-                            Download Instances
+                            Download instances
                         </b-button>
-                        <b-button type="button" variant="outline-dark">
-							<a href="getdatabase">
+                        <input type="hidden" name="selected_groups" v-bind:value="form.selected_groups">
+                        <b-button type="submit" formmethod="post" formaction="/exportcsv" variant="outline-dark"
+                                  formtarget="_self">
+                            <b-icon icon="archive" style="margin-right: 5px"></b-icon>
+                            Download attributes
+                        </b-button>
+                        <b-button type="submit" formmethod="get" formaction="/getdatabase" variant="outline-dark"
+                                  formtarget="_self">
                             <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                            Download Database</a>
+                            Download Database
                         </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
@@ -123,6 +126,29 @@
                         </b-dropdown>
                     </div>
                 </b-col>
+                <b-col lg="6" class="my-1">
+                    <b-form-group
+                            label="Filter"
+                            label-cols-sm="3"
+                            label-align-sm="right"
+                            label-size="sm"
+                            label-for="filterInput"
+                            class="mb-0"
+                    >
+                        <b-input-group size="sm">
+                            <b-form-input
+                                    v-model="table.filter"
+                                    type="search"
+                                    id="filterInput"
+                                    placeholder="Type to Search"
+                            ></b-form-input>
+                            <b-input-group-append>
+                                <b-button :disabled="!table.filter" @click="table.filter = ''">Clear
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </b-form-group>
+                </b-col>
             </b-row>
             <b-row>
                 <b-col>
@@ -136,6 +162,8 @@
                             :busy="table.table_busy"
                             :sort-by.sync="table.sortBy"
                             :sort-desc.sync="table.sortDesc"
+                            :filter="table.filter"
+                            @filtered="onFiltered"
                             responsive
                             sort-icon-left
                             hover
@@ -153,7 +181,7 @@
                     <b-pagination
                             pills
                             v-model="table.current_page"
-                            :total-rows="rows"
+                            :total-rows="table.rows"
                             :per-page="table.per_page"
                             align="center"
                             aria-controls="result-table"

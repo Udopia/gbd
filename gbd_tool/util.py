@@ -1,5 +1,5 @@
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,15 @@ import gzip
 import lzma
 import io
 
-__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file']
+__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def open_cnf_file(filename, mode):
     """
@@ -32,12 +39,12 @@ def open_cnf_file(filename, mode):
         obj = gzip.open(filename, mode)
     elif filename.endswith('.cnf.bz2'):
         obj = bz2.open(filename, mode)
-    elif filename.endswith('.cnf.lzma'):
+    elif filename.endswith('.cnf.lzma') or filename.endswith('.cnf.xz'):
         obj = lzma.open(filename, mode)
     elif filename.endswith('.cnf'):
         obj = open(filename, mode)
     else:
-        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, or .cnf.gz")
+        raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, .cnf.xz, or .cnf.gz")
     
     if 'b' in mode:
         return io.BufferedReader(obj, io.DEFAULT_BUFFER_SIZE * 8)
@@ -50,13 +57,14 @@ def eprint(*args, **kwargs):
 
 
 def read_hashes():
-    hashes = set()
+    eprint("Reading hashes from stdin ...")
+    hashes = list()
     try:
         while True:
-            line = sys.stdin.readline()
-            if len(line.strip()) == 0:
+            line = sys.stdin.readline().split()
+            if len(line) == 0:
                 return hashes
-            hashes.add(line.strip())
+            hashes.extend(line)
     except KeyboardInterrupt:
         return hashes
     return hashes
