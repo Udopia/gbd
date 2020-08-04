@@ -53,15 +53,8 @@ def quick_search():
 
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    if request.mimetype == 'application/json':
-        data = request.get_json(force=True, silent=True)
-        if data is None:
-            return Response("Bad Request", status=400, mimetype="text/plain")
-        query = data.get('query')
-        selected_features = data.get('selected_features')
-    else:
-        query = request.form.get('query')
-        selected_features = request.form.get('selected_features')
+    query = request.form.get('query')
+    selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
     if not len(selected_features):
         selected_features.append("filename")
     available_features = sorted(gbd_api.get_features())
@@ -82,20 +75,18 @@ def quick_search_results():
 def get_databases():
     return json.dumps(gbd_api.get_databases())
 
-
-@app.route("/getfeatures/<database>", methods=['GET'])
-def get_features_from_database(database):
-    if database not in gbd_api.get_databases():
+@app.route('/getfeatures', defaults={'database': None})
+@app.route('/getfeatures/<database>')
+def get_features(database):
+    if database is None:
+        available_features = sorted(gbd_api.get_features())
+        available_features.remove("local")
+        return Response(json.dumps(available_features), status=200, mimetype="application/json")
+    elif database not in gbd_api.get_databases():
         return Response("Database does not exist in the running instance of GBD server", status=404,
                         mimetype="text/plain")
-    return gbd_api.get_features(database)
-
-
-@app.route("/getfeatures", methods=['GET'])
-def get_all_features():
-    available_features = sorted(gbd_api.get_features())
-    available_features.remove("local")
-    return Response(json.dumps(available_features), status=200, mimetype="application/json")
+    else:
+        return gbd_api.get_features(database)
 
 
 @app.route("/exportcsv", methods=['POST'])
