@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # GBD Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -81,6 +81,10 @@ def cli_set(api: GbdApi, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
         args.hashes = read_hashes()
     api.set_attribute(args.name, args.value, args.hashes, args.force)
+
+
+def cli_par2(api: GbdApi, args):
+    api.calculate_par2_score(args.query, args.name)
 
 
 def cli_meta_get(api: GbdApi, args):
@@ -176,7 +180,7 @@ def main():
     parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
     parser_create.set_defaults(func=cli_create)
 
-    parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes and remove feature if no hashes are given')
+    parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes or remove feature if no hashes are given')
     parser_delete.add_argument('hashes', help='Hashes', nargs='*')
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
@@ -215,6 +219,12 @@ def main():
     parser_meta_clear.add_argument('feature', type=column_type, help='Specify feature')
     parser_meta_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
     parser_meta_clear.set_defaults(func=cli_meta_clear)
+
+    # par2 score
+    parser_par2 = subparsers.add_parser('par2', help='Calculate PAR-2 score for given runtime feature')
+    parser_par2.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
+    parser_par2.add_argument('name', type=column_type, help='Name of runtime feature')
+    parser_par2.set_defaults(func=cli_par2)
 
     # evaluate arguments
     args = parser.parse_args()

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -104,12 +104,8 @@ def get_csv_file():
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
     query = request.form.get('query')
-    result = gbd_api.query_search(query, ["local"])
-    # hashes = [row[0] for row in result]
-    # content = "\n".join([flask.url_for("get_file", hashvalue=hv, _external=True) for hv in hashes])
-    content = "\n".join(
-        [os.path.join(flask.url_for("get_file", hashvalue=row[0], _external=True), os.path.basename(row[1])) for row in
-         result])
+    result = gbd_api.query_search(query, ["filename"])
+    content = "\n".join([flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
     app.logger.info('Sending URL file to {} at {}'.format(request.remote_addr, datetime.datetime.now()))
     file_name = "query_result.uri"
     return Response(content, mimetype='text/uri-list',

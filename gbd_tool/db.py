@@ -1,5 +1,5 @@
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -186,19 +186,19 @@ class Database:
         return self.table_info_augmented(table)[1]['default_value']
 
     def meta_get(self, table):
-        return self.value_query("SELECT value FROM __meta WHERE name = '{}'".format(table)).pop() or "{}"
+        return json.loads((self.value_query("SELECT value FROM __meta WHERE name = '{}'".format(table)) or {"{}"}).pop())
 
     def meta_clear(self, table, meta_feature=None):
         if not meta_feature:
             self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
         else:
-            values = json.loads(self.meta_get(table))
+            values = self.meta_get(table)
             if meta_feature in values:
                 values.pop(meta_feature)
             self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
     def meta_set(self, table, meta_feature, value):
-        values = json.loads(self.meta_get(table))
+        values = self.meta_get(table)
         values[meta_feature] = value
         self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 

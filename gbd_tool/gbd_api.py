@@ -1,5 +1,5 @@
 # Global Benchmark Database (GBD)
-# Copyright (C) 2019 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2020 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from urllib.error import URLError
 from gbd_tool import groups, benchmark_administration, search, bootstrap, sanitize
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
-from gbd_tool.util import eprint
+from gbd_tool.util import eprint, is_number
 
 
 class GbdApi:
@@ -193,8 +193,33 @@ class GbdApi:
         with Database(self.databases) as database:
             return database.meta_get(feature)
 
-    # clears sepcified meta-features of feature 
-    # if meta_feature is not specified, clears all meta-features
+    # clears sepcified meta-features of feature, 
+    # or clears all meta-features if meta_feature is not specified
     def meta_clear(self, feature, meta_feature=None):
         with Database(self.databases) as database:
             database.meta_clear(feature, meta_feature)
+
+    def calculate_par2_score(self, query, feature):
+        info = self.meta_get(feature)
+        if not "timeout" in info:
+            eprint("Time-limit 'timeout' missing in meta-record of table '{}'.".format(feature))
+            eprint("Unable to calculate score.")
+            return
+        if not "memout" in info:
+            eprint("Memory-limit 'memout' missing in meta-record of table '{}'.".format(feature))
+        if not "machine" in info:
+            eprint("Machine-id 'machine' missing in meta-record of table '{}'.".format(feature))
+        timeout = int(info["timeout"])
+        times = self.query_search(query, [feature])
+        score = 0
+        penalized = set()
+        for time in times:
+            if is_number(time[1]):
+                score += int(time[1])
+            else:
+                score += 2 * timeout
+                penalized.add(time[1])
+        print(score/len(times))
+        print(penalized)
+
+
