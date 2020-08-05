@@ -238,8 +238,8 @@ Initialize your database with local paths to your benchmark instances by using t
     elif len(sys.argv) > 1:
         print("Database: {}".format(args.db))
         try:
-            api = GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type)
-            args.func(api, args)
+            with GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type) as api:
+                args.func(api, args)
         except AttributeError as e:
             eprint(e)
     else:

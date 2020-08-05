@@ -39,20 +39,15 @@ class Database:
                 self.init(path, VERSION, HASH_VERSION)
             else:
                 self.check(path, VERSION, HASH_VERSION)
-        # init connection
+
+    def __enter__(self):
         #eprint("Main connection: {}".format(self.paths[0]))
         self.connection = sqlite3.connect(self.paths[0])
         self.cursor = self.connection.cursor()
-        # attach additional databases
         for path in self.paths[1:]:
             name = os.path.splitext(os.path.basename(path))[0]
             #eprint("Attaching '{}' as {}".format(path, name))
             self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
-        # basic consistency test
-        if not "local" in self.tables():
-            raise DatabaseException("Table 'local' not available in database {}".format(path))
-
-    def __enter__(self):
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -64,6 +59,7 @@ class Database:
         cur = con.cursor()
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
+        cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         con.commit()
