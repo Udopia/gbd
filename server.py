@@ -37,9 +37,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 
+
 @app.route("/", methods=['GET'])
 def quick_search():
     return render_template('index.html')
+
 
 @app.route("/results", methods=['POST'])
 def quick_search_results():
@@ -61,6 +63,7 @@ def quick_search_results():
         except ValueError:
             return Response("Attribute not Available", status=400, mimetype="text/plain")
 
+
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # sends csv version of the result as a file
 @app.route("/exportcsv", methods=['POST'])
@@ -77,7 +80,8 @@ def get_csv_file():
         file_name = "query_result.csv"
         return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
-                                "filename": "{}".format(file_name)})
+                                 "filename": "{}".format(file_name)})
+
 
 # Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
 # against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
@@ -86,18 +90,22 @@ def get_url_file():
     with GbdApi(app.config['database']) as gbd_api:
         query = request.form.get('query')
         result = gbd_api.query_search(query, ["filename"])
-        content = "\n".join([flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
+        content = "\n".join(
+            [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         app.logger.info('Sending URL file to {}'.format(request.remote_addr))
         file_name = "query_result.uri"
         return Response(content, mimetype='text/uri-list',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
-                                "filename": "{}".format(file_name)})
+                                 "filename": "{}".format(file_name)})
+
 
 # Return all basenames of the databases which the server was initialized with
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
     with GbdApi(app.config['database']) as gbd_api:
-        return json.dumps(list(map(basename, gbd_api.get_databases())))
+        return Response(json.dumps(list(map(basename, gbd_api.get_databases()))), status=200,
+                        mimetype="application/json")
+
 
 # Send a desired database file, if it exists
 @app.route('/getdatabase', defaults={'database': None})
@@ -133,7 +141,8 @@ def list_features(database):
                             mimetype="text/plain")
         else:
             target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
-            return json.dumps(gbd_api.get_features(target_database))
+            return Response(json.dumps(gbd_api.get_features(target_database)), status=200, mimetype="application/json")
+
 
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
@@ -147,6 +156,7 @@ def get_attribute(feature, hashvalue):
         except ValueError as err:
             return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
+
 # Get all attributes associated with the hashvalue (resolving against all features)
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
@@ -157,6 +167,7 @@ def get_all_attributes(hashvalue):
             values = gbd_api.search(feature, hashvalue)
             info.update({feature: str(",".join(str(value) for value in values))})
         return Response(json.dumps(info), status=200, mimetype="application/json")
+
 
 # Find the file corresponding to the hashvalue and send it to the client
 @app.route('/file/<hashvalue>', defaults={'filename': None})
@@ -171,6 +182,7 @@ def get_file(hashvalue, filename):
             return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
         except FileNotFoundError:
             return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
+
 
 # Main method which configures Flask app at startup
 def main():
