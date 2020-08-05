@@ -38,11 +38,14 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app = Flask(__name__)
 
 
+# Returns main index page
 @app.route("/", methods=['GET'])
 def quick_search():
     return render_template('index.html')
 
 
+# Expects POST form with a query as text input and selected features as checkbox inputs,
+# returns result as a serialized JSON object
 @app.route("/results", methods=['POST'])
 def quick_search_results():
     with GbdApi(app.config['database']) as gbd_api:
