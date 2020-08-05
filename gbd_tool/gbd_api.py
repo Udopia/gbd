@@ -18,6 +18,7 @@
 import sqlite3
 import multiprocessing
 
+from contextlib import ExitStack
 from urllib.error import URLError
 
 # internal packages
@@ -37,6 +38,16 @@ class GbdApi:
         self.inner_separator = inner_separator
         self.join_type = join_type
 
+    def __enter__(self):
+        self.database = Database(self.databases)
+        with ExitStack() as stack:
+            stack.enter_context(self.database)
+            self._stack = stack.pop_all()
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        self._stack.__exit__(exc_type, exc, traceback)
+
     # Calculate GBD hash
     @staticmethod
     def hash_file(path):
@@ -44,25 +55,21 @@ class GbdApi:
 
     # Import data from CSV file
     def import_file(self, path, key, source, target):
-        with Database(self.databases) as database:
-            benchmark_administration.import_csv(database, path, key, source, target, self.separator)
+        benchmark_administration.import_csv(self.database, path, key, source, target, self.separator)
 
     # Initialize table 'local' with instances found under given path
     def init_database(self, path=None):
         eprint('Initializing local path entries {} using {} cores'.format(path, self.jobs))
         if self.jobs == 1 and multiprocessing.cpu_count() > 1:
             eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
-        with Database(self.databases) as database:
-            benchmark_administration.remove_benchmarks(database)
-            benchmark_administration.register_benchmarks(self, database, path, self.jobs)
+        benchmark_administration.remove_benchmarks(self.database)
+        benchmark_administration.register_benchmarks(self, self.database, path, self.jobs)
 
     def bootstrap(self, named_algo):
-        with Database(self.databases) as database:
-            bootstrap.bootstrap(self, database, named_algo, self.jobs)
+        bootstrap.bootstrap(self, self.database, named_algo, self.jobs)
 
     def sanitize(self, hashes):
-        with Database(self.databases) as database:
-            sanitize.sanitize(self, database, hashes, self.jobs)
+        sanitize.sanitize(self, self.database, hashes, self.jobs)
 
     def get_databases(self):
         return self.databases
@@ -70,64 +77,57 @@ class GbdApi:
     # Get all features (or those of given db)
     def get_features(self, path=None):
         if path == None:
-            with Database(self.databases) as database:
-                return database.tables_and_views()
+            return self.database.tables_and_views()
         elif path in self.databases:
-            with Database(path) as database:
-                return database.tables_and_views()
+            with Database(path) as db:
+                return db.tables_and_views()
         else:
             return []
 
     # Get all material features (or those of given db)
     def get_material_features(self, path=None):
         if path == None:
-            with Database(self.databases) as database:
-                return database.tables()
+            return self.database.tables()
         elif path in self.databases:
-            with Database(path) as database:
-                return database.tables()
+            with Database(path) as db:
+                return db.tables()
         else:
             return []
 
     # Get all virtual features (or those of given db)
     def get_virtual_features(self, path=None):
         if path == None:
-            with Database(self.databases) as database:
-                return database.views()
+            return self.database.views()
         elif path in self.databases:
-            with Database(path) as database:
-                return database.views()
+            with Database(path) as db:
+                return db.views()
         else:
             return []
 
     # Check for existence of given feature
     def feature_exists(self, name):
-        with Database(self.databases) as database:
-            return name in database.tables()
+        return name in self.database.tables()
 
     # Creates the given feature
     def create_feature(self, name, default_value):
-        with Database(self.databases) as database:
-            groups.add(database, name, default_value is not None, default_value)
+        groups.add(self.database, name, default_value is not None, default_value)
 
     # Removes the given feature
     def remove_feature(self, name):
-        with Database(self.databases) as database:
-            groups.remove(database, name)
+        groups.remove(self.database, name)
 
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
         if not name in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(name))
-        with Database(self.databases) as database:
-            values = database.table_values(name)
-            return {'name': name, 
-                    'unique': database.table_unique(name),
-                    'default-value': database.table_default_value(name),
-                    'num-entries': database.table_size(name),
-                    'numeric-min': values['numeric'][0], 
-                    'numeric-max': values['numeric'][1], 
-                    'non-numeric': " ".join(values['discrete']) }
+        values = self.database.table_values(name)
+        return {'name': name, 
+                'unique': self.database.table_unique(name),
+                'default-value': self.database.table_default_value(name),
+                'num-entries': self.database.table_size(name),
+                'numeric-min': values['numeric'][0], 
+                'numeric-max': values['numeric'][1], 
+                'non-numeric': " ".join(values['discrete']) }
 
     # Retrieve all values the given feature contains
     def get_feature_values(self, name):        
@@ -141,11 +141,11 @@ class GbdApi:
     def set_attributes_locked(self, hash, attributes):
         self.mutex.acquire()
         try:
-            # create new connection from old one due to limitations of multi-threaded use (cursor initialization issue)
-            with Database(self.databases) as database:
+            # create new connection due to limitations of multi-threaded use (cursor initialization issue)
+            with Database(self.databases) as db:
                 for attr in attributes:
                     cmd, name, value = attr[0], attr[1], attr[2]
-                    database.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
+                    db.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
         finally:
             self.mutex.release()
 
@@ -153,51 +153,42 @@ class GbdApi:
     def set_attribute(self, feature, value, hash_list, force):
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
-        with Database(self.databases) as database:
-            print("Setting {} to {} for benchmarks {}".format(feature, value, hash_list))
-            for h in hash_list:
-                benchmark_administration.add_tag(database, feature, value, h, force)
+        for h in hash_list:
+            benchmark_administration.add_tag(self.database, feature, value, h, force)
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
-        with Database(self.databases) as database:
-            benchmark_administration.remove_tags(database, feature, hash_list)
+        benchmark_administration.remove_tags(self.database, feature, hash_list)
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(feature))
-        with Database(self.databases) as database:
-            return database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
+        return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def hash_search(self, hashes=[], resolve=[], collapse=False, group_by=None):
-        with Database(self.databases) as database:
-            try:
-                return search.find_hashes(database, None, resolve, collapse, group_by, hashes, self.inner_separator, self.join_type)
-            except sqlite3.OperationalError as err:
-                raise ValueError("Query error for database '{}': {}".format(self.databases, err))
+        try:
+            return search.find_hashes(self.database, None, resolve, collapse, group_by, hashes, self.inner_separator, self.join_type)
+        except sqlite3.OperationalError as err:
+            raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
     def query_search(self, query=None, resolve=[], collapse=False, group_by=None):
-        with Database(self.databases) as database:
-            try:
-                return search.find_hashes(database, query, resolve, collapse, group_by, [], self.inner_separator, self.join_type)
-            except sqlite3.OperationalError as err:
-                raise ValueError("Query error for database '{}': {}".format(self.databases, err))
+        try:
+            return search.find_hashes(self.database, query, resolve, collapse, group_by, [], self.inner_separator, self.join_type)
+        except sqlite3.OperationalError as err:
+            raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
     def meta_set(self, feature, meta_feature, value):
-        with Database(self.databases) as database:
-            database.meta_set(feature, meta_feature, value)
+        self.database.meta_set(feature, meta_feature, value)
 
     def meta_get(self, feature):
-        with Database(self.databases) as database:
-            return database.meta_get(feature)
+        return self.database.meta_get(feature)
 
     # clears sepcified meta-features of feature, 
     # or clears all meta-features if meta_feature is not specified
     def meta_clear(self, feature, meta_feature=None):
-        with Database(self.databases) as database:
-            database.meta_clear(feature, meta_feature)
+        self.database.meta_clear(feature, meta_feature)
 
     def calculate_par2_score(self, query, feature):
         info = self.meta_get(feature)
