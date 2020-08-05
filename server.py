@@ -82,7 +82,7 @@ def get_features(database):
             return Response("Database does not exist in the running instance of GBD server", status=404,
                             mimetype="text/plain")
         else:
-            return gbd_api.get_features(database)
+            return json.dumps(gbd_api.get_features(database))
 
 
 @app.route("/exportcsv", methods=['POST'])
