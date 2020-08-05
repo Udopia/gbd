@@ -17,12 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import datetime
 import logging
 import os
 import argparse
-
-import werkzeug
 
 from gbd_tool.util import eprint
 from os.path import basename
@@ -64,28 +61,8 @@ def quick_search_results():
         except ValueError:
             return Response("Attribute not Available", status=400, mimetype="text/plain")
 
-
-@app.route("/getdatabases", methods=["GET"])
-def get_databases():
-    with GbdApi(app.config['database']) as gbd_api:
-        return json.dumps(list(map(basename, gbd_api.get_databases())))
-
-@app.route('/getfeatures', defaults={'database': None})
-@app.route('/getfeatures/<database>')
-def get_features(database):
-    with GbdApi(app.config['database']) as gbd_api:
-        if database is None:
-            available_features = sorted(gbd_api.get_features())
-            available_features.remove("local")
-            return Response(json.dumps(available_features), status=200, mimetype="application/json")
-        elif database not in list(map(basename, gbd_api.get_databases())):
-            return Response("Database does not exist in the running instance of GBD server", status=404,
-                            mimetype="text/plain")
-        else:
-            target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
-            return json.dumps(gbd_api.get_features(target_database))
-
-
+# Expects POST form with a query as text input and selected features as checkbox inputs,
+# sends csv version of the result as a file
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
     with GbdApi(app.config['database']) as gbd_api:
@@ -102,7 +79,8 @@ def get_csv_file():
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
                                 "filename": "{}".format(file_name)})
 
-
+# Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
+# against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
     with GbdApi(app.config['database']) as gbd_api:
@@ -115,19 +93,72 @@ def get_url_file():
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
                                 "filename": "{}".format(file_name)})
 
+# Return all basenames of the databases which the server was initialized with
+@app.route("/listdatabases", methods=["GET"])
+def list_databases():
+    with GbdApi(app.config['database']) as gbd_api:
+        return json.dumps(list(map(basename, gbd_api.get_databases())))
 
-@app.route('/attribute/<attribute>/<hashvalue>')
-def get_attribute(attribute, hashvalue):
+# Send a desired database file, if it exists
+@app.route('/getdatabase', defaults={'database': None})
+@app.route('/getdatabase/<database>')
+def get_database_file(database):
+    with GbdApi(app.config['database']) as gbd_api:
+        if database is None:
+            return send_file(gbd_api.get_databases()[0],
+                             as_attachment=True,
+                             attachment_filename=os.path.basename(gbd_api.get_databases()[0]),
+                             mimetype='application/x-sqlite3')
+        elif database not in list(map(basename, gbd_api.get_databases())):
+            return Response("Database does not exist in the running instance of GBD server", status=404,
+                            mimetype="text/plain")
+        else:
+            return send_file(list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0],
+                             as_attachment=True,
+                             attachment_filename=database,
+                             mimetype='application/x-sqlite3')
+
+
+# Get either all cumulative features or features in a specified database (argument is basename of database file)
+@app.route('/getfeatures', defaults={'database': None})
+@app.route('/getfeatures/<database>')
+def list_features(database):
+    with GbdApi(app.config['database']) as gbd_api:
+        if database is None:
+            available_features = sorted(gbd_api.get_features())
+            available_features.remove("local")
+            return Response(json.dumps(available_features), status=200, mimetype="application/json")
+        elif database not in list(map(basename, gbd_api.get_databases())):
+            return Response("Database does not exist in the running instance of GBD server", status=404,
+                            mimetype="text/plain")
+        else:
+            target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
+            return json.dumps(gbd_api.get_features(target_database))
+
+# Resolves a hashvalue against a attribute and returns the result values
+@app.route('/attribute/<feature>/<hashvalue>')
+def get_attribute(feature, hashvalue):
     with GbdApi(app.config['database']) as gbd_api:
         try:
-            values = gbd_api.search(attribute, hashvalue)
+            values = gbd_api.search(feature, hashvalue)
             if len(values) == 0:
-                return Response("No entry in attribute table associated with this hash", status=404, mimetype="text/plain")
+                return Response("No feature associated with this hash", status=404, mimetype="text/plain")
             return str(",".join(str(value) for value in values))
         except ValueError as err:
             return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
+# Get all attributes associated with the hashvalue (resolving against all features)
+@app.route('/info/<hashvalue>')
+def get_all_attributes(hashvalue):
+    with GbdApi(app.config['database']) as gbd_api:
+        features = gbd_api.get_features()
+        info = dict([])
+        for feature in features:
+            values = gbd_api.search(feature, hashvalue)
+            info.update({feature: str(",".join(str(value) for value in values))})
+        return Response(json.dumps(info), status=200, mimetype="application/json")
 
+# Find the file corresponding to the hashvalue and send it to the client
 @app.route('/file/<hashvalue>', defaults={'filename': None})
 @app.route('/file/<hashvalue>/<filename>')
 def get_file(hashvalue, filename):
@@ -141,28 +172,7 @@ def get_file(hashvalue, filename):
         except FileNotFoundError:
             return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
 
-
-@app.route('/info/<hashvalue>')
-def get_all_attributes(hashvalue):
-    with GbdApi(app.config['database']) as gbd_api:
-        features = gbd_api.get_features()
-        info = dict([])
-        for feature in features:
-            values = gbd_api.search(feature, hashvalue)
-            info.update({feature: str(",".join(str(value) for value in values))})
-        return Response(json.dumps(info), status=200, mimetype="application/json")
-
-
-@app.route("/getdatabase", methods=['GET'])
-def get_default_database_file():
-    with GbdApi(app.config['database']) as gbd_api:
-        app.logger.info('Sending database to {}'.format(request.remote_addr))
-        return send_file(gbd_api.get_databases()[0], 
-                    as_attachment=True, 
-                    attachment_filename=os.path.basename(gbd_api.get_databases()[0]),
-                    mimetype='application/x-sqlite3')
-
-
+# Main method which configures Flask app at startup
 def main():
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
