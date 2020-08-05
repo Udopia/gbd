@@ -79,7 +79,7 @@ class GbdApi:
         if path == None:
             return self.database.tables_and_views()
         elif path in self.databases:
-            with Database(path) as db:
+            with Database([path]) as db:
                 return db.tables_and_views()
         else:
             return []
@@ -89,7 +89,7 @@ class GbdApi:
         if path == None:
             return self.database.tables()
         elif path in self.databases:
-            with Database(path) as db:
+            with Database([path]) as db:
                 return db.tables()
         else:
             return []
@@ -99,7 +99,7 @@ class GbdApi:
         if path == None:
             return self.database.views()
         elif path in self.databases:
-            with Database(path) as db:
+            with Database([path]) as db:
                 return db.views()
         else:
             return []
