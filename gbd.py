@@ -236,7 +236,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Initialize your database with local paths to your benchmark instances by using the init-command. """)
     elif len(sys.argv) > 1:
-        print("Database: {}".format(args.db))
+        eprint("Database: {}".format(args.db))
         try:
             with GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type) as api:
                 args.func(api, args)
