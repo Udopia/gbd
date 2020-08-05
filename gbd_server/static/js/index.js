@@ -42,7 +42,7 @@ var app = new Vue({
         },
         getFeatures: function () {
             $.ajax({
-                url: this.getHost().concat("/getfeatures"),
+                url: this.getHost().concat("/listfeatures"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
@@ -96,7 +96,7 @@ var app = new Vue({
             this.getFeatures();
             app.form.query = '';
             app.form.selected_features = [];
-            this.submitQuery();
+            this.submitQuery(new Event( "click" ));
         })
     },
     computed: {
