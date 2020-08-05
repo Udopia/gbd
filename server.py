@@ -68,7 +68,7 @@ def quick_search_results():
 @app.route("/getdatabases", methods=["GET"])
 def get_databases():
     with GbdApi(app.config['database']) as gbd_api:
-        return json.dumps(gbd_api.get_databases())
+        return json.dumps(list(map(basename, gbd_api.get_databases())))
 
 @app.route('/getfeatures', defaults={'database': None})
 @app.route('/getfeatures/<database>')
@@ -78,11 +78,12 @@ def get_features(database):
             available_features = sorted(gbd_api.get_features())
             available_features.remove("local")
             return Response(json.dumps(available_features), status=200, mimetype="application/json")
-        elif database not in gbd_api.get_databases():
+        elif database not in list(map(basename, gbd_api.get_databases())):
             return Response("Database does not exist in the running instance of GBD server", status=404,
                             mimetype="text/plain")
         else:
-            return json.dumps(gbd_api.get_features(database))
+            target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
+            return json.dumps(gbd_api.get_features(target_database))
 
 
 @app.route("/exportcsv", methods=['POST'])
