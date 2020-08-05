@@ -85,7 +85,7 @@ def register_benchmarks(api, database, root, jobs=1):
             path = os.path.join(root, filename)
             if path.endswith(".cnf") or path.endswith(".cnf.gz") or path.endswith(".cnf.lzma") or path.endswith(".cnf.xz") or path.endswith(".cnf.bz2"):
                 hashes = database.value_query("SELECT hash FROM local WHERE value = '{}'".format(path))
-                if len(hashes) is not 0:
+                if len(hashes) != 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
                     handler = pool.apply_async(compute_hash, args=(path,), callback=api.callback_set_attributes_locked)
