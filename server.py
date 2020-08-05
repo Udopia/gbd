@@ -120,8 +120,8 @@ def get_database_file(database):
 
 
 # Get either all cumulative features or features in a specified database (argument is basename of database file)
-@app.route('/getfeatures', defaults={'database': None})
-@app.route('/getfeatures/<database>')
+@app.route('/listfeatures', defaults={'database': None})
+@app.route('/listfeatures/<database>')
 def list_features(database):
     with GbdApi(app.config['database']) as gbd_api:
         if database is None:
