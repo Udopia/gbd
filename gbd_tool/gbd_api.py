@@ -22,7 +22,7 @@ from contextlib import ExitStack
 from urllib.error import URLError
 
 # internal packages
-from gbd_tool import groups, benchmark_administration, search, bootstrap, sanitize
+from gbd_tool import benchmark_administration, search, bootstrap, sanitize
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, is_number
@@ -110,11 +110,11 @@ class GbdApi:
 
     # Creates the given feature
     def create_feature(self, name, default_value):
-        groups.add(self.database, name, default_value is not None, default_value)
+        self.database.create_table(name, default_value)
 
     # Removes the given feature
     def remove_feature(self, name):
-        groups.remove(self.database, name)
+        self.database.delete_table(name)
 
     # Retrieve information about a specific feature
     def get_feature_info(self, name):

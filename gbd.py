@@ -197,7 +197,7 @@ def main():
     # define get command sub-structure
     parser_get = subparsers.add_parser('get', help='Query the benchmark database')
     parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_get.add_argument('-r', '--resolve', help='Names of groups to resolve hashes against', nargs='+')
+    parser_get.add_argument('-r', '--resolve', help='Features to resolve hashes against', nargs='+')
     parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_get.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
     parser_get.set_defaults(func=cli_get)

@@ -21,7 +21,6 @@ import csv
 from multiprocessing import Pool, Lock
 from os.path import isfile
 
-from gbd_tool import groups
 from gbd_tool import search
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash

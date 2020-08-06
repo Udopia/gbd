@@ -90,6 +90,21 @@ class Database:
 
         con.close()
 
+    def create_table(self, name, default_value=None):
+        ustr = "UNIQUE" if default_value is not None else ""
+        dstr = "DEFAULT \"{}\"".format(default_value) if default_value is not None else ""
+        self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value TEXT NOT NULL {})'.format(name, ustr, dstr))
+        if default_value is not None:
+            self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
+            self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
+                    INSERT INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
+        self.commit()
+
+    def delete_table(self, name):
+        self.execute('DROP TABLE IF EXISTS {}'.format(name))
+        self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
+        self.commit()
+
     def value_query(self, q):
         lst = self.cursor.execute(q).fetchall()
         return set([row[0] for row in lst])
@@ -98,18 +113,21 @@ class Database:
         return self.cursor.execute(q).fetchall()
 
     def submit(self, q):
+        self.execute(q)
+        self.commit()
+
+    def execute(self, q):
         eprint(q)
         self.cursor.execute(q)
-        self.commit()
+
+    def commit(self):
+        self.connection.commit()
 
     def bulk_insert(self, table, lst):
         if self.table_unique(table):
             self.cursor.executemany("REPLACE INTO {} VALUES (?,?)".format(table), lst)
         else:
             self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
-
-    def commit(self):
-        self.connection.commit()
 
     def tables_and_views(self):
         lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
