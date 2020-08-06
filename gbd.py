@@ -180,24 +180,24 @@ def main():
     parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
     parser_create.set_defaults(func=cli_create)
 
-    parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes or remove feature if no hashes are given')
+    parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
     parser_delete.add_argument('hashes', help='Hashes', nargs='*')
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
 
     # define set command sub-structure
-    parser_set = subparsers.add_parser('set', help='Set attribute [name] to [value] for [hashes]')
+    parser_set = subparsers.add_parser('set', help='Set specified attribute-value for given hashes (via argument or stdin)')
     parser_set.add_argument('hashes', help='Hashes', nargs='*')
-    parser_set.add_argument('-n', '--name', type=column_type, help='Attribute name', required=True)
+    parser_set.add_argument('-n', '--name', type=column_type, help='Feature name', required=True)
     parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
     parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
     parser_set.set_defaults(func=cli_set)
 
     # define get command sub-structure
-    parser_get = subparsers.add_parser('get', help='Query the benchmark database')
+    parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
     parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_get.add_argument('-r', '--resolve', help='Features to resolve hashes against', nargs='+')
+    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
     parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
     parser_get.add_argument('-g', '--group_by', help='Group by specified attribute (instead of gbd-hash)')
     parser_get.set_defaults(func=cli_get)

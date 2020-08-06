@@ -19,6 +19,7 @@
 
 import logging
 import os
+import re
 import argparse
 
 from gbd_tool.util import eprint
@@ -158,6 +159,23 @@ def get_attribute(feature, hashvalue):
             return str(",".join(str(value) for value in values))
         except ValueError as err:
             return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
+
+
+# Allows users to set tags in the tags table
+@app.route('/tag/<hash>/<name>/<value>')
+def set_tag(hash, name, value):
+    pat = re.compile(r"^[a-zA-Z0-9_]*$")
+    if not (pat.match(hash) and pat.match(name) and pat.match(value)):
+        return Response("Input violates restriction to alpha-numeric characters and underline", status=406, mimetype="text/plain")
+    with GbdApi(app.config['database']) as gbd_api:
+        try:
+            if gbd_api.get_feature_size("tags") > 10*gbd_api.get_feature_size("local"):
+                return Response("Too many tags, cleanup required", status=503, mimetype="text/plain")    
+            else:
+                gbd_api.set_tag(name, value, [hash])
+                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201, mimetype="text/plain")
+        except ValueError as err:
+            return Response("Rejected: {}".format(err), status=406, mimetype="text/plain")
 
 
 # Get all attributes associated with the hashvalue (resolving against all features)
