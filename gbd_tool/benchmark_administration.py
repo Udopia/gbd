@@ -17,6 +17,7 @@
 import multiprocessing
 import os
 import csv
+import sqlite3
 
 from multiprocessing import Pool, Lock
 from os.path import isfile
@@ -36,31 +37,6 @@ def import_csv(database, filename, key, source, target, delim_=' '):
         lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
         print("Inserting {} values into group {}".format(len(lst), target))
         database.bulk_insert(target, lst)
-
-def add_tag(database, name, value, hash, force=False):
-    if database.table_unique(name):
-        if force:
-            database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
-        else:
-            res = database.query("SELECT value FROM {} WHERE hash='{}'".format(name, hash))
-            if (len(res) == 0):
-                database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
-            else:
-                existing_value = res[0][0]
-                default_value = database.table_default_value(name)
-                if existing_value == default_value:
-                    eprint("Overwriting default-value {} with new value {} for hash {}".format(default_value, value, hash))
-                    database.submit('REPLACE INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
-                elif existing_value != value:
-                    eprint("Unable to insert tag ({}, {}) into unique '{} (default: {})' as a different value is already set: '{}'".format(hash, value, name, default_value, existing_value))
-    else:
-        res = database.value_query("SELECT hash FROM {} WHERE hash='{}' AND value='{}'".format(name, hash, value))
-        if (len(res) == 0):
-            database.submit('INSERT INTO {} (hash, value) VALUES ("{}", "{}")'.format(name, hash, value))
-
-
-def remove_tags(database, name, hash_list):
-    database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(name, "', '".join(hash_list)))
 
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")

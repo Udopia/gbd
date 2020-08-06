@@ -100,13 +100,16 @@ class Database:
         con.close()
 
     def create_table(self, name, default_value=None):
-        ustr = "UNIQUE" if default_value is not None else ""
-        dstr = "DEFAULT \"{}\"".format(default_value) if default_value is not None else ""
-        self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT {} NOT NULL, value TEXT NOT NULL {})'.format(name, ustr, dstr))
         if default_value is not None:
+            self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT UNIQUE NOT NULL, value TEXT NOT NULL DEFAULT "{}")'.format(name, default_value))
             self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
             self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
                     INSERT INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
+            self.execute('''CREATE TRIGGER {}_unique BEFORE INSERT ON {} BEGIN 
+                    SELECT CASE WHEN EXISTS (SELECT * FROM {} WHERE hash=NEW.hash AND value!="{}" AND value!=NEW.value) 
+                    THEN RAISE(ABORT, 'Unique Contraint Violation') END; END'''.format(name, name, name, default_value))
+        else:
+            self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
         self.commit()
 
     def delete_table(self, name):
@@ -202,8 +205,9 @@ class Database:
     def table_size(self, table):
         return self.value_query('SELECT COUNT(*) FROM {}'.format(table)).pop()
 
-    def table_unique(self, table):
-        return self.table_info_augmented(table)[0]['unique']
+    def table_unique(self, table):        
+        #return self.table_info_augmented(table)[0]['unique'] #buggy
+        return self.table_default_value(table) is not None
 
     def table_default_value(self, table):
         return self.table_info_augmented(table)[1]['default_value']
