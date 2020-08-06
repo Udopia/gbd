@@ -116,6 +116,11 @@ class GbdApi:
     def remove_feature(self, name):
         self.database.delete_table(name)
 
+    def get_feature_size(self, name):
+        if not name in self.get_features():
+            raise ValueError("Attribute '{}' is not available".format(name))
+        return self.database.table_size(name)
+
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
         if not name in self.get_features():
@@ -161,6 +166,9 @@ class GbdApi:
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
         benchmark_administration.remove_tags(self.database, feature, hash_list)
+
+    def set_tag(self, tag_feature, tag_value, hash_list):
+        self.database.set_tag(tag_feature, tag_value, hash_list)
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():

@@ -16,6 +16,7 @@
 
 import sqlite3
 import os
+import re
 import json
 
 from gbd_tool.gbd_hash import HASH_VERSION
@@ -60,6 +61,9 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
+        cur.execute("CREATE TABLE __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL CONSTRAINT all_unique UNIQUE(hash, name, value))")
+        cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '=' || value as value FROM __tags 
+                        UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         con.commit()
@@ -81,12 +85,17 @@ class Database:
 
         # upgrade legacy data-model
         if "filename" in tables:
-            cur.execute("DROP TABLE IF EXISTS filename")        
+            cur.execute("DROP TABLE IF EXISTS filename")
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
             con.commit()
 
         if not "__meta" in tables:
             cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
+
+        if not "__tags" in tables:
+            cur.execute("CREATE TABLE __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
+            cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '=' || value as value FROM __tags 
+                        UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
 
         con.close()
 
@@ -204,16 +213,20 @@ class Database:
 
     def meta_clear(self, table, meta_feature=None):
         if not meta_feature:
-            self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
+            self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
         else:
             values = self.meta_get(table)
             if meta_feature in values:
                 values.pop(meta_feature)
-            self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+            self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
     def meta_set(self, table, meta_feature, value):
         values = self.meta_get(table)
         values[meta_feature] = value
-        self.submit("INSERT OR REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+        self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
+    def set_tag(self, tag_feature, tag_value, hash_list):
+        for h in hash_list:
+            self.execute("REPLACE INTO __tags (hash, name, value) VALUES ('{}', '{}', '{}')".format(h, tag_feature, tag_value))
+        self.commit()
 
