@@ -22,10 +22,9 @@ import os
 import re
 from os.path import join, dirname, realpath
 import sys
+
 from gbd_tool.util import eprint, confirm, read_hashes
 from gbd_tool.gbd_api import GbdApi
-from gbd_tool.db import Database
-from gbd_tool import benchmark_administration
 
 def cli_hash(api: GbdApi, args):
     path = os.path.abspath(args.path)

@@ -158,14 +158,29 @@ class GbdApi:
     def set_attribute(self, feature, value, hash_list, force):
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
-        for h in hash_list:
-            benchmark_administration.add_tag(self.database, feature, value, h, force)
+        values=', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
+        if self.database.table_unique(feature):
+            if force:
+                self.database.submit('DELETE FROM {} WHERE hash IN ("{}")'.format(feature, '", "'.join(hash_list)))
+            try:
+                self.database.submit('REPLACE INTO {} (hash, value) VALUES {}'.format(feature, values))
+            except sqlite3.IntegrityError as err: 
+                #thrown if existing value is not the default value or equal to the value to be set
+                #requires the unique on insert-triggers introduced in version 3.0.9
+                eprint(str(err) + ": Use the force!")
+        else:
+            try:
+                self.database.submit('INSERT INTO {} (hash, value) VALUES {}'.format(feature, values))
+            except Exception as err:
+                #thrown if hash+value combination is already set
+                #requires the unique constraint introduced in version 3.0.9
+                eprint(err)
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
             raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
-        benchmark_administration.remove_tags(self.database, feature, hash_list)
+        self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
 
     def set_tag(self, tag_feature, tag_value, hash_list):
         self.database.set_tag(tag_feature, tag_value, hash_list)
