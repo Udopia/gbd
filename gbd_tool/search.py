@@ -19,47 +19,39 @@ from tatsu import parse, exceptions
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[], collapse=False, group_by=None, hashes=[], separator=",", join_type="INNER"):
-    statement = "SELECT {} FROM local {} WHERE {} GROUP BY {}"
-    s_attributes = "local.hash"
-    s_group_by = 'local.hash'
+def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash", hashes=[], separator=",", join_type="INNER"):
+    statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
+    s_attributes = group_by + ".value"
+    s_from = group_by
     s_tables = ""
     s_conditions = "1=1"
-    tables = { "local" }
-    if resolve is None:
-        resolve = []
+    s_group_by = group_by + ".value"
     
     if query is not None and query:
         try:
             ast = parse(GRAMMAR, query)
         except exceptions.FailedParse as err:
             eprint(err)
-            eprint("Exception in Query-Parser: Put any arithmetic expression in parentheses.")
+            eprint("Exception in Query-Parser: Try to put arithmetic expression in parentheses or reorder constraints.")
             return list() 
         s_conditions = build_where(ast)
-        tables.update(collect_tables(ast))
     elif len(hashes) > 0:
         s_conditions = "local.hash in ('{}')".format("', '".join(hashes))
 
-    if group_by is not None:
-        s_group_by = group_by + ".value"
-        resolve.append(group_by)
+    s_attributes = s_group_by
+    if len(resolve):
+        if collapse:
+            s_attributes = s_attributes + ", " + ", ".join(['MIN({}.value)'.format(table) for table in resolve])
+        else:
+            s_attributes = s_attributes + ", " + ", ".join(['REPLACE(GROUP_CONCAT(DISTINCT({}.value)), ",", "{}")'.format(table, separator) for table in resolve])
 
-    if collapse:
-        s_attributes = "MIN(DISTINCT(local.hash))"
-        if len(resolve):
-            s_attributes = s_attributes + ", " + ", ".join(['MIN(DISTINCT({}.value))'.format(table) for table in resolve])
-    else:
-        s_attributes = 'REPLACE( GROUP_CONCAT(DISTINCT(local.hash)), ",", "{}" )'.format(separator)
-        if len(resolve):
-            s_attributes = s_attributes + ", " + ", ".join(['REPLACE( GROUP_CONCAT(DISTINCT({}.value)), ",", "{}" )'.format(table, separator) for table in resolve])
+    tables = collect_tables(ast)
     tables.update(resolve)
+    s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
-    s_tables = " ".join(['{} JOIN {} ON local.hash = {}.hash'.format(join_type, table, table) for table in tables if table != "local"])
+    eprint(statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by))
 
-    eprint(statement.format(s_attributes, s_tables, s_conditions, s_group_by))
-
-    return database.query(statement.format(s_attributes, s_tables, s_conditions, s_group_by))
+    return database.query(statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by))
 
 
 def build_where(ast):

@@ -66,6 +66,7 @@ class Database:
                     UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
+        cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
         con.commit()
         con.close()
 
@@ -73,10 +74,12 @@ class Database:
         con = sqlite3.connect(path)
         cur = con.cursor()
         lst = cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
+        
         tables = [x[0] for x in lst]
         if not "__version" in tables:
             eprint("WARNING: Version info not available in database {}".format(path))
             return
+
         __version = cur.execute("SELECT version, hash_version FROM __version").fetchall()
         if __version[0][0] != version:
             eprint("WARNING: DB Version is {} but tool version is {}".format(__version[0][0], version))
@@ -84,19 +87,21 @@ class Database:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
         # upgrade legacy data-model
-        if "filename" in tables:
-            cur.execute("DROP TABLE IF EXISTS filename")
+        if not "filename" in tables:
             cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
-            con.commit()
+
+        if not "hash" in tables:
+            cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
 
         if not "__meta" in tables:
-            cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
+            cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
 
         if not "__tags" in tables:
             cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
             cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
                         UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
 
+        con.commit()
         con.close()
 
     def create_table(self, name, default_value=None):
