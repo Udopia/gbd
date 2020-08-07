@@ -162,6 +162,7 @@ def get_attribute(feature, hashvalue):
 
 
 # Allows users to set tags in the tags table
+@app.route('/tag/<hash>/<name>', defaults={'value': 'true'})
 @app.route('/tag/<hash>/<name>/<value>')
 def set_tag(hash, name, value):
     pat = re.compile(r"^[a-zA-Z0-9_]*$")

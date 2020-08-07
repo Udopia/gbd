@@ -61,9 +61,9 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
-        cur.execute("CREATE TABLE __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL CONSTRAINT all_unique UNIQUE(hash, name, value))")
-        cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '=' || value as value FROM __tags 
-                        UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
+        cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
+        cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
+                    UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         con.commit()
@@ -93,8 +93,8 @@ class Database:
             cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
 
         if not "__tags" in tables:
-            cur.execute("CREATE TABLE __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
-            cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '=' || value as value FROM __tags 
+            cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
+            cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
                         UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
 
         con.close()
