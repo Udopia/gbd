@@ -42,6 +42,8 @@ app = Flask(__name__)
 # Returns main index page
 @app.route("/", methods=['GET'])
 def quick_search():
+    with GbdApi(app.config['database']) as gbd_api:
+        pass
     return render_template('index.html')
 
 
