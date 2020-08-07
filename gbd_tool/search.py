@@ -26,6 +26,7 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
     s_tables = ""
     s_conditions = "1=1"
     s_group_by = group_by + ".value"
+    tables = resolve
     
     if query is not None and query:
         try:
@@ -35,6 +36,7 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
             eprint("Exception in Query-Parser: Try to put arithmetic expression in parentheses or reorder constraints.")
             return list() 
         s_conditions = build_where(ast)
+        tables.update(collect_tables(ast))
     elif len(hashes) > 0:
         s_conditions = "local.hash in ('{}')".format("', '".join(hashes))
 
@@ -45,8 +47,6 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
         else:
             s_attributes = s_attributes + ", " + ", ".join(['REPLACE(GROUP_CONCAT(DISTINCT({}.value)), ",", "{}")'.format(table, separator) for table in resolve])
 
-    tables = collect_tables(ast)
-    tables.update(resolve)
     s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
     eprint(statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by))
