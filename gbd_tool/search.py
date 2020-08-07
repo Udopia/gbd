@@ -26,7 +26,7 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
     s_tables = ""
     s_conditions = "1=1"
     s_group_by = group_by + ".value"
-    tables = resolve
+    tables = set(resolve)
     
     if query is not None and query:
         try:
