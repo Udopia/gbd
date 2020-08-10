@@ -195,8 +195,9 @@ class Database:
     def table_values(self, table):
         result = { "numeric" : [None, None], "discrete" : [] }
         values = self.value_query('SELECT DISTINCT value FROM {}'.format(table))
-        for value in values:
-            if is_number(value):
+        for val in values:
+            if is_number(val):
+                value = float(val)
                 if result["numeric"][0] == None:
                     result["numeric"] = [value, value]
                 elif value < result["numeric"][0]:
@@ -204,7 +205,7 @@ class Database:
                 elif value > result["numeric"][1]:
                     result["numeric"][1] = value
             else:
-                result["discrete"].append(value)
+                result["discrete"].append(val)
         return result
 
     def table_size(self, table):
