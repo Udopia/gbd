@@ -17,6 +17,7 @@
 # python packages
 import sqlite3
 import multiprocessing
+import tatsu
 
 from contextlib import ExitStack
 from urllib.error import URLError
@@ -137,7 +138,7 @@ class GbdApi:
     def get_feature_values(self, name):        
         if not name in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(name))
-        return self.query_search(None, [name], False)
+        return self.query_search(None, [], [name], False)
 
     def callback_set_attributes_locked(self, arg):
         self.set_attributes_locked(arg['hashvalue'], arg['attributes'])
@@ -189,17 +190,14 @@ class GbdApi:
             raise ValueError("Attribute '{}' is not available".format(feature))
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
-    def hash_search(self, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
+    def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
-            return search.find_hashes(self.database, None, resolve or [], collapse, group_by or "hash", hashes, self.join_type)
+            query = search.build_query(query, [], resolve or [], collapse, group_by or "hash", self.join_type)
+            return self.database.query(query)
         except sqlite3.OperationalError as err:
-            raise ValueError("Query error for database '{}': {}".format(self.databases, err))
-
-    def query_search(self, query=None, resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
-        try:
-            return search.find_hashes(self.database, query, resolve or [], collapse, group_by or "hash", [], self.join_type)
-        except sqlite3.OperationalError as err:
-            raise ValueError("Query error for database '{}': {}".format(self.databases, err))
+            raise ValueError("Query error in database '{}': {}".format(self.databases, err))
+        except tatsu.exceptions.FailedParse as err:
+            raise ValueError("Query error in parser: {}.".format(err.message))
 
     def meta_set(self, feature, meta_feature, value):
         self.database.meta_set(feature, meta_feature, value)
@@ -223,7 +221,7 @@ class GbdApi:
         if not "machine" in info:
             eprint("Machine-id 'machine' missing in meta-record of table '{}'.".format(feature))
         timeout = int(info["timeout"])
-        times = self.query_search(query, [feature])
+        times = self.query_search(query, [], [feature])
         score = 0
         penalized = set()
         for time in times:
