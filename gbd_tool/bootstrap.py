@@ -21,11 +21,11 @@ def bootstrap(api, database, named_algo, jobs):
         api.create_feature("clauses_negative", 0)
         api.create_feature("variables", 0)
         api.create_feature("clauses", 0)
-        resultset = api.query_search("clauses = 0", ["local"])
+        resultset = api.query_search("clauses = 0", [], ["local"])
         schedule_bootstrap(api, jobs, resultset, compute_clause_types)
     elif named_algo == 'degree_sequence_hash':
         api.create_feature("degree_sequence_hash", "empty")
-        resultset = api.query_search("degree_sequence_hash = empty", ["local"])
+        resultset = api.query_search("degree_sequence_hash = empty", [], ["local"])
         schedule_bootstrap(api, jobs, resultset, compute_degree_sequence_hash)
     else:
         raise NotImplementedError

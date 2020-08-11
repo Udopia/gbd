@@ -60,14 +60,12 @@ def quick_search_results():
         available_features.remove("local")
         features = sorted(list(set(available_features) & set(selected_features)))
         try:
-            rows = list(gbd_api.query_search(query, features))
+            rows = list(gbd_api.query_search(query, [], features))
             features.insert(0, "GBDhash")
             result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
             return Response(json.dumps(result), status=200, mimetype="application/json")
-        except tatsu.exceptions.FailedParse:
-            return Response("Malformed query", status=400, mimetype="text/plain")
-        except ValueError:
-            return Response("Attribute not Available", status=400, mimetype="text/plain")
+        except ValueError as err:
+            return Response(str(err), status=400, mimetype="text/plain")
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -79,7 +77,7 @@ def get_csv_file():
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
         if not len(selected_features):
             selected_features.append("filename")
-        results = gbd_api.query_search(query, selected_features)
+        results = gbd_api.query_search(query, [], selected_features)
         headers = ["hash"] + selected_features
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
         app.logger.info('Sending CSV file to {}'.format(request.remote_addr))
@@ -95,7 +93,7 @@ def get_csv_file():
 def get_url_file():
     with GbdApi(app.config['database']) as gbd_api:
         query = request.form.get('query')
-        result = gbd_api.query_search(query, ["filename"])
+        result = gbd_api.query_search(query, [], ["filename"])
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         app.logger.info('Sending URL file to {}'.format(request.remote_addr))

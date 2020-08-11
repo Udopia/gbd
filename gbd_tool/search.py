@@ -15,12 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gbd_tool.util import eprint
-from tatsu import parse, exceptions
+from tatsu import parse
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[], collapse="GROUP_CONCAT", group_by="hash", hashes=[], join_type="INNER"):
+def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="INNER"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
+
     s_attributes = group_by + ".value"
     s_from = group_by
     s_tables = ""
@@ -29,66 +30,51 @@ def find_hashes(database, query=None, resolve=[], collapse="GROUP_CONCAT", group
     tables = set(resolve)
     
     if query is not None and query:
-        try:
-            ast = parse(GRAMMAR, query)
-        except exceptions.FailedParse as err:
-            eprint("Exception in Query-Parser: {}.".format(err.message))
-            return list() 
+        ast = parse(GRAMMAR, query)        
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
-    elif len(hashes) > 0:
-        s_conditions = "hash.hash in ('{}')".format("', '".join(hashes))
 
-    s_attributes = s_group_by
+    if len(hashes):
+        s_conditions = s_conditions + " AND hash.hash in ('{}')".format("', '".join(hashes))
+
     if len(resolve):
-        s_attributes = s_attributes + ", " + ", ".join(['{}({}.value)'.format(collapse, table) for table in resolve])
+        s_attributes = s_attributes + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
 
     s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
-    return database.query(statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by))
+    return statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by)
 
 
 def build_where(ast):
-    result = ""
-    if ast["q"] is not None:
-        result = build_where(ast["q"])
-    elif ast["qop"] is not None:
-        result = '(' + build_where(ast["left"]) + " " + ast["qop"] + " " + build_where(ast["right"]) + ')'
-    elif ast["sop"] is not None:
-        result = ast["left"] + ".value " + ast["sop"] + " \"" + ast["right"] + "\""
-    elif ast["aop"] is not None:
-        result = build_where(ast["left"]) + " " + ast["aop"] + " " + build_where(ast["right"])
-    elif ast["bracket_term"] is not None:
-        result = '(' + build_where(ast["bracket"]) + ')'
-    elif ast["top"] is not None:
-        result = build_where(ast["left"]) + " " + ast["top"] + " " + build_where(ast["right"])
-    elif ast["value"] is not None:
-        result = "CAST(" + ast["value"] + ".value AS FLOAT)"
-    elif ast["constant"] is not None:
-        result = ast["constant"]
-    return result
+    if ast["q"]:
+        return build_where(ast["q"])
+    elif ast["qop"]:
+        return "({} {} {})".format(build_where(ast["left"]), ast["qop"], build_where(ast["right"]))
+    elif ast["sop"]:
+        return "{}.value {} \"{}\"".format(ast["left"], ast["sop"], ast["right"])
+    elif ast["aop"]:
+        return "{} {} {}".format(build_where(ast["left"]), ast["aop"], build_where(ast["right"]))
+    elif ast["bracket_term"]:
+        return "({})".format(build_where(ast["bracket"]))
+    elif ast["top"]:
+        return "{} {} {}".format(build_where(ast["left"]), ast["top"], build_where(ast["right"]))
+    elif ast["value"]:        
+        return "CAST({}.value AS FLOAT)".format(ast["value"])
+    elif ast["constant"]:
+        return ast["constant"]
 
 
 def collect_tables(ast):
-    result = set()
-    if ast["q"] is not None:
-        result.update(collect_tables(ast["q"]))
-    elif ast["qop"] is not None:
-        result.update(collect_tables(ast['left']))
-        result.update(collect_tables(ast['right']))
-    elif ast["sop"] is not None:
-        result.add(ast["left"])
-    elif ast["aop"] is not None:
-        result.update(collect_tables(ast["left"]))
-        result.update(collect_tables(ast["right"]))
-    elif ast["bracket_term"] is not None:
-        result.update(collect_tables(ast["bracket_term"]))
-    elif ast["top"] is not None:
-        result.update(collect_tables(ast['left']))
-        result.update(collect_tables(ast['right']))
-    elif ast["value"] is not None:
-        result.add(ast["value"])
-    return result
+    if ast["q"]:
+        return collect_tables(ast["q"])
+    elif ast["qop"] or ast["aop"] or ast["top"]:
+        return collect_tables(ast["left"]) | collect_tables(ast["right"])
+    elif ast["bracket_term"]:
+        return collect_tables(ast["bracket_term"])
+    elif ast["sop"]:
+        return { ast["left"] }
+    elif ast["value"]:
+        return { ast["value"] }
 
 
 GRAMMAR = r'''
