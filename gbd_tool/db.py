@@ -127,6 +127,7 @@ class Database:
         return set([row[0] for row in lst])
 
     def query(self, q):
+        eprint(q)
         return self.cursor.execute(q).fetchall()
 
     def submit(self, q):

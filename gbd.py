@@ -194,7 +194,9 @@ def main():
     parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
     parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
     parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
-    parser_get.add_argument('-c', '--collapse', action='store_true', help='Show only one representative per hash')
+    parser_get.add_argument('-c', '--collapse', default='group_concat', 
+                            choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'], 
+                            help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser_get.set_defaults(func=cli_get)
 
