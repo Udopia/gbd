@@ -136,10 +136,7 @@ def main():
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
-
-    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator (outer delimiter used in import and output)")
-    parser.add_argument('-i', "--inner-separator", choices=[" ", ",", ";"], default=",", help="Inner separator (used to group multiple values in one column)")
-    
+    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator (delimiter used in import and output)")
     parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="INNER", help="Join Type: treatment of missing values in queries")
 
     subparsers = parser.add_subparsers(help='Available Commands:')
@@ -237,7 +234,7 @@ Initialize your database with local paths to your benchmark instances by using t
     elif len(sys.argv) > 1:
         eprint("Database: {}".format(args.db))
         try:
-            with GbdApi(args.db, int(args.jobs), args.separator, args.inner_separator, args.join_type) as api:
+            with GbdApi(args.db, int(args.jobs), args.separator, args.join_type) as api:
                 args.func(api, args)
         except AttributeError as e:
             eprint(e)

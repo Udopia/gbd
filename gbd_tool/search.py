@@ -19,7 +19,7 @@ from tatsu import parse, exceptions
 import pprint
 
 
-def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash", hashes=[], separator=",", join_type="INNER"):
+def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash", hashes=[], join_type="INNER"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
     s_attributes = group_by + ".value"
     s_from = group_by
@@ -45,7 +45,7 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
         if collapse:
             s_attributes = s_attributes + ", " + ", ".join(['MIN({}.value)'.format(table) for table in resolve])
         else:
-            s_attributes = s_attributes + ", " + ", ".join(['REPLACE(GROUP_CONCAT(DISTINCT({}.value)), ",", "{}")'.format(table, separator) for table in resolve])
+            s_attributes = s_attributes + ", " + ", ".join(['GROUP_CONCAT(DISTINCT({}.value))'.format(table) for table in resolve])
 
     s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
