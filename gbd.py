@@ -66,11 +66,10 @@ def cli_delete(api: GbdApi, args):
 
 # entry for query command
 def cli_get(api: GbdApi, args):
-    if (not args.query or len(args.query) == 0) and not sys.stdin.isatty():
+    hashes = []
+    if not sys.stdin.isatty():
         hashes = read_hashes()
-        resultset = api.query_search(None, hashes, args.resolve, args.collapse, args.group_by)
-    else:
-        resultset = api.query_search(args.query, [], args.resolve, args.collapse, args.group_by)
+    resultset = api.query_search(args.query, hashes, args.resolve, args.collapse, args.group_by)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 

@@ -192,7 +192,7 @@ class GbdApi:
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
-            query = search.build_query(query, [], resolve or [], collapse, group_by or "hash", self.join_type)
+            query = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(query)
         except sqlite3.OperationalError as err:
             raise ValueError("Query error in database '{}': {}".format(self.databases, err))
