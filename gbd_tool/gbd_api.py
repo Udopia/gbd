@@ -30,12 +30,11 @@ from gbd_tool.util import eprint, is_number
 
 class GbdApi:
     # Create a new GbdApi object which operates on the given databases
-    def __init__(self, db_string, jobs=1, separator=" ", inner_separator=",", join_type="INNER"):
+    def __init__(self, db_string, jobs=1, separator=" ", join_type="INNER"):
         self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.separator = separator
-        self.inner_separator = inner_separator
         self.join_type = join_type
 
     def __enter__(self):
@@ -192,13 +191,13 @@ class GbdApi:
 
     def hash_search(self, hashes=[], resolve=[], collapse=False, group_by="hash"):
         try:
-            return search.find_hashes(self.database, None, resolve or [], collapse, group_by or "hash", hashes, self.inner_separator, self.join_type)
+            return search.find_hashes(self.database, None, resolve or [], collapse, group_by or "hash", hashes, self.join_type)
         except sqlite3.OperationalError as err:
             raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
     def query_search(self, query=None, resolve=[], collapse=False, group_by="hash"):
         try:
-            return search.find_hashes(self.database, query, resolve or [], collapse, group_by or "hash", [], self.inner_separator, self.join_type)
+            return search.find_hashes(self.database, query, resolve or [], collapse, group_by or "hash", [], self.join_type)
         except sqlite3.OperationalError as err:
             raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
