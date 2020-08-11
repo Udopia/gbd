@@ -38,7 +38,7 @@ def find_hashes(database, query=None, resolve=[], collapse=False, group_by="hash
         s_conditions = build_where(ast)
         tables.update(collect_tables(ast))
     elif len(hashes) > 0:
-        s_conditions = "local.hash in ('{}')".format("', '".join(hashes))
+        s_conditions = "hash.hash in ('{}')".format("', '".join(hashes))
 
     s_attributes = s_group_by
     if len(resolve):
