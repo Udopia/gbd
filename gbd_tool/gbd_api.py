@@ -189,13 +189,13 @@ class GbdApi:
             raise ValueError("Attribute '{}' is not available".format(feature))
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
-    def hash_search(self, hashes=[], resolve=[], collapse=False, group_by="hash"):
+    def hash_search(self, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
             return search.find_hashes(self.database, None, resolve or [], collapse, group_by or "hash", hashes, self.join_type)
         except sqlite3.OperationalError as err:
             raise ValueError("Query error for database '{}': {}".format(self.databases, err))
 
-    def query_search(self, query=None, resolve=[], collapse=False, group_by="hash"):
+    def query_search(self, query=None, resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
             return search.find_hashes(self.database, query, resolve or [], collapse, group_by or "hash", [], self.join_type)
         except sqlite3.OperationalError as err:
