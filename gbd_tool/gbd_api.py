@@ -123,17 +123,17 @@ class GbdApi:
         return self.database.table_size(name)
 
     # Retrieve information about a specific feature
-    def get_feature_info(self, name):
-        if not name in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(name))
-        values = self.database.table_values(name)
-        return {'name': name, 
-                'unique': self.database.table_unique(name),
-                'default-value': self.database.table_default_value(name),
-                'num-entries': self.database.table_size(name),
-                'numeric-min': values['numeric'][0], 
-                'numeric-max': values['numeric'][1], 
-                'non-numeric': " ".join(values['discrete']) }
+    def get_feature_info(self, name, path=None):
+        if path is None:
+            system_record = self.database.system_record(name)
+            meta_record = self.database.meta_record(name)
+            return { **system_record, **meta_record }
+        else:
+            with Database(path) as db:
+                system_record = db.system_record(name)
+                meta_record = db.meta_record(name)
+                return { **system_record, **meta_record }
+
 
     # Retrieve all values the given feature contains
     def get_feature_values(self, name):        
@@ -204,7 +204,7 @@ class GbdApi:
         self.database.meta_set(feature, meta_feature, value)
 
     def meta_get(self, feature):
-        return self.database.meta_get(feature)
+        return self.database.meta_record(feature)
 
     # clears sepcified meta-features of feature, 
     # or clears all meta-features if meta_feature is not specified

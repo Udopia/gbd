@@ -46,8 +46,10 @@ class Database:
         #eprint("Main connection: {}".format(self.paths[0]))
         self.connection = sqlite3.connect(self.paths[0])
         self.cursor = self.connection.cursor()
+        self.names = [ os.path.splitext(os.path.basename(self.paths[0]))[0] ]
         for path in self.paths[1:]:
             name = os.path.splitext(os.path.basename(path))[0]
+            self.names.append(name)
             #eprint("Attaching '{}' as {}".format(path, name))
             self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
         return self
@@ -151,15 +153,27 @@ class Database:
             self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
 
     def tables_and_views(self):
-        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE (type='table' OR type='view') AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        pat = r"SELECT tbl_name FROM {} WHERE (type='table' OR type='view') AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
+        sql = [ pat.format("sqlite_master") ]
+        for name in self.names[1:]:
+            sql.append(pat.format(name + ".sqlite_master"))
+        lst = self.query(" UNION ".join(sql))
         return [x[0] for x in lst]
 
     def tables(self):
-        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        pat = r"SELECT tbl_name FROM {} WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
+        sql = [ pat.format("sqlite_master") ]
+        for name in self.names[1:]:
+            sql.append(pat.format(name + ".sqlite_master"))
+        lst = self.query(" UNION ".join(sql))
         return [x[0] for x in lst]
 
     def views(self):
-        lst = self.query(r"SELECT tbl_name FROM sqlite_master WHERE type='view' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'")
+        pat = r"SELECT tbl_name FROM {} WHERE type='view' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
+        sql = [ pat.format("sqlite_master") ]
+        for name in self.names[1:]:
+            sql.append(pat.format(name + ".sqlite_master"))
+        lst = self.query(" UNION ".join(sql))
         return [x[0] for x in lst]
 
     def table_info(self, table):
@@ -222,20 +236,32 @@ class Database:
     def table_default_value(self, table):
         return self.table_info_augmented(table)[1]['default_value']
 
-    def meta_get(self, table):
+    def system_record(self, table_name):
+        system_record = dict()
+        system_record['table_name'] = table_name
+        system_record['table_size'] = self.table_size(table_name)
+        system_record['table_unique'] = self.table_unique(table_name)
+        system_record['table_default'] = self.table_default_value(table_name)
+        values = self.table_values(table_name)
+        system_record['table_intmin'] = values['numeric'][0]
+        system_record['table_intmax'] = values['numeric'][1]
+        system_record['table_values'] = " ".join(values['discrete'])
+        return system_record
+
+    def meta_record(self, table):
         return json.loads((self.value_query("SELECT value FROM __meta WHERE name = '{}'".format(table)) or {"{}"}).pop())
 
     def meta_clear(self, table, meta_feature=None):
         if not meta_feature:
             self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
         else:
-            values = self.meta_get(table)
+            values = self.meta_record(table)
             if meta_feature in values:
                 values.pop(meta_feature)
             self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
     def meta_set(self, table, meta_feature, value):
-        values = self.meta_get(table)
+        values = self.meta_record(table)
         values[meta_feature] = value
         self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 

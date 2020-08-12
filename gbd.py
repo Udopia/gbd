@@ -97,13 +97,16 @@ def cli_meta_clear(api: GbdApi, args):
 
 
 def cli_info(api: GbdApi, args):
-    if args.name is not None:
-        info = api.get_feature_info(args.name)
-        for k,v in info.items():
-            print("{}: {}".format(k, v))
+    if args.name is None:
+        for db_str in api.get_databases():
+            print("Database: {}".format(db_str))
+            print("Features: {}".format(" ".join(api.get_material_features(db_str))))
+            print("Virtual: {}".format(" ".join(api.get_virtual_features(db_str))))
+            print()
     else:
-        print("Features: {}".format(" ".join(api.get_material_features())))
-        print("Virtual: {}".format(" ".join(api.get_virtual_features())))
+        info = api.get_feature_info(args.name)
+        for key in info:
+            print("{}: {}".format(key, info[key]))
 
 
 # define directory type for argparse
@@ -234,7 +237,6 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Initialize your database with local paths to your benchmark instances by using the init-command. """)
     elif len(sys.argv) > 1:
-        eprint("Database: {}".format(args.db))
         try:
             with GbdApi(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
                 args.func(api, args)
