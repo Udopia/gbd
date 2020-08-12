@@ -31,15 +31,16 @@ from gbd_tool.util import eprint, is_number
 
 class GbdApi:
     # Create a new GbdApi object which operates on the given databases
-    def __init__(self, db_string, jobs=1, separator=" ", join_type="INNER"):
+    def __init__(self, db_string, jobs=1, separator=" ", join_type="INNER", verbose=False):
         self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.separator = separator
         self.join_type = join_type
+        self.verbose = verbose
 
     def __enter__(self):
-        self.database = Database(self.databases)
+        self.database = Database(self.databases, self.verbose)
         with ExitStack() as stack:
             stack.enter_context(self.database)
             self._stack = stack.pop_all()

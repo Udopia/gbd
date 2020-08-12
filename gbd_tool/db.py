@@ -31,8 +31,9 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path_list):
+    def __init__(self, path_list, verbose=False):
         self.paths = path_list
+        self.verbose = verbose
         # init non-existent databases and check existing databases
         for path in self.paths:
             if not os.path.isfile(path):
@@ -127,7 +128,8 @@ class Database:
         return set([row[0] for row in lst])
 
     def query(self, q):
-        eprint(q)
+        if self.verbose:
+            eprint(q)
         return self.cursor.execute(q).fetchall()
 
     def submit(self, q):
@@ -135,7 +137,8 @@ class Database:
         self.commit()
 
     def execute(self, q):
-        eprint(q)
+        if self.verbose:
+            eprint(q)
         self.cursor.execute(q)
 
     def commit(self):
