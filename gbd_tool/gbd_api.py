@@ -117,6 +117,10 @@ class GbdApi:
     def remove_feature(self, name):
         self.database.delete_table(name)
 
+    # Rename the given feature
+    def rename_feature(self, old_name, new_name):
+        self.database.rename_table(old_name, new_name)
+
     def get_feature_size(self, name):
         if not name in self.get_features():
             raise ValueError("Attribute '{}' is not available".format(name))
@@ -134,12 +138,13 @@ class GbdApi:
                 meta_record = db.meta_record(name)
                 return { **system_record, **meta_record }
 
+    def meta_set(self, feature, meta_feature, value):
+        self.database.meta_set(feature, meta_feature, value)
 
-    # Retrieve all values the given feature contains
-    def get_feature_values(self, name):        
-        if not name in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(name))
-        return self.query_search(None, [], [name], False)
+    # clears sepcified meta-features of feature, 
+    # or clears all meta-features if meta_feature is not specified
+    def meta_clear(self, feature, meta_feature=None):
+        self.database.meta_clear(feature, meta_feature)
 
     def callback_set_attributes_locked(self, arg):
         self.set_attributes_locked(arg['hashvalue'], arg['attributes'])
@@ -199,17 +204,6 @@ class GbdApi:
             raise ValueError("Query error in database '{}': {}".format(self.databases, err))
         except tatsu.exceptions.FailedParse as err:
             raise ValueError("Query error in parser: {}.".format(err.message))
-
-    def meta_set(self, feature, meta_feature, value):
-        self.database.meta_set(feature, meta_feature, value)
-
-    def meta_get(self, feature):
-        return self.database.meta_record(feature)
-
-    # clears sepcified meta-features of feature, 
-    # or clears all meta-features if meta_feature is not specified
-    def meta_clear(self, feature, meta_feature=None):
-        self.database.meta_clear(feature, meta_feature)
 
     def calculate_par2_score(self, query, feature):
         info = self.meta_get(feature)
