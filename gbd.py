@@ -62,8 +62,17 @@ def cli_delete(api: GbdApi, args):
         elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
             api.remove_feature(args.name)
     else:
-        eprint("Feature '{}' does not exist".format(args.name))
+        eprint("Feature '{}' does not exist or is virtual".format(args.name))
 
+# rename feature
+def cli_rename(api: GbdApi, args):
+    if not api.feature_exists(args.old_name):
+        eprint("Feature '{}' does not exist or is virtual".format(args.old_name))
+    elif api.feature_exists(args.new_name):
+        eprint("Feature '{}' does already exist".format(args.new_name))
+    else:
+        api.rename_feature(args.old_name, args.new_name)
+        
 # entry for query command
 def cli_get(api: GbdApi, args):
     hashes = []
@@ -83,18 +92,13 @@ def cli_set(api: GbdApi, args):
 
 def cli_par2(api: GbdApi, args):
     api.calculate_par2_score(args.query, args.name)
+    
 
-
-def cli_meta_get(api: GbdApi, args):
-    info = api.meta_get(args.feature)
-    print(info)
-
-def cli_meta_set(api: GbdApi, args):
+def cli_info_set(api: GbdApi, args):
     api.meta_set(args.feature, args.name, args.value)
 
-def cli_meta_clear(api: GbdApi, args):
+def cli_info_clear(api: GbdApi, args):
     api.meta_clear(args.feature, args.name)
-
 
 def cli_info(api: GbdApi, args):
     if args.name is None:
@@ -164,14 +168,25 @@ def main():
     parser_import.add_argument('-t', '--target', type=column_type, help="Name of target column (in database)", required=True)
     parser_import.set_defaults(func=cli_import)
 
-    # define info
-    parser_reflect = subparsers.add_parser('info', help='Print info about available features')
-    parser_reflect.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
-    parser_reflect.set_defaults(func=cli_info)
-
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)
+
+    # define meta-info
+    parser_info = subparsers.add_parser('info', help='Print info about available features')
+    parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
+    parser_info.set_defaults(func=cli_info)
+
+    parser_info_set = subparsers.add_parser('info_set', help='Set feature meta-attributes')
+    parser_info_set.add_argument('feature', type=column_type, help='Feature name')
+    parser_info_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
+    parser_info_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
+    parser_info_set.set_defaults(func=cli_info_set)
+
+    parser_info_clear = subparsers.add_parser('info_clear', help='Clear feature meta-attributes')
+    parser_info_clear.add_argument('feature', type=column_type, help='Feature name')
+    parser_info_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
+    parser_info_clear.set_defaults(func=cli_info_clear)
 
     # define create command sub-structure
     parser_create = subparsers.add_parser('create', help='Create a new feature')
@@ -184,6 +199,11 @@ def main():
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
+
+    parser_rename = subparsers.add_parser('rename', help='Rename feature')
+    parser_rename.add_argument('old_name', type=column_type, help='Old name of feature')
+    parser_rename.add_argument('new_name', type=column_type, help='New name of feature')
+    parser_rename.set_defaults(func=cli_rename)
 
     # define set command sub-structure
     parser_set = subparsers.add_parser('set', help='Set specified attribute-value for given hashes (via argument or stdin)')
@@ -202,24 +222,6 @@ def main():
                             help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser_get.set_defaults(func=cli_get)
-
-    # meta-features
-    parser_meta = subparsers.add_parser('meta', help='Control meta-features')
-    parser_meta_subparsers = parser_meta.add_subparsers(help='Sub-Commands')
-    parser_meta_get = parser_meta_subparsers.add_parser('get', help='Get feature meta-info')
-    parser_meta_get.add_argument('feature', type=column_type, help='Specify feature')
-    parser_meta_get.set_defaults(func=cli_meta_get)
-
-    parser_meta_set = parser_meta_subparsers.add_parser('set', help='Set feature meta-info')
-    parser_meta_set.add_argument('feature', type=column_type, help='Specify feature')
-    parser_meta_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
-    parser_meta_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
-    parser_meta_set.set_defaults(func=cli_meta_set)
-
-    parser_meta_clear = parser_meta_subparsers.add_parser('clear', help='Clear feature meta-info')
-    parser_meta_clear.add_argument('feature', type=column_type, help='Specify feature')
-    parser_meta_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
-    parser_meta_clear.set_defaults(func=cli_meta_clear)
 
     # par2 score
     parser_par2 = subparsers.add_parser('par2', help='Calculate PAR-2 score for given runtime feature')

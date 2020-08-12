@@ -125,6 +125,11 @@ class Database:
         self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
         self.commit()
 
+    def rename_table(self, old_name, new_name):
+        self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
+        self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
+        self.commit()
+
     def value_query(self, q):
         lst = self.cursor.execute(q).fetchall()
         return set([row[0] for row in lst])
