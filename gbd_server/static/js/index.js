@@ -3,14 +3,14 @@ var app = new Vue({
     data: {
         show_form: true,
         result: [],
-        fields: [],
         loading: false,
+        databases: [],
         form: {
             query: '',
-            features: [],
             selected_features: [],
         },
         table: {
+            fields: [],
             rows: 0,
             sortBy: null,
             sortDesc: false,
@@ -40,20 +40,36 @@ var app = new Vue({
             var port = location.port;
             return slashes.concat(window.location.hostname).concat(':').concat(port);
         },
-        getFeatures: function () {
+        getDatabases: function () {
             $.ajax({
-                url: this.getHost().concat("/listfeatures"),
+                url: this.getHost().concat("/listdatabases"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
                     for (let object in result) {
-                        app.form.features.push({'text': result[object], 'value': result[object]});
+                        app.getFeatures(result[object], function(output) {
+                           app.databases.push([result[object], output]);
+                        });
                     }
                 },
                 error: function (request, status, error) {
                     app.showErrorModal();
                 }
             })
+        },
+        getFeatures: function (database, handleData) {
+            const url = database === undefined ? this.getHost().concat("/listfeatures") : this.getHost().concat("/listfeatures/".concat(database));
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (result) {
+                    handleData(result)
+                },
+                error: function (request, status, error) {
+                    app.showErrorModal();
+                }
+            });
         },
         submitQuery: function (event) {
             app.table.table_busy = true;
@@ -66,14 +82,14 @@ var app = new Vue({
                 data: form.serialize(),
                 dataType: 'json',
                 success: function (result) {
-                    app.fields = [];
+                    app.table.fields = [];
                     app.table.sortBy = null;
                     app.table.sortDesc = false;
                     app.result = result;
                     app.table.rows = result.length
                     var entry = result[0];
                     for (var attribute in entry) {
-                        app.fields.push({key: attribute.toString(), sortable: true});
+                        app.table.fields.push({key: attribute.toString(), sortable: true});
                     }
                     app.table.table_busy = false;
                 },
@@ -93,10 +109,10 @@ var app = new Vue({
     },
     mounted: function () {
         this.$nextTick(function () {
-            this.getFeatures();
+            this.getDatabases();
             app.form.query = '';
             app.form.selected_features = [];
-            this.submitQuery(new Event( "click" ));
+            this.submitQuery(new Event("click"));
         })
     },
     computed: {
