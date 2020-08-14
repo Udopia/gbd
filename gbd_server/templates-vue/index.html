@@ -54,13 +54,18 @@
                         </b-input-group>
                     </b-form-group>
                     <b-form-group id="feature-selection">
-                        <b-form-checkbox-group>
-                            <b-form-checkbox-group
-                                    v-model="form.selected_features"
-                                    :options="form.features"
-                                    name="attributes"
-                            ></b-form-checkbox-group>
-                        </b-form-checkbox-group>
+
+                        <div v-for="entry in databases">
+                            <b-button v-b-toggle="'collapse'+entry[0]" class="m-1">{{ entry[0] }}</b-button>
+                            <b-collapse :id="'collapse'+entry[0]">
+                                    <b-form-checkbox-group
+                                        v-model="form.selected_features"
+                                        :options="entry[1]"
+                                        name="attributes"
+                                ></b-form-checkbox-group>
+                            </b-collapse>
+                        </div>
+
                     </b-form-group>
                     <b-button-group class="mx-1">
                         <b-button type="submit" formmethod="post" formaction="/getinstances" variant="outline-dark"
@@ -122,7 +127,7 @@
                             id="result-table"
                             :head-variant="table.head_variant"
                             :items="result"
-                            :fields="fields"
+                            :fields="table.fields"
                             :per-page="table.per_page"
                             :current-page="table.current_page"
                             :busy="table.table_busy"
