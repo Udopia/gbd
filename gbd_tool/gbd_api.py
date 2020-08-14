@@ -31,7 +31,7 @@ from gbd_tool.util import eprint, is_number
 
 class GbdApi:
     # Create a new GbdApi object which operates on the given databases
-    def __init__(self, db_string, jobs=1, separator=" ", join_type="INNER", verbose=False):
+    def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
         self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
@@ -206,7 +206,7 @@ class GbdApi:
             raise ValueError("Query error in parser: {}.".format(err.message))
 
     def calculate_par2_score(self, query, feature):
-        info = self.meta_get(feature)
+        info = self.database.meta_record(feature)
         if not "timeout" in info:
             eprint("Time-limit 'timeout' missing in meta-record of table '{}'.".format(feature))
             eprint("Unable to calculate score.")
