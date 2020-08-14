@@ -19,7 +19,7 @@ from tatsu import parse
 import pprint
 
 
-def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="INNER"):
+def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
 
     s_attributes = group_by + ".value"
