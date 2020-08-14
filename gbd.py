@@ -143,7 +143,7 @@ def main():
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
     parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator (delimiter used in import and output)")
-    parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="INNER", help="Join Type: treatment of missing values in queries")
+    parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="LEFT", help="Join Type: treatment of missing values in queries")
     parser.add_argument('-v', '--verbose', action='store_true', help='Print additional (or diagnostic) information to stderr')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
