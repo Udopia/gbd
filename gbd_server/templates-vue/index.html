@@ -54,15 +54,36 @@
                         </b-input-group>
                     </b-form-group>
                     <b-form-group id="feature-selection">
-                        <b-form-checkbox-group>
-                            <b-form-checkbox-group
-                                    v-model="form.selected_features"
-                                    :options="form.features"
-                                    name="attributes"
-                            ></b-form-checkbox-group>
-                        </b-form-checkbox-group>
+                        <b-container v-for="entry in databases" fluid style="margin: 0;padding: 0">
+                            <hr>
+                            <b-row>
+                                <b-col>
+                                    <b-button v-b-toggle="'collapse'+entry[0]" variant="outline-dark">
+                                        <b-icon icon="arrow-down-up" aria-hidden="true"></b-icon>
+                                    </b-button>
+                                </b-col>
+                                <b-col>{{ entry[0] }}</b-col>
+                                <b-col>
+                                    <b-button type="submit" formmethod="get" :formaction="'/getdatabase/'+entry[0]"
+                                              variant="outline-dark"
+                                              formtarget="_self">
+                                        <b-icon icon="cloud-download-fill" aria-hidden="true"></b-icon>
+                                    </b-button>
+                                </b-col>
+                            </b-row>
+                            <b-collapse :id="'collapse'+entry[0]">
+                                <div style="padding-top: 15px; margin-bottom: 10px">
+                                    <b-form-checkbox-group
+                                            v-model="form.selected_features"
+                                            :options="entry[1]"
+                                            name="attributes"
+                                    ></b-form-checkbox-group>
+                                </div>
+                            </b-collapse>
+                        </b-container>
+
                     </b-form-group>
-                    <b-button-group class="mx-1">
+                    <b-button-group class="mx-1" style="margin-top: 20px">
                         <b-button type="submit" formmethod="post" formaction="/getinstances" variant="outline-dark"
                                   formtarget="_self">
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
@@ -73,11 +94,6 @@
                                   formtarget="_self">
                             <b-icon icon="archive" style="margin-right: 5px"></b-icon>
                             Download attributes
-                        </b-button>
-                        <b-button type="submit" formmethod="get" formaction="/getdatabase" variant="outline-dark"
-                                  formtarget="_self">
-                            <b-icon icon="server" aria-hidden="true" style="margin-right: 5px"></b-icon>
-                            Download Database
                         </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
@@ -122,7 +138,7 @@
                             id="result-table"
                             :head-variant="table.head_variant"
                             :items="result"
-                            :fields="fields"
+                            :fields="table.fields"
                             :per-page="table.per_page"
                             :current-page="table.current_page"
                             :busy="table.table_busy"
@@ -154,13 +170,13 @@
             </b-row>
             {% endraw %}
         </b-container>
+        <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
+                   variant="light">
+        </b-overlay>
+        <footer class="container py-5">
+            {% include "footer_content.html" %}
+        </footer>
     </b-container>
-    <b-overlay :show="loading" no-wrap spinner-type="grow" spinner-variant="success" fixed="true" opacity="0.7"
-               variant="light">
-    </b-overlay>
-    <footer class="container py-5">
-        {% include "footer_content.html" %}
-    </footer>
 </div>
 </body>
 <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}">
