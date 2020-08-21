@@ -14,19 +14,19 @@ from multiprocessing import Pool, Lock
 
 mutex = Lock()
 
-def bootstrap(api, database, named_algo, jobs):
+def bootstrap(api, database, named_algo, hashes, jobs):
+    resultset = api.query_search(None, hashes, ["local"])
     if named_algo == 'clause_types':
-        api.create_feature("clauses_horn", 0)
-        api.create_feature("clauses_positive", 0)
-        api.create_feature("clauses_negative", 0)
-        api.create_feature("variables", 0)
-        api.create_feature("clauses", 0)
-        resultset = api.query_search("clauses = 0", [], ["local"])
+        for table in [ "clauses_horn", "clauses_positive", "clauses_negative", "variables", "clauses" ]:
+            if not api.feature_exists(table):
+                api.create_feature(table, "empty")
         schedule_bootstrap(api, jobs, resultset, compute_clause_types)
     elif named_algo == 'degree_sequence_hash':
         api.create_feature("degree_sequence_hash", "empty")
-        resultset = api.query_search("degree_sequence_hash = empty", [], ["local"])
         schedule_bootstrap(api, jobs, resultset, compute_degree_sequence_hash)
+    elif named_algo == 'sanitation_info':
+        api.create_feature("sanitation_info")
+        schedule_bootstrap(api, jobs, resultset, compute_cnf_sanitation_info)
     else:
         raise NotImplementedError
 
@@ -75,7 +75,7 @@ def compute_clause_types(hashvalue, filename):
 
 
 def compute_degree_sequence_hash(hashvalue, filename):
-    eprint('Computing sorted_hash for {}'.format(filename))
+    eprint('Computing degree-sequence hash for {}'.format(filename))
     hash_md5 = hashlib.md5()
     degrees = dict()
     f = open_cnf_file(filename, 'rt')
@@ -99,3 +99,60 @@ def compute_degree_sequence_hash(hashvalue, filename):
     f.close()
 
     return { 'hashvalue': hashvalue, 'attributes': [ ('REPLACE', 'degree_sequence_hash', hash_md5.hexdigest()) ] }
+
+def compute_cnf_sanitation_info(hashvalue, filename):
+    eprint('Computing sanitiation info for {}'.format(filename))
+    f = open_cnf_file(filename, 'rt')
+    attributes = [ ('INSERT', 'sanitation_info', 'checked') ]
+    lc = 0
+    preamble = False
+    decl_clauses = 0
+    decl_variables = 0
+    num_clauses = 0
+    num_variables = 0
+    for line in f:
+        lc = lc + 1
+        line = line.strip()
+        if not line:
+            attributes.append(('INSERT', 'sanitation_info', "Warning: empty line {}".format(lc)))
+        elif line.startswith("p cnf"):
+            if preamble:
+                attributes.append(('INSERT', 'sanitation_info', "Warning: more than one preamble"))
+            preamble = True
+            header = line.split()
+            if len(header) == 4:
+                try: 
+                    decl_variables = int(header[2])
+                    decl_clauses = int(header[3])
+                except:
+                    attributes.append(('INSERT', 'sanitation_info', "Warning: unable to read preamble"))
+            else: 
+                attributes.append(('INSERT', 'sanitation_info', "Warning: unable to read preamble"))
+        elif line[0] == 'c' and preamble:
+            attributes.append(('INSERT', 'sanitation_info', "Warning: comment after preamble in line {}".format(lc)))
+        else:
+            if not preamble:
+                attributes.append(('INSERT', 'sanitation_info', "Warning: preamble missing"))
+                preamble = True
+            try:
+                clause = [int(part) for part in line.split()]
+                num_clauses = num_clauses + 1
+                num_variables = max(num_variables, max([abs(lit) for lit in clause]))
+                if 0 in clause[:-1]:
+                    attributes.append(('INSERT', 'sanitation_info', "Error: more than one clause in line {}".format(lc)))
+                if clause[-1] != 0:
+                    attributes.append(('INSERT', 'sanitation_info', "Error: clause not terminated in line {}".format(lc)))
+                if len(clause) > len(set(clause)):
+                    attributes.append(('INSERT', 'sanitation_info', "Error: redundant literals in line {}".format(lc)))
+            except Exception as e:
+                attributes.append(('INSERT', 'sanitation_info', "Error: clause not readable in line {}, {}".format(lc, e.msg())))
+                break
+    f.close()
+
+    if decl_variables != num_variables: 
+        attributes.append(('INSERT', 'sanitation_info', "Warning: {} variables declared, but found {} variables".format(decl_variables, num_variables)))
+        
+    if decl_clauses != num_clauses:
+        attributes.append(('INSERT', 'sanitation_info', "Warning: {} variables declared, but found {} variables".format(decl_clauses, num_clauses)))
+
+    return { 'hashvalue': hashvalue, 'attributes': attributes }

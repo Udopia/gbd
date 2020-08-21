@@ -18,12 +18,13 @@
 import sqlite3
 import multiprocessing
 import tatsu
+import csv
 
 from contextlib import ExitStack
 from urllib.error import URLError
 
 # internal packages
-from gbd_tool import benchmark_administration, search, bootstrap, sanitize
+from gbd_tool import benchmark_administration, search, bootstrap
 from gbd_tool.db import Database
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, is_number
@@ -56,7 +57,13 @@ class GbdApi:
 
     # Import data from CSV file
     def import_file(self, path, key, source, target):
-        benchmark_administration.import_csv(self.database, path, key, source, target, self.separator)
+        if not self.feature_exists(target):
+            print("Feature {} does not exist. Import canceled.".format(target))
+        with open(path, newline='') as csvfile:
+            csvreader = csv.DictReader(csvfile, delimiter=self.separator, quotechar='\'')
+            lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
+            print("Inserting {} values into group {}".format(len(lst), target))
+            self.database.bulk_insert(target, lst)
 
     # Initialize table 'local' with instances found under given path
     def init_database(self, path=None):
@@ -66,11 +73,8 @@ class GbdApi:
         benchmark_administration.remove_benchmarks(self.database)
         benchmark_administration.register_benchmarks(self, self.database, path, self.jobs)
 
-    def bootstrap(self, named_algo):
-        bootstrap.bootstrap(self, self.database, named_algo, self.jobs)
-
-    def sanitize(self, hashes):
-        sanitize.sanitize(self, self.database, hashes, self.jobs)
+    def bootstrap(self, named_algo, hashes):
+        bootstrap.bootstrap(self, self.database, named_algo, hashes, self.jobs)
 
     def get_databases(self):
         return self.databases
@@ -110,7 +114,7 @@ class GbdApi:
         return name in self.database.tables()
 
     # Creates the given feature
-    def create_feature(self, name, default_value):
+    def create_feature(self, name, default_value=None):
         self.database.create_table(name, default_value)
 
     # Removes the given feature
@@ -198,8 +202,8 @@ class GbdApi:
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
-            query = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
-            return self.database.query(query)
+            sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
+            return self.database.query(sql)
         except sqlite3.OperationalError as err:
             raise ValueError("Query error in database '{}': {}".format(self.databases, err))
         except tatsu.exceptions.FailedParse as err:

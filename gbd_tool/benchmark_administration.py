@@ -16,7 +16,6 @@
 
 import multiprocessing
 import os
-import csv
 import sqlite3
 
 from multiprocessing import Pool, Lock
@@ -28,15 +27,6 @@ from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm
 
 mutex = Lock()
-
-def import_csv(database, filename, key, source, target, delim_=' '):
-    if target not in database.tables():
-        print("Target group {} does not exist. Import canceled.".format(target))
-    with open(filename, newline='') as csvfile:
-        csvreader = csv.DictReader(csvfile, delimiter=delim_, quotechar='\'')
-        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
-        print("Inserting {} values into group {}".format(len(lst), target))
-        database.bulk_insert(target, lst)
 
 def remove_benchmarks(database):
     eprint("Sanitizing local path entries ... ")
