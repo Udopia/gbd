@@ -34,15 +34,18 @@ def cli_import(api: GbdApi, args):
     path = os.path.abspath(args.path)
     api.import_file(path, args.key, args.source, args.target)
 
-def cli_init(api: GbdApi, args):
+def cli_init_local(api: GbdApi, args):
     path = os.path.abspath(args.path)
     api.init_database(path)
 
-def cli_bootstrap(api: GbdApi, args):
-    api.bootstrap(args.algo)
+def cli_init_ct(api: GbdApi, args):
+    api.bootstrap("clause_types", args.hashes)
 
-def cli_sanitize(api: GbdApi, args):
-    api.sanitize(args.hashes)
+def cli_init_dsh(api: GbdApi, args):
+    api.bootstrap("degree_sequence_hash", args.hashes)
+
+def cli_init_sanitize(api: GbdApi, args):
+    api.bootstrap("sanitation_info", args.hashes)
 
 # create feature
 def cli_create(api: GbdApi, args):
@@ -106,7 +109,6 @@ def cli_info(api: GbdApi, args):
             print("Database: {}".format(db_str))
             print("Features: {}".format(" ".join(api.get_material_features(db_str))))
             print("Virtual: {}".format(" ".join(api.get_virtual_features(db_str))))
-            print()
     else:
         info = api.get_feature_info(args.name)
         for key in info:
@@ -148,19 +150,49 @@ def main():
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
+    # INITIALIZATION AND BOOTSTRAPPING
     parser_init = subparsers.add_parser('init', help='Initialize Database')
-    parser_init.add_argument('path', type=directory_type, help="Path to benchmarks")
-    parser_init.set_defaults(func=cli_init)
+    parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:')
+    # init local paths:
+    parser_init_local = parser_init_subparsers.add_parser('local', help='Initialize Local Hash/Path Entries')
+    parser_init_local.add_argument('path', type=directory_type, help="Path to benchmarks")
+    parser_init_local.set_defaults(func=cli_init_local)
+    # init clause types:
+    parser_init_ct = parser_init_subparsers.add_parser('clause_types', help='Initialize Clause-Type Tables')
+    parser_init_ct.add_argument('hashes', help='Hashes', nargs='+')
+    parser_init_ct.set_defaults(func=cli_init_ct)
+    # init degree_sequence_hash:
+    parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
+    parser_init_dsh.add_argument('hashes', help='Hashes', nargs='+')
+    parser_init_dsh.set_defaults(func=cli_init_dsh)
+    # init sanitation info
+    parser_init_sanitize = parser_init_subparsers.add_parser('sanitize', help='Check Instances, Store Sanitation Info')
+    parser_init_sanitize.add_argument('hashes', help='Hashes', nargs='+')
+    parser_init_sanitize.set_defaults(func=cli_init_sanitize)
 
-    # define bootstrap command sub-structure
-    parser_algo = subparsers.add_parser('bootstrap', help='Calculate hard-coded sets of instance attributes')
-    parser_algo.add_argument('algo', help='Specify which attributes to bootstrap', nargs='?', default='clause_types', choices=['clause_types', 'degree_sequence_hash'])
-    parser_algo.set_defaults(func=cli_bootstrap)
+    # GBD HASH
+    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
+    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
+    parser_hash.set_defaults(func=cli_hash)
 
-    parser_sanitize = subparsers.add_parser('sanitize', help='Print sanitation info for given hashes')
-    parser_sanitize.add_argument('hashes', help='Hashes', nargs='+')
-    parser_sanitize.set_defaults(func=cli_sanitize)
+    # GET/SET ATTRIBUTES
+    parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
+    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
+    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_get.add_argument('-c', '--collapse', default='group_concat', 
+                            choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'], 
+                            help='Treatment of multiple values per hash (or grouping value resp.)')
+    parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_get.set_defaults(func=cli_get)
 
+    parser_set = subparsers.add_parser('set', help='Set specified attribute-value for given hashes (via argument or stdin)')
+    parser_set.add_argument('hashes', help='Hashes', nargs='*')
+    parser_set.add_argument('-n', '--name', type=column_type, help='Feature name', required=True)
+    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
+    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
+    parser_set.set_defaults(func=cli_set)
+
+    # IMPORT DATA FROM CSV
     parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
     parser_import.add_argument('path', type=file_type, help="Path to csv-file")
     parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (gbd-hash)", required=True)
@@ -168,27 +200,7 @@ def main():
     parser_import.add_argument('-t', '--target', type=column_type, help="Name of target column (in database)", required=True)
     parser_import.set_defaults(func=cli_import)
 
-    parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-    parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
-    parser_hash.set_defaults(func=cli_hash)
-
-    # define meta-info
-    parser_info = subparsers.add_parser('info', help='Print info about available features')
-    parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
-    parser_info.set_defaults(func=cli_info)
-
-    parser_info_set = subparsers.add_parser('info_set', help='Set feature meta-attributes')
-    parser_info_set.add_argument('feature', type=column_type, help='Feature name')
-    parser_info_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
-    parser_info_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
-    parser_info_set.set_defaults(func=cli_info_set)
-
-    parser_info_clear = subparsers.add_parser('info_clear', help='Clear feature meta-attributes')
-    parser_info_clear.add_argument('feature', type=column_type, help='Feature name')
-    parser_info_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
-    parser_info_clear.set_defaults(func=cli_info_clear)
-
-    # define create command sub-structure
+    # CREATE/DELETE/MODIFY FEATURES
     parser_create = subparsers.add_parser('create', help='Create a new feature')
     parser_create.add_argument('name', type=column_type, help='Name of feature')
     parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
@@ -205,31 +217,29 @@ def main():
     parser_rename.add_argument('new_name', type=column_type, help='New name of feature')
     parser_rename.set_defaults(func=cli_rename)
 
-    # define set command sub-structure
-    parser_set = subparsers.add_parser('set', help='Set specified attribute-value for given hashes (via argument or stdin)')
-    parser_set.add_argument('hashes', help='Hashes', nargs='*')
-    parser_set.add_argument('-n', '--name', type=column_type, help='Feature name', required=True)
-    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
-    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
-    parser_set.set_defaults(func=cli_set)
+    # HANDLE META-FEATURES (e.g. specify runtime meta-data like timeout/memout/machine)
+    parser_info = subparsers.add_parser('info', help='Print info about available features')
+    parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
+    parser_info.set_defaults(func=cli_info)
 
-    # define get command sub-structure
-    parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
-    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
-    parser_get.add_argument('-c', '--collapse', default='group_concat', 
-                            choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'], 
-                            help='Treatment of multiple values per hash (or grouping value resp.)')
-    parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
-    parser_get.set_defaults(func=cli_get)
+    parser_info_set = subparsers.add_parser('info_set', help='Set feature meta-attributes')
+    parser_info_set.add_argument('feature', type=column_type, help='Feature name')
+    parser_info_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
+    parser_info_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
+    parser_info_set.set_defaults(func=cli_info_set)
 
-    # par2 score
+    parser_info_clear = subparsers.add_parser('info_clear', help='Clear feature meta-attributes')
+    parser_info_clear.add_argument('feature', type=column_type, help='Feature name')
+    parser_info_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
+    parser_info_clear.set_defaults(func=cli_info_clear)
+
+    # SCORE CALCULATION
     parser_par2 = subparsers.add_parser('par2', help='Calculate PAR-2 score for given runtime feature')
     parser_par2.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
     parser_par2.add_argument('name', type=column_type, help='Name of runtime feature')
     parser_par2.set_defaults(func=cli_par2)
 
-    # evaluate arguments
+    # EVALUATE ARGUMENTS
     args = parser.parse_args()
     if not args.db:
             eprint("""No database path is given. 
