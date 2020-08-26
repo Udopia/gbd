@@ -33,19 +33,14 @@ __all__ = ['gbd_hash', 'HASH_VERSION']
 HASH_VERSION = 3
 
 
-def gbd_hash(filename, sorted=False):
+def gbd_hash(filename):
     file = open_cnf_file(filename, 'rb')
-
-    if sorted:
-        hashvalue = gbd_hash_sorted(file)
-    else:
-        hashvalue = gbd_hash_inner(file)
-
+    hashvalue = gbd_hash_inner(file)
     file.close()
     return hashvalue
 
 def gbd_hash_inner(file):
-    #Tstart = time.time()
+    Tstart = time.time()
     space = False
     skip = False
     start = True
@@ -69,67 +64,6 @@ def gbd_hash_inner(file):
     if not cldelim:
         hash_md5.update(b' 0')
 
-    #Tend = time.time()
-    #eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
-    return hash_md5.hexdigest()
-
-
-def gbd_hash_sorted(file):
-    #print(file)
-    clauses = []
-    clause = []
-    literal = 0
-    
-    space = False
-    skip = False
-    sign = False
-    eprint("Opened it. Reading...")
-    for byte in iter(lambda: file.read(1), b''):
-        if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
-            if space:
-                space = False
-                if literal != 0:
-                    clause.append(literal)
-                    literal = 0
-                    sign = False
-                if byte == b'0':
-                    clause.sort()
-                    clauses.append(array.array('i', clause))
-                    clause.clear()
-            if byte != b'0':
-                if byte == b'-':
-                    sign = True
-                elif sign:
-                    literal = literal * 10 - int(byte)
-                else:
-                    literal = literal * 10 + int(byte)
-        elif byte <= b' ':
-            space = True  # remember whitespace
-            if skip and (byte == b'\n' or byte == b'\r'):
-                skip = False  # comment line ended
-        elif byte == b'c' or byte == b'p':
-            skip = True  # skip comment and header line
-    
-    if literal > 0:
-        clause.append(literal)
-    if len(clause):
-        clause.sort()
-        clauses.append(array.array('i', clause))
-        clause.clear()
-
-    eprint("Read it all. Sorting...")
-    clauses.sort(key = lambda clause: (len(clause), clause))
-    eprint("Sorted it all. Hashing...")
-
-    hash_md5 = hashlib.md5()
-    start = True
-    for clause in clauses:
-        if not start:
-            hash_md5.update(b' ')
-            #eprint(' ')
-        hash_md5.update(b' '.join([str(num).encode('utf-8') for num in clause]))
-        hash_md5.update(b' 0')
-        #eprint(str(' '.join([str(num) for num in clause+[0]])))
-        start = False
-
+    Tend = time.time()
+    eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
