@@ -75,6 +75,8 @@ def collect_tables(ast):
         return { ast["left"] }
     elif ast["value"]:
         return { ast["value"] }
+    else: 
+        return set()
 
 
 GRAMMAR = r'''

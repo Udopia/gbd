@@ -1,8 +1,6 @@
 from gbd_tool.util import eprint, open_cnf_file
 from gbd_tool.db import Database
 
-from gbd_tool.gbd_hash import gbd_hash_sorted
-
 import io
 import os
 import hashlib
@@ -145,7 +143,7 @@ def compute_cnf_sanitation_info(hashvalue, filename):
                 if len(clause) > len(set(clause)):
                     attributes.append(('INSERT', 'sanitation_info', "Error: redundant literals in line {}".format(lc)))
             except Exception as e:
-                attributes.append(('INSERT', 'sanitation_info', "Error: clause not readable in line {}, {}".format(lc, e.msg())))
+                attributes.append(('INSERT', 'sanitation_info', "Error: clause not readable in line {}, {}".format(lc, e)))
                 break
     f.close()
 
