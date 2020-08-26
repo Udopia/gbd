@@ -23,7 +23,7 @@ import array
 
 from gbd_tool.util import eprint, open_cnf_file
 
-__all__ = ['gbd_hash', 'HASH_VERSION']
+__all__ = ['gbd_hash', 'gbd_hash_inner', 'HASH_VERSION']
 
 # Hash-Version 0: initial version (regex based normaliation)
 # Hash-Version 1: skip header for normalization (streaming normalization)
