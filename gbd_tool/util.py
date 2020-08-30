@@ -30,26 +30,21 @@ def is_number(s):
     except ValueError:
         return False
 
+
 def open_cnf_file(filename, mode):
     """
     Opens a CNF file (this is badly guarded, by file-extension only)
     """
-    obj = None
     if filename.endswith('.cnf.gz'):
-        obj = gzip.open(filename, mode)
+        return gzip.open(filename, mode)
     elif filename.endswith('.cnf.bz2'):
-        obj = bz2.open(filename, mode)
+        return bz2.open(filename, mode)
     elif filename.endswith('.cnf.lzma') or filename.endswith('.cnf.xz'):
-        obj = lzma.open(filename, mode)
+        return lzma.open(filename, mode)
     elif filename.endswith('.cnf'):
-        obj = open(filename, mode)
+        return open(filename, mode)
     else:
         raise Exception("Unknown File Extension. Use .cnf, .cnf.bz2, .cnf.lzma, .cnf.xz, or .cnf.gz")
-    
-    if 'b' in mode:
-        return io.BufferedReader(obj, io.DEFAULT_BUFFER_SIZE * 8)
-    else:
-        return obj
 
 
 def eprint(*args, **kwargs):

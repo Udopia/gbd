@@ -31,13 +31,23 @@ __all__ = ['gbd_hash', 'gbd_hash_inner', 'HASH_VERSION']
 # Hash-Version 3: add trailing zero to last clause if missing
 
 HASH_VERSION = 3
-
+BUFFER_SIZE = io.DEFAULT_BUFFER_SIZE * 16
 
 def gbd_hash(filename):
     file = open_cnf_file(filename, 'rb')
     hashvalue = gbd_hash_inner(file)
+    #hashvalue = gbd_hash_inner(io.BufferedReader(file, BUFFER_SIZE))
     file.close()
     return hashvalue
+
+def bytes_from_file(file, chunksize=BUFFER_SIZE):
+    while True:
+        chunk = file.read(chunksize)
+        if chunk:
+            for b in chunk:
+                yield bytes([b])
+        else:
+            break
 
 def gbd_hash_inner(file):
     Tstart = time.time()
@@ -47,7 +57,8 @@ def gbd_hash_inner(file):
     cldelim = True
     hash_md5 = hashlib.md5()
 
-    for byte in iter(lambda: file.read(1), b''):
+    #for byte in iter(lambda: file.read(1), b''):
+    for byte in bytes_from_file(file):
         if not skip and (byte >= b'0' and byte <= b'9' or byte == b'-'):
             cldelim = byte == b'0' and (space or start)
             start = False
