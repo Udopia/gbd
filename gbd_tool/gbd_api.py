@@ -19,6 +19,7 @@ import sqlite3
 import multiprocessing
 import tatsu
 import csv
+import platform
 
 from contextlib import ExitStack
 from urllib.error import URLError
@@ -33,7 +34,10 @@ from gbd_tool.util import eprint, is_number
 class GbdApi:
     # Create a new GbdApi object which operates on the given databases
     def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
-        self.databases = db_string.split(":")
+        if platform.system() == "Windows":
+            self.databases = db_string.split(";")
+        else:    
+            self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.separator = separator
