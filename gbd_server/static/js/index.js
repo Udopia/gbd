@@ -5,6 +5,7 @@ var app = new Vue({
         result: [],
         loading: false,
         databases: [],
+        error_message: '',
         form: {
             query: '',
             selected_features: [],
@@ -47,12 +48,13 @@ var app = new Vue({
                 dataType: 'json',
                 success: function (result) {
                     for (let object in result) {
-                        app.getFeatures(result[object], function(output) {
-                           app.databases.push([result[object], output]);
+                        app.getFeatures(result[object], function (output) {
+                            app.databases.push([result[object], output]);
                         });
                     }
                 },
                 error: function (request, status, error) {
+                    app.error_message = request.responseText;
                     app.showErrorModal();
                 }
             })
@@ -67,6 +69,7 @@ var app = new Vue({
                     handleData(result)
                 },
                 error: function (request, status, error) {
+                    app.error_message = request.responseText;
                     app.showErrorModal();
                 }
             });
@@ -93,7 +96,8 @@ var app = new Vue({
                     }
                     app.table.table_busy = false;
                 },
-                error: function (request, status, error) {
+                error: function (xhr, status, error) {
+                    app.error_message = xhr.statusText + ' ' + xhr.responseText;
                     app.table.table_busy = false;
                     app.showErrorModal();
                 }
@@ -104,6 +108,7 @@ var app = new Vue({
             this.$refs['error-modal'].show()
         },
         hideErrorModal() {
+            this.error_message = ''
             this.$refs['error-modal'].hide()
         },
     },

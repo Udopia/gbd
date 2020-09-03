@@ -7,16 +7,6 @@
 </head>
 <body>
 <div class="position-relative" id="app">
-    <b-modal ref="error-modal" hide-footer title="Something went wrong!">
-        <div class="d-block text-center">
-            <h3>We're sorry ...</h3>
-        </div>
-        <p>
-            ...please check if the attribute in the query exists in the listed attributes below the query input
-            field and contact the administration for further troubleshooting.
-        </p>
-        <b-button class="mt-3" variant="outline-danger" @click="hideErrorModal">Close</b-button>
-    </b-modal>
     <b-container id="input-form">
         <b-container>
             <b-img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" fluid
@@ -28,6 +18,15 @@
             </footer>
         </b-container>
         {% raw %}
+        <b-modal ref="error-modal" hide-footer title="Something went wrong!">
+            <div class="d-block text-center">
+                <h3>We're sorry ...</h3>
+            </div>
+            <p>
+                {{ error_message }}
+            </p>
+            <b-button class="mt-3" variant="outline-danger" @click="hideErrorModal">Close</b-button>
+        </b-modal>
         <b-container>
             <div style="margin-top: 10px">
                 <b-form id="gbdForm">
