@@ -77,7 +77,10 @@ def get_csv_file():
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
         if not len(selected_features):
             selected_features.append("filename")
-        results = gbd_api.query_search(query, [], selected_features)
+        try:
+            results = gbd_api.query_search(query, [], selected_features)
+        except ValueError as err:
+            return Response("Feature not found", status=400, mimetype="text/plain")
         headers = ["hash"] + selected_features
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
         app.logger.info('Sending CSV file to {}'.format(request.remote_addr))
@@ -93,7 +96,10 @@ def get_csv_file():
 def get_url_file():
     with GbdApi(app.config['database']) as gbd_api:
         query = request.form.get('query')
-        result = gbd_api.query_search(query, [], ["filename"])
+        try:
+            result = gbd_api.query_search(query, [], ["filename"])
+        except ValueError as err:
+            return Response("Feature not found", status=400, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         app.logger.info('Sending URL file to {}'.format(request.remote_addr))
