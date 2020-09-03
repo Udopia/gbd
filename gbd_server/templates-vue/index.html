@@ -62,13 +62,19 @@
                                 <b-row>
                                     <b-col>
                                         <b-button-group>
-                                            <b-button v-b-toggle="'collapse'+entry[0]" variant="outline-dark">
+                                            <b-button
+                                                    v-b-toggle="'collapse'+entry[0]"
+                                                    variant="outline-dark"
+                                                    v-b-tooltip.hover
+                                                    title="Show/Hide features">
                                                 <b-icon icon="arrow-down-up" aria-hidden="true"></b-icon>
                                             </b-button>
                                             <b-button type="submit" formmethod="get"
                                                       :formaction="'/getdatabase/'+entry[0]"
                                                       variant="outline-dark"
-                                                      formtarget="_self">
+                                                      formtarget="_self"
+                                                      v-b-tooltip.hover
+                                                      title="Download this database">
                                                 <b-icon icon="cloud-download-fill" aria-hidden="true"></b-icon>
                                             </b-button>
                                         </b-button-group>
@@ -82,8 +88,8 @@
                                         <b-form-checkbox-group
                                                 v-model="form.selected_features"
                                                 :options="entry[1]"
-                                                name="attributes"
-                                        ></b-form-checkbox-group>
+                                                name="attributes">
+                                        </b-form-checkbox-group>
                                     </div>
                                 </b-collapse>
                             </b-card>
@@ -91,15 +97,19 @@
                     </b-form-group>
                     <b-button-group class="mx-1" style="margin-top: 15px;">
                         <b-button type="submit" formmethod="post" formaction="/getinstances" variant="outline-dark"
-                                  formtarget="_self">
+                                  formtarget="_self"
+                                  v-b-tooltip.hover
+                                  title="Get URL file">
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
                             Download instances
                         </b-button>
                         <input type="hidden" name="selected_features" v-bind:value="form.selected_features">
                         <b-button type="submit" formmethod="post" formaction="/exportcsv" variant="outline-dark"
-                                  formtarget="_self">
+                                  formtarget="_self"
+                                  v-b-tooltip.hover
+                                  title="Get CSV file">
                             <b-icon icon="archive" style="margin-right: 5px"></b-icon>
-                            Download attributes
+                            Download features
                         </b-button>
                         <b-button type="button" v-b-toggle.sidebar-2 variant="outline-dark">
                             <b-icon icon="question" aria-hidden="true"></b-icon>
