@@ -1,7 +1,6 @@
 var app = new Vue({
     el: '#app',
     data: {
-        show_form: true,
         result: [],
         loading: false,
         databases: [],
@@ -11,6 +10,7 @@ var app = new Vue({
             selected_features: [],
         },
         table: {
+            show: false,
             fields: [],
             rows: 0,
             sortBy: null,
@@ -54,6 +54,7 @@ var app = new Vue({
                     }
                 },
                 error: function (request, status, error) {
+                    app.table.show = false;
                     app.error_message = request.responseText;
                     app.showErrorModal();
                 }
@@ -69,12 +70,14 @@ var app = new Vue({
                     handleData(result)
                 },
                 error: function (request, status, error) {
+                    app.table.show = false;
                     app.error_message = request.responseText;
                     app.showErrorModal();
                 }
             });
         },
         submitQuery: function (event) {
+            app.table.show = true;
             app.table.table_busy = true;
 
             var form = $('#gbdForm');
@@ -99,6 +102,7 @@ var app = new Vue({
                 error: function (xhr, status, error) {
                     app.error_message = xhr.statusText + ' ' + xhr.responseText;
                     app.table.table_busy = false;
+                    app.table.show = false;
                     app.showErrorModal();
                 }
             });
@@ -117,7 +121,6 @@ var app = new Vue({
             this.getDatabases();
             app.form.query = '';
             app.form.selected_features = [];
-            this.submitQuery(new Event("click"));
         })
     },
     computed: {
