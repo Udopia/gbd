@@ -1,37 +1,39 @@
 var app = new Vue({
     el: '#app',
-    data: {
-        result: [],
-        loading: false,
-        databases: [],
-        error_message: '',
-        form: {
-            query: '',
-            selected_features: [],
-        },
-        table: {
-            show: false,
-            fields: [],
-            rows: 0,
-            sortBy: null,
-            sortDesc: false,
-            table_busy: false,
-            current_page: 1,
-            per_page: 50,
-            options: [
-                {value: 50, text: "50"},
-                {value: 100, text: "100"},
-                {value: 150, text: "150"},
-            ],
-            head_variant: "dark",
-        },
-        patterns: {
-            query_patterns: [
-                {value: 'competition_track = main_2020', text: "Main Track 2020"},
-                {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
-                {value: 'competition_track = main_2019', text: "Main Track 2019"},
-                {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
-            ],
+    data() {
+        return {
+            result: [],
+            loading: false,
+            databases: [],
+            error_message: '',
+            form: {
+                query: '',
+                selected_features: [],
+            },
+            table: {
+                show: false,
+                fields: [],
+                rows: 0,
+                sortBy: null,
+                sortDesc: false,
+                table_busy: false,
+                current_page: 1,
+                per_page: 50,
+                options: [
+                    {value: 50, text: "50"},
+                    {value: 100, text: "100"},
+                    {value: 150, text: "150"},
+                ],
+                head_variant: "dark",
+            },
+            patterns: {
+                query_patterns: [
+                    {value: 'competition_track = main_2020', text: "Main Track 2020"},
+                    {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
+                    {value: 'competition_track = main_2019', text: "Main Track 2019"},
+                    {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
+                ],
+            },
         }
     },
     methods: {
