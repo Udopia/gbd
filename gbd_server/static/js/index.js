@@ -1,36 +1,39 @@
 var app = new Vue({
     el: '#app',
-    data: {
-        show_form: true,
-        result: [],
-        loading: false,
-        databases: [],
-        form: {
-            query: '',
-            selected_features: [],
-        },
-        table: {
-            fields: [],
-            rows: 0,
-            sortBy: null,
-            sortDesc: false,
-            table_busy: false,
-            current_page: 1,
-            per_page: 50,
-            options: [
-                {value: 50, text: "50"},
-                {value: 100, text: "100"},
-                {value: 150, text: "150"},
-            ],
-            head_variant: "dark",
-        },
-        patterns: {
-            query_patterns: [
-                {value: 'competition_track = main_2020', text: "Main Track 2020"},
-                {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
-                {value: 'competition_track = main_2019', text: "Main Track 2019"},
-                {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
-            ],
+    data() {
+        return {
+            result: [],
+            loading: false,
+            databases: [],
+            error_message: '',
+            form: {
+                query: '',
+                selected_features: [],
+            },
+            table: {
+                show: false,
+                fields: [],
+                rows: 0,
+                sortBy: null,
+                sortDesc: false,
+                table_busy: false,
+                current_page: 1,
+                per_page: 50,
+                options: [
+                    {value: 50, text: "50"},
+                    {value: 100, text: "100"},
+                    {value: 150, text: "150"},
+                ],
+                head_variant: "dark",
+            },
+            patterns: {
+                query_patterns: [
+                    {value: 'competition_track = main_2020', text: "Main Track 2020"},
+                    {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
+                    {value: 'competition_track = main_2019', text: "Main Track 2019"},
+                    {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
+                ],
+            },
         }
     },
     methods: {
@@ -47,12 +50,14 @@ var app = new Vue({
                 dataType: 'json',
                 success: function (result) {
                     for (let object in result) {
-                        app.getFeatures(result[object], function(output) {
-                           app.databases.push([result[object], output]);
+                        app.getFeatures(result[object], function (output) {
+                            app.databases.push([result[object], output]);
                         });
                     }
                 },
                 error: function (request, status, error) {
+                    app.table.show = false;
+                    app.error_message = request.responseText;
                     app.showErrorModal();
                 }
             })
@@ -67,11 +72,14 @@ var app = new Vue({
                     handleData(result)
                 },
                 error: function (request, status, error) {
+                    app.table.show = false;
+                    app.error_message = request.responseText;
                     app.showErrorModal();
                 }
             });
         },
         submitQuery: function (event) {
+            app.table.show = true;
             app.table.table_busy = true;
 
             var form = $('#gbdForm');
@@ -93,8 +101,10 @@ var app = new Vue({
                     }
                     app.table.table_busy = false;
                 },
-                error: function (request, status, error) {
+                error: function (xhr, status, error) {
+                    app.error_message = xhr.statusText + ' ' + xhr.responseText;
                     app.table.table_busy = false;
+                    app.table.show = false;
                     app.showErrorModal();
                 }
             });
@@ -104,6 +114,7 @@ var app = new Vue({
             this.$refs['error-modal'].show()
         },
         hideErrorModal() {
+            this.error_message = ''
             this.$refs['error-modal'].hide()
         },
     },
@@ -112,7 +123,6 @@ var app = new Vue({
             this.getDatabases();
             app.form.query = '';
             app.form.selected_features = [];
-            this.submitQuery(new Event("click"));
         })
     },
     computed: {
