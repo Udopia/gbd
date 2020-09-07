@@ -21,19 +21,18 @@ import logging
 import os
 import re
 import argparse
+from logging.handlers import RotatingFileHandler
 
 from gbd_tool.util import eprint
 from os.path import basename
 
 import gbd_server
 
-import tatsu
 import flask
 from flask import Flask, request, send_file, json, Response
 from flask import render_template
 from flask.logging import default_handler
 from gbd_tool.gbd_api import GbdApi
-from tatsu import exceptions
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -83,7 +82,6 @@ def get_csv_file():
             return Response("Feature not found", status=400, mimetype="text/plain")
         headers = ["hash"] + selected_features
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
-        app.logger.info('Sending CSV file to {}'.format(request.remote_addr))
         file_name = "query_result.csv"
         return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
@@ -102,7 +100,6 @@ def get_url_file():
             return Response("Feature not found", status=400, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
-        app.logger.info('Sending URL file to {}'.format(request.remote_addr))
         file_name = "query_result.uri"
         return Response(content, mimetype='text/uri-list',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
@@ -226,13 +223,25 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
 Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
     else:
-        logging_dir = "gbd-server-logs"
-        logging_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), logging_dir)
-        if not os.path.exists(logging_path):
-            os.makedirs(logging_path)
-        logging.basicConfig(filename='{}/server.log'.format(logging_path), level=logging.DEBUG)
-        logging.getLogger().addHandler(default_handler)
+        logging_dir = os.environ.get('GBD_LOGGING_DIR')
+        if logging_dir is None or '':
+            eprint("""No path is given where to store the logging file. 
+Please specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>'""")
+            return
+        if not os.path.exists(logging_dir):
+            eprint("$GBD_LOGGING_DIR is not a directory")
+            return
+        logging_file = '{}/gbd-server.log'.format(logging_dir)
+        formatter = logging.Formatter(
+            "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+        handler = RotatingFileHandler(logging_file, maxBytes=10000000, backupCount=5)
+        if os.environ.get('FLASK_ENV') == 'production':
+            handler.setLevel(logging.WARNING)
+        else:
+            handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
         global app
+        app.logger.addHandler(handler)
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = args.db
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
