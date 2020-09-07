@@ -31,7 +31,6 @@ import gbd_server
 import flask
 from flask import Flask, request, send_file, json, Response
 from flask import render_template
-from flask.logging import default_handler
 from gbd_tool.gbd_api import GbdApi
 from werkzeug.middleware.proxy_fix import ProxyFix
 
