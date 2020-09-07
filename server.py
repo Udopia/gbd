@@ -21,7 +21,6 @@ import logging
 import os
 import re
 import argparse
-from logging.handlers import RotatingFileHandler
 
 from gbd_tool.util import eprint
 from os.path import basename
@@ -231,16 +230,12 @@ Please specify directory for the logging file with 'export GBD_LOGGING_DIR=<your
             eprint("$GBD_LOGGING_DIR is not a directory")
             return
         logging_file = '{}/gbd-server.log'.format(logging_dir)
-        formatter = logging.Formatter(
-            "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
-        handler = RotatingFileHandler(logging_file, maxBytes=10000000, backupCount=5)
         if os.environ.get('FLASK_ENV') == 'production':
-            handler.setLevel(logging.WARNING)
+            logging.basicConfig(filename=logging_file, level=logging.WARNING)
+            logging.getLogger('werkzeug').setLevel(logging.WARNING)
         else:
-            handler.setLevel(logging.DEBUG)
-        handler.setFormatter(formatter)
+            logging.basicConfig(filename=logging_file, level=logging.INFO)
         global app
-        app.logger.addHandler(handler)
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = args.db
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
