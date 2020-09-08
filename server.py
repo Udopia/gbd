@@ -3,17 +3,17 @@
 
 # Global Benchmark Database (GBD)
 # Copyright (C) 2020 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -60,8 +60,10 @@ def quick_search_results():
             rows = list(gbd_api.query_search(query, [], features))
             features.insert(0, "GBDhash")
             result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
+            app.logger.info("Answer normal query request from {}".format(request.remote_addr))
             return Response(json.dumps(result), status=200, mimetype="application/json")
         except ValueError as err:
+            app.logger.error("While handling query search: {}, IP: {}".format(str(err), request.remote_addr))
             return Response(str(err), status=400, mimetype="text/plain")
 
 
@@ -77,10 +79,12 @@ def get_csv_file():
         try:
             results = gbd_api.query_search(query, [], selected_features)
         except ValueError as err:
+            app.logger.error("While handling CSV file request: {}, IP: {}".format(str(err), request.remote_addr))
             return Response("Feature not found", status=400, mimetype="text/plain")
         headers = ["hash"] + selected_features
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
         file_name = "query_result.csv"
+        app.logger.info("Sending CSV file to {}".format(request.remote_addr))
         return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
                                  "filename": "{}".format(file_name)})
@@ -95,10 +99,12 @@ def get_url_file():
         try:
             result = gbd_api.query_search(query, [], ["filename"])
         except ValueError as err:
+            app.logger.error("While handling URL file request: {}, IP: {}".format(str(err), request.remote_addr))
             return Response("Feature not found", status=400, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         file_name = "query_result.uri"
+        app.logger.info("Sending CSV file to {}".format(request.remote_addr))
         return Response(content, mimetype='text/uri-list',
                         headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
                                  "filename": "{}".format(file_name)})
@@ -108,6 +114,7 @@ def get_url_file():
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
     with GbdApi(app.config['database']) as gbd_api:
+        app.logger.info("List all databases for IP {}".format(request.remote_addr))
         return Response(json.dumps(list(map(basename, gbd_api.get_databases()))), status=200,
                         mimetype="application/json")
 
@@ -118,14 +125,19 @@ def list_databases():
 def get_database_file(database):
     with GbdApi(app.config['database']) as gbd_api:
         if database is None:
+            app.logger.info("Send default database file to IP {}".format(request.remote_addr))
             return send_file(gbd_api.get_databases()[0],
                              as_attachment=True,
                              attachment_filename=os.path.basename(gbd_api.get_databases()[0]),
                              mimetype='application/x-sqlite3')
         elif database not in list(map(basename, gbd_api.get_databases())):
+            app.logger.warning(
+                "Device with IP {} requested database '{}' which could not be found".format(request.remote_addr,
+                                                                                            database))
             return Response("Database does not exist in the running instance of GBD server", status=404,
                             mimetype="text/plain")
         else:
+            app.logger.info("Sending database file '{}' to IP {}".format(database, request.remote_addr))
             return send_file(list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0],
                              as_attachment=True,
                              attachment_filename=database,
@@ -140,12 +152,18 @@ def list_features(database):
         if database is None:
             available_features = sorted(gbd_api.get_features())
             available_features.remove("local")
+            app.logger.info("List all features for IP {}".format(request.remote_addr))
             return Response(json.dumps(available_features), status=200, mimetype="application/json")
         elif database not in list(map(basename, gbd_api.get_databases())):
+            app.logger.warning(
+                "Device with IP {} requested features of database '{}' which could not be found".format(
+                    request.remote_addr,
+                    database))
             return Response("Database does not exist in the running instance of GBD server", status=404,
                             mimetype="text/plain")
         else:
             target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
+            app.logger.info("List all features of database '{}' for IP {}".format(database, request.remote_addr))
             return Response(json.dumps(gbd_api.get_features(target_database)), status=200, mimetype="application/json")
 
 
@@ -156,9 +174,16 @@ def get_attribute(feature, hashvalue):
         try:
             values = gbd_api.search(feature, hashvalue)
             if len(values) == 0:
+                app.logger.warning(
+                    "Device with IP {} issued questionable resolve '{}' -> '{}'".format(request.remote_addr, hashvalue,
+                                                                                        feature))
                 return Response("No feature associated with this hash", status=404, mimetype="text/plain")
+            app.logger.info(
+                "Resolved '{}' against feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
             return str(",".join(str(value) for value in values))
         except ValueError as err:
+            app.logger.error(
+                "While handling resolving hash value: {}, IP: {}".format(str(err), request.remote_addr))
             return Response("Value Error: {}".format(err), status=500, mimetype="text/plain")
 
 
@@ -168,15 +193,24 @@ def get_attribute(feature, hashvalue):
 def set_tag(hash, name, value):
     pat = re.compile(r"^[a-zA-Z0-9_]*$")
     if not (pat.match(hash) and pat.match(name) and pat.match(value)):
-        return Response("Input violates restriction to alpha-numeric characters and underline", status=406, mimetype="text/plain")
+        app.logger.warning(
+            "IP {} violated restriction to alpha-numeric characters and underline".format(request.remote_addr))
+        return Response("Input violates restriction to alpha-numeric characters and underline", status=406,
+                        mimetype="text/plain")
     with GbdApi(app.config['database']) as gbd_api:
         try:
-            if gbd_api.get_feature_size("tags") > 10*gbd_api.get_feature_size("local"):
-                return Response("Too many tags, cleanup required", status=503, mimetype="text/plain")    
+            if gbd_api.get_feature_size("tags") > 10 * gbd_api.get_feature_size("local"):
+                message = "Too many tags, cleanup required"
+                app.logger.warning(message)
+                return Response(message, status=503, mimetype="text/plain")
             else:
                 gbd_api.set_tag(name, value, [hash])
-                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201, mimetype="text/plain")
+                app.logger.info("{} set tag {}={} for {}".format(request.remote_addr, name, value, hash))
+                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201,
+                                mimetype="text/plain")
         except ValueError as err:
+            app.logger.error(
+                "While handling setting tag: {}, IP: {}".format(str(err), request.remote_addr))
             return Response("Rejected: {}".format(err), status=406, mimetype="text/plain")
 
 
@@ -189,6 +223,7 @@ def get_all_attributes(hashvalue):
         for feature in features:
             values = gbd_api.search(feature, hashvalue)
             info.update({feature: str(",".join(str(value) for value in values))})
+        app.logger.info("List all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
         return Response(json.dumps(info), status=200, mimetype="application/json")
 
 
@@ -199,11 +234,15 @@ def get_file(hashvalue, filename):
     with GbdApi(app.config['database']) as gbd_api:
         values = gbd_api.search("local", hashvalue)
         if len(values) == 0:
+            app.logger.warning(
+                "{} requested file for hash '{}', which was not found".format(request.remote_addr, hashvalue))
             return Response("No according file found in our database", status=404, mimetype="text/plain")
         try:
             path = values.pop()
+            app.logger.info("Sending file for hashvalue '{}' to {}".format(hashvalue, request.remote_addr))
             return send_file(path, as_attachment=True, attachment_filename=os.path.basename(path))
         except FileNotFoundError:
+            app.logger.critial("Files for hashvalues are not accessible")
             return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
 
 
@@ -229,12 +268,27 @@ Please specify directory for the logging file with 'export GBD_LOGGING_DIR=<your
         if not os.path.exists(logging_dir):
             eprint("$GBD_LOGGING_DIR is not a directory")
             return
+        formatter = logging.Formatter(
+            fmt='\n'.join([
+                '[%(name)s] %(asctime)s.%(msecs)d',
+                '\t%(pathname)s [line: %(lineno)d]',
+                '\t%(processName)s[%(process)d] => %(threadName)s[%(thread)d] => %(module)s.%(filename)s:%(funcName)s()',
+                '\t%(levelname)s: %(message)s\n'
+            ]),
+            datefmt='%d-%m-%Y %H:%M:%S')
         logging_file = '{}/gbd-server.log'.format(logging_dir)
+        logging.getLogger().setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        console_handler.setLevel(logging.INFO)
+        logging.getLogger().addHandler(console_handler)
+        file_handler = logging.FileHandler(logging_file)
+        file_handler.setFormatter(formatter)
         if os.environ.get('FLASK_ENV') == 'production':
-            logging.basicConfig(filename=logging_file, level=logging.WARNING)
-            logging.getLogger('werkzeug').setLevel(logging.WARNING)
+            file_handler.setLevel(logging.WARNING)
         else:
-            logging.basicConfig(filename=logging_file, level=logging.INFO)
+            file_handler.setLevel(logging.DEBUG)
+        logging.getLogger().addHandler(file_handler)
         global app
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = args.db
