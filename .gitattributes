@@ -25,3 +25,5 @@ relative/path/*.txt text eol=lf
 *.jpeg binary
 *.gif binary
 *.ico binary
+
+gbd_server/static/css/* linguist-vendored
