@@ -23,8 +23,12 @@ from os.path import isfile
 
 from gbd_tool import search
 from gbd_tool.db import Database
-from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm
+
+try:
+    from gbdhashc import gbdhash as gbd_hash
+except ImportError:
+    from gbd_tool.gbd_hash import gbd_hash
 
 mutex = Lock()
 
