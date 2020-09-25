@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import datetime
 import logging
 import os
 import re
@@ -261,13 +261,12 @@ A database file containing some attributes of instances used in the SAT Competit
 Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
     else:
         logging_dir = os.environ.get('GBD_LOGGING_DIR')
-        if logging_dir is None or '':
-            eprint("""No path is given where to store the logging file. 
-Please specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>'""")
-            return
+        if (logging_dir == '') or (logging_dir is None):
+            print("""Warning: Using default directory in execution path for logging. 
+If you wish, specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>' and restart\n""")
+            logging_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gbd-server-logs")
         if not os.path.exists(logging_dir):
-            eprint("$GBD_LOGGING_DIR is not a directory")
-            return
+            os.makedirs(logging_dir)
         formatter = logging.Formatter(
             fmt='\n'.join([
                 '[%(name)s] %(asctime)s.%(msecs)d',
@@ -275,8 +274,8 @@ Please specify directory for the logging file with 'export GBD_LOGGING_DIR=<your
                 '\t%(processName)s[%(process)d] => %(threadName)s[%(thread)d] => %(module)s.%(filename)s:%(funcName)s()',
                 '\t%(levelname)s: %(message)s\n'
             ]),
-            datefmt='%d-%m-%Y %H:%M:%S')
-        logging_file = '{}/gbd-server.log'.format(logging_dir)
+            datefmt='%Y-%m-%d %H:%M:%S')
+        logging_file = '{}/{}.log'.format(logging_dir, datetime.datetime.now().strftime('%Y-%m-%d'))
         logging.getLogger().setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
