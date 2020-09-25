@@ -27,9 +27,13 @@ from urllib.error import URLError
 # internal packages
 from gbd_tool import benchmark_administration, search, bootstrap
 from gbd_tool.db import Database
-from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, is_number
 
+try:
+    from gbdhashc import gbdhash as gbd_hash
+except ImportError:
+    from gbd_tool.gbd_hash import gbd_hash
+    
 
 class GbdApi:
     # Create a new GbdApi object which operates on the given databases
