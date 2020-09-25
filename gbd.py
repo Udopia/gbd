@@ -254,6 +254,8 @@ Initialize your database with local paths to your benchmark instances by using t
                 args.func(api, args)
         except AttributeError as e:
             eprint(e)
+        except ValueError as e:
+            eprint(e)
     else:
         parser.print_help()
 
