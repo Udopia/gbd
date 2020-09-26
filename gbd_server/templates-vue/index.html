@@ -49,6 +49,18 @@
                                         </div>
                                     </b-dropdown-group>
                                 </b-dropdown>
+                                <b-dropdown variant="outline-dark" id="feature-selection">
+                                    <template v-slot:button-content>
+                                        Feature Selection
+                                    </template>
+                                    <b-dropdown-group>
+                                        <div style="padding: 5px; width: 300px">
+                                            <b-form-radio-group v-model="form.selected_features"
+                                                                :options="patterns.feature_selections"
+                                                                stacked></b-form-radio-group>
+                                        </div>
+                                    </b-dropdown-group>
+                                </b-dropdown>
                                 <b-button type="submit" @click="submitQuery" variant="outline-dark">
                                     <b-icon icon="search"></b-icon>
                                 </b-button>
