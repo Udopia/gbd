@@ -55,7 +55,7 @@
                                     </template>
                                     <b-dropdown-group>
                                         <div style="padding: 5px; width: 300px">
-                                            <b-form-radio-group v-model="form.selected_features"
+                                            <b-form-radio-group v-model="selected_features"
                                                                 :options="patterns.feature_selections"
                                                                 stacked></b-form-radio-group>
                                         </div>
@@ -97,7 +97,7 @@
                                 <b-collapse :id="'collapse'+entry[0]">
                                     <div style="padding-top: 15px; margin-bottom: 10px">
                                         <b-form-checkbox-group
-                                                v-model="form.selected_features"
+                                                v-model="selected_features"
                                                 :options="entry[1]"
                                                 name="attributes">
                                         </b-form-checkbox-group>
@@ -114,7 +114,7 @@
                             <b-icon icon="download" style="margin-right: 5px"></b-icon>
                             Download instances
                         </b-button>
-                        <input type="hidden" name="selected_features" v-bind:value="form.selected_features">
+                        <input type="hidden" name="selected_features" v-bind:value="selected_features">
                         <b-button type="submit" formmethod="post" formaction="/exportcsv" variant="outline-dark"
                                   formtarget="_self"
                                   v-b-tooltip.hover
