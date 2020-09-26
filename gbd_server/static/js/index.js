@@ -34,8 +34,9 @@ var app = new Vue({
                     {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
                 ],
                 feature_selections: [
-                    {value: ['filename', 'author', 'family'], text: "Filename, Author and Family"},
-                    {value: [], text: "None"},
+                    // First one will be preselected
+                    {value: ['filename', 'author', 'family'], text: "Author, Family and Family"},
+                    {value: ['filename'], text: "None"},
                 ]
             },
         }
@@ -121,18 +122,21 @@ var app = new Vue({
             this.error_message = '';
             this.$refs['error-modal'].hide()
         },
-    },
-    mounted: function () {
-        this.$nextTick(function () {
+        init() {
             this.getDatabases();
-            app.form.query = '';
-            app.selected_features = app.patterns.feature_selections[0].value
-        })
+            this.form.query = 'hello';
+            this.selected_features = this.patterns.feature_selections[0].value
+        }
+    },
+    created() {
+        this.init();
     },
     computed: {
         rows() {
             return this.result.length
         },
+        // selected_features is computed to fix bug in BootstrapVue
+        // -> https://github.com/bootstrap-vue/bootstrap-vue/issues/2054
         selected_features: {
             get: function () {
                 return this.form.selected_features;
