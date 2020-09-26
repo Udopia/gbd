@@ -124,7 +124,7 @@ var app = new Vue({
         },
         init() {
             this.getDatabases();
-            this.form.query = 'hello';
+            this.form.query = '';
             this.selected_features = this.patterns.feature_selections[0].value
         }
     },
