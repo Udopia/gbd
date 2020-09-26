@@ -33,6 +33,10 @@ var app = new Vue({
                     {value: 'competition_track = main_2019', text: "Main Track 2019"},
                     {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
                 ],
+                feature_selections: [
+                    {value: ['filename', 'author', 'family'], text: "Filename, Author and Family"},
+                    {value: [], text: "None"},
+                ]
             },
         }
     },
@@ -94,7 +98,7 @@ var app = new Vue({
                     app.table.sortBy = null;
                     app.table.sortDesc = false;
                     app.result = result;
-                    app.table.rows = result.length
+                    app.table.rows = result.length;
                     var entry = result[0];
                     for (var attribute in entry) {
                         app.table.fields.push({key: attribute.toString(), sortable: true});
@@ -114,7 +118,7 @@ var app = new Vue({
             this.$refs['error-modal'].show()
         },
         hideErrorModal() {
-            this.error_message = ''
+            this.error_message = '';
             this.$refs['error-modal'].hide()
         },
     },
