@@ -8,7 +8,7 @@ var app = new Vue({
             error_message: '',
             form: {
                 query: '',
-                selected_features: [],
+                selected_features: null,
             },
             table: {
                 show: false,
@@ -126,12 +126,20 @@ var app = new Vue({
         this.$nextTick(function () {
             this.getDatabases();
             app.form.query = '';
-            app.form.selected_features = [];
+            app.selected_features = app.patterns.feature_selections[0].value
         })
     },
     computed: {
         rows() {
             return this.result.length
+        },
+        selected_features: {
+            get: function () {
+                return this.form.selected_features;
+            },
+            set: function (newValue) {
+                this.form.selected_features = newValue;
+            }
         }
     }
 });
