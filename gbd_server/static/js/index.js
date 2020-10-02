@@ -12,28 +12,28 @@ var app = new Vue({
             },
             patterns: {
                 query_patterns: [
-                {
-                    value: 'competition_track = main_2020',
-                    features: ['author', 'family', 'filename'],
-                    text: "Main Track 2020"
-                },
-                {
-                    value: 'competition_track = planning_2020',
-                    features: ['author', 'family', 'filename'],
-                    text: "Planning Track 2020"
-                },
-                {
-                    value: 'competition_track = main_2019',
-                    features: ['author', 'family', 'filename'],
-                    text: "Main Track 2019"
-                },
-                {
-                    value: 'filename like %waerden%',
-                    features: [],
-                    text: "Van Der Waerden Numbers"
-                },
-            ],
-            selected_pattern: undefined
+                    {
+                        value: 'competition_track = main_2020',
+                        features: ['author', 'family', 'filename'],
+                        text: "Main Track 2020"
+                    },
+                    {
+                        value: 'competition_track = planning_2020',
+                        features: ['author', 'family', 'filename'],
+                        text: "Planning Track 2020"
+                    },
+                    {
+                        value: 'competition_track = main_2019',
+                        features: ['author', 'family', 'filename'],
+                        text: "Main Track 2019"
+                    },
+                    {
+                        value: 'filename like %waerden%',
+                        features: [],
+                        text: "Van Der Waerden Numbers"
+                    },
+                ],
+                selected_pattern: undefined
             },
             table: {
                 show: false,
@@ -95,9 +95,6 @@ var app = new Vue({
                 }
             });
         },
-        changePattern: function() {
-            this.query = this.patterns.selected_pattern.value;
-        },
         submitQuery: function (event) {
             app.table.show = true;
             app.table.table_busy = true;
@@ -139,10 +136,9 @@ var app = new Vue({
         },
         init() {
             this.getDatabases();
-            this.query = '';
-            this.selected_features = [];
             this.patterns.selected_pattern = this.patterns.query_patterns[0];
-            this.changePattern();
+            this.query = this.patterns.selected_pattern.value;
+            this.selected_features = this.patterns.selected_pattern.features;
         },
     },
     mounted() {
@@ -154,6 +150,9 @@ var app = new Vue({
         },
         query: {
             get: function () {
+                if (this.patterns.selected_pattern != undefined) {
+                    this.form.query = this.patterns.selected_pattern.value;
+                }
                 return this.form.query;
             },
             set: function (newValue) {
@@ -162,6 +161,9 @@ var app = new Vue({
         },
         selected_features: {
             get: function () {
+                if (this.patterns.selected_pattern != undefined) {
+                    this.form.selected_features = this.patterns.selected_pattern.features;
+                }
                 return this.form.selected_features;
             },
             set: function (newValue) {

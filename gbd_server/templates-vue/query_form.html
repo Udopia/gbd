@@ -18,7 +18,6 @@
                             <b-form-radio-group>
                                 <b-form-radio v-for="pattern in patterns.query_patterns"
                                               v-model="patterns.selected_pattern"
-                                              @change="changePattern"
                                               :value="pattern">
                                     {{ pattern.text }}
                                 </b-form-radio>
