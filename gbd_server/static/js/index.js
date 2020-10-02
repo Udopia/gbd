@@ -95,6 +95,9 @@ var app = new Vue({
                 }
             });
         },
+        changePattern: function() {
+            this.query = this.patterns.selected_pattern.value;
+        },
         submitQuery: function (event) {
             app.table.show = true;
             app.table.table_busy = true;
@@ -138,6 +141,8 @@ var app = new Vue({
             this.getDatabases();
             this.query = '';
             this.selected_features = [];
+            this.patterns.selected_pattern = this.patterns.query_patterns[0];
+            this.changePattern();
         },
     },
     mounted() {
