@@ -137,8 +137,6 @@ var app = new Vue({
         init() {
             this.getDatabases();
             this.patterns.selected_pattern = this.patterns.query_patterns[0];
-            this.query = this.patterns.selected_pattern.value;
-            this.selected_features = this.patterns.selected_pattern.features;
         },
     },
     mounted() {
