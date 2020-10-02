@@ -4,7 +4,7 @@
         <b-input-group>
             <b-form-input
                     name="query"
-                    v-model="form.query"
+                    v-model="query"
                     placeholder="Enter query"
             ></b-form-input>
             <b-input-group-append>
@@ -15,17 +15,13 @@
                     <b-dropdown-group style="padding: 5px">
                         <span><b>Query</b></span>
                         <div style="padding: 5px; width: 300px">
-                            <b-form-radio-group v-model="form.query" :options="patterns.query_patterns"
-                                                stacked></b-form-radio-group>
-                        </div>
-                    </b-dropdown-group>
-                    <hr>
-                    <b-dropdown-group style="padding: 5px">
-                        <span><b>Feature Selection</b></span>
-                        <div style="padding: 5px; width: 300px">
-                            <b-form-radio-group v-model="selected_features"
-                                                :options="patterns.feature_selections"
-                                                stacked></b-form-radio-group>
+                            <b-form-radio-group>
+                                <b-form-radio v-for="pattern in patterns.query_patterns"
+                                              v-model="patterns.selected_pattern"
+                                              :value="pattern">
+                                    {{ pattern.text }}
+                                </b-form-radio>
+                            </b-form-radio-group>
                         </div>
                     </b-dropdown-group>
                 </b-dropdown>
