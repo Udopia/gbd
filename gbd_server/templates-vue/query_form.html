@@ -6,6 +6,7 @@
                     name="query"
                     v-model="query"
                     placeholder="Enter query"
+                    v-on:input="patterns.selected_pattern = undefined; selected_features = []"
             ></b-form-input>
             <b-input-group-append>
                 <b-dropdown variant="outline-dark">
