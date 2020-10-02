@@ -8,7 +8,32 @@ var app = new Vue({
             error_message: '',
             form: {
                 query: '',
-                selected_features: null,
+                selected_features: [],
+            },
+            patterns: {
+                query_patterns: [
+                {
+                    value: 'competition_track = main_2020',
+                    features: ['author', 'family', 'filename'],
+                    text: "Main Track 2020"
+                },
+                {
+                    value: 'competition_track = planning_2020',
+                    features: ['author', 'family', 'filename'],
+                    text: "Planning Track 2020"
+                },
+                {
+                    value: 'competition_track = main_2019',
+                    features: ['author', 'family', 'filename'],
+                    text: "Main Track 2019"
+                },
+                {
+                    value: 'filename like %waerden%',
+                    features: [],
+                    text: "Van Der Waerden Numbers"
+                },
+            ],
+            selected_pattern: undefined
             },
             table: {
                 show: false,
@@ -25,19 +50,6 @@ var app = new Vue({
                     {value: 150, text: "150"},
                 ],
                 head_variant: "dark",
-            },
-            patterns: {
-                query_patterns: [
-                    {value: 'competition_track = main_2020', text: "Main Track 2020"},
-                    {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
-                    {value: 'competition_track = main_2019', text: "Main Track 2019"},
-                    {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
-                ],
-                feature_selections: [
-                    // First one will be preselected
-                    {value: ['filename', 'author', 'family'], text: "Author, Family and Family"},
-                    {value: ['filename'], text: "None"},
-                ]
             },
         }
     },
@@ -124,19 +136,25 @@ var app = new Vue({
         },
         init() {
             this.getDatabases();
-            this.form.query = '';
-            this.selected_features = this.patterns.feature_selections[0].value
-        }
+            this.query = '';
+            this.selected_features = [];
+        },
     },
-    created() {
+    mounted() {
         this.init();
     },
     computed: {
         rows() {
             return this.result.length
         },
-        // selected_features is computed to fix bug in BootstrapVue
-        // -> https://github.com/bootstrap-vue/bootstrap-vue/issues/2054
+        query: {
+            get: function () {
+                return this.form.query;
+            },
+            set: function (newValue) {
+                this.form.query = newValue;
+            }
+        },
         selected_features: {
             get: function () {
                 return this.form.selected_features;
@@ -144,6 +162,6 @@ var app = new Vue({
             set: function (newValue) {
                 this.form.selected_features = newValue;
             }
-        }
+        },
     }
 });
