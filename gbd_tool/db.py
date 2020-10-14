@@ -18,6 +18,7 @@ import sqlite3
 import os
 import re
 import json
+import csv
 
 from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint, is_number
@@ -32,31 +33,64 @@ class DatabaseException(Exception):
 class Database:
 
     def __init__(self, path_list, verbose=False):
-        self.paths = path_list
+        self.paths = []
+        self.csv = []
         self.verbose = verbose
         # init non-existent databases and check existing databases
-        for path in self.paths:
+        for path in path_list:
             if not os.path.isfile(path):
-                eprint("Initializing DB '{}' with version {} and hash-version {}".format(path, VERSION, HASH_VERSION))
+                eprint("{}: file does not exist, creating...".format(path))
                 self.init(path, VERSION, HASH_VERSION)
+                self.paths.append(path)
             else:
-                self.check(path, VERSION, HASH_VERSION)
+                try:
+                    self.check(path, VERSION, HASH_VERSION)
+                    self.paths.append(path)
+                except sqlite3.DatabaseError:
+                    with open(path, 'r') as obj:
+                        csvreader = csv.DictReader(obj)
+                        if not "hash" in csvreader.fieldnames:
+                            eprint("{}: file is neither a database nor csv-file having the key-column 'hash'".format(path))
+                        else:
+                            self.csv.append(path)
 
     def __enter__(self):
-        #eprint("Main connection: {}".format(self.paths[0]))
-        self.connection = sqlite3.connect(self.paths[0])
-        self.cursor = self.connection.cursor()
-        self.names = [ os.path.splitext(os.path.basename(self.paths[0]))[0] ]
-        for path in self.paths[1:]:
-            name = os.path.splitext(os.path.basename(path))[0]
-            self.names.append(name)
-            #eprint("Attaching '{}' as {}".format(path, name))
-            self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
+        self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        for path in self.csv:
+            self.import_csv(path, self.inmemory)
+        if len(self.paths) > 0:
+            #eprint("Main connection: {}".format(self.paths[0]))
+            self.connection = sqlite3.connect(self.paths[0], uri=True)
+            self.cursor = self.connection.cursor()
+            self.names = [ os.path.splitext(os.path.basename(self.paths[0]))[0] ]
+            for path in self.paths[1:]:
+                name = os.path.splitext(os.path.basename(path))[0]
+                self.names.append(name)
+                #eprint("Attaching '{}' as {}".format(path, name))
+                self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
+            if len(self.csv) > 0:
+                self.cursor.execute("ATTACH DATABASE 'file::memory:?cache=shared' AS _in_memory_")
+        else:
+            self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
+            self.cursor = self.connection.cursor()
+            self.names = [ "_in_memory_" ]
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
         self.commit()
         self.connection.close()
+        self.inmemory.close()
+
+    def import_csv(self, path, con):
+        im_cursor = con.cursor()
+        with open(path) as csvfile:
+            csvreader = csv.DictReader(csvfile)
+            for source in csvreader.fieldnames:
+                if source != "hash":
+                    im_cursor.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL)'.format(source))
+                    lst = [(row["hash"].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
+            im_cursor.executemany("INSERT INTO {} VALUES (?,?)".format(source), lst)
+        con.commit()
 
     def init(self, path, version, hash_version):
         con = sqlite3.connect(path)
