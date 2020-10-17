@@ -30,6 +30,7 @@ import gbd_server
 import flask
 from flask import Flask, request, send_file, json, Response
 from flask import render_template
+from logging.handlers import TimedRotatingFileHandler
 from gbd_tool.gbd_api import GbdApi
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -251,6 +252,9 @@ def main():
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
+    parser.add_argument('-b', "--backup",
+                        help='Specify the amount of kept logging files while log rotation (every midnight)',
+                        type=int)
     args = parser.parse_args()
     if not args.db:
         eprint("""No database path is given. 
@@ -262,8 +266,10 @@ Don't forget to initialize each database with the paths to your benchmarks by us
     else:
         logging_dir = os.environ.get('GBD_LOGGING_DIR')
         if (logging_dir == '') or (logging_dir is None):
-            print("""Warning: Using default directory in execution path for logging. 
-If you wish, specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>' and restart\n""")
+            print("""  --------------
+  WARNING: Created logging file in execution path.
+  If you wish, specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>' and restart
+  --------------""")
             logging_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gbd-server-logs")
         if not os.path.exists(logging_dir):
             os.makedirs(logging_dir)
@@ -275,13 +281,15 @@ If you wish, specify directory for the logging file with 'export GBD_LOGGING_DIR
                 '\t%(levelname)s: %(message)s\n'
             ]),
             datefmt='%Y-%m-%d %H:%M:%S')
-        logging_file = '{}/{}.log'.format(logging_dir, datetime.datetime.now().strftime('%Y-%m-%d'))
+        logging_file = '{}/{}'.format(logging_dir, "gbd-server-log")
         logging.getLogger().setLevel(logging.DEBUG)
+        # Add sys.stdout for real time logging output
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
         console_handler.setLevel(logging.INFO)
         logging.getLogger().addHandler(console_handler)
-        file_handler = logging.FileHandler(logging_file)
+        # Add handler to write in rotating logging files
+        file_handler = TimedRotatingFileHandler(logging_file, when="midnight", backupCount=args.backup)
         file_handler.setFormatter(formatter)
         if os.environ.get('FLASK_ENV') == 'production':
             file_handler.setLevel(logging.WARNING)
