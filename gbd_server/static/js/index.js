@@ -61,15 +61,29 @@ var app = new Vue({
             return slashes.concat(window.location.hostname).concat(':').concat(port);
         },
         getDatabases: function () {
+            const host = this.getHost();
             $.ajax({
-                url: this.getHost().concat("/listdatabases"),
+                url: host.concat("/listdatabases"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
-                    for (let object in result) {
-                        app.getFeatures(result[object], function (output) {
-                            app.databases.push([result[object], output]);
+                    for (let i = 0; i < result.length; i++) {
+                        const url = host.concat("/listfeatures/".concat(result[i]));
+                        $.ajaxSetup({async: false});
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (features) {
+                                app.databases.push([result[i], features]);
+                            },
+                            error: function (request, status, error) {
+                                app.table.show = false;
+                                app.error_message = request.responseText;
+                                app.showErrorModal();
+                            }
                         });
+                        $.ajaxSetup({async: true});
                     }
                 },
                 error: function (request, status, error) {
@@ -78,22 +92,6 @@ var app = new Vue({
                     app.showErrorModal();
                 }
             })
-        },
-        getFeatures: function (database, handleData) {
-            const url = database === undefined ? this.getHost().concat("/listfeatures") : this.getHost().concat("/listfeatures/".concat(database));
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function (result) {
-                    handleData(result)
-                },
-                error: function (request, status, error) {
-                    app.table.show = false;
-                    app.error_message = request.responseText;
-                    app.showErrorModal();
-                }
-            });
         },
         submitQuery: function (event) {
             app.table.show = true;
