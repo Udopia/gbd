@@ -75,7 +75,7 @@ var app = new Vue({
                             type: 'GET',
                             dataType: 'json',
                             success: function (features) {
-                                app.databases.push([result[i], features]);
+                                app.databases.push([result[i], features, i]);
                             },
                             error: function (request, status, error) {
                                 app.table.show = false;
