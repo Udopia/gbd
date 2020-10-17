@@ -59,15 +59,28 @@
                     <b-col></b-col>
                     <b-col></b-col>
                 </b-row>
-                <b-collapse :id="'collapse'+entry[0]">
-                    <div style="padding-top: 15px; margin-bottom: 10px">
-                        <b-form-checkbox-group
-                                v-model="selected_features"
-                                :options="entry[1]"
-                                name="attributes">
-                        </b-form-checkbox-group>
-                    </div>
-                </b-collapse>
+                <template v-if="entry[2] == 0">
+                    <b-collapse :id="'collapse'+entry[0]" visible>
+                        <div style="padding-top: 15px; margin-bottom: 10px">
+                            <b-form-checkbox-group
+                                    v-model="selected_features"
+                                    :options="entry[1]"
+                                    name="attributes">
+                            </b-form-checkbox-group>
+                        </div>
+                    </b-collapse>
+                </template>
+                <template v-else>
+                    <b-collapse :id="'collapse'+entry[0]">
+                        <div style="padding-top: 15px; margin-bottom: 10px">
+                            <b-form-checkbox-group
+                                    v-model="selected_features"
+                                    :options="entry[1]"
+                                    name="attributes">
+                            </b-form-checkbox-group>
+                        </div>
+                    </b-collapse>
+                </template>
             </b-card>
         </b-container>
     </b-form-group>
