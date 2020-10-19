@@ -43,3 +43,4 @@ server/server_config/*
 */default_config/*
 server/cache/*
 .vscode/
+gbd-server-logs/*

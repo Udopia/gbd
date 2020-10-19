@@ -10,6 +10,31 @@ var app = new Vue({
                 query: '',
                 selected_features: [],
             },
+            patterns: {
+                query_patterns: [
+                    {
+                        value: 'competition_track = main_2020',
+                        features: ['author', 'family', 'filename'],
+                        text: "Main Track 2020"
+                    },
+                    {
+                        value: 'competition_track = planning_2020',
+                        features: ['author', 'family', 'filename'],
+                        text: "Planning Track 2020"
+                    },
+                    {
+                        value: 'competition_track = main_2019',
+                        features: ['author', 'family', 'filename'],
+                        text: "Main Track 2019"
+                    },
+                    {
+                        value: 'filename like %waerden%',
+                        features: [],
+                        text: "Van Der Waerden Numbers"
+                    },
+                ],
+                selected_pattern: undefined
+            },
             table: {
                 show: false,
                 fields: [],
@@ -26,14 +51,6 @@ var app = new Vue({
                 ],
                 head_variant: "dark",
             },
-            patterns: {
-                query_patterns: [
-                    {value: 'competition_track = main_2020', text: "Main Track 2020"},
-                    {value: 'competition_track = planning_2020', text: "Planning Track 2020"},
-                    {value: 'competition_track = main_2019', text: "Main Track 2019"},
-                    {value: 'filename like %waerden%', text: "Van Der Waerden Numbers"},
-                ],
-            },
         }
     },
     methods: {
@@ -44,15 +61,29 @@ var app = new Vue({
             return slashes.concat(window.location.hostname).concat(':').concat(port);
         },
         getDatabases: function () {
+            const host = this.getHost();
             $.ajax({
-                url: this.getHost().concat("/listdatabases"),
+                url: host.concat("/listdatabases"),
                 type: 'GET',
                 dataType: 'json',
                 success: function (result) {
-                    for (let object in result) {
-                        app.getFeatures(result[object], function (output) {
-                            app.databases.push([result[object], output]);
+                    for (let i = 0; i < result.length; i++) {
+                        const url = host.concat("/listfeatures/".concat(result[i]));
+                        $.ajaxSetup({async: false});
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (features) {
+                                app.databases.push([result[i], features, i]);
+                            },
+                            error: function (request, status, error) {
+                                app.table.show = false;
+                                app.error_message = request.responseText;
+                                app.showErrorModal();
+                            }
                         });
+                        $.ajaxSetup({async: true});
                     }
                 },
                 error: function (request, status, error) {
@@ -61,22 +92,6 @@ var app = new Vue({
                     app.showErrorModal();
                 }
             })
-        },
-        getFeatures: function (database, handleData) {
-            const url = database === undefined ? this.getHost().concat("/listfeatures") : this.getHost().concat("/listfeatures/".concat(database));
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                success: function (result) {
-                    handleData(result)
-                },
-                error: function (request, status, error) {
-                    app.table.show = false;
-                    app.error_message = request.responseText;
-                    app.showErrorModal();
-                }
-            });
         },
         submitQuery: function (event) {
             app.table.show = true;
@@ -94,7 +109,7 @@ var app = new Vue({
                     app.table.sortBy = null;
                     app.table.sortDesc = false;
                     app.result = result;
-                    app.table.rows = result.length
+                    app.table.rows = result.length;
                     var entry = result[0];
                     for (var attribute in entry) {
                         app.table.fields.push({key: attribute.toString(), sortable: true});
@@ -114,20 +129,42 @@ var app = new Vue({
             this.$refs['error-modal'].show()
         },
         hideErrorModal() {
-            this.error_message = ''
+            this.error_message = '';
             this.$refs['error-modal'].hide()
         },
-    },
-    mounted: function () {
-        this.$nextTick(function () {
+        init() {
             this.getDatabases();
-            app.form.query = '';
-            app.form.selected_features = [];
-        })
+            this.patterns.selected_pattern = this.patterns.query_patterns[0];
+        },
+    },
+    mounted() {
+        this.init();
     },
     computed: {
         rows() {
             return this.result.length
-        }
+        },
+        query: {
+            get: function () {
+                if (this.patterns.selected_pattern != undefined) {
+                    this.form.query = this.patterns.selected_pattern.value;
+                }
+                return this.form.query;
+            },
+            set: function (newValue) {
+                this.form.query = newValue;
+            }
+        },
+        selected_features: {
+            get: function () {
+                if (this.patterns.selected_pattern != undefined) {
+                    this.form.selected_features = this.patterns.selected_pattern.features;
+                }
+                return this.form.selected_features;
+            },
+            set: function (newValue) {
+                this.form.selected_features = newValue;
+            }
+        },
     }
 });
