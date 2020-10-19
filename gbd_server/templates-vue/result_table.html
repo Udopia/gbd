@@ -1,0 +1,54 @@
+<b-row style="margin-top: 20px; margin-bottom: 10px">
+    <b-col>
+        <b-dropdown variant="light">
+            <template v-slot:button-content>
+                <b-icon icon="gear-fill" aria-hidden="true"></b-icon>
+                Table Settings
+            </template>
+            <b-dropdown-group header="Show per page">
+                <div style="padding: 5px">
+                    <b-form-radio-group v-model="table.per_page" :options="table.options"
+                                        stacked></b-form-radio-group>
+                </div>
+            </b-dropdown-group>
+        </b-dropdown>
+    </b-col>
+</b-row>
+<b-row>
+    <b-col>
+        <b-pagination
+                pills
+                v-model="table.current_page"
+                :total-rows="table.rows"
+                :per-page="table.per_page"
+                align="center"
+                aria-controls="result-table"
+        ></b-pagination>
+    </b-col>
+</b-row>
+<b-row>
+    <b-table
+            id="result-table"
+            :head-variant="table.head_variant"
+            :items="result"
+            :fields="table.fields"
+            :per-page="table.per_page"
+            :current-page="table.current_page"
+            :busy="table.table_busy"
+            :sort-by.sync="table.sortBy"
+            :sort-desc.sync="table.sortDesc"
+            responsive
+            sort-icon-left
+            hover
+            show-empty
+            striped
+            small
+    >
+        <template v-slot:table-busy>
+            <div class="text-center text-success my-2">
+                <b-spinner type="grow" variant="success" class="align-middle"></b-spinner>
+                <strong>Loading...</strong>
+            </div>
+        </template>
+    </b-table>
+</b-row>
