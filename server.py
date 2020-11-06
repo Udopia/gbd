@@ -254,6 +254,7 @@ def main():
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
     parser.add_argument('-b', "--backup",
                         help='Specify the amount of kept logging files while log rotation (every midnight)',
+                        default=10,
                         type=int)
     args = parser.parse_args()
     if not args.db:
