@@ -94,11 +94,10 @@ var app = new Vue({
             })
         },
         submitQuery: function (event) {
-            app.table.show = true;
-            app.table.table_busy = true;
+            this.table.show = true;
+            this.table.table_busy = true;
 
             var form = $('#gbdForm');
-
             $.ajax({
                 url: this.getHost().concat("/results"),
                 type: 'POST',
@@ -168,3 +167,6 @@ var app = new Vue({
         },
     }
 });
+window.onload = function () {
+    app.submitQuery();
+}
