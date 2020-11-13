@@ -5,6 +5,7 @@ var app = new Vue({
             result: [],
             loading: false,
             databases: [],
+            error_status: '',
             error_message: '',
             form: {
                 query: '',
@@ -77,18 +78,20 @@ var app = new Vue({
                             success: function (features) {
                                 app.databases.push([result[i], features, i]);
                             },
-                            error: function (request, status, error) {
+                            error: function (xhr, status, error) {
                                 app.table.show = false;
-                                app.error_message = request.responseText;
+                                app.error_status = xhr.statusText;
+                                app.error_message = xhr.responseText;
                                 app.showErrorModal();
                             }
                         });
                         $.ajaxSetup({async: true});
                     }
                 },
-                error: function (request, status, error) {
+                error: function (xhr, status, error) {
                     app.table.show = false;
-                    app.error_message = request.responseText;
+                    app.error_status = xhr.statusText;
+                    app.error_message = xhr.responseText;
                     app.showErrorModal();
                 }
             })
@@ -116,9 +119,10 @@ var app = new Vue({
                     app.table.table_busy = false;
                 },
                 error: function (xhr, status, error) {
-                    app.error_message = xhr.statusText + ' ' + xhr.responseText;
                     app.table.table_busy = false;
                     app.table.show = false;
+                    app.error_status = xhr.statusText;
+                    app.error_message = xhr.responseText;
                     app.showErrorModal();
                 }
             });
