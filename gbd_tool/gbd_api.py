@@ -22,7 +22,6 @@ import csv
 import platform
 
 from contextlib import ExitStack
-from urllib.error import URLError
 
 # internal packages
 from gbd_tool import benchmark_administration, search, bootstrap
@@ -35,22 +34,20 @@ except ImportError:
     from gbd_tool.gbd_hash import gbd_hash
 
 class GbdApi:
-
     class GbdApiError(Exception):
-        """Exception raised for errors in GbdApi
-        Attributes:
-            method -- declaration where the exception occurred
-            message -- explanation of the exception
-        """
-        def __init__(self, method, message):
-            self.method = method
-            self.message = message
+        pass
+    class GbdApiFeatureNotFound(GbdApiError):
+        pass
+    class GbdApiParsingFailed(GbdApiError):
+        pass
+    class GbdApiDatabaseError(GbdApiError):
+        pass
 
     # Create a new GbdApi object which operates on the given databases
     def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
         if platform.system() == "Windows":
             self.databases = db_string.split(";")
-        else:    
+        else:
             self.databases = db_string.split(":")
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
@@ -145,7 +142,7 @@ class GbdApi:
 
     def get_feature_size(self, name):
         if not name in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(name))
+            raise self.GbdApiFeatureNotFound
         return self.database.table_size(name)
 
     # Retrieve information about a specific feature
@@ -153,12 +150,12 @@ class GbdApi:
         if path is None:
             system_record = self.database.system_record(name)
             meta_record = self.database.meta_record(name)
-            return { **system_record, **meta_record }
+            return {**system_record, **meta_record}
         else:
             with Database(path) as db:
                 system_record = db.system_record(name)
                 meta_record = db.meta_record(name)
-                return { **system_record, **meta_record }
+                return {**system_record, **meta_record}
 
     def meta_set(self, feature, meta_feature, value):
         self.database.meta_set(feature, meta_feature, value)
@@ -185,29 +182,29 @@ class GbdApi:
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, hash_list, force):
         if not feature in self.get_material_features():
-            raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
-        values=', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
+            raise self.GbdApiFeatureNotFound
+        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
         if self.database.table_unique(feature):
             if force:
                 self.database.submit('DELETE FROM {} WHERE hash IN ("{}")'.format(feature, '", "'.join(hash_list)))
             try:
                 self.database.submit('REPLACE INTO {} (hash, value) VALUES {}'.format(feature, values))
-            except sqlite3.IntegrityError as err: 
-                #thrown if existing value is not the default value or equal to the value to be set
-                #requires the unique on insert-triggers introduced in version 3.0.9
+            except sqlite3.IntegrityError as err:
+                # thrown if existing value is not the default value or equal to the value to be set
+                # requires the unique on insert-triggers introduced in version 3.0.9
                 eprint(str(err) + ": Use the force!")
         else:
             try:
                 self.database.submit('INSERT INTO {} (hash, value) VALUES {}'.format(feature, values))
             except Exception as err:
-                #thrown if hash+value combination is already set
-                #requires the unique constraint introduced in version 3.0.9
+                # thrown if hash+value combination is already set
+                # requires the unique constraint introduced in version 3.0.9
                 eprint(err)
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
-            raise ValueError("Attribute '{}' is not available (or virtual)".format(feature))
+            raise self.GbdApiFeatureNotFound
         self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
 
     def set_tag(self, tag_feature, tag_value, hash_list):
@@ -215,17 +212,17 @@ class GbdApi:
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():
-            raise ValueError("Attribute '{}' is not available".format(feature))
+            raise self.GbdApiFeatureNotFound
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
             sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(sql)
-        except sqlite3.OperationalError as err:
-            raise ValueError("Query error in database '{}': {}".format(self.databases, err))
-        except tatsu.exceptions.FailedParse as err:
-            raise ValueError("Query error in parser: {}.".format(err.message))
+        except sqlite3.OperationalError:
+            raise self.GbdApiDatabaseError
+        except tatsu.exceptions.FailedParse:
+            raise self.GbdApiParsingFailed
 
     def calculate_par2_score(self, query, feature):
         info = self.database.meta_record(feature)
@@ -247,7 +244,5 @@ class GbdApi:
             else:
                 score += 2 * timeout
                 penalized.add(time[1])
-        print(score/len(times))
+        print(score / len(times))
         print(penalized)
-
-
