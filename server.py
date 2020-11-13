@@ -70,7 +70,7 @@ def quick_search_results():
                 message = "Operational error of database. You probably defined a non existent feature"
             else:
                 message = "Unknown error. Please contact our team so that we can reproduce this bug"
-            app.logger.error("While handling query search: {}, IP: {}".format(str(err), request.remote_addr))
+            app.logger.error("While handling query search: {}, IP: {}".format(message, request.remote_addr))
             return Response(message, status=400, mimetype="text/plain")
 
 
@@ -106,8 +106,8 @@ def get_url_file():
         try:
             result = gbd_api.query_search(query, [], ["filename"])
         except GbdApi.GbdApiFeatureNotFound:
-            app.logger.error("While handling URL file request: Feature not found, IP: {}".format(request.remote_addr))
-            return Response("Feature not found", status=400, mimetype="text/plain")
+            app.logger.critical("While handling URL file request: 'filename' feature not found, IP: {}".format(request.remote_addr))
+            return Response("This should not happen", status=500, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         file_name = "query_result.uri"
