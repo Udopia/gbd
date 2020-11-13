@@ -33,9 +33,19 @@ try:
     from gbdhashc import gbdhash as gbd_hash
 except ImportError:
     from gbd_tool.gbd_hash import gbd_hash
-    
 
 class GbdApi:
+
+    class GbdApiError(Exception):
+        """Exception raised for errors in GbdApi
+        Attributes:
+            method -- declaration where the exception occurred
+            message -- explanation of the exception
+        """
+        def __init__(self, method, message):
+            self.method = method
+            self.message = message
+
     # Create a new GbdApi object which operates on the given databases
     def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
         if platform.system() == "Windows":
