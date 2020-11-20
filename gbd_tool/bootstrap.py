@@ -1,4 +1,5 @@
 from gbd_tool.util import eprint, open_cnf_file
+from gbd_tool.error import GbdApiError
 from gbd_tool.db import Database
 
 import io
@@ -56,7 +57,7 @@ def compute_clause_types(hashvalue, filename):
         if line and line[0] not in ['p', 'c']:
             clause = [int(lit) for lit in line.split()[:-1]]
             if not len(clause):
-                raise ValueError("clause is empty: {}".format(line))
+                raise GbdApiError("clause is empty: {}".format(line))
             c_vars = max(c_vars, max(abs(lit) for lit in clause))
             c_clauses += 1
             n_pos = sum(lit > 0 for lit in clause)
