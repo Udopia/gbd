@@ -27,6 +27,7 @@ from contextlib import ExitStack
 from gbd_tool import benchmark_administration, search, bootstrap
 from gbd_tool.db import Database
 from gbd_tool.util import eprint, is_number
+from gbd_tool.error import *
 
 try:
     from gbdhashc import gbdhash as gbd_hash
@@ -34,14 +35,6 @@ except ImportError:
     from gbd_tool.gbd_hash import gbd_hash
 
 class GbdApi:
-    class GbdApiError(Exception):
-        pass
-    class GbdApiFeatureNotFound(GbdApiError):
-        pass
-    class GbdApiParsingFailed(GbdApiError):
-        pass
-    class GbdApiDatabaseError(GbdApiError):
-        pass
 
     # Create a new GbdApi object which operates on the given databases
     def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
@@ -142,7 +135,7 @@ class GbdApi:
 
     def get_feature_size(self, name):
         if not name in self.get_features():
-            raise self.GbdApiFeatureNotFound
+            raise GbdApiFeatureNotFound("Feature '{}' not found".format(name))
         return self.database.table_size(name)
 
     # Retrieve information about a specific feature
@@ -182,7 +175,7 @@ class GbdApi:
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, hash_list, force):
         if not feature in self.get_material_features():
-            raise self.GbdApiFeatureNotFound
+            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
         values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
         if self.database.table_unique(feature):
             if force:
@@ -204,7 +197,7 @@ class GbdApi:
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
-            raise self.GbdApiFeatureNotFound
+            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
         self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
 
     def set_tag(self, tag_feature, tag_value, hash_list):
@@ -212,17 +205,17 @@ class GbdApi:
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():
-            raise self.GbdApiFeatureNotFound
+            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
             sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(sql)
-        except sqlite3.OperationalError:
-            raise self.GbdApiDatabaseError
-        except tatsu.exceptions.FailedParse:
-            raise self.GbdApiParsingFailed
+        except sqlite3.OperationalError as err:
+            raise GbdApiDatabaseError(err.message)
+        except tatsu.exceptions.FailedParse as err:
+            raise GbdApiParsingFailed("Tatsu could not parse query: {}' - {}".format(query, err.message))
 
     def calculate_par2_score(self, query, feature):
         info = self.database.meta_record(feature)

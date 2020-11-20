@@ -25,6 +25,7 @@ import sys
 
 from gbd_tool.util import eprint, confirm, read_hashes
 from gbd_tool.gbd_api import GbdApi
+from gbd_tool.error import *
 
 def cli_hash(api: GbdApi, args):
     path = os.path.abspath(args.path)
@@ -252,10 +253,8 @@ Initialize your database with local paths to your benchmark instances by using t
         try:
             with GbdApi(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
                 args.func(api, args)
-        except AttributeError as e:
-            eprint(e)
-        except ValueError as e:
-            eprint(e)
+        except GbdApiError as err:
+            eprint(err)
     else:
         parser.print_help()
 
