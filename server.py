@@ -106,7 +106,8 @@ def get_url_file():
         try:
             result = gbd_api.query_search(query, [], ["filename"])
         except GbdApiFeatureNotFound:
-            app.logger.critical("While handling URL file request: 'filename' feature not found, IP: {}".format(request.remote_addr))
+            app.logger.critical(
+                "While handling URL file request: 'filename' feature not found, IP: {}".format(request.remote_addr))
             return Response("This should not happen", status=500, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
@@ -163,7 +164,7 @@ def list_features(database):
             return Response(json.dumps(available_features), status=200, mimetype="application/json")
         elif database not in list(map(basename, gbd_api.get_databases())):
             app.logger.warning(
-                "Device with IP {} requested features of database '{}' which could not be found".format(
+                "Device with IP {} requested features of database '{}'. Database was not found".format(
                     request.remote_addr,
                     database))
             return Response("Database does not exist in the running instance of GBD server", status=404,
@@ -172,6 +173,29 @@ def list_features(database):
             target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
             app.logger.info("List all features of database '{}' for IP {}".format(database, request.remote_addr))
             return Response(json.dumps(gbd_api.get_features(target_database)), status=200, mimetype="application/json")
+
+
+# Get meta data and default value of feature
+@app.route('/features/info/<feature>/<database>')
+def get_feature_info(feature, database):
+    with GbdApi(app.config['database']) as gbd_api:
+        try:
+            if database in list(map(basename, gbd_api.get_databases())):
+                records = gbd_api.get_feature_info(feature, list(
+                    filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0])
+            else:
+                app.logger.warning(
+                    "Device with IP {} requested info of feature in database '{}'. Database was not found".format(
+                        request.remote_addr,
+                        database))
+                return Response("Database does not exist in the running instance of GBD server", status=404,
+                                mimetype="text/plain")
+            return Response(json.dumps(records), status=200, mimetype="application/json")
+        except GbdApiFeatureNotFound:
+            app.logger.error(
+                "While requesting feature info: Feature '{}' not found, IP: {}".format(feature,
+                                                                                       request.remote_addr))
+            return Response("Feature not found", status=500, mimetype="text/plain")
 
 
 # Resolves a hashvalue against a attribute and returns the result values
