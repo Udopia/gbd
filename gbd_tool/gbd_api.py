@@ -34,6 +34,7 @@ try:
 except ImportError:
     from gbd_tool.gbd_hash import gbd_hash
 
+
 class GbdApi:
 
     # Create a new GbdApi object which operates on the given databases
@@ -145,10 +146,30 @@ class GbdApi:
             meta_record = self.database.meta_record(name)
             return {**system_record, **meta_record}
         else:
-            with Database(path) as db:
+            with Database([path]) as db:
                 system_record = db.system_record(name)
                 meta_record = db.meta_record(name)
                 return {**system_record, **meta_record}
+
+    # Retrieve system information about a specific feature
+    def get_feature_system_record(self, name, path=None):
+        if path is None:
+            system_record = self.database.system_record(name)
+            return {**system_record}
+        else:
+            with Database([path]) as db:
+                system_record = db.system_record(name)
+                return {**system_record}
+
+    # Retrieve meta information about a specific feature
+    def get_feature_meta_record(self, name, path=None):
+        if path is None:
+            meta_record = self.database.meta_record(name)
+            return {**meta_record}
+        else:
+            with Database([path]) as db:
+                meta_record = db.meta_record(name)
+                return {**meta_record}
 
     def meta_set(self, feature, meta_feature, value):
         self.database.meta_set(feature, meta_feature, value)
