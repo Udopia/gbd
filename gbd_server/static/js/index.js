@@ -76,7 +76,18 @@ var app = new Vue({
                             type: 'GET',
                             dataType: 'json',
                             success: function (features) {
-                                app.databases.push([result[i], features, i]);
+                                let features_with_info = [];
+                                for (let j = 0; j < features.length; j++) {
+                                    $.ajax({
+                                        url: host.concat("/features/info/".concat((features[j])).concat("/").concat(result[i])),
+                                        type: 'GET',
+                                        dataType: 'json',
+                                        success: function (info) {
+                                            features_with_info.push(features[j], info)
+                                        }
+                                    })
+                                }
+                                app.databases.push([result[i], features_with_info, i]);
                             },
                             error: function (xhr, status, error) {
                                 app.table.show = false;
