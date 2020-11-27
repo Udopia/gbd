@@ -76,14 +76,14 @@ var app = new Vue({
                             type: 'GET',
                             dataType: 'json',
                             success: function (features) {
-                                let features_with_info = [];
+                                let features_with_info = {};
                                 for (let j = 0; j < features.length; j++) {
                                     $.ajax({
                                         url: host.concat("/features/info/".concat((features[j])).concat("/").concat(result[i])),
                                         type: 'GET',
                                         dataType: 'json',
                                         success: function (info) {
-                                            features_with_info.push(features[j], info)
+                                            features_with_info[features[j]] = info;
                                         }
                                     })
                                 }
