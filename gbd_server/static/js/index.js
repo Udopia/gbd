@@ -126,7 +126,9 @@ var app = new Vue({
                     app.showErrorModal();
                 }
             });
-            event.preventDefault();
+            if (event !== undefined) {
+                event.preventDefault();
+            }
         },
         showErrorModal() {
             this.$refs['error-modal'].show()
