@@ -161,7 +161,7 @@ var app = new Vue({
         selected_features: {
             get: function () {
                 if (this.patterns.selected_pattern != undefined) {
-                    this.form.selected_features = this.patterns.selected_pattern.features;
+                    this.form.selected_features = this.patterns.selected_pattern.features.concat(this.form.selected_features);
                 }
                 return this.form.selected_features;
             },
