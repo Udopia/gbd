@@ -234,7 +234,7 @@ class GbdApi:
             sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
-            raise GbdApiDatabaseError(err.message)
+            raise GbdApiDatabaseError("Make sure the feature given in the query does exist")
         except tatsu.exceptions.FailedParse as err:
             raise GbdApiParsingFailed("Tatsu could not parse query: {}' - {}".format(query, err.message))
 
