@@ -141,6 +141,10 @@ var app = new Vue({
             this.getDatabases();
             this.patterns.selected_pattern = this.patterns.query_patterns[0];
         },
+        selectPattern() {
+            this.form.selected_features = this.patterns.selected_pattern.features;
+            this.form.query = this.patterns.selected_pattern.value;
+        }
     },
     mounted() {
         this.init();
@@ -151,9 +155,6 @@ var app = new Vue({
         },
         query: {
             get: function () {
-                if (this.patterns.selected_pattern != undefined) {
-                    this.form.query = this.patterns.selected_pattern.value;
-                }
                 return this.form.query;
             },
             set: function (newValue) {
@@ -162,9 +163,6 @@ var app = new Vue({
         },
         selected_features: {
             get: function () {
-                if (this.patterns.selected_pattern != undefined) {
-                    this.form.selected_features = this.patterns.selected_pattern.features.concat(this.form.selected_features);
-                }
                 return this.form.selected_features;
             },
             set: function (newValue) {
