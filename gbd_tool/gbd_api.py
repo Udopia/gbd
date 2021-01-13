@@ -238,25 +238,20 @@ class GbdApi:
         except tatsu.exceptions.FailedParse as err:
             raise GbdApiParsingFailed("Tatsu could not parse query: {}' - {}".format(query, err.message))
 
-    def calculate_par2_score(self, query, feature):
-        info = self.database.meta_record(feature)
-        if not "timeout" in info:
-            eprint("Time-limit 'timeout' missing in meta-record of table '{}'.".format(feature))
-            eprint("Unable to calculate score.")
-            return
-        if not "memout" in info:
-            eprint("Memory-limit 'memout' missing in meta-record of table '{}'.".format(feature))
-        if not "machine" in info:
-            eprint("Machine-id 'machine' missing in meta-record of table '{}'.".format(feature))
-        timeout = int(info["timeout"])
-        times = self.query_search(query, [], [feature])
-        score = 0
-        penalized = set()
-        for time in times:
-            if is_number(time[1]):
-                score += int(time[1])
-            else:
-                score += 2 * timeout
-                penalized.add(time[1])
-        print(score / len(times))
-        print(penalized)
+    def calculate_par2_score(self, query, name, timeout):
+        times = self.query_search(query, [], [name])
+        return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
+
+    def calculate_vbs_par2(self, query, names, timeout):
+        hashs = self.query_search(query, [], [])
+        times = []
+        for hash in hashs:
+            times.append(min(next(iter(self.search(name, hash[0]))) for name in names))
+        return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
+
+    def calculate_vbs(self, query, names, timeout):
+        hashs = self.query_search(query, [], [])
+        times = []
+        for hash in hashs:
+            times.append((hash[0], min(next(iter(self.search(name, hash[0]))) for name in names)))
+        return times
