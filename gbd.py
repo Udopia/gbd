@@ -22,6 +22,7 @@ import os
 import re
 from os.path import join, dirname, realpath
 import sys
+from itertools import combinations
 
 from gbd_tool.util import eprint, confirm, read_hashes
 from gbd_tool.gbd_api import GbdApi
@@ -92,10 +93,6 @@ def cli_set(api: GbdApi, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
         args.hashes = read_hashes()
     api.set_attribute(args.name, args.value, args.hashes, args.force)
-
-
-def cli_par2(api: GbdApi, args):
-    api.calculate_par2_score(args.query, args.name)
     
 
 def cli_info_set(api: GbdApi, args):
@@ -114,6 +111,25 @@ def cli_info(api: GbdApi, args):
         info = api.get_feature_info(args.name)
         for key in info:
             print("{}: {}".format(key, info[key]))
+
+
+def cli_eval_par2(api: GbdApi, args):
+    for name in args.runtimes:
+        par2 = api.calculate_par2_score(args.query, name, args.timeout)
+        print(name + ": " + str(par2))
+    if args.vbs:
+        vbs_par2 = api.calculate_vbs_par2(args.query, args.runtimes, args.timeout)
+        print("vbs: " + str(vbs_par2))
+
+def cli_eval_vbs(api: GbdApi, args):
+    resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
+    for result in resultset:
+        print(args.separator.join([(str(item or '')) for item in result]))
+
+def cli_eval_combinations(api: GbdApi, args):
+    for comb in combinations(args.runtimes, args.size):
+        comb_par2 = api.calculate_vbs_par2(args.query, comb, args.timeout)
+        print(str(comb) + ": " + str(comb_par2))
 
 
 # define directory type for argparse
@@ -235,10 +251,28 @@ def main():
     parser_info_clear.set_defaults(func=cli_info_clear)
 
     # SCORE CALCULATION
-    parser_par2 = subparsers.add_parser('par2', help='Calculate PAR-2 score for given runtime feature')
-    parser_par2.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
-    parser_par2.add_argument('name', type=column_type, help='Name of runtime feature')
-    parser_par2.set_defaults(func=cli_par2)
+    parser_eval = subparsers.add_parser('eval', help='Evaluate Runtime Features')
+    parser_eval_subparsers = parser_eval.add_subparsers(help='Select Evaluation Procedure')
+
+    parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
+    parser_eval_par2.add_argument('query', help='Specify a GBD Query', nargs='?')
+    parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
+    parser_eval_par2.add_argument('--vbs', action='store_true', help='Also Calculate PAR-2 Score of VBS')
+    parser_eval_par2.set_defaults(func=cli_eval_par2)
+
+    parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
+    parser_eval_vbs.add_argument('query', help='Specify a GBD Query', nargs='?')
+    parser_eval_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_eval_vbs.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
+    parser_eval_vbs.set_defaults(func=cli_eval_vbs)
+
+    parser_eval_comb = parser_eval_subparsers.add_parser('comb', help='Calculate VBS of Solver Combinations')
+    parser_eval_comb.add_argument('query', help='Specify a GBD Query', nargs='?')
+    parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
+    parser_eval_comb.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_eval_comb.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
+    parser_eval_comb.set_defaults(func=cli_eval_combinations)
 
     # EVALUATE ARGUMENTS
     args = parser.parse_args()
