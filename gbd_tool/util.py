@@ -24,6 +24,8 @@ __all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
 
 
 def is_number(s):
+    if s is None:
+        return False
     try:
         float(s)
         return True
