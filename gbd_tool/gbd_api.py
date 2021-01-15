@@ -229,9 +229,9 @@ class GbdApi:
             raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
-    def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
+    def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", function=None):
         try:
-            sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
+            sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type, function)
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
             raise GbdApiDatabaseError("Make sure the feature given in the query does exist")
@@ -243,15 +243,8 @@ class GbdApi:
         return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
 
     def calculate_vbs_par2(self, query, names, timeout):
-        hashs = self.query_search(query, [], [])
-        times = []
-        for hash in hashs:
-            times.append(min(next(iter(self.search(name, hash[0]))) for name in names))
+        times = self.calculate_vbs(query, names)
         return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
 
-    def calculate_vbs(self, query, names, timeout):
-        hashs = self.query_search(query, [], [])
-        times = []
-        for hash in hashs:
-            times.append((hash[0], min(next(iter(self.search(name, hash[0]))) for name in names)))
-        return times
+    def calculate_vbs(self, query, names):
+        return self.query_search(query, [], names, function="MIN")

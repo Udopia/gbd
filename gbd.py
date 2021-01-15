@@ -122,7 +122,7 @@ def cli_eval_par2(api: GbdApi, args):
         print("vbs: " + str(vbs_par2))
 
 def cli_eval_vbs(api: GbdApi, args):
-    resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
+    resultset = api.calculate_vbs(args.query, args.runtimes)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
