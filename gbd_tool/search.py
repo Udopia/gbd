@@ -19,7 +19,7 @@ from tatsu import parse
 import pprint
 
 
-def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT", function=None):
+def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
 
     s_attributes = group_by + ".value"
@@ -38,10 +38,7 @@ def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", grou
         s_conditions = s_conditions + " AND hash.hash in ('{}')".format("', '".join(hashes))
 
     if len(resolve):
-        if function is not None:
-            s_attributes = s_attributes + ", " + function + "(" + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve]) + ")"
-        else:
-            s_attributes = s_attributes + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
+        s_attributes = s_attributes + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
 
     s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
