@@ -23,8 +23,9 @@ import re
 from os.path import join, dirname, realpath
 import sys
 from itertools import combinations
+from operator import itemgetter
 
-from gbd_tool.util import eprint, confirm, read_hashes
+from gbd_tool.util import eprint, confirm, read_hashes, is_number
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.error import *
 
@@ -127,9 +128,12 @@ def cli_eval_vbs(api: GbdApi, args):
         print(args.separator.join([(str(item or '')) for item in result]))
 
 def cli_eval_combinations(api: GbdApi, args):
-    for comb in combinations(args.runtimes, args.size):
-        comb_par2 = api.calculate_vbs_par2(args.query, comb, args.timeout)
-        print(str(comb) + ": " + str(comb_par2))
+    result = api.query_search(args.query, [], args.runtimes)
+    result = [[float(val) if is_number(val) and float(val) < float(args.timeout) else 2*args.timeout for val in row] for row in result]
+    args.runtimes.insert(0, "dummy")
+    for comb in combinations(range(1, len(args.runtimes)), args.size):
+        comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
+        print(str(itemgetter(*comb)(args.runtimes)) + ": " + str(comb_par2))
 
 
 # define directory type for argparse
