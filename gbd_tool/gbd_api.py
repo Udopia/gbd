@@ -243,8 +243,9 @@ class GbdApi:
         return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
 
     def calculate_vbs_par2(self, query, names, timeout):
-        times = self.calculate_vbs(query, names, timeout)
-        return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
+        result = self.query_search(query, [], names)
+        return sum([min(float(val) if is_number(val) else 2*timeout for val in row[1:]) for row in result]) / len(result)
 
     def calculate_vbs(self, query, names, timeout):
-        return [(line[0], min(float(val) if is_number(val) else 2*timeout for val in line[1:])) for line in self.query_search(query, [], names)]
+        result = self.query_search(query, [], names)
+        return [(row[0], min(float(val) if is_number(val) else 2*timeout for val in row[1:])) for row in result]
