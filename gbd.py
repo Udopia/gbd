@@ -25,9 +25,17 @@ import sys
 from itertools import combinations
 from operator import itemgetter
 
+from numpy.core.numeric import NaN
+
 from gbd_tool.util import eprint, confirm, read_hashes, is_number
 from gbd_tool.gbd_api import GbdApi
 from gbd_tool.error import *
+
+from pandas import DataFrame
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import itertools
 
 def cli_hash(api: GbdApi, args):
     path = os.path.abspath(args.path)
@@ -56,6 +64,7 @@ def cli_create(api: GbdApi, args):
         api.create_feature(args.name, args.unique)
     else:
         eprint("Feature '{}' does already exist".format(args.name))
+        sys.exit(1)
 
 # delete feature
 def cli_delete(api: GbdApi, args):
@@ -116,11 +125,14 @@ def cli_info(api: GbdApi, args):
 
 def cli_eval_par2(api: GbdApi, args):
     for name in args.runtimes:
-        par2 = api.calculate_par2_score(args.query, name, args.timeout)
-        print(name + ": " + str(par2))
-    if args.vbs:
-        vbs_par2 = api.calculate_vbs_par2(args.query, args.runtimes, args.timeout)
-        print("vbs: " + str(vbs_par2))
+        times = api.query_search(args.query, [], [name])
+        par2 = sum(float(time[1]) if is_number(time[1]) and float(time[1]) < args.timeout else 2*args.timeout for time in times) / len(times)
+        solved = sum(1 if is_number(time[1]) and float(time[1]) < args.timeout else 0 for time in times)
+        print(name + ": " + str(par2) + " (" + str(solved) + " / " + str(len(times)) + ")")
+    times = api.query_search(args.query, [], args.runtimes)
+    vbs_par2 = sum([min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times]) / len(times)
+    solved = sum(1 if t < args.timeout else 0 for t in [min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times])
+    print("vbs: " + str(vbs_par2) + " (" + str(solved) + " / " + str(len(times)) + ")")
 
 def cli_eval_vbs(api: GbdApi, args):
     resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
@@ -134,6 +146,101 @@ def cli_eval_combinations(api: GbdApi, args):
     for comb in combinations(range(1, len(args.runtimes)), args.size):
         comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
         print(str(itemgetter(*comb)(args.runtimes)) + ": " + str(comb_par2))
+
+
+coolors=['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
+
+def cli_plot_scatter(api: GbdApi, args):
+    plt.rcParams.update({'font.size': 6})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_aspect('equal', adjustable='box')
+    plt.axline((0, 0), (1, 1), linewidth=0.5, color='grey', zorder=0)
+    plt.axhline(y=args.timeout, xmin=0, xmax=1, linewidth=0.5, color='grey', zorder=0)
+    plt.axvline(x=args.timeout, ymin=0, ymax=1, linewidth=0.5, color='grey', zorder=0)
+    plt.xlabel(args.runtimes[0], fontsize=8)
+    plt.ylabel(args.runtimes[1], fontsize=8)
+    markers = itertools.cycle(['x', '1', '2', '3', '4', '_', '|', '.'])
+    markers = itertools.cycle(plt.Line2D.markers.items())
+    next(markers)
+    next(markers)
+    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
+    if not args.groups:
+        args.groups = []
+
+    groups = list(set([ g.split('=', 2)[0] for g in args.groups ]))
+    result = api.query_search(args.query, [], groups + args.runtimes)
+    dfall = DataFrame(result, columns = ["hash"] + groups + args.runtimes)
+    for r in args.runtimes:
+        dfall[r] = pd.to_numeric(dfall[r], errors='coerce')
+        dfall.loc[(dfall[r] >= args.timeout) | pd.isna(dfall[r]), r] = args.timeout
+    print(dfall)
+
+    plots = []
+    title = []
+    invers = "True "
+    for g in args.groups:
+        color=next(ax._get_lines.prop_cycler)['color']
+        marker=next(markers)[0]
+        query = g.replace('=', '=="') + '"'
+        invers = invers + " and not (" + query + ")"
+        plots = plots + [ plt.scatter(data=dfall.query(query), x=args.runtimes[0], y=args.runtimes[1], c=color, marker=marker, alpha=0.7, linewidth=0.7, zorder=2) ]
+        title = title + [ g ]
+
+    plt.scatter(data=dfall.query(invers) if invers != "True " else dfall, x=args.runtimes[0], y=args.runtimes[1], marker='.', alpha=0.7, linewidth=0.7, color="black", zorder=1)
+
+    plt.legend(tuple(plots), tuple(title), scatterpoints=1, bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left', ncol=len(title), mode="expand", borderaxespad=0.)
+    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
+    plt.show()
+    pass
+
+def cli_plot_cdf(api: GbdApi, args):
+    plt.rcParams.update({'font.size': 8})
+    result = api.query_search(args.query, [], args.runtimes)
+    result = [[float(val) if is_number(val) and float(val) < float(args.timeout) else args.timeout for val in row[1:]] for row in result]
+    df = DataFrame(result)
+    df.columns = args.runtimes
+    df['vbs'] = df[args.runtimes].min(axis=1)
+    print(df)
+
+    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.set_title(args.query)
+
+    df2 = DataFrame(index=range(args.timeout), columns=args.runtimes)
+    df2.fillna(0)
+    for col in args.runtimes + ['vbs']:
+        df2[col] = [0] * args.timeout
+        for val in df[col]:
+            if val < args.timeout:
+                df2.loc[round(val), col] = df2[col][round(val)] + 1
+
+        sum = 0
+        for val in range(1, args.timeout):
+            df2.loc[val, col + "_"] = NaN
+            if df2[col][val] != 0:
+                df2.loc[val, col + "_"] = sum
+            sum = sum + df2.loc[val, col]
+            df2.loc[val, col] = sum
+    
+    markers = itertools.cycle(plt.Line2D.markers.items())
+    next(markers)
+    next(markers)
+    for col in args.runtimes + ['vbs']:
+        color=next(ax._get_lines.prop_cycler)['color']
+        ax.plot(df2[col], '-', linewidth=1, color=color)
+        label=col
+        meta=api.get_feature_meta_record(col)
+        if "args" in meta:
+            label = label + " " + meta["args"]
+        ax.plot(df2[col + "_"], '-' + next(markers)[0], markersize=3, label=label, alpha=0.7, linewidth=0.7, drawstyle='steps-post', color=color)
+    plt.legend(loc='lower right')
+    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
+    plt.show()
+    pass
 
 
 # define directory type for argparse
@@ -158,6 +265,12 @@ def column_type(s):
     if not pat.match(s):
         raise argparse.ArgumentTypeError('group-name:{0} does not match regular expression {1}'.format(s, pat.pattern))
     return s
+
+def key_value_type(s):
+    tup = s.split('=', 2)
+    if len(tup) < 2:
+        raise argparse.ArgumentTypeError('key-value type: {0} is not separated by = '.format(s))
+    return (tup[0], tup[1])
 
 
 def main():
@@ -261,24 +374,40 @@ def main():
     parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
     parser_eval_par2.add_argument('query', help='Specify a GBD Query', nargs='?')
     parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
-    parser_eval_par2.add_argument('--vbs', action='store_true', help='Also Calculate PAR-2 Score of VBS')
+    parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_par2.set_defaults(func=cli_eval_par2)
 
     parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
     parser_eval_vbs.add_argument('query', help='Specify a GBD Query', nargs='?')
     parser_eval_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_vbs.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
+    parser_eval_vbs.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_vbs.set_defaults(func=cli_eval_vbs)
 
     parser_eval_comb = parser_eval_subparsers.add_parser('comb', help='Calculate VBS of Solver Combinations')
     parser_eval_comb.add_argument('query', help='Specify a GBD Query', nargs='?')
     parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
     parser_eval_comb.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_comb.add_argument('-t', '--timeout', default=5000, type=int, help='Name of runtime feature')
+    parser_eval_comb.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_comb.set_defaults(func=cli_eval_combinations)
 
-    # EVALUATE ARGUMENTS
+    # PLOTS
+    parser_plot = subparsers.add_parser('plot', help='Plot Runtimes')
+    parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot')
+
+    parser_plot_scatter = parser_plot_subparsers.add_parser('scatter', help='Scatter Plot')
+    parser_plot_scatter.add_argument('query', help='GBD Query', nargs='?')
+    parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
+    parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
+    parser_plot_scatter.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
+    parser_plot_scatter.set_defaults(func=cli_plot_scatter)
+
+    parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
+    parser_plot_cdf.add_argument('query', help='GBD Query', nargs='?')
+    parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_plot_cdf.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
+    parser_plot_cdf.set_defaults(func=cli_plot_cdf)
+
+    # plotUATE ARGUMENTS
     args = parser.parse_args()
     if not args.db:
             eprint("""No database path is given. 
@@ -293,6 +422,7 @@ Initialize your database with local paths to your benchmark instances by using t
                 args.func(api, args)
         except GbdApiError as err:
             eprint(err)
+            sys.exit(1)
     else:
         parser.print_help()
 
