@@ -1,4 +1,4 @@
-# Global Benchmark Database (GBD)
+# GBD Benchmark Database (GBD)
 # Copyright (C) 2020 Markus Iser, Luca Springer, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
