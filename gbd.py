@@ -194,6 +194,53 @@ def cli_plot_scatter(api: GbdApi, args):
     plt.show()
     pass
 
+def cli_plot_scatter2(api: GbdApi, args):
+    plt.rcParams.update({'font.size': 6})
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_aspect('equal', adjustable='box')
+    plt.axline((0, 0), (1, 1), linewidth=0.5, color='grey', zorder=0)
+    plt.axhline(y=args.timeout, xmin=0, xmax=1, linewidth=0.5, color='grey', zorder=0)
+    plt.axvline(x=args.timeout, ymin=0, ymax=1, linewidth=0.5, color='grey', zorder=0)
+    plt.xlabel(args.runtimes[0], fontsize=8)
+    plt.ylabel(args.runtimes[1], fontsize=8)
+    markers = itertools.cycle(plt.Line2D.markers.items())
+    next(markers)
+    next(markers)
+    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
+    if not args.groups:
+        args.groups = []
+
+    result = api.query_search(args.query, [], args.runtimes)
+    dfall = DataFrame(result, columns = ["hash"] + args.runtimes)
+    for r in args.runtimes:
+        dfall[r] = pd.to_numeric(dfall[r], errors='coerce')
+        dfall.loc[(dfall[r] >= args.timeout) | pd.isna(dfall[r]), r] = args.timeout
+    print(dfall)
+
+    plots = []
+    title = []
+    for g in args.groups:
+        color=next(ax._get_lines.prop_cycler)['color']
+        marker=next(markers)[0]
+
+        result = api.query_search(args.query + " and (" + g + ")", [], args.runtimes)
+        df = DataFrame(result, columns = ["hash"] + args.runtimes)
+        for r in args.runtimes:
+            df[r] = pd.to_numeric(df[r], errors='coerce')
+            df.loc[(df[r] >= args.timeout) | pd.isna(df[r]), r] = args.timeout
+        dfall = pd.concat([dfall, df]).drop_duplicates(keep=False)
+
+        plots = plots + [ plt.scatter(data=df, x=args.runtimes[0], y=args.runtimes[1], c=color, marker=marker, alpha=0.7, linewidth=0.7, zorder=2) ]
+        title = title + [ g ]
+
+    plt.scatter(data=dfall, x=args.runtimes[0], y=args.runtimes[1], marker='.', alpha=0.7, linewidth=0.7, color="black", zorder=1)
+
+    plt.legend(tuple(plots), tuple(title), scatterpoints=1, bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left', ncol=len(title), mode="expand", borderaxespad=0.)
+    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
+    plt.show()
+    pass
+
 def cli_plot_cdf(api: GbdApi, args):
     plt.rcParams.update({'font.size': 8})
     result = api.query_search(args.query, [], args.runtimes)
@@ -274,7 +321,7 @@ def key_value_type(s):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Access and maintain the global benchmark database.')
+    parser = argparse.ArgumentParser(description='Access and maintain GBD benchmark databases.')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
@@ -399,7 +446,7 @@ def main():
     parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
     parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
     parser_plot_scatter.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
-    parser_plot_scatter.set_defaults(func=cli_plot_scatter)
+    parser_plot_scatter.set_defaults(func=cli_plot_scatter2)
 
     parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
     parser_plot_cdf.add_argument('query', help='GBD Query', nargs='?')
