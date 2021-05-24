@@ -234,9 +234,9 @@ class GbdApi:
             sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
-            raise GbdApiDatabaseError("Make sure the feature given in the query does exist")
+            raise GbdApiDatabaseError("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
-            raise GbdApiParsingFailed("Tatsu could not parse query: {}' - {}".format(query, err.message))
+            raise GbdApiParsingFailed("Parser Error: {}".format(str(err)))
 
     def calculate_par2_score(self, query, name, timeout):
         times = self.query_search(query, [], [name])

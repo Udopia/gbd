@@ -51,7 +51,7 @@ def build_where(ast):
     elif ast["qop"]:
         return "({} {} {})".format(build_where(ast["left"]), ast["qop"], build_where(ast["right"]))
     elif ast["sop"]:
-        return "{}.value {} \"{}\"".format(ast["left"], ast["sop"], ast["right"])
+        return "{}.value {} \"{}\"".format(ast["left"], ast["sop"] if ast["sop"] == "like" else "not like", ast["right"])
     elif ast["aop"]:
         return "{} {} {}".format(build_where(ast["left"]), ast["aop"], build_where(ast["right"]))
     elif ast["bracket_term"]:
@@ -85,11 +85,14 @@ GRAMMAR = r'''
 
     start = q:query $ ;
 
-    query = '(' q:query ')' | left:query qop:('and' | 'or') right:query | scon | acon;
+    query = left:query qop:('and' | 'or') right:query | 
+            '(' q:query ')' | 
+            sconstraint | 
+            aconstraint;
 
-    scon = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('like') right:likean ;
+    sconstraint = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('unlike' | 'like') right:likean ;
         
-    acon = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
+    aconstraint = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
 
     term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
