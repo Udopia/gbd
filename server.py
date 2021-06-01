@@ -51,6 +51,7 @@ def quick_search():
 @app.route("/results", methods=['POST'])
 def quick_search_results():
     with GbdApi(app.config['database']) as gbd_api:
+        app.logger.info("Received query '{}' from {}".format(request.form.get('query'), request.remote_addr))
         query = request.form.get('query')
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
         if not len(selected_features):
@@ -62,7 +63,6 @@ def quick_search_results():
             rows = list(gbd_api.query_search(query, [], features))
             features.insert(0, "GBDhash")
             result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
-            app.logger.info("Answer normal query request from {}".format(request.remote_addr))
             return Response(json.dumps(result), status=200, mimetype="application/json")
         except GbdApiParsingFailed:
             message = "Could not parse your query. Please check the syntax"
