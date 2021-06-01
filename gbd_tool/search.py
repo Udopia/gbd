@@ -22,27 +22,27 @@ import pprint
 def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
 
-    s_attributes = group_by + ".value"
+    s_select = group_by + ".value"
     s_from = group_by
-    s_tables = ""
-    s_conditions = "1=1"
+    s_join = ""
+    s_where = "1=1"
     s_group_by = group_by + ".value"
     tables = set(resolve)
     
     if query is not None and query:
         ast = parse(GRAMMAR, query)        
-        s_conditions = build_where(ast)
+        s_where = build_where(ast)
         tables.update(collect_tables(ast))
 
     if len(hashes):
-        s_conditions = s_conditions + " AND hash.hash in ('{}')".format("', '".join(hashes))
+        s_where = s_where + " AND hash.hash in ('{}')".format("', '".join(hashes))
 
     if len(resolve):
-        s_attributes = s_attributes + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
+        s_select = s_select + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
 
-    s_tables = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
+    s_join = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
 
-    return statement.format(s_attributes, s_from, s_tables, s_conditions, s_group_by)
+    return statement.format(s_select, s_from, s_join, s_where, s_group_by)
 
 
 def build_where(ast):
@@ -51,7 +51,7 @@ def build_where(ast):
     elif ast["qop"]:
         return "({} {} {})".format(build_where(ast["left"]), ast["qop"], build_where(ast["right"]))
     elif ast["sop"]:
-        return "{}.value {} \"{}\"".format(ast["left"], ast["sop"] if ast["sop"] == "like" else "not like", ast["right"])
+        return "{}.value {} \"{}\"".format(ast["left"], "not like" if ast["sop"] == "unlike" else ast["sop"], ast["right"])
     elif ast["aop"]:
         return "{} {} {}".format(build_where(ast["left"]), ast["aop"], build_where(ast["right"]))
     elif ast["bracket_term"]:
