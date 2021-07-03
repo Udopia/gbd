@@ -128,11 +128,11 @@ def cli_eval_par2(api: GbdApi, args):
         times = api.query_search(args.query, [], [name])
         par2 = sum(float(time[1]) if is_number(time[1]) and float(time[1]) < args.timeout else 2*args.timeout for time in times) / len(times)
         solved = sum(1 if is_number(time[1]) and float(time[1]) < args.timeout else 0 for time in times)
-        print(name + ": " + str(par2) + " (" + str(solved) + " / " + str(len(times)) + ")")
+        print(str(round(par2, 2)) + " " + str(solved) + "/" + str(len(times)) + " " + name)
     times = api.query_search(args.query, [], args.runtimes)
     vbs_par2 = sum([min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times]) / len(times)
     solved = sum(1 if t < args.timeout else 0 for t in [min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times])
-    print("vbs: " + str(vbs_par2) + " (" + str(solved) + " / " + str(len(times)) + ")")
+    print(str(round(vbs_par2, 2)) + " " + str(solved) + "/" + str(len(times)) + " VBS")
 
 def cli_eval_vbs(api: GbdApi, args):
     resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
@@ -250,16 +250,24 @@ def cli_plot_cdf(api: GbdApi, args):
     df['vbs'] = df[args.runtimes].min(axis=1)
     print(df)
 
-    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
+    #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
+
+    params = {'legend.fontsize': 'small',
+            'axes.labelsize': 6,
+            'axes.titlesize': 6,
+            'xtick.labelsize': 6,
+            'ytick.labelsize': 8,
+            'axes.titlepad': 10}
+    plt.rcParams.update(params)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.set_title(args.query)
+    ax.set_title(args.query.replace('_', ' ').title(), fontsize=6)
 
     df2 = DataFrame(index=range(args.timeout), columns=args.runtimes)
     df2.fillna(0)
-    for col in args.runtimes + ['vbs']:
+    for col in ['vbs'] + args.runtimes:
         df2[col] = [0] * args.timeout
         for val in df[col]:
             if val < args.timeout:
@@ -276,15 +284,15 @@ def cli_plot_cdf(api: GbdApi, args):
     markers = itertools.cycle(plt.Line2D.markers.items())
     next(markers)
     next(markers)
-    for col in args.runtimes + ['vbs']:
+    for col in ['vbs'] + args.runtimes:
         color=next(ax._get_lines.prop_cycler)['color']
-        ax.plot(df2[col], '-', linewidth=1, color=color)
+        ax.plot(df2[col], linestyle='-', linewidth=.5, color=color)
         label=col
         meta=api.get_feature_meta_record(col)
         if "args" in meta:
             label = label + " " + meta["args"]
-        ax.plot(df2[col + "_"], '-' + next(markers)[0], markersize=3, label=label, alpha=0.7, linewidth=0.7, drawstyle='steps-post', color=color)
-    plt.legend(loc='lower right')
+        ax.plot(df2[str(col) + "_"], linestyle='-', linewidth=.5, marker=next(markers)[0], markersize=2, label=label, drawstyle='steps-post', color=color)
+    plt.legend(ncol=3, loc='lower right')
     plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
     plt.show()
     pass
