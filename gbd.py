@@ -126,13 +126,15 @@ def cli_info(api: GbdApi, args):
 def cli_eval_par2(api: GbdApi, args):
     for name in args.runtimes:
         times = api.query_search(args.query, [], [name])
-        par2 = sum(float(time[1]) if is_number(time[1]) and float(time[1]) < args.timeout else 2*args.timeout for time in times) / len(times)
+        div = len(times) if args.divisor is None else args.divisor
+        par2 = sum(float(time[1]) if is_number(time[1]) and float(time[1]) < args.timeout else 2*args.timeout for time in times) / div
         solved = sum(1 if is_number(time[1]) and float(time[1]) < args.timeout else 0 for time in times)
-        print(str(round(par2, 2)) + " " + str(solved) + "/" + str(len(times)) + " " + name)
+        print(str(round(par2, 2)) + " " + str(solved) + "/" + str(div) + " " + name)
     times = api.query_search(args.query, [], args.runtimes)
-    vbs_par2 = sum([min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times]) / len(times)
+    div = len(times) if args.divisor is None else args.divisor
+    vbs_par2 = sum([min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times]) / div
     solved = sum(1 if t < args.timeout else 0 for t in [min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times])
-    print(str(round(vbs_par2, 2)) + " " + str(solved) + "/" + str(len(times)) + " VBS")
+    print(str(round(vbs_par2, 2)) + " " + str(solved) + "/" + str(div) + " VBS")
 
 def cli_eval_vbs(api: GbdApi, args):
     resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
@@ -149,50 +151,6 @@ def cli_eval_combinations(api: GbdApi, args):
 
 
 coolors=['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
-
-def cli_plot_scatter(api: GbdApi, args):
-    plt.rcParams.update({'font.size': 6})
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_aspect('equal', adjustable='box')
-    plt.axline((0, 0), (1, 1), linewidth=0.5, color='grey', zorder=0)
-    plt.axhline(y=args.timeout, xmin=0, xmax=1, linewidth=0.5, color='grey', zorder=0)
-    plt.axvline(x=args.timeout, ymin=0, ymax=1, linewidth=0.5, color='grey', zorder=0)
-    plt.xlabel(args.runtimes[0], fontsize=8)
-    plt.ylabel(args.runtimes[1], fontsize=8)
-    markers = itertools.cycle(['x', '1', '2', '3', '4', '_', '|', '.'])
-    markers = itertools.cycle(plt.Line2D.markers.items())
-    next(markers)
-    next(markers)
-    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
-    if not args.groups:
-        args.groups = []
-
-    groups = list(set([ g.split('=', 2)[0] for g in args.groups ]))
-    result = api.query_search(args.query, [], groups + args.runtimes)
-    dfall = DataFrame(result, columns = ["hash"] + groups + args.runtimes)
-    for r in args.runtimes:
-        dfall[r] = pd.to_numeric(dfall[r], errors='coerce')
-        dfall.loc[(dfall[r] >= args.timeout) | pd.isna(dfall[r]), r] = args.timeout
-    print(dfall)
-
-    plots = []
-    title = []
-    invers = "True "
-    for g in args.groups:
-        color=next(ax._get_lines.prop_cycler)['color']
-        marker=next(markers)[0]
-        query = g.replace('=', '=="') + '"'
-        invers = invers + " and not (" + query + ")"
-        plots = plots + [ plt.scatter(data=dfall.query(query), x=args.runtimes[0], y=args.runtimes[1], c=color, marker=marker, alpha=0.7, linewidth=0.7, zorder=2) ]
-        title = title + [ g ]
-
-    plt.scatter(data=dfall.query(invers) if invers != "True " else dfall, x=args.runtimes[0], y=args.runtimes[1], marker='.', alpha=0.7, linewidth=0.7, color="black", zorder=1)
-
-    plt.legend(tuple(plots), tuple(title), scatterpoints=1, bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left', ncol=len(title), mode="expand", borderaxespad=0.)
-    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
-    plt.show()
-    pass
 
 def cli_plot_scatter2(api: GbdApi, args):
     plt.rcParams.update({'font.size': 6})
@@ -262,6 +220,9 @@ def cli_plot_cdf(api: GbdApi, args):
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
+
+    plt.xlim(0, args.timeout)
+    #plt.ylim(0, len(result))
 
     ax.set_title(args.query.replace('_', ' ').title(), fontsize=6)
 
@@ -430,6 +391,7 @@ def main():
     parser_eval_par2.add_argument('query', help='Specify a GBD Query', nargs='?')
     parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
+    parser_eval_par2.add_argument('-d', '--divisor', type=int, help='Overwrite Divisor used for Averaging Scores', nargs='?')
     parser_eval_par2.set_defaults(func=cli_eval_par2)
 
     parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
