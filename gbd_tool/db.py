@@ -53,7 +53,7 @@ class Database:
                             eprint("{}: file is neither a database nor csv-file having the key-column 'hash'".format(path))
                         else:
                             self.csv.append(path)
-
+        
     def __enter__(self):
         self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
         for path in self.csv:
@@ -74,6 +74,11 @@ class Database:
             self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
             self.cursor = self.connection.cursor()
             self.names = [ "_in_memory_" ]
+        #for table in self.tables():
+        #    if table != "local":
+        #        self.execute('''DROP TRIGGER {}_dval'''.format(table))
+        #        self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
+        #                INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(table, table))
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -146,10 +151,10 @@ class Database:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT UNIQUE NOT NULL, value TEXT NOT NULL DEFAULT "{}")'.format(name, default_value))
             self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
             self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
-                    INSERT INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
-            self.execute('''CREATE TRIGGER {}_unique BEFORE INSERT ON {} BEGIN 
-                    SELECT CASE WHEN EXISTS (SELECT * FROM {} WHERE hash=NEW.hash AND value!="{}" AND value!=NEW.value) 
-                    THEN RAISE(ABORT, 'Unique Contraint Violation') END; END'''.format(name, name, name, default_value))
+                    INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
+            #self.execute('''CREATE TRIGGER {}_unique BEFORE INSERT ON {} BEGIN 
+            #        SELECT CASE WHEN EXISTS (SELECT * FROM {} WHERE hash=NEW.hash AND value!="{}" AND value!=NEW.value) 
+            #        THEN RAISE(ABORT, 'Unique Constraint Violation') END; END'''.format(name, name, name, default_value))
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
         self.commit()

@@ -20,23 +20,19 @@
 import argparse
 import os
 import re
-from os.path import join, dirname, realpath
 import sys
-from itertools import combinations
-from operator import itemgetter
 
-from numpy.core.numeric import NaN
-
-from gbd_tool.util import eprint, confirm, read_hashes, is_number
 from gbd_tool.gbd_api import GbdApi
+import gbd_tool.util as util
+
+import gbd_tool.eval as eval
+import gbd_tool.plot as plot
+import gbd_tool.graph as graph
+
 from gbd_tool.error import *
 
-from pandas import DataFrame
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import itertools
 
+### Command-Line Interface Entry Points
 def cli_hash(api: GbdApi, args):
     path = os.path.abspath(args.path)
     print(GbdApi.hash_file(path))
@@ -58,52 +54,33 @@ def cli_init_dsh(api: GbdApi, args):
 def cli_init_sanitize(api: GbdApi, args):
     api.bootstrap("sanitation_info", args.hashes)
 
-# create feature
 def cli_create(api: GbdApi, args):
-    if not api.feature_exists(args.name):
-        api.create_feature(args.name, args.unique)
-    else:
-        eprint("Feature '{}' does already exist".format(args.name))
-        sys.exit(1)
+    api.create_feature(args.name, args.unique)
 
-# delete feature
 def cli_delete(api: GbdApi, args):
-    if api.feature_exists(args.name):
-        if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-            args.hashes = read_hashes()
-        if args.hashes and len(args.hashes) > 0:
-            if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
-                api.remove_attributes(args.name, args.hashes)
-        elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
-            api.remove_feature(args.name)
-    else:
-        eprint("Feature '{}' does not exist or is virtual".format(args.name))
+    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
+        args.hashes = util.read_hashes()
+    if args.hashes and len(args.hashes) > 0:
+        if args.force or util.confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
+            api.remove_attributes(args.name, args.hashes)
+    elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
+        api.remove_feature(args.name)
 
-# rename feature
 def cli_rename(api: GbdApi, args):
-    if not api.feature_exists(args.old_name):
-        eprint("Feature '{}' does not exist or is virtual".format(args.old_name))
-    elif api.feature_exists(args.new_name):
-        eprint("Feature '{}' does already exist".format(args.new_name))
-    else:
-        api.rename_feature(args.old_name, args.new_name)
-        
-# entry for query command
+    api.rename_feature(args.old_name, args.new_name)
+
 def cli_get(api: GbdApi, args):
     hashes = []
     if not sys.stdin.isatty():
-        hashes = read_hashes()
+        hashes = util.read_hashes()
     resultset = api.query_search(args.query, hashes, args.resolve, args.collapse, args.group_by)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
-
-# associate an attribute with a hash and a value
 def cli_set(api: GbdApi, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-        args.hashes = read_hashes()
+        args.hashes = util.read_hashes()
     api.set_attribute(args.name, args.value, args.hashes, args.force)
-    
 
 def cli_info_set(api: GbdApi, args):
     api.meta_set(args.feature, args.name, args.value)
@@ -122,144 +99,26 @@ def cli_info(api: GbdApi, args):
         for key in info:
             print("{}: {}".format(key, info[key]))
 
-
 def cli_eval_par2(api: GbdApi, args):
-    for name in args.runtimes:
-        times = api.query_search(args.query, [], [name])
-        div = len(times) if args.divisor is None else args.divisor
-        par2 = sum(float(time[1]) if is_number(time[1]) and float(time[1]) < args.timeout else 2*args.timeout for time in times) / div
-        solved = sum(1 if is_number(time[1]) and float(time[1]) < args.timeout else 0 for time in times)
-        print(str(round(par2, 2)) + " " + str(solved) + "/" + str(div) + " " + name)
-    times = api.query_search(args.query, [], args.runtimes)
-    div = len(times) if args.divisor is None else args.divisor
-    vbs_par2 = sum([min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times]) / div
-    solved = sum(1 if t < args.timeout else 0 for t in [min(float(val) if is_number(val) else 2*args.timeout for val in row[1:]) for row in times])
-    print(str(round(vbs_par2, 2)) + " " + str(solved) + "/" + str(div) + " VBS")
+    eval.par2(api, args.query, args.runtimes, args.timeout, args.divisor)
 
 def cli_eval_vbs(api: GbdApi, args):
-    resultset = api.calculate_vbs(args.query, args.runtimes, args.timeout)
-    for result in resultset:
-        print(args.separator.join([(str(item or '')) for item in result]))
+    eval.vbs(api, args.query, args.runtimes, args.timeout, args.separator)
 
 def cli_eval_combinations(api: GbdApi, args):
-    result = api.query_search(args.query, [], args.runtimes)
-    result = [[float(val) if is_number(val) and float(val) < float(args.timeout) else 2*args.timeout for val in row] for row in result]
-    args.runtimes.insert(0, "dummy")
-    for comb in combinations(range(1, len(args.runtimes)), args.size):
-        comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
-        print(str(itemgetter(*comb)(args.runtimes)) + ": " + str(comb_par2))
+    eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
 
+def cli_graph(api: GbdApi, args):
+    graph.vig(api, args.path)
 
-coolors=['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
-
-def cli_plot_scatter2(api: GbdApi, args):
-    plt.rcParams.update({'font.size': 6})
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_aspect('equal', adjustable='box')
-    plt.axline((0, 0), (1, 1), linewidth=0.5, color='grey', zorder=0)
-    plt.axhline(y=args.timeout, xmin=0, xmax=1, linewidth=0.5, color='grey', zorder=0)
-    plt.axvline(x=args.timeout, ymin=0, ymax=1, linewidth=0.5, color='grey', zorder=0)
-    plt.xlabel(args.runtimes[0], fontsize=8)
-    plt.ylabel(args.runtimes[1], fontsize=8)
-    markers = itertools.cycle(plt.Line2D.markers.items())
-    next(markers)
-    next(markers)
-    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
-    if not args.groups:
-        args.groups = []
-
-    result = api.query_search(args.query, [], args.runtimes)
-    dfall = DataFrame(result, columns = ["hash"] + args.runtimes)
-    for r in args.runtimes:
-        dfall[r] = pd.to_numeric(dfall[r], errors='coerce')
-        dfall.loc[(dfall[r] >= args.timeout) | pd.isna(dfall[r]), r] = args.timeout
-    print(dfall)
-
-    plots = []
-    title = []
-    for g in args.groups:
-        color=next(ax._get_lines.prop_cycler)['color']
-        marker=next(markers)[0]
-
-        result = api.query_search(args.query + " and (" + g + ")", [], args.runtimes)
-        df = DataFrame(result, columns = ["hash"] + args.runtimes)
-        for r in args.runtimes:
-            df[r] = pd.to_numeric(df[r], errors='coerce')
-            df.loc[(df[r] >= args.timeout) | pd.isna(df[r]), r] = args.timeout
-        dfall = pd.concat([dfall, df]).drop_duplicates(keep=False)
-
-        plots = plots + [ plt.scatter(data=df, x=args.runtimes[0], y=args.runtimes[1], c=color, marker=marker, alpha=0.7, linewidth=0.7, zorder=2) ]
-        title = title + [ g ]
-
-    plt.scatter(data=dfall, x=args.runtimes[0], y=args.runtimes[1], marker='.', alpha=0.7, linewidth=0.7, color="black", zorder=1)
-
-    plt.legend(tuple(plots), tuple(title), scatterpoints=1, bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left', ncol=len(title), mode="expand", borderaxespad=0.)
-    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
-    plt.show()
-    pass
+def cli_plot_scatter(api: GbdApi, args):
+    plot.scatter(api, args.query, args.runtimes, args.timeout, args.groups)
 
 def cli_plot_cdf(api: GbdApi, args):
-    plt.rcParams.update({'font.size': 8})
-    result = api.query_search(args.query, [], args.runtimes)
-    result = [[float(val) if is_number(val) and float(val) < float(args.timeout) else args.timeout for val in row[1:]] for row in result]
-    df = DataFrame(result)
-    df.columns = args.runtimes
-    df['vbs'] = df[args.runtimes].min(axis=1)
-    print(df)
-
-    #plt.rcParams['axes.prop_cycle'] = plt.cycler(color=coolors)
-
-    params = {'legend.fontsize': 'small',
-            'axes.labelsize': 6,
-            'axes.titlesize': 6,
-            'xtick.labelsize': 6,
-            'ytick.labelsize': 8,
-            'axes.titlepad': 10}
-    plt.rcParams.update(params)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    plt.xlim(0, args.timeout)
-    #plt.ylim(0, len(result))
-
-    ax.set_title(args.query.replace('_', ' ').title(), fontsize=6)
-
-    df2 = DataFrame(index=range(args.timeout), columns=args.runtimes)
-    df2.fillna(0)
-    for col in ['vbs'] + args.runtimes:
-        df2[col] = [0] * args.timeout
-        for val in df[col]:
-            if val < args.timeout:
-                df2.loc[round(val), col] = df2[col][round(val)] + 1
-
-        sum = 0
-        for val in range(1, args.timeout):
-            df2.loc[val, col + "_"] = NaN
-            if df2[col][val] != 0:
-                df2.loc[val, col + "_"] = sum
-            sum = sum + df2.loc[val, col]
-            df2.loc[val, col] = sum
-    
-    markers = itertools.cycle(plt.Line2D.markers.items())
-    next(markers)
-    next(markers)
-    for col in ['vbs'] + args.runtimes:
-        color=next(ax._get_lines.prop_cycler)['color']
-        ax.plot(df2[col], linestyle='-', linewidth=.5, color=color)
-        label=col
-        meta=api.get_feature_meta_record(col)
-        if "args" in meta:
-            label = label + " " + meta["args"]
-        ax.plot(df2[str(col) + "_"], linestyle='-', linewidth=.5, marker=next(markers)[0], markersize=2, label=label, drawstyle='steps-post', color=color)
-    plt.legend(ncol=3, loc='lower right')
-    plt.savefig('out.svg', transparent=True, bbox_inches='tight', pad_inches=0)
-    plt.show()
-    pass
+    plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
 
 
-# define directory type for argparse
+### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(dir):
     if not os.path.isdir(dir):
         raise argparse.ArgumentTypeError('{0} is not a directory'.format(dir))
@@ -289,6 +148,7 @@ def key_value_type(s):
     return (tup[0], tup[1])
 
 
+### Define Command-Line Interface and Map Sub-Commands to Methods
 def main():
     parser = argparse.ArgumentParser(description='Access and maintain GBD benchmark databases.')
 
@@ -416,29 +276,34 @@ def main():
     parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
     parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
     parser_plot_scatter.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
-    parser_plot_scatter.set_defaults(func=cli_plot_scatter2)
+    parser_plot_scatter.set_defaults(func=cli_plot_scatter)
 
     parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
     parser_plot_cdf.add_argument('query', help='GBD Query', nargs='?')
     parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_plot_cdf.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
+    parser_plot_cdf.add_argument('--title', help='Plot Title')
     parser_plot_cdf.set_defaults(func=cli_plot_cdf)
 
-    # plotUATE ARGUMENTS
+    # GRAPHS
+    parser_graph = subparsers.add_parser('graph', help='Visualize Formula')
+    parser_graph.add_argument('path', type=file_type, help='CNF File')
+    parser_graph.set_defaults(func=cli_graph)
+
+    # PARSE ARGUMENTS
     args = parser.parse_args()
     if not args.db:
-            eprint("""No database path is given. 
+            util.eprint("""Error: No database path is given. 
 A database path can be given in two ways:
 -- by setting the environment variable GBD_DB
 -- by giving a path via --db=[path]
-A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
-Initialize your database with local paths to your benchmark instances by using the init-command. """)
+A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
             with GbdApi(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
                 args.func(api, args)
         except GbdApiError as err:
-            eprint(err)
+            util.eprint(err)
             sys.exit(1)
     else:
         parser.print_help()
