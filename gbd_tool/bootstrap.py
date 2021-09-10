@@ -2,11 +2,7 @@ from gbd_tool.util import eprint, open_cnf_file
 from gbd_tool.error import GbdApiError
 from gbd_tool.db import Database
 
-import io
-import os
 import hashlib
-import bz2
-import tempfile
 
 import multiprocessing
 from multiprocessing import Pool, Lock

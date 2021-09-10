@@ -124,15 +124,26 @@ class GbdApi:
 
     # Creates the given feature
     def create_feature(self, name, default_value=None):
-        self.database.create_table(name, default_value)
+        if not self.feature_exists(name):
+            self.database.create_table(name, default_value)
+        else:
+            raise GbdApiError("Feature '{}' does already exist".format(name))
 
     # Removes the given feature
     def remove_feature(self, name):
-        self.database.delete_table(name)
+        if not self.feature_exists(name):
+            self.database.delete_table(name)
+        else:
+            raise GbdApiError("Feature '{}' does not exist or is virtual".format(name))
 
     # Rename the given feature
     def rename_feature(self, old_name, new_name):
-        self.database.rename_table(old_name, new_name)
+        if not self.feature_exists(old_name):
+            raise GbdApiError("Feature '{}' does not exist or is virtual".format(old_name))
+        elif self.feature_exists(new_name):
+            raise GbdApiError("Feature '{}' does already exist".format(new_name))
+        else:
+            self.database.rename_table(old_name, new_name)
 
     def get_feature_size(self, name):
         if not name in self.get_features():
