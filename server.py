@@ -220,31 +220,31 @@ def get_attribute(feature, hashvalue):
 
 
 # Allows users to set tags in the tags table
-@app.route('/tag/<hash>/<name>', defaults={'value': 'true'})
-@app.route('/tag/<hash>/<name>/<value>')
-def set_tag(hash, name, value):
-    pat = re.compile(r"^[a-zA-Z0-9_]*$")
-    if not (pat.match(hash) and pat.match(name) and pat.match(value)):
-        app.logger.warning(
-            "IP {} violated restriction to alpha-numeric characters and underline".format(request.remote_addr))
-        return Response("Input violates restriction to alpha-numeric characters and underline", status=406,
-                        mimetype="text/plain")
-    with GbdApi(app.config['database']) as gbd_api:
-        try:
-            if gbd_api.get_feature_size("tags") > 10 * gbd_api.get_feature_size("local"):
-                message = "Too many tags, cleanup required"
-                app.logger.warning(message)
-                return Response(message, status=503, mimetype="text/plain")
-            else:
-                gbd_api.set_tag(name, value, [hash])
-                app.logger.info("{} set tag {}={} for {}".format(request.remote_addr, name, value, hash))
-                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201,
-                                mimetype="text/plain")
-        except GbdApiFeatureNotFound:
-            app.logger.error(
-                "While handling setting tag: One of the features defined in set_tag not found, IP: {}".format(
-                    request.remote_addr))
-            return Response(message, status=406, mimetype="text/plain")
+#@app.route('/tag/<hash>/<name>', defaults={'value': 'true'})
+#@app.route('/tag/<hash>/<name>/<value>')
+#def set_tag(hash, name, value):
+#    pat = re.compile(r"^[a-zA-Z0-9_]*$")
+#    if not (pat.match(hash) and pat.match(name) and pat.match(value)):
+#        app.logger.warning(
+#            "IP {} violated restriction to alpha-numeric characters and underline".format(request.remote_addr))
+#        return Response("Input violates restriction to alpha-numeric characters and underline", status=406,
+#                        mimetype="text/plain")
+#    with GbdApi(app.config['database']) as gbd_api:
+#        try:
+#            if gbd_api.get_feature_size("tags") > 10 * gbd_api.get_feature_size("local"):
+#                message = "Too many tags, cleanup required"
+#                app.logger.warning(message)
+#                return Response(message, status=503, mimetype="text/plain")
+#            else:
+#                gbd_api.set_tag(name, value, [hash])
+#                app.logger.info("{} set tag {}={} for {}".format(request.remote_addr, name, value, hash))
+#                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201,
+#                                mimetype="text/plain")
+#        except GbdApiFeatureNotFound:
+#            app.logger.error(
+#                "While handling setting tag: One of the features defined in set_tag not found, IP: {}".format(
+#                    request.remote_addr))
+#            return Response(message, status=406, mimetype="text/plain")
 
 
 # Get all attributes associated with the hashvalue (resolving against all features)

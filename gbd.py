@@ -26,6 +26,7 @@ from gbd_tool.gbd_api import GbdApi
 import gbd_tool.util as util
 
 import gbd_tool.eval as eval
+import gbd_tool.eval_comb_ilp as eci
 import gbd_tool.plot as plot
 import gbd_tool.graph as graph
 
@@ -106,7 +107,8 @@ def cli_eval_vbs(api: GbdApi, args):
     eval.vbs(api, args.query, args.runtimes, args.timeout, args.separator)
 
 def cli_eval_combinations(api: GbdApi, args):
-    eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
+    #eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
+    eci.optimal_comb(api, args.query, args.runtimes, args.timeout, args.size)
 
 def cli_graph(api: GbdApi, args):
     graph.vig(api, args.path)
