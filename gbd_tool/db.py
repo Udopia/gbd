@@ -103,9 +103,9 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
-        cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
-        cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
-                    UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
+        #cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
+        #cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
+        #            UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
@@ -138,10 +138,10 @@ class Database:
         if not "__meta" in tables:
             cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
 
-        if not "__tags" in tables:
-            cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
-            cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
-                        UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
+        #if not "__tags" in tables:
+        #    cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
+        #    cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
+        #                UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
 
         con.commit()
         con.close()
@@ -309,8 +309,8 @@ class Database:
         values[meta_feature] = value
         self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
-    def set_tag(self, tag_feature, tag_value, hash_list):
-        for h in hash_list:
-            self.execute("REPLACE INTO __tags (hash, name, value) VALUES ('{}', '{}', '{}')".format(h, tag_feature, tag_value))
-        self.commit()
+    #def set_tag(self, tag_feature, tag_value, hash_list):
+    #    for h in hash_list:
+    #        self.execute("REPLACE INTO __tags (hash, name, value) VALUES ('{}', '{}', '{}')".format(h, tag_feature, tag_value))
+    #    self.commit()
 
