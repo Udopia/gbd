@@ -111,13 +111,16 @@ def cli_eval_combinations(api: GbdApi, args):
     eci.optimal_comb(api, args.query, args.runtimes, args.timeout, args.size)
 
 def cli_graph(api: GbdApi, args):
-    graph.vig(api, args.path)
+    graph.animate_proof(api, args.path, args.proof)
 
 def cli_plot_scatter(api: GbdApi, args):
     plot.scatter(api, args.query, args.runtimes, args.timeout, args.groups)
 
 def cli_plot_cdf(api: GbdApi, args):
     plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
+
+def cli_extract(api: GbdApi, args):
+    api.extract_base_features(args.path)
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
@@ -290,7 +293,13 @@ def main():
     # GRAPHS
     parser_graph = subparsers.add_parser('graph', help='Visualize Formula')
     parser_graph.add_argument('path', type=file_type, help='CNF File')
+    parser_graph.add_argument('proof', type=file_type, help='Proof File')
     parser_graph.set_defaults(func=cli_graph)
+
+    # GRAPHS
+    parser_graph = subparsers.add_parser('extract', help='Extract Features')
+    parser_graph.add_argument('path', type=file_type, help='CNF File')
+    parser_graph.set_defaults(func=cli_extract)
 
     # PARSE ARGUMENTS
     args = parser.parse_args()
