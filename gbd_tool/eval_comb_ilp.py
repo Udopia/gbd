@@ -15,13 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from gbd_tool.gbd_api import GbdApi
+from gbd_tool.gbd_api import GBD
 from gbd_tool.util import is_number
 
 import mip
 import pandas as pd
 
-def optimal_comb(api: GbdApi, query, runtimes, timeout, k):
+def optimal_comb(api: GBD, query, runtimes, timeout, k):
     result = api.query_search(query, [], runtimes)
     result = [[int(float(val)) if is_number(val) and float(val) < float(timeout) else int(2*timeout) for val in row[1:]] for row in result]
     dataset = pd.DataFrame(result, columns=runtimes)

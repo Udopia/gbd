@@ -18,31 +18,30 @@
 import sqlite3
 import multiprocessing
 import tatsu
-import csv
-import platform
+import os
 
 from contextlib import ExitStack
 
 # internal packages
-from gbd_tool import benchmark_administration, search, bootstrap
+from gbd_tool import query_builder
 from gbd_tool.db import Database
-from gbd_tool.util import eprint, is_number
-from gbd_tool.error import *
+from gbd_tool.util import eprint
 
-try:
-    from gbdhashc import gbdhash as gbd_hash
-except ImportError:
-    from gbd_tool.gbd_hash import gbd_hash
+from gbd_tool.gbd_hash import gbd_hash
+
+from gbdc import extract_base_features as extract
 
 
-class GbdApi:
+class GBDException(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
-    # Create a new GbdApi object which operates on the given databases
+
+class GBD:
+    # Create a new GBD object which operates on the given databases
     def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
-        if platform.system() == "Windows":
-            self.databases = db_string.split(";")
-        else:
-            self.databases = db_string.split(":")
+        self.databases = db_string.split(os.pathsep)
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.separator = separator
@@ -64,26 +63,9 @@ class GbdApi:
     def hash_file(path):
         return gbd_hash(path)
 
-    # Import data from CSV file
-    def import_file(self, path, key, source, target):
-        if not self.feature_exists(target):
-            print("Feature {} does not exist. Import canceled.".format(target))
-        with open(path, newline='') as csvfile:
-            csvreader = csv.DictReader(csvfile, delimiter=self.separator, quotechar='\'')
-            lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
-            print("Inserting {} values into group {}".format(len(lst), target))
-            self.database.bulk_insert(target, lst)
-
-    # Initialize table 'local' with instances found under given path
-    def init_database(self, path=None):
-        eprint('Initializing local path entries {} using {} cores'.format(path, self.jobs))
-        if self.jobs == 1 and multiprocessing.cpu_count() > 1:
-            eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
-        benchmark_administration.remove_benchmarks(self.database)
-        benchmark_administration.register_benchmarks(self, self.database, path, self.jobs)
-
-    def bootstrap(self, named_algo, hashes):
-        bootstrap.bootstrap(self, self.database, named_algo, hashes, self.jobs)
+    @staticmethod
+    def extract_base_features(path):
+        print(extract(path))
 
     def get_databases(self):
         return self.databases
@@ -127,27 +109,27 @@ class GbdApi:
         if not self.feature_exists(name):
             self.database.create_table(name, default_value)
         else:
-            raise GbdApiError("Feature '{}' does already exist".format(name))
+            raise GBDException("Feature '{}' does already exist".format(name))
 
     # Removes the given feature
     def remove_feature(self, name):
         if not self.feature_exists(name):
             self.database.delete_table(name)
         else:
-            raise GbdApiError("Feature '{}' does not exist or is virtual".format(name))
+            raise GBDException("Feature '{}' does not exist or is virtual".format(name))
 
     # Rename the given feature
     def rename_feature(self, old_name, new_name):
         if not self.feature_exists(old_name):
-            raise GbdApiError("Feature '{}' does not exist or is virtual".format(old_name))
+            raise GBDException("Feature '{}' does not exist or is virtual".format(old_name))
         elif self.feature_exists(new_name):
-            raise GbdApiError("Feature '{}' does already exist".format(new_name))
+            raise GBDException("Feature '{}' does already exist".format(new_name))
         else:
             self.database.rename_table(old_name, new_name)
 
     def get_feature_size(self, name):
         if not name in self.get_features():
-            raise GbdApiFeatureNotFound("Feature '{}' not found".format(name))
+            raise GBDException("Feature '{}' not found".format(name))
         return self.database.table_size(name)
 
     # Retrieve information about a specific feature
@@ -207,7 +189,7 @@ class GbdApi:
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, hash_list, force):
         if not feature in self.get_material_features():
-            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
+            raise GBDException("Feature '{}' not found".format(feature))
         values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
         if self.database.table_unique(feature):
             if force:
@@ -229,34 +211,19 @@ class GbdApi:
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
-            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
+            raise GBDException("Feature '{}' not found".format(feature))
         self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
-
-    def set_tag(self, tag_feature, tag_value, hash_list):
-        self.database.set_tag(tag_feature, tag_value, hash_list)
 
     def search(self, feature, hashvalue):
         if not feature in self.get_features():
-            raise GbdApiFeatureNotFound("Feature '{}' not found".format(feature))
+            raise GBDException("Feature '{}' not found".format(feature))
         return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
-            sql = search.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
+            sql = query_builder.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
-            raise GbdApiDatabaseError("Database Operational Error: {}".format(str(err)))
+            raise GBDException("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
-            raise GbdApiParsingFailed("Parser Error: {}".format(str(err)))
-
-    def calculate_par2_score(self, query, name, timeout):
-        times = self.query_search(query, [], [name])
-        return sum(float(time[1]) if is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / len(times)
-
-    def calculate_vbs_par2(self, query, names, timeout):
-        result = self.query_search(query, [], names)
-        return sum([min(float(val) if is_number(val) else 2*timeout for val in row[1:]) for row in result]) / len(result)
-
-    def calculate_vbs(self, query, names, timeout):
-        result = self.query_search(query, [], names)
-        return [(row[0], min(float(val) if is_number(val) else 2*timeout for val in row[1:])) for row in result]
+            raise GBDException("Parser Error: {}".format(str(err)))

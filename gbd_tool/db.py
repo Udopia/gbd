@@ -31,7 +31,6 @@ class DatabaseException(Exception):
 
 
 class Database:
-
     def __init__(self, path_list, verbose=False):
         self.paths = []
         self.csv = []
@@ -74,11 +73,6 @@ class Database:
             self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
             self.cursor = self.connection.cursor()
             self.names = [ "_in_memory_" ]
-        #for table in self.tables():
-        #    if table != "local":
-        #        self.execute('''DROP TRIGGER {}_dval'''.format(table))
-        #        self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
-        #                INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(table, table))
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -103,9 +97,6 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
-        #cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
-        #cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
-        #            UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
         cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
         cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
         cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
@@ -138,11 +129,6 @@ class Database:
         if not "__meta" in tables:
             cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
 
-        #if not "__tags" in tables:
-        #    cur.execute("CREATE TABLE IF NOT EXISTS __tags (hash TEXT NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, name, value))")
-        #    cur.execute('''CREATE VIEW IF NOT EXISTS tags (hash, value) AS SELECT hash, name || '_is_' || value as value FROM __tags 
-        #                UNION SELECT hash, " " FROM local WHERE NOT EXISTS (SELECT 1 FROM __tags WHERE __tags.hash = local.hash)''')
-
         con.commit()
         con.close()
 
@@ -152,9 +138,6 @@ class Database:
             self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
             self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
                     INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
-            #self.execute('''CREATE TRIGGER {}_unique BEFORE INSERT ON {} BEGIN 
-            #        SELECT CASE WHEN EXISTS (SELECT * FROM {} WHERE hash=NEW.hash AND value!="{}" AND value!=NEW.value) 
-            #        THEN RAISE(ABORT, 'Unique Constraint Violation') END; END'''.format(name, name, name, default_value))
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
         self.commit()
@@ -273,8 +256,7 @@ class Database:
     def table_size(self, table):
         return self.value_query('SELECT COUNT(*) FROM {}'.format(table)).pop()
 
-    def table_unique(self, table):        
-        #return self.table_info_augmented(table)[0]['unique'] #buggy
+    def table_unique(self, table):
         return self.table_default_value(table) is not None
 
     def table_default_value(self, table):
@@ -308,9 +290,3 @@ class Database:
         values = self.meta_record(table)
         values[meta_feature] = value
         self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
-
-    #def set_tag(self, tag_feature, tag_value, hash_list):
-    #    for h in hash_list:
-    #        self.execute("REPLACE INTO __tags (hash, name, value) VALUES ('{}', '{}', '{}')".format(h, tag_feature, tag_value))
-    #    self.commit()
-

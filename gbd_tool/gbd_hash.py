@@ -16,14 +16,29 @@
 
 import io
 import hashlib
-import re
-import sys
-import time
-import array
 
-from gbd_tool.util import eprint, open_cnf_file
+from gbd_tool.util import open_cnf_file
 
 __all__ = ['gbd_hash', 'gbd_hash_inner', 'HASH_VERSION']
+
+
+BUFFER_SIZE = io.DEFAULT_BUFFER_SIZE * 16
+
+try:
+    from gbdc import gbdhash as gbd_hash
+    #eprint("Using gdbc")
+except ImportError:
+    try:
+        from gbdhashc import gbdhash as gbd_hash
+        #eprint("Using gdbhashc")
+    except ImportError:
+        #eprint("Using gbd")
+        def gbd_hash(filename):
+            file = open_cnf_file(filename, 'rb')
+            hashvalue = gbd_hash_inner(io.BufferedReader(file, BUFFER_SIZE))
+            file.close()
+            return hashvalue
+
 
 # Hash-Version 0: initial version (regex based normaliation)
 # Hash-Version 1: skip header for normalization (streaming normalization)
@@ -31,16 +46,8 @@ __all__ = ['gbd_hash', 'gbd_hash_inner', 'HASH_VERSION']
 # Hash-Version 3: add trailing zero to last clause if missing
 
 HASH_VERSION = 3
-BUFFER_SIZE = io.DEFAULT_BUFFER_SIZE * 16
-
-def gbd_hash(filename):
-    file = open_cnf_file(filename, 'rb')
-    hashvalue = gbd_hash_inner(io.BufferedReader(file, BUFFER_SIZE))
-    file.close()
-    return hashvalue
 
 def gbd_hash_inner(file):
-    #Tstart = time.time()
     space = False
     skip = False
     start = True
@@ -64,6 +71,4 @@ def gbd_hash_inner(file):
     if not cldelim:
         hash_md5.update(b' 0')
 
-    #Tend = time.time()
-    #eprint("Seconds to hash: {0:5.2f}".format(Tend - Tstart))
     return hash_md5.hexdigest()
