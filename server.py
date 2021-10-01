@@ -31,8 +31,7 @@ import flask
 from flask import Flask, request, send_file, json, Response
 from flask import render_template
 from logging.handlers import TimedRotatingFileHandler
-from gbd_tool.gbd_api import GbdApi
-from gbd_tool.error import *
+from gbd_tool.gbd_api import GBD, GBDException
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
@@ -41,7 +40,7 @@ app = Flask(__name__)
 # Returns main index page
 @app.route("/", methods=['GET'])
 def quick_search():
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         pass
     return render_template('index.html')
 
@@ -50,7 +49,7 @@ def quick_search():
 # returns result as a serialized JSON object
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         app.logger.info("Received query '{}' from {}".format(request.form.get('query'), request.remote_addr))
         query = request.form.get('query')
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
@@ -64,30 +63,25 @@ def quick_search_results():
             features.insert(0, "GBDhash")
             result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
             return Response(json.dumps(result), status=200, mimetype="application/json")
-        except GbdApiParsingFailed:
-            message = "Could not parse your query. Please check the syntax"
-        except GbdApiDatabaseError:
-            message = "Operational error of database. You probably defined a non existent feature"
-        except GbdApiError:
-            message = "Unknown error. Please contact our team so that we can reproduce this bug"
-        app.logger.error("While handling query search: {}, IP: {}".format(message, request.remote_addr))
-        return Response(message, status=400, mimetype="text/plain")
+        except GBDException as err:
+            app.logger.error("While handling query search: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=400, mimetype="text/plain")
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # sends csv version of the result as a file
 @app.route("/exportcsv", methods=['POST'])
 def get_csv_file():
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         query = request.form.get('query')
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
         if not len(selected_features):
             selected_features.append("filename")
         try:
             results = gbd_api.query_search(query, [], selected_features)
-        except GbdApiFeatureNotFound:
-            app.logger.error("While handling CSV file request: Feature not found, IP: {}".format(request.remote_addr))
-            return Response("Feature not found", status=400, mimetype="text/plain")
+        except GBDException as err:
+            app.logger.error("While handling data request: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=400, mimetype="text/plain")
         headers = ["hash"] + selected_features
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
         file_name = "query_result.csv"
@@ -101,14 +95,13 @@ def get_csv_file():
 # against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
 @app.route("/getinstances", methods=['POST'])
 def get_url_file():
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         query = request.form.get('query')
         try:
             result = gbd_api.query_search(query, [], ["filename"])
-        except GbdApiFeatureNotFound:
-            app.logger.critical(
-                "While handling URL file request: 'filename' feature not found, IP: {}".format(request.remote_addr))
-            return Response("This should not happen", status=500, mimetype="text/plain")
+        except GBDException as err:
+            app.logger.error("While handling instance request: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=500, mimetype="text/plain")
         content = "\n".join(
             [flask.url_for("get_file", hashvalue=row[0], filename=row[1], _external=True) for row in result])
         file_name = "query_result.uri"
@@ -121,7 +114,7 @@ def get_url_file():
 # Return all basenames of the databases which the server was initialized with
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         app.logger.info("List all databases for IP {}".format(request.remote_addr))
         return Response(json.dumps(list(map(basename, gbd_api.get_databases()))), status=200,
                         mimetype="application/json")
@@ -131,7 +124,7 @@ def list_databases():
 @app.route('/getdatabase', defaults={'database': None})
 @app.route('/getdatabase/<database>')
 def get_database_file(database):
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         if database is None:
             app.logger.info("Send default database file to IP {}".format(request.remote_addr))
             return send_file(gbd_api.get_databases()[0],
@@ -156,7 +149,7 @@ def get_database_file(database):
 @app.route('/listfeatures', defaults={'database': None})
 @app.route('/listfeatures/<database>')
 def list_features(database):
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         if database is None:
             available_features = sorted(gbd_api.get_features())
             available_features.remove("local")
@@ -178,7 +171,7 @@ def list_features(database):
 # Get meta data and default value of feature
 @app.route('/features/info/<feature>/<database>')
 def get_feature_info(feature, database):
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         try:
             if database in list(map(basename, gbd_api.get_databases())):
                 records = gbd_api.get_feature_info(feature, list(
@@ -191,17 +184,15 @@ def get_feature_info(feature, database):
                 return Response("Database does not exist in the running instance of GBD server", status=404,
                                 mimetype="text/plain")
             return Response(json.dumps(records), status=200, mimetype="application/json")
-        except GbdApiFeatureNotFound:
-            app.logger.error(
-                "While requesting feature info: Feature '{}' not found, IP: {}".format(feature,
-                                                                                       request.remote_addr))
-            return Response("Feature not found", status=500, mimetype="text/plain")
+        except GBDException as err:
+            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=500, mimetype="text/plain")
 
 
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         try:
             values = gbd_api.search(feature, hashvalue)
             if len(values) == 0:
@@ -212,52 +203,23 @@ def get_attribute(feature, hashvalue):
             app.logger.info(
                 "Resolved '{}' against feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
             return str(",".join(str(value) for value in values))
-        except GbdApiFeatureNotFound:
-            app.logger.error(
-                "While handling resolving hash value: Feature '{}' not found, IP: {}".format(feature,
-                                                                                             request.remote_addr))
-            return Response("Feature not found", status=500, mimetype="text/plain")
-
-
-# Allows users to set tags in the tags table
-#@app.route('/tag/<hash>/<name>', defaults={'value': 'true'})
-#@app.route('/tag/<hash>/<name>/<value>')
-#def set_tag(hash, name, value):
-#    pat = re.compile(r"^[a-zA-Z0-9_]*$")
-#    if not (pat.match(hash) and pat.match(name) and pat.match(value)):
-#        app.logger.warning(
-#            "IP {} violated restriction to alpha-numeric characters and underline".format(request.remote_addr))
-#        return Response("Input violates restriction to alpha-numeric characters and underline", status=406,
-#                        mimetype="text/plain")
-#    with GbdApi(app.config['database']) as gbd_api:
-#        try:
-#            if gbd_api.get_feature_size("tags") > 10 * gbd_api.get_feature_size("local"):
-#                message = "Too many tags, cleanup required"
-#                app.logger.warning(message)
-#                return Response(message, status=503, mimetype="text/plain")
-#            else:
-#                gbd_api.set_tag(name, value, [hash])
-#                app.logger.info("{} set tag {}={} for {}".format(request.remote_addr, name, value, hash))
-#                return Response("Successfully set tag {}={} for {}".format(name, value, hash), status=201,
-#                                mimetype="text/plain")
-#        except GbdApiFeatureNotFound:
-#            app.logger.error(
-#                "While handling setting tag: One of the features defined in set_tag not found, IP: {}".format(
-#                    request.remote_addr))
-#            return Response(message, status=406, mimetype="text/plain")
+        except GBDException as err:
+            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=500, mimetype="text/plain")
 
 
 # Get all attributes associated with the hashvalue (resolving against all features)
 @app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
-    with GbdApi(app.config['database']) as gbd_api:
+    with GBD(app.config['database']) as gbd_api:
         features = gbd_api.get_features()
         info = dict([])
         for feature in features:
             try:
                 values = gbd_api.search(feature, hashvalue)
-            except GbdApiFeatureNotFound:
-                app.logger.critical("GbdApi returned feature GbdApi.search could not find. This should not happen!")
+            except GBDException as err:
+                app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
+                return Response(err.message, status=500, mimetype="text/plain")
             info.update({feature: str(",".join(str(value) for value in values))})
         app.logger.info("List all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
         return Response(json.dumps(info), status=200, mimetype="application/json")
@@ -267,11 +229,8 @@ def get_all_attributes(hashvalue):
 @app.route('/file/<hashvalue>', defaults={'filename': None})
 @app.route('/file/<hashvalue>/<filename>')
 def get_file(hashvalue, filename):
-    with GbdApi(app.config['database']) as gbd_api:
-        try:
-            values = gbd_api.search("local", hashvalue)
-        except GbdApiFeatureNotFound:
-            app.logger.critical("GbdApi could not find 'local' feature")
+    with GBD(app.config['database']) as gbd_api:
+        values = gbd_api.search("local", hashvalue)
         if len(values) == 0:
             app.logger.warning(
                 "{} requested file for hash '{}', which was not found".format(request.remote_addr, hashvalue))

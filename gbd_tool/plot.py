@@ -1,4 +1,4 @@
-from gbd_tool.gbd_api import GbdApi
+from gbd_tool.gbd_api import GBD
 
 import pandas as pd
 import gbd_tool.util as util
@@ -20,7 +20,7 @@ coolors=['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
 coolors2=["#001219","#9b2226","#005f73","#ca6702","#0a9396","#bb3e03","#94d2bd","#ae2012","#e9d8a6","#ee9b00"]
 
 
-def scatter(api: GbdApi, query, runtimes, timeout, groups):
+def scatter(api: GBD, query, runtimes, timeout, groups):
     plt.rcParams.update({'font.size': 6})
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -67,7 +67,7 @@ def scatter(api: GbdApi, query, runtimes, timeout, groups):
     plt.show()
 
 
-def cdf(api: GbdApi, query, runtimes, timeout, title):
+def cdf(api: GBD, query, runtimes, timeout, title):
     plt.rcParams.update({'font.size': 8})
     result = api.query_search(query, [], runtimes)
     result = [[float(val) if util.is_number(val) and float(val) < float(timeout) else timeout for val in row[1:]] for row in result]

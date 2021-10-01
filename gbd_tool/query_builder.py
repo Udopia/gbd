@@ -14,10 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gbd_tool.util import eprint
 from tatsu import parse
-import pprint
-
 
 def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"

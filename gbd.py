@@ -22,43 +22,40 @@ import os
 import re
 import sys
 
-from gbd_tool.gbd_api import GbdApi
+from gbd_tool.gbd_api import GBD, GBDException
 import gbd_tool.util as util
 
 import gbd_tool.eval as eval
 import gbd_tool.eval_comb_ilp as eci
 import gbd_tool.plot as plot
 import gbd_tool.graph as graph
-
-from gbd_tool.error import *
+import gbd_tool.init as init
 
 
 ### Command-Line Interface Entry Points
-def cli_hash(api: GbdApi, args):
+def cli_hash(api: GBD, args):
     path = os.path.abspath(args.path)
-    print(GbdApi.hash_file(path))
+    print(GBD.hash_file(path))
 
-def cli_import(api: GbdApi, args):
+
+def cli_import(api: GBD, args):
     path = os.path.abspath(args.path)
-    api.import_file(path, args.key, args.source, args.target)
+    init.import_csv(api, path, args.key, args.source, args.target)
 
-def cli_init_local(api: GbdApi, args):
-    path = os.path.abspath(args.path)
-    api.init_database(path)
+def cli_init_local(api: GBD, args):
+    init.init_local(api, os.path.abspath(args.path))
 
-def cli_init_ct(api: GbdApi, args):
-    api.bootstrap("clause_types", args.hashes)
+def cli_init_ct(api: GBD, args):
+    init.init_clause_types(api, args.hashes)
 
-def cli_init_dsh(api: GbdApi, args):
-    api.bootstrap("degree_sequence_hash", args.hashes)
+def cli_init_dsh(api: GBD, args):
+    init.init_degree_sequence_hash(api, args.hashes)
 
-def cli_init_sanitize(api: GbdApi, args):
-    api.bootstrap("sanitation_info", args.hashes)
 
-def cli_create(api: GbdApi, args):
+def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
 
-def cli_delete(api: GbdApi, args):
+def cli_delete(api: GBD, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
         args.hashes = util.read_hashes()
     if args.hashes and len(args.hashes) > 0:
@@ -67,10 +64,10 @@ def cli_delete(api: GbdApi, args):
     elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.remove_feature(args.name)
 
-def cli_rename(api: GbdApi, args):
+def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
-def cli_get(api: GbdApi, args):
+def cli_get(api: GBD, args):
     hashes = []
     if not sys.stdin.isatty():
         hashes = util.read_hashes()
@@ -78,18 +75,18 @@ def cli_get(api: GbdApi, args):
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
-def cli_set(api: GbdApi, args):
+def cli_set(api: GBD, args):
     if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
         args.hashes = util.read_hashes()
     api.set_attribute(args.name, args.value, args.hashes, args.force)
 
-def cli_info_set(api: GbdApi, args):
+def cli_info_set(api: GBD, args):
     api.meta_set(args.feature, args.name, args.value)
 
-def cli_info_clear(api: GbdApi, args):
+def cli_info_clear(api: GBD, args):
     api.meta_clear(args.feature, args.name)
 
-def cli_info(api: GbdApi, args):
+def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
             print("Database: {}".format(db_str))
@@ -100,26 +97,26 @@ def cli_info(api: GbdApi, args):
         for key in info:
             print("{}: {}".format(key, info[key]))
 
-def cli_eval_par2(api: GbdApi, args):
+def cli_eval_par2(api: GBD, args):
     eval.par2(api, args.query, args.runtimes, args.timeout, args.divisor)
 
-def cli_eval_vbs(api: GbdApi, args):
+def cli_eval_vbs(api: GBD, args):
     eval.vbs(api, args.query, args.runtimes, args.timeout, args.separator)
 
-def cli_eval_combinations(api: GbdApi, args):
+def cli_eval_combinations(api: GBD, args):
     #eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
     eci.optimal_comb(api, args.query, args.runtimes, args.timeout, args.size)
 
-def cli_graph(api: GbdApi, args):
+def cli_graph(api: GBD, args):
     graph.animate_proof(api, args.path, args.proof)
 
-def cli_plot_scatter(api: GbdApi, args):
+def cli_plot_scatter(api: GBD, args):
     plot.scatter(api, args.query, args.runtimes, args.timeout, args.groups)
 
-def cli_plot_cdf(api: GbdApi, args):
+def cli_plot_cdf(api: GBD, args):
     plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
 
-def cli_extract(api: GbdApi, args):
+def cli_extract(api: GBD, args):
     api.extract_base_features(args.path)
 
 
@@ -180,10 +177,6 @@ def main():
     parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
     parser_init_dsh.add_argument('hashes', help='Hashes', nargs='+')
     parser_init_dsh.set_defaults(func=cli_init_dsh)
-    # init sanitation info
-    parser_init_sanitize = parser_init_subparsers.add_parser('sanitize', help='Check Instances, Store Sanitation Info')
-    parser_init_sanitize.add_argument('hashes', help='Hashes', nargs='+')
-    parser_init_sanitize.set_defaults(func=cli_init_sanitize)
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
@@ -311,9 +304,9 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GbdApi(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
                 args.func(api, args)
-        except GbdApiError as err:
+        except GBDException as err:
             util.eprint(err)
             sys.exit(1)
     else:

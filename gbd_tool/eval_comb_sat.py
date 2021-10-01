@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from gbd_tool.gbd_api import GbdApi
+from gbd_tool.gbd_api import GBD
 from gbd_tool.util import eprint, is_number
 from pysat.formula import CNF
 from pysat.solvers import Lingeling
@@ -27,7 +27,7 @@ from cscl.cardinality_constraint_encoders import encode_at_most_k_constraint_lts
 # bitvector width
 _BW = 32
 
-def optimal_comb(api: GbdApi, args):
+def optimal_comb(api: GBD, args):
     result = api.query_search(args.query, [], args.runtimes)
     result = [[int(float(val)) if is_number(val) and float(val) < float(args.timeout) else int(2*args.timeout) for val in row[1:]] for row in result]
 
