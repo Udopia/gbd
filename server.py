@@ -19,7 +19,6 @@
 
 import logging
 import os
-import re
 import argparse
 
 from gbd_tool.util import eprint
