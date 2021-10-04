@@ -29,7 +29,11 @@ from gbd_tool.util import eprint
 
 from gbd_tool.gbd_hash import gbd_hash
 
-from gbdc import extract_base_features as extract
+try:
+    from gbdc import extract_base_features as extract
+except ImportError:
+    def extract(path):
+        raise GBDException("Method 'extract' not available")
 
 
 class GBDException(Exception):
