@@ -24,6 +24,7 @@ import hashlib
 import csv
 
 from gbd_tool.gbd_api import GBD, GBDException
+from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
 
 
@@ -56,7 +57,7 @@ def remove_stale_benchmarks(api: GBD):
 
 def compute_hash(path):
     eprint('Hashing {}'.format(path))
-    hashvalue = GBD.hash_file(path)
+    hashvalue = gbd_hash(path)
     attributes = [ ('INSERT', 'local', path) ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
