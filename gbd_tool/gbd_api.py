@@ -62,11 +62,6 @@ class GBD:
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
 
-    # Calculate GBD hash
-    @staticmethod
-    def hash_file(path):
-        return gbd_hash(path)
-
     @staticmethod
     def extract_base_features(path):
         print(extract(path))
@@ -191,9 +186,10 @@ class GBD:
             self.mutex.release()
 
     # Set the attribute value for the given hashes
-    def set_attribute(self, feature, value, hash_list, force):
+    def set_attribute(self, feature, value, query, hashes=[], force=False):
         if not feature in self.get_material_features():
-            raise GBDException("Feature '{}' not found".format(feature))
+            raise GBDException("Feature '{}' missing or virtual".format(feature))
+        hash_list = [hash[0] for hash in self.query_search(query, hashes)]
         values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
         if self.database.table_unique(feature):
             if force:

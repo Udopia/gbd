@@ -23,7 +23,8 @@ import re
 import sys
 
 from gbd_tool.gbd_api import GBD, GBDException
-import gbd_tool.util as util
+from gbd_tool.gbd_hash import gbd_hash
+from gbd_tool.util import eprint, read_hashes, confirm
 
 import gbd_tool.eval as eval
 import gbd_tool.eval_comb_ilp as eci
@@ -32,10 +33,11 @@ import gbd_tool.graph as graph
 import gbd_tool.init as init
 
 
+
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
     path = os.path.abspath(args.path)
-    print(GBD.hash_file(path))
+    print(gbd_hash(path))
 
 
 def cli_import(api: GBD, args):
@@ -56,29 +58,22 @@ def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
 
 def cli_delete(api: GBD, args):
-    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-        args.hashes = util.read_hashes()
-    if args.hashes and len(args.hashes) > 0:
-        if args.force or util.confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
-            api.remove_attributes(args.name, args.hashes)
-    elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
+    if args.optional_hashes and len(args.optional_hashes) > 0:
+        if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
+            api.remove_attributes(args.name, args.optional_hashes)
+    elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.remove_feature(args.name)
 
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
 def cli_get(api: GBD, args):
-    hashes = []
-    if not sys.stdin.isatty():
-        hashes = util.read_hashes()
-    resultset = api.query_search(args.query, hashes, args.resolve, args.collapse, args.group_by)
+    resultset = api.query_search(args.query, args.optional_hashes, args.resolve, args.collapse, args.group_by)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
 def cli_set(api: GBD, args):
-    if (not args.hashes or len(args.hashes) == 0) and not sys.stdin.isatty():
-        args.hashes = util.read_hashes()
-    api.set_attribute(args.name, args.value, args.hashes, args.force)
+    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes, args.force)
 
 def cli_info_set(api: GBD, args):
     api.meta_set(args.feature, args.name, args.value)
@@ -140,19 +135,27 @@ def file_type(path):
 def column_type(s):
     pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
     if not pat.match(s):
-        raise argparse.ArgumentTypeError('group-name:{0} does not match regular expression {1}'.format(s, pat.pattern))
+        raise argparse.ArgumentTypeError('Column "{0}" does not match regular expression {1}'.format(s, pat.pattern))
     return s
 
 def key_value_type(s):
     tup = s.split('=', 2)
-    if len(tup) < 2:
-        raise argparse.ArgumentTypeError('key-value type: {0} is not separated by = '.format(s))
-    return (tup[0], tup[1])
+    if len(tup) != 2:
+        raise argparse.ArgumentTypeError('key-value type: {0} must be separated by exactly one = '.format(s))
+    return (column_type(tup[0]), tup[1])
+
+def add_query_and_hashes_arguments(parser: argparse.ArgumentParser, hashes_are_optional = True):
+    parser.add_argument('query', help='GBD Query', nargs='?')
+    if hashes_are_optional:
+        parser.add_argument('--hashes', dest='optional_hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
+    else:
+        parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
+
 
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
 def main():
-    parser = argparse.ArgumentParser(description='Access and maintain GBD benchmark databases.')
+    parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
@@ -162,7 +165,7 @@ def main():
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
-    # INITIALIZATION AND BOOTSTRAPPING
+    # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
     parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:')
     # init local paths:
@@ -171,11 +174,11 @@ def main():
     parser_init_local.set_defaults(func=cli_init_local)
     # init clause types:
     parser_init_ct = parser_init_subparsers.add_parser('clause_types', help='Initialize Clause-Type Tables')
-    parser_init_ct.add_argument('hashes', help='Hashes', nargs='+')
+    add_query_and_hashes_arguments(parser_init_ct)
     parser_init_ct.set_defaults(func=cli_init_ct)
     # init degree_sequence_hash:
     parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
-    parser_init_dsh.add_argument('hashes', help='Hashes', nargs='+')
+    add_query_and_hashes_arguments(parser_init_dsh)
     parser_init_dsh.set_defaults(func=cli_init_dsh)
 
     # GBD HASH
@@ -183,9 +186,9 @@ def main():
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)
 
-    # GET/SET ATTRIBUTES
+    # GBD GET $QUERY
     parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
-    parser_get.add_argument('query', help='Specify a query-string (e.g. "variables > 100 and path like %%mp1%%")', nargs='?')
+    add_query_and_hashes_arguments(parser_get)
     parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
     parser_get.add_argument('-c', '--collapse', default='group_concat', 
                             choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'], 
@@ -193,10 +196,10 @@ def main():
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser_get.set_defaults(func=cli_get)
 
-    parser_set = subparsers.add_parser('set', help='Set specified attribute-value for given hashes (via argument or stdin)')
-    parser_set.add_argument('hashes', help='Hashes', nargs='*')
-    parser_set.add_argument('-n', '--name', type=column_type, help='Feature name', required=True)
-    parser_set.add_argument('-v', '--value', help='Attribute value', required=True)
+    # GBD SET
+    parser_set = subparsers.add_parser('set', help='Set specified attribute-value for query result')
+    parser_set.add_argument('assign', type=key_value_type, help='key=value')
+    add_query_and_hashes_arguments(parser_set)
     parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
     parser_set.set_defaults(func=cli_set)
 
@@ -215,7 +218,7 @@ def main():
     parser_create.set_defaults(func=cli_create)
 
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
-    parser_delete.add_argument('hashes', help='Hashes', nargs='*')
+    parser_delete.add_argument('--hashes', dest='optional_hashes', help='Hashes', nargs='*', default=[])
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
@@ -246,20 +249,20 @@ def main():
     parser_eval_subparsers = parser_eval.add_subparsers(help='Select Evaluation Procedure')
 
     parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
-    parser_eval_par2.add_argument('query', help='Specify a GBD Query', nargs='?')
+    add_query_and_hashes_arguments(parser_eval_par2)
     parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_par2.add_argument('-d', '--divisor', type=int, help='Overwrite Divisor used for Averaging Scores', nargs='?')
     parser_eval_par2.set_defaults(func=cli_eval_par2)
 
     parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
-    parser_eval_vbs.add_argument('query', help='Specify a GBD Query', nargs='?')
+    add_query_and_hashes_arguments(parser_eval_vbs)
     parser_eval_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_eval_vbs.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_vbs.set_defaults(func=cli_eval_vbs)
 
     parser_eval_comb = parser_eval_subparsers.add_parser('comb', help='Calculate VBS of Solver Combinations')
-    parser_eval_comb.add_argument('query', help='Specify a GBD Query', nargs='?')
+    add_query_and_hashes_arguments(parser_eval_comb)
     parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
     parser_eval_comb.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_eval_comb.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
@@ -270,14 +273,14 @@ def main():
     parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot')
 
     parser_plot_scatter = parser_plot_subparsers.add_parser('scatter', help='Scatter Plot')
-    parser_plot_scatter.add_argument('query', help='GBD Query', nargs='?')
+    add_query_and_hashes_arguments(parser_plot_scatter)
     parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
     parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
     parser_plot_scatter.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_plot_scatter.set_defaults(func=cli_plot_scatter)
 
     parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
-    parser_plot_cdf.add_argument('query', help='GBD Query', nargs='?')
+    add_query_and_hashes_arguments(parser_plot_cdf)
     parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
     parser_plot_cdf.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_plot_cdf.add_argument('--title', help='Plot Title')
@@ -289,15 +292,15 @@ def main():
     parser_graph.add_argument('proof', type=file_type, help='Proof File')
     parser_graph.set_defaults(func=cli_graph)
 
-    # GRAPHS
-    parser_graph = subparsers.add_parser('extract', help='Extract Features')
-    parser_graph.add_argument('path', type=file_type, help='CNF File')
-    parser_graph.set_defaults(func=cli_extract)
+    # EXTRACT
+    parser_extract = subparsers.add_parser('extract', help='Extract Features')
+    parser_extract.add_argument('path', type=file_type, help='CNF File')
+    parser_extract.set_defaults(func=cli_extract)
 
     # PARSE ARGUMENTS
     args = parser.parse_args()
     if not args.db:
-            util.eprint("""Error: No database path is given. 
+            eprint("""Error: No database path is given. 
 A database path can be given in two ways:
 -- by setting the environment variable GBD_DB
 -- by giving a path via --db=[path]
@@ -305,9 +308,16 @@ A database file containing some attributes of instances used in the SAT Competit
     elif len(sys.argv) > 1:
         try:
             with GBD(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
+                if hasattr(args, 'hashes') and (not args.hashes or len(args.hashes) == 0):
+                    if not sys.stdin.isatty():
+                        args.hashes = read_hashes()  # read hashes from stdin
+                    if not args.hashes or len(args.hashes) == 0:
+                        raise GBDException("Error: No hashes given. Enter hashes via STDIN or ARGUMENT --hashes [hash1 [hash2 [...]]]")
+                if hasattr(args, 'optional_hashes') and (not args.optional_hashes or len(args.optional_hashes) == 0) and not sys.stdin.isatty():
+                    args.optional_hashes = read_hashes()  # read hashes from stdin
                 args.func(api, args)
         except GBDException as err:
-            util.eprint(err)
+            eprint(err)
             sys.exit(1)
     else:
         parser.print_help()

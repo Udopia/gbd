@@ -78,7 +78,15 @@ def confirm(prompt='Confirm', resp=False):
         prompt = '%s [%s]|%s: ' % (prompt, 'n', 'y')
 
     while True:
-        ans = input(prompt)
+        ans = 'z'
+        try:
+            ans = input(prompt)
+        except EOFError:
+            # This hack is for OSX and Linux only 
+            # There EOFError occurs when hashes were read from stdin before
+            # Reopening stdin in order to facilitate subsequent user input:
+            sys.stdin = open("/dev/tty", mode="r")
+            ans = input()
         if not ans:
             return resp
         if ans not in ['y', 'Y', 'n', 'N']:
