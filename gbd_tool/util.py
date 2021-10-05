@@ -18,7 +18,6 @@ import sys
 import bz2
 import gzip
 import lzma
-import io
 
 __all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
 

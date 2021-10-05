@@ -5,6 +5,8 @@ import gbd_tool.util as util
 
 from numpy.core.numeric import NaN
 
+import matplotlib
+matplotlib.use('GTK3Agg')
 import matplotlib.pyplot as plt
 import itertools
 
