@@ -27,6 +27,18 @@ from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
 
+try:
+    from gbdc import extract_base_features
+except ImportError:
+    def extract_base_features(path) -> dict:
+        raise GBDException("Method 'extract_base_features' not available")
+
+try:
+    from gbdc import extract_gate_features
+except ImportError:
+    def extract_gate_features(path) -> dict:
+        raise GBDException("Method 'extract_gate_features' not available")
+
 
 # Import data from CSV file
 def import_csv(api: GBD, path, key, source, target):
@@ -94,38 +106,27 @@ def run(api: GBD, resultset, func):
         pool.join()
 
 
-# Initialize clause-type tables for given instances
-def init_clause_types(api: GBD, hashes):
-    for table in [ "clauses_horn", "clauses_positive", "clauses_negative", "variables", "clauses" ]:
-        if not api.feature_exists(table):
-            api.create_feature(table, "empty")
-    resultset = api.query_search(None, hashes, ["local"])
-    run(api, resultset, compute_clause_types)
+# Initialize base feature tables for given instances
+def init_base_features(api: GBD, query, hashes):
+    resultset = api.query_search(query, hashes, ["local"])
+    run(api, resultset, base_features)
 
-def compute_clause_types(hashvalue, filename):
-    eprint('Computing clause_types for {}'.format(filename))
-    c_vars = 0
-    c_clauses = 0
-    c_horn = 0
-    c_pos = 0
-    c_neg = 0
-    f = open_cnf_file(filename, 'rt')
-    for line in f:
-        line = line.strip()
-        if line and line[0] not in ['p', 'c']:
-            clause = [int(lit) for lit in line.split()[:-1]]
-            c_vars = max(c_vars, max(abs(lit) for lit in clause))
-            c_clauses += 1
-            n_pos = sum(lit > 0 for lit in clause)
-            if n_pos < 2:
-                c_horn += 1
-                if n_pos == 0:
-                    c_neg += 1
-            if n_pos == len(clause):
-                c_pos += 1
-    f.close()
-    attributes = [ ('REPLACE', 'clauses_horn', c_horn), ('REPLACE', 'clauses_positive', c_pos), ('REPLACE', 'clauses_negative', c_neg), 
-                   ('REPLACE', 'variables', c_vars), ('REPLACE', 'clauses', c_clauses) ]
+def base_features(hashvalue, filename):
+    eprint('Extracting base features from {}'.format(filename))
+    rec = extract_base_features(filename)
+    attributes = [ ('REPLACE', key, value) for (key, value) in rec ]
+    return { 'hashvalue': hashvalue, 'attributes': attributes }
+
+
+# Initialize gate feature tables for given instances
+def init_gate_features(api: GBD, query, hashes):
+    resultset = api.query_search(query, hashes, ["local"])
+    run(api, resultset, gate_features)
+
+def gate_features(hashvalue, filename):
+    eprint('Extracting gate features from {}'.format(filename))
+    rec = extract_gate_features(filename)
+    attributes = [ ('REPLACE', key, value) for (key, value) in rec ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 

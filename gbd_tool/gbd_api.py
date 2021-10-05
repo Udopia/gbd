@@ -27,14 +27,6 @@ from gbd_tool import query_builder
 from gbd_tool.db import Database
 from gbd_tool.util import eprint
 
-from gbd_tool.gbd_hash import gbd_hash
-
-try:
-    from gbdc import extract_base_features as extract
-except ImportError:
-    def extract(path):
-        raise GBDException("Method 'extract' not available")
-
 
 class GBDException(Exception):
     def __init__(self, message):
@@ -61,10 +53,6 @@ class GBD:
 
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
-
-    @staticmethod
-    def extract_base_features(path):
-        print(extract(path))
 
     def get_databases(self):
         return self.databases
@@ -177,10 +165,12 @@ class GBD:
     def set_attributes_locked(self, hash, attributes):
         self.mutex.acquire()
         try:
-            # create new connection due to limitations of multi-threaded use (cursor initialization issue)
+            # create new connection due to limitations in multi-threaded use (cursor initialization issue)
             with Database(self.databases) as db:
                 for attr in attributes:
                     cmd, name, value = attr[0], attr[1], attr[2]
+                    if not name in db.tables():
+                        db.create_table(name, "empty")
                     db.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
         finally:
             self.mutex.release()

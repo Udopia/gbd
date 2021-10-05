@@ -47,11 +47,14 @@ def cli_import(api: GBD, args):
 def cli_init_local(api: GBD, args):
     init.init_local(api, os.path.abspath(args.path))
 
-def cli_init_ct(api: GBD, args):
-    init.init_clause_types(api, args.hashes)
+def cli_init_base_features(api: GBD, args):
+    init.init_base_features(api, args.query, args.optional_hashes)
+
+def cli_init_gate_features(api: GBD, args):
+    init.init_gate_features(api, args.query, args.optional_hashes)
 
 def cli_init_dsh(api: GBD, args):
-    init.init_degree_sequence_hash(api, args.hashes)
+    init.init_degree_sequence_hash(api, args.optional_hashes)
 
 
 def cli_create(api: GBD, args):
@@ -73,7 +76,7 @@ def cli_get(api: GBD, args):
         print(args.separator.join([(str(item or '')) for item in result]))
 
 def cli_set(api: GBD, args):
-    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes, args.force)
+    api.set_attribute(args.assign[0], args.assign[1], None, args.optional_hashes, args.force)
 
 def cli_info_set(api: GBD, args):
     api.meta_set(args.feature, args.name, args.value)
@@ -110,9 +113,6 @@ def cli_plot_scatter(api: GBD, args):
 
 def cli_plot_cdf(api: GBD, args):
     plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
-
-def cli_extract(api: GBD, args):
-    api.extract_base_features(args.path)
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
@@ -172,10 +172,14 @@ def main():
     parser_init_local = parser_init_subparsers.add_parser('local', help='Initialize Local Hash/Path Entries')
     parser_init_local.add_argument('path', type=directory_type, help="Path to benchmarks")
     parser_init_local.set_defaults(func=cli_init_local)
-    # init clause types:
-    parser_init_ct = parser_init_subparsers.add_parser('clause_types', help='Initialize Clause-Type Tables')
-    add_query_and_hashes_arguments(parser_init_ct)
-    parser_init_ct.set_defaults(func=cli_init_ct)
+    # init base features:
+    parser_init_base_features = parser_init_subparsers.add_parser('base_features', help='Initialize Base Features')
+    add_query_and_hashes_arguments(parser_init_base_features)
+    parser_init_base_features.set_defaults(func=cli_init_base_features)
+    # init gate features:
+    parser_init_gate_features = parser_init_subparsers.add_parser('gate_features', help='Initialize Gate Features')
+    add_query_and_hashes_arguments(parser_init_gate_features)
+    parser_init_gate_features.set_defaults(func=cli_init_gate_features)
     # init degree_sequence_hash:
     parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
     add_query_and_hashes_arguments(parser_init_dsh)
@@ -291,11 +295,6 @@ def main():
     parser_graph.add_argument('path', type=file_type, help='CNF File')
     parser_graph.add_argument('proof', type=file_type, help='Proof File')
     parser_graph.set_defaults(func=cli_graph)
-
-    # EXTRACT
-    parser_extract = subparsers.add_parser('extract', help='Extract Features')
-    parser_extract.add_argument('path', type=file_type, help='CNF File')
-    parser_extract.set_defaults(func=cli_extract)
 
     # PARSE ARGUMENTS
     args = parser.parse_args()
