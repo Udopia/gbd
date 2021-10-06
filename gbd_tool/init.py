@@ -27,6 +27,9 @@ from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
 
+# import faulthandler
+# faulthandler.enable()
+
 try:
     from gbdc import extract_base_features
 except ImportError:
@@ -114,7 +117,7 @@ def init_base_features(api: GBD, query, hashes):
 def base_features(hashvalue, filename):
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename)
-    attributes = [ ('REPLACE', key, value) for (key, value) in rec ]
+    attributes = [ ('REPLACE', key, value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
@@ -126,7 +129,7 @@ def init_gate_features(api: GBD, query, hashes):
 def gate_features(hashvalue, filename):
     eprint('Extracting gate features from {}'.format(filename))
     rec = extract_gate_features(filename)
-    attributes = [ ('REPLACE', key, value) for (key, value) in rec ]
+    attributes = [ ('REPLACE', key, int(value) if value.is_integer() else value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
