@@ -100,7 +100,7 @@ class GBD:
 
     # Removes the given feature
     def remove_feature(self, name):
-        if not self.feature_exists(name):
+        if self.feature_exists(name):
             self.database.delete_table(name)
         else:
             raise GBDException("Feature '{}' does not exist or is virtual".format(name))
