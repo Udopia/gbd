@@ -14,21 +14,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from concurrent.futures.process import BrokenProcessPool
 import multiprocessing
 from multiprocessing import Pool
 
 import os
 from os.path import isfile
 
+import psutil
+import time
 import hashlib
 import csv
+
+from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_completed, CancelledError
+from asyncio import CancelledError
 
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
 
-# import faulthandler
-# faulthandler.enable()
+import faulthandler
+faulthandler.enable()
 
 try:
     from gbdc import extract_base_features
@@ -77,7 +83,7 @@ def compute_hash(path):
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 def register_benchmarks(api: GBD, root):
-    pool = Pool(min(multiprocessing.cpu_count(), api.jobs))
+    pool = multiprocessing.get_context("spawn").Pool(min(multiprocessing.cpu_count(), api.jobs), maxtasksperchild=1)
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
@@ -87,48 +93,67 @@ def register_benchmarks(api: GBD, root):
                     eprint('Problem {} already hashed'.format(path))
                 else:
                     handler = pool.apply_async(compute_hash, args=(path,), callback=api.callback_set_attributes_locked)
-                    #handler.get()
+                    # handler.get()
     pool.close()
     pool.join() 
 
 
-# Generic Parallel Runner
+# Parallel Runner
 def run(api: GBD, resultset, func):
     if api.jobs == 1:
         for result in resultset:
-            hashvalue = result[0].split(',')[0]
-            filename = result[1].split(',')[0]
-            api.callback_set_attributes_locked(func(hashvalue, filename))
+            api.callback_set_attributes_locked(func(result[0], result[1]))  # hash, local
     else:
-        pool = Pool(min(multiprocessing.cpu_count(), api.jobs))
-        for result in resultset:
-            hashvalue = result[0].split(',')[0]
-            filename = result[1].split(',')[0]
-            pool.apply_async(func, args=(hashvalue, filename), callback=api.callback_set_attributes_locked)
-        pool.close()
-        pool.join()
+        while len(resultset) > 0:
+            eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
+            with ProcessPoolExecutor(min(multiprocessing.cpu_count(), api.jobs)) as p:
+                futures = {
+                    p.submit(func, hash, local): (hash, local)
+                    for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
+                }
+                for f in as_completed(futures):
+                    e = f.exception()
+                    if e is not None:
+                        if type(e) == BrokenProcessPool:
+                            try:
+                                eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
+                                resultset.remove(futures[f])
+                                break
+                            except ValueError as err:
+                                eprint("Value error: {} {}".format(err, f))
+                    else:
+                        resultset.remove(futures[f])
+                        api.callback_set_attributes_locked(f.result())
 
 
 # Initialize base feature tables for given instances
 def init_base_features(api: GBD, query, hashes):
-    resultset = api.query_search(query, hashes, ["local"])
+    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     run(api, resultset, base_features)
 
 def base_features(hashvalue, filename):
+    mem = psutil.virtual_memory()
+    if mem.available < 1024 * 1024 * 1024:
+        raise CancelledError
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename)
+    eprint('Done with base features from {}'.format(filename))
     attributes = [ ('REPLACE', key, value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
 # Initialize gate feature tables for given instances
 def init_gate_features(api: GBD, query, hashes):
-    resultset = api.query_search(query, hashes, ["local"])
+    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     run(api, resultset, gate_features)
 
 def gate_features(hashvalue, filename):
+    mem = psutil.virtual_memory()
+    if mem.available < 1024 * 1024 * 1024:
+        raise CancelledError
     eprint('Extracting gate features from {}'.format(filename))
     rec = extract_gate_features(filename)
+    eprint('Done with gate features from {}'.format(filename))
     attributes = [ ('REPLACE', key, int(value) if value.is_integer() else value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
@@ -137,7 +162,7 @@ def gate_features(hashvalue, filename):
 def init_degree_sequence_hash(api: GBD, hashes):
     if not api.feature_exists("degree_sequence_hash"):
         api.create_feature("degree_sequence_hash", "empty")
-    resultset = api.query_search(None, hashes, ["local"])
+    resultset = api.query_search(None, hashes, ["local"], collapse="MIN")
     run(api, resultset, compute_degree_sequence_hash)
 
 def compute_degree_sequence_hash(hashvalue, filename):
