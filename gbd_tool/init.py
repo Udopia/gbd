@@ -40,16 +40,15 @@ try:
     from gbdc import extract_base_features
 except ImportError:
     def extract_base_features(path) -> dict:
-        raise GBDException("Method 'extract_base_features' not available")
+        raise GBDException("Method 'extract_base_features' not available. Install cnftools' GDBC Accelerator Module.")
 
 try:
     from gbdc import extract_gate_features
 except ImportError:
     def extract_gate_features(path) -> dict:
-        raise GBDException("Method 'extract_gate_features' not available")
+        raise GBDException("Method 'extract_gate_features' not available. Install cnftools' GDBC Accelerator Module.")
 
 
-# Import data from CSV file
 def import_csv(api: GBD, path, key, source, target):
     if not api.feature_exists(target):
         raise GBDException("Target feature '{}' does not exist. Import canceled.".format(target))
@@ -66,7 +65,7 @@ def init_local(api: GBD, path):
     if api.jobs == 1 and multiprocessing.cpu_count() > 1:
         eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
     remove_stale_benchmarks(api)
-    register_benchmarks(api, path)
+    init_benchmarks(api, path)
 
 def remove_stale_benchmarks(api: GBD):
     eprint("Sanitizing local path entries ... ")
@@ -76,14 +75,14 @@ def remove_stale_benchmarks(api: GBD):
         for path in sanitize:
             api.database.submit("DELETE FROM local WHERE value='{}'".format(path))
 
-def compute_hash(path):
+def compute_hash(nohashvalue, path):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
     attributes = [ ('INSERT', 'local', path) ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
-def register_benchmarks(api: GBD, root):
-    pool = multiprocessing.get_context("spawn").Pool(min(multiprocessing.cpu_count(), api.jobs), maxtasksperchild=1)
+def init_benchmarks(api: GBD, root):
+    resultset = []
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
@@ -92,10 +91,8 @@ def register_benchmarks(api: GBD, root):
                 if len(hashes) != 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:
-                    handler = pool.apply_async(compute_hash, args=(path,), callback=api.callback_set_attributes_locked)
-                    # handler.get()
-    pool.close()
-    pool.join() 
+                    resultset.append(("", path))
+    run(api, resultset, compute_hash)
 
 
 # Parallel Runner
@@ -138,7 +135,7 @@ def base_features(hashvalue, filename):
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename)
     eprint('Done with base features from {}'.format(filename))
-    attributes = [ ('REPLACE', key, value) for key, value in rec.items() ]
+    attributes = [ ('REPLACE', key, int(value) if value.is_integer() else value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
