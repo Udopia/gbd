@@ -36,10 +36,11 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, db_string, jobs=1, separator=" ", join_type="LEFT", verbose=False):
+    def __init__(self, db_string, jobs=1, timeout=5000, separator=" ", join_type="LEFT", verbose=False):
         self.databases = db_string.split(os.pathsep)
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
+        self.timeout = timeout
         self.separator = separator
         self.join_type = join_type
         self.verbose = verbose
