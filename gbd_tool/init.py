@@ -108,19 +108,22 @@ def run(api: GBD, resultset, func):
                     p.submit(func, hash, local): (hash, local)
                     for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
                 }
-                for f in as_completed(futures, timeout=api.timeout):
-                    e = f.exception()
-                    if e is not None:
-                        if type(e) == BrokenProcessPool:
-                            try:
-                                eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
-                                resultset.remove(futures[f])
-                                break
-                            except ValueError as err:
-                                eprint("Value error: {} {}".format(err, f))
-                    else:
-                        resultset.remove(futures[f])
-                        api.callback_set_attributes_locked(f.result())
+                try:
+                    for f in as_completed(futures, timeout=api.timeout):
+                        e = f.exception()
+                        if e is not None:
+                            if type(e) == BrokenProcessPool:
+                                try:
+                                    eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
+                                    resultset.remove(futures[f])
+                                    break
+                                except ValueError as err:
+                                    eprint("Value error: {} {}".format(err, f))
+                        else:
+                            resultset.remove(futures[f])
+                            api.callback_set_attributes_locked(f.result())
+                except futures.TimeoutError as e:
+                    eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 # Initialize base feature tables for given instances

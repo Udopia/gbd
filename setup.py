@@ -18,8 +18,10 @@ setup(name='gbd_tools',
       'flask_limiter',
       'tatsu',
       'numpy',
+      'mip',
       'pandas',
-      'matplotlib'
+      'matplotlib',
+      'cairo'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
