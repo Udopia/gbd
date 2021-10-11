@@ -22,36 +22,34 @@ import os
 import re
 import sys
 
+import gbd_tool
+
 from gbd_tool.gbd_api import GBD, GBDException
-from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, read_hashes, confirm
-
-import gbd_tool.eval as eval
-import gbd_tool.eval_comb_ilp as eci
-import gbd_tool.plot as plot
-import gbd_tool.graph as graph
-import gbd_tool.init as init
-
-
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    print(gbd_hash(args.path))
+    print(gbd_tool.gbd_hash.gbd_hash(args.path))
 
 
 def cli_import(api: GBD, args):
+    from gbd_tool import init
     init.import_csv(api, args.path, args.key, args.source, args.target)
 
 def cli_init_local(api: GBD, args):
+    from gbd_tool import init
     init.init_local(api, args.path)
 
 def cli_init_base_features(api: GBD, args):
+    from gbd_tool import init
     init.init_base_features(api, args.query, args.optional_hashes)
 
 def cli_init_gate_features(api: GBD, args):
+    from gbd_tool import init
     init.init_gate_features(api, args.query, args.optional_hashes)
 
 def cli_init_dsh(api: GBD, args):
+    from gbd_tool import init
     init.init_degree_sequence_hash(api, args.optional_hashes)
 
 
@@ -94,22 +92,28 @@ def cli_info(api: GBD, args):
             print("{}: {}".format(key, info[key]))
 
 def cli_eval_par2(api: GBD, args):
+    from gbd_tool import eval
     eval.par2(api, args.query, args.runtimes, args.timeout, args.divisor)
 
 def cli_eval_vbs(api: GBD, args):
+    from gbd_tool import eval
     eval.vbs(api, args.query, args.runtimes, args.timeout, args.separator)
 
 def cli_eval_combinations(api: GBD, args):
+    from gbd_tool import eval_comp_ilp as eci
     #eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
     eci.optimal_comb(api, args.query, args.runtimes, args.timeout, args.size)
 
 def cli_graph(api: GBD, args):
+    from gbd_tool import graph
     graph.animate_proof(api, args.path, args.proof)
 
 def cli_plot_scatter(api: GBD, args):
+    from gbd_tool import plot
     plot.scatter(api, args.query, args.runtimes, args.timeout, args.groups)
 
 def cli_plot_cdf(api: GBD, args):
+    from gbd_tool import plot
     plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
 
 
