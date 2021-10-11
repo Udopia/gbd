@@ -36,16 +36,14 @@ import gbd_tool.init as init
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    path = os.path.abspath(args.path)
-    print(gbd_hash(path))
+    print(gbd_hash(args.path))
 
 
 def cli_import(api: GBD, args):
-    path = os.path.abspath(args.path)
-    init.import_csv(api, path, args.key, args.source, args.target)
+    init.import_csv(api, args.path, args.key, args.source, args.target)
 
 def cli_init_local(api: GBD, args):
-    init.init_local(api, os.path.abspath(args.path))
+    init.init_local(api, args.path)
 
 def cli_init_base_features(api: GBD, args):
     init.init_base_features(api, args.query, args.optional_hashes)
@@ -116,19 +114,19 @@ def cli_plot_cdf(api: GBD, args):
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
-def directory_type(dir):
-    if not os.path.isdir(dir):
-        raise argparse.ArgumentTypeError('{0} is not a directory'.format(dir))
-    if os.access(dir, os.R_OK):
-        return dir
+def directory_type(path):
+    if not os.path.isdir(path):
+        raise argparse.ArgumentTypeError('{0} is not a directory'.format(path))
+    if os.access(path, os.R_OK):
+        return os.path.abspath(path)
     else:
-        raise argparse.ArgumentTypeError('{0} is not readable'.format(dir))
+        raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
 
 def file_type(path):
     if not os.path.isfile(path):
         raise argparse.ArgumentTypeError('{0} is not a regular file'.format(path))
     if os.access(path, os.R_OK):
-        return path
+        return os.path.abspath(path)
     else:
         raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
 
@@ -139,7 +137,7 @@ def column_type(s):
     return s
 
 def key_value_type(s):
-    tup = s.split('=', 2)
+    tup = s.split('=', 1)
     if len(tup) != 2:
         raise argparse.ArgumentTypeError('key-value type: {0} must be separated by exactly one = '.format(s))
     return (column_type(tup[0]), tup[1])
@@ -159,9 +157,10 @@ def main():
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
-    parser.add_argument('-s', "--separator", choices=[" ", ",", ";"], default=" ", help="Feature separator (delimiter used in import and output)")
-    parser.add_argument('-t', "--join-type", choices=["INNER", "OUTER", "LEFT"], default="LEFT", help="Join Type: treatment of missing values in queries")
-    parser.add_argument('-v', '--verbose', action='store_true', help='Print additional (or diagnostic) information to stderr')
+    parser.add_argument('-t', '--timeout', help="Time-limit per instance (used by 'init', 'eval', and 'plot' sub-commands)", default=5000, type=int)
+    parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output)", choices=[" ", ",", ";"], default=" ")
+    parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
+    parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
@@ -255,21 +254,18 @@ def main():
     parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
     add_query_and_hashes_arguments(parser_eval_par2)
     parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_par2.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_par2.add_argument('-d', '--divisor', type=int, help='Overwrite Divisor used for Averaging Scores', nargs='?')
     parser_eval_par2.set_defaults(func=cli_eval_par2)
 
     parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
     add_query_and_hashes_arguments(parser_eval_vbs)
     parser_eval_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_vbs.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_eval_vbs.set_defaults(func=cli_eval_vbs)
 
     parser_eval_comb = parser_eval_subparsers.add_parser('comb', help='Calculate VBS of Solver Combinations')
     add_query_and_hashes_arguments(parser_eval_comb)
-    parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
     parser_eval_comb.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_comb.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
+    parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
     parser_eval_comb.set_defaults(func=cli_eval_combinations)
 
     # PLOTS
@@ -280,13 +276,11 @@ def main():
     add_query_and_hashes_arguments(parser_plot_scatter)
     parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
     parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
-    parser_plot_scatter.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_plot_scatter.set_defaults(func=cli_plot_scatter)
 
     parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
     add_query_and_hashes_arguments(parser_plot_cdf)
     parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_plot_cdf.add_argument('-t', '--timeout', default=5000, type=int, help='Timeout')
     parser_plot_cdf.add_argument('--title', help='Plot Title')
     parser_plot_cdf.set_defaults(func=cli_plot_cdf)
 
@@ -306,7 +300,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GBD(args.db, int(args.jobs), args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db, int(args.jobs), args.timeout, args.separator, args.join_type, args.verbose) as api:
                 if hasattr(args, 'hashes') and (not args.hashes or len(args.hashes) == 0):
                     if not sys.stdin.isatty():
                         args.hashes = read_hashes()  # read hashes from stdin

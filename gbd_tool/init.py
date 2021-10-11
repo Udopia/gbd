@@ -33,8 +33,8 @@ from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
 
-import faulthandler
-faulthandler.enable()
+#import faulthandler
+#faulthandler.enable()
 
 try:
     from gbdc import extract_base_features
@@ -108,7 +108,7 @@ def run(api: GBD, resultset, func):
                     p.submit(func, hash, local): (hash, local)
                     for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
                 }
-                for f in as_completed(futures):
+                for f in as_completed(futures, timeout=api.timeout):
                     e = f.exception()
                     if e is not None:
                         if type(e) == BrokenProcessPool:
