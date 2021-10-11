@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='3.4.1',
+  version='3.4.2',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -20,8 +20,7 @@ setup(name='gbd_tools',
       'numpy',
       'mip',
       'pandas',
-      'matplotlib',
-      'cairo'
+      'matplotlib'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
