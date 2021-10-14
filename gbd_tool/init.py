@@ -26,7 +26,7 @@ import time
 import hashlib
 import csv
 
-from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_completed, CancelledError
+from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_completed, CancelledError, TimeoutError
 from asyncio import CancelledError
 
 from gbd_tool.gbd_api import GBD, GBDException
@@ -98,8 +98,8 @@ def init_benchmarks(api: GBD, root):
 # Parallel Runner
 def run(api: GBD, resultset, func):
     if api.jobs == 1:
-        for result in resultset:
-            api.callback_set_attributes_locked(func(result[0], result[1]))  # hash, local
+        for (hash, local) in resultset:
+            api.callback_set_attributes_locked(func(hash, local))
     else:
         while len(resultset) > 0:
             eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
@@ -122,7 +122,7 @@ def run(api: GBD, resultset, func):
                         else:
                             resultset.remove(futures[f])
                             api.callback_set_attributes_locked(f.result())
-                except futures.TimeoutError as e:
+                except TimeoutError as e:
                     eprint("{}: {}".format(e.__class__.__name__, e))
 
 
