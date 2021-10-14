@@ -42,24 +42,24 @@ def cli_init_local(api: GBD, args):
 
 def cli_init_base_features(api: GBD, args):
     from gbd_tool import init
-    init.init_base_features(api, args.query, args.optional_hashes)
+    init.init_base_features(api, args.query, args.hashes)
 
 def cli_init_gate_features(api: GBD, args):
     from gbd_tool import init
-    init.init_gate_features(api, args.query, args.optional_hashes)
+    init.init_gate_features(api, args.query, args.hashes)
 
 def cli_init_dsh(api: GBD, args):
     from gbd_tool import init
-    init.init_degree_sequence_hash(api, args.optional_hashes)
+    init.init_degree_sequence_hash(api, args.hashes)
 
 
 def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
 
 def cli_delete(api: GBD, args):
-    if args.optional_hashes and len(args.optional_hashes) > 0:
+    if args.hashes and len(args.hashes) > 0:
         if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
-            api.remove_attributes(args.name, args.optional_hashes)
+            api.remove_attributes(args.name, args.hashes)
     elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.remove_feature(args.name)
 
@@ -67,12 +67,12 @@ def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
 def cli_get(api: GBD, args):
-    resultset = api.query_search(args.query, args.optional_hashes, args.resolve, args.collapse, args.group_by)
+    resultset = api.query_search(args.query, args.hashes, args.resolve, args.collapse, args.group_by)
     for result in resultset:
         print(args.separator.join([(str(item or '')) for item in result]))
 
 def cli_set(api: GBD, args):
-    api.set_attribute(args.assign[0], args.assign[1], None, args.optional_hashes, args.force)
+    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes, args.force)
 
 def cli_info_set(api: GBD, args):
     api.meta_set(args.feature, args.name, args.value)
@@ -146,12 +146,9 @@ def key_value_type(s):
         raise argparse.ArgumentTypeError('key-value type: {0} must be separated by exactly one = '.format(s))
     return (column_type(tup[0]), tup[1])
 
-def add_query_and_hashes_arguments(parser: argparse.ArgumentParser, hashes_are_optional = True):
+def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('query', help='GBD Query', nargs='?')
-    if hashes_are_optional:
-        parser.add_argument('--hashes', dest='optional_hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
-    else:
-        parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
+    parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
 
 
 
@@ -225,7 +222,7 @@ def main():
     parser_create.set_defaults(func=cli_create)
 
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
-    parser_delete.add_argument('--hashes', dest='optional_hashes', help='Hashes', nargs='*', default=[])
+    parser_delete.add_argument('--hashes', help='Hashes', nargs='*', default=[])
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
@@ -305,13 +302,9 @@ A database file containing some attributes of instances used in the SAT Competit
     elif len(sys.argv) > 1:
         try:
             with GBD(args.db, int(args.jobs), args.timeout, args.separator, args.join_type, args.verbose) as api:
-                if hasattr(args, 'hashes') and (not args.hashes or len(args.hashes) == 0):
-                    if not sys.stdin.isatty():
-                        args.hashes = read_hashes()  # read hashes from stdin
+                if hasattr(args, 'hashes') and not sys.stdin.isatty():
                     if not args.hashes or len(args.hashes) == 0:
-                        raise GBDException("Error: No hashes given. Enter hashes via STDIN or ARGUMENT --hashes [hash1 [hash2 [...]]]")
-                if hasattr(args, 'optional_hashes') and (not args.optional_hashes or len(args.optional_hashes) == 0) and not sys.stdin.isatty():
-                    args.optional_hashes = read_hashes()  # read hashes from stdin
+                        args.hashes = read_hashes()  # read hashes from stdin
                 args.func(api, args)
         except GBDException as err:
             eprint(err)
