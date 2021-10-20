@@ -42,15 +42,15 @@ def cli_init_local(api: GBD, args):
 
 def cli_init_base_features(api: GBD, args):
     from gbd_tool import init
-    init.init_base_features(api, args.query, args.hashes)
+    init.init_base_features(api, args.query, args.hashes, args.tlim, args.mlim)
 
 def cli_init_gate_features(api: GBD, args):
     from gbd_tool import init
-    init.init_gate_features(api, args.query, args.hashes)
+    init.init_gate_features(api, args.query, args.hashes, args.tlim, args.mlim)
 
 def cli_init_dsh(api: GBD, args):
     from gbd_tool import init
-    init.init_degree_sequence_hash(api, args.hashes)
+    init.init_degree_sequence_hash(api, args.hashes, args.tlim, args.mlim)
 
 
 def cli_create(api: GBD, args):
@@ -93,16 +93,16 @@ def cli_info(api: GBD, args):
 
 def cli_eval_par2(api: GBD, args):
     from gbd_tool import eval
-    eval.par2(api, args.query, args.runtimes, args.timeout, args.divisor)
+    eval.par2(api, args.query, args.runtimes, args.tlim, args.divisor)
 
 def cli_eval_vbs(api: GBD, args):
     from gbd_tool import eval
-    eval.vbs(api, args.query, args.runtimes, args.timeout, args.separator)
+    eval.vbs(api, args.query, args.runtimes, args.tlim, args.separator)
 
 def cli_eval_combinations(api: GBD, args):
     from gbd_tool import eval_comp_ilp as eci
-    #eval.greedy_comb(api, args.query, args.runtimes, args.timeout, args.size)
-    eci.optimal_comb(api, args.query, args.runtimes, args.timeout, args.size)
+    #eval.greedy_comb(api, args.query, args.runtimes, args.tlim, args.size)
+    eci.optimal_comb(api, args.query, args.runtimes, args.tlim, args.size)
 
 def cli_graph(api: GBD, args):
     from gbd_tool import graph
@@ -110,11 +110,11 @@ def cli_graph(api: GBD, args):
 
 def cli_plot_scatter(api: GBD, args):
     from gbd_tool import plot
-    plot.scatter(api, args.query, args.runtimes, args.timeout, args.groups)
+    plot.scatter(api, args.query, args.runtimes, args.tlim, args.groups)
 
 def cli_plot_cdf(api: GBD, args):
     from gbd_tool import plot
-    plot.cdf(api, args.query, args.runtimes, args.timeout, args.title)
+    plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
@@ -158,8 +158,9 @@ def main():
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
-    parser.add_argument('-t', '--timeout', help="Time-limit per instance (used by 'init', 'eval', and 'plot' sub-commands)", default=5000, type=int)
-    parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output)", choices=[" ", ",", ";"], default=" ")
+    parser.add_argument('-t', '--tlim', help="Time limit per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
+    parser.add_argument('-m', '--mlim', help="Memory limit per instance for 'init' sub-commands", default=5000, type=int)
+    parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
 
@@ -301,7 +302,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GBD(args.db, int(args.jobs), args.timeout, args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db, int(args.jobs), args.tlim, args.separator, args.join_type, args.verbose) as api:
                 if hasattr(args, 'hashes') and not sys.stdin.isatty():
                     if not args.hashes or len(args.hashes) == 0:
                         args.hashes = read_hashes()  # read hashes from stdin
