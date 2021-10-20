@@ -22,12 +22,12 @@ import os
 from os.path import isfile
 
 import psutil
-import time
 import hashlib
 import csv
 
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_completed, CancelledError, TimeoutError
-from asyncio import CancelledError
+
+import networkit as nk
 
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
@@ -39,14 +39,14 @@ from gbd_tool.util import eprint, confirm, open_cnf_file
 try:
     from gbdc import extract_base_features
 except ImportError:
-    def extract_base_features(path) -> dict:
-        raise GBDException("Method 'extract_base_features' not available. Install cnftools' GDBC Accelerator Module.")
+    def extract_base_features(path, tlim, mlim) -> dict:
+        raise GBDException("Method 'extract_base_features' not available. Install gdbc module from: https://github.com/sat-clique/cnftools")
 
 try:
     from gbdc import extract_gate_features
 except ImportError:
-    def extract_gate_features(path) -> dict:
-        raise GBDException("Method 'extract_gate_features' not available. Install cnftools' GDBC Accelerator Module.")
+    def extract_gate_features(path, tlim, mlim) -> dict:
+        raise GBDException("Method 'extract_base_features' not available. Install gdbc module from: https://github.com/sat-clique/cnftools")
 
 
 def import_csv(api: GBD, path, key, source, target):
@@ -96,20 +96,20 @@ def init_benchmarks(api: GBD, root):
 
 
 # Parallel Runner
-def run(api: GBD, resultset, func):
+def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
     if api.jobs == 1:
         for (hash, local) in resultset:
-            api.callback_set_attributes_locked(func(hash, local))
+            api.callback_set_attributes_locked(func(hash, local, tlim, mlim))
     else:
         while len(resultset) > 0:
             eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
             with ProcessPoolExecutor(min(multiprocessing.cpu_count(), api.jobs)) as p:
                 futures = {
-                    p.submit(func, hash, local): (hash, local)
+                    p.submit(func, hash, local, tlim, mlim): (hash, local)
                     for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
                 }
                 try:
-                    for f in as_completed(futures, timeout=api.timeout):
+                    for f in as_completed(futures, timeout=tlim):
                         e = f.exception()
                         if e is not None:
                             if type(e) == BrokenProcessPool:
@@ -119,53 +119,70 @@ def run(api: GBD, resultset, func):
                                     break
                                 except ValueError as err:
                                     eprint("Value error: {} {}".format(err, f))
+                            elif type(e) == GBDException:
+                                eprint("{}: {}".format(e.__class__.__name__, e))
+                                return
+                            else:
+                                eprint("{}: {}".format(e.__class__.__name__, e))
                         else:
                             resultset.remove(futures[f])
                             api.callback_set_attributes_locked(f.result())
                 except TimeoutError as e:
                     eprint("{}: {}".format(e.__class__.__name__, e))
+                except Exception as e:
+                    eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 # Initialize base feature tables for given instances
-def init_base_features(api: GBD, query, hashes):
+def init_base_features(api: GBD, query, hashes, tlim, mlim):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, base_features)
+    run(api, resultset, base_features, tlim, mlim)
 
-def base_features(hashvalue, filename):
-    mem = psutil.virtual_memory()
-    if mem.available < 1024 * 1024 * 1024:
-        raise CancelledError
+def base_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting base features from {}'.format(filename))
-    rec = extract_base_features(filename)
+    rec = extract_base_features(filename, tlim, mlim)
     eprint('Done with base features from {}'.format(filename))
-    attributes = [ ('REPLACE', key, int(value) if value.is_integer() else value) for key, value in rec.items() ]
+    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
 # Initialize gate feature tables for given instances
-def init_gate_features(api: GBD, query, hashes):
+def init_gate_features(api: GBD, query, hashes, tlim, mlim):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, gate_features)
+    run(api, resultset, gate_features, tlim, mlim)
 
-def gate_features(hashvalue, filename):
-    mem = psutil.virtual_memory()
-    if mem.available < 1024 * 1024 * 1024:
-        raise CancelledError
+def gate_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting gate features from {}'.format(filename))
-    rec = extract_gate_features(filename)
+    rec = extract_gate_features(filename, tlim, mlim)
     eprint('Done with gate features from {}'.format(filename))
-    attributes = [ ('REPLACE', key, int(value) if value.is_integer() else value) for key, value in rec.items() ]
+    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+    return { 'hashvalue': hashvalue, 'attributes': attributes }
+
+
+# Initialize Graph Features known from Network Analysis
+def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
+    nk.setNumberOfThreads(min(multiprocessing.cpu_count(), api.jobs))
+    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
+    for (hash, local) in resultset: 
+        result = networkit_features(hash, local, tlim, mlim)
+        eprint(result['hashvalue'])
+        for att in result['attributes']:
+            eprint(att[1] + "=" + att["2"])
+
+def networkit_features(hashvalue, filename, tlim, mlim):
+    rec = dict()
+    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
     return { 'hashvalue': hashvalue, 'attributes': attributes }
 
 
 # Initialize degree_sequence_hash for given instances
-def init_degree_sequence_hash(api: GBD, hashes):
+def init_degree_sequence_hash(api: GBD, hashes, tlim, mlim):
     if not api.feature_exists("degree_sequence_hash"):
         api.create_feature("degree_sequence_hash", "empty")
     resultset = api.query_search(None, hashes, ["local"], collapse="MIN")
     run(api, resultset, compute_degree_sequence_hash)
 
-def compute_degree_sequence_hash(hashvalue, filename):
+def compute_degree_sequence_hash(hashvalue, filename, tlim, mlim):
     eprint('Computing degree-sequence hash for {}'.format(filename))
     hash_md5 = hashlib.md5()
     degrees = dict()

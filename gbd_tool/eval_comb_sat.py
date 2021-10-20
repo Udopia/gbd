@@ -29,7 +29,7 @@ _BW = 32
 
 def optimal_comb(api: GBD, args):
     result = api.query_search(args.query, [], args.runtimes)
-    result = [[int(float(val)) if is_number(val) and float(val) < float(args.timeout) else int(2*args.timeout) for val in row[1:]] for row in result]
+    result = [[int(float(val)) if is_number(val) and float(val) < float(args.tlim) else int(2*args.tlim) for val in row[1:]] for row in result]
 
     cnf = dimacs.DIMACSPrinter()
     _ACT = [cnf.create_literal() for _ in range(0, len(args.runtimes))]
