@@ -16,6 +16,8 @@
 
 from tatsu import parse
 
+from gbd_tool.util import context_from_name
+
 def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", join_type="LEFT"):
     statement = "SELECT {} FROM {} {} WHERE {} GROUP BY {}"
 
@@ -32,12 +34,25 @@ def build_query(query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", grou
         tables.update(collect_tables(ast))
 
     if len(hashes):
-        s_where = s_where + " AND hash.hash in ('{}')".format("', '".join(hashes))
+        s_where = s_where + " AND {}.hash in ('{}')".format(group_by, "', '".join(hashes))
 
     if len(resolve):
         s_select = s_select + ", " + ", ".join(['{}(DISTINCT({}.value))'.format(collapse, table) for table in resolve])
 
-    s_join = " ".join(['{} JOIN {} ON {}.hash = {}.hash'.format(join_type, table, group_by, table) for table in tables if table != group_by])
+    group_context = context_from_name(group_by)
+    used_contexts = []
+    s_join = ""
+    for table in tables:
+        if table != group_by:
+            table_context = context_from_name(table)
+            if table_context == group_context:
+                s_join = s_join + " {} JOIN {} ON {}.hash = {}.hash".format(join_type, table, group_by, table)
+            else:
+                translator = "__translator_{}_{}".format(group_context, table_context)
+                if not table_context in used_contexts:
+                    s_join = s_join + " INNER JOIN {} ON {}.hash = {}.hash".format(translator, group_by, translator)
+                    used_contexts.append(table_context)
+                s_join = s_join + " {} JOIN {} ON {}.value = {}.hash".format(join_type, table, translator, table)
 
     return statement.format(s_select, s_from, s_join, s_where, s_group_by)
 

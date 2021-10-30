@@ -26,6 +26,8 @@ import gbd_tool
 
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.util import eprint, read_hashes, confirm
+from gbd_tool import config
+
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
@@ -163,6 +165,8 @@ def main():
     parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
+    parser.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
+                            help='Select context (affects hash-selection and feature-extraction in init)')
 
     subparsers = parser.add_subparsers(help='Available Commands:')
 
@@ -188,6 +192,8 @@ def main():
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
+    parser_hash.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
+                            help='Select context (affects hashes and features)')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)
 
@@ -302,7 +308,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GBD(args.db, int(args.jobs), args.tlim, args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db, args.context, int(args.jobs), args.tlim, args.separator, args.join_type, args.verbose) as api:
                 if hasattr(args, 'hashes') and not sys.stdin.isatty():
                     if not args.hashes or len(args.hashes) == 0:
                         args.hashes = read_hashes()  # read hashes from stdin

@@ -11,18 +11,20 @@ setup(name='gbd_tools',
   packages=["gbd_tool", "gbd_server"],
   scripts=["gbd.py", "server.py"],
   include_package_data=True,
+  setup_requires=[
+    'cython'
+  ],
   install_requires=[
-      'setuptools',
-      'wheel',
-      'flask',
-      'flask_limiter',
-      'tatsu',
-      'numpy',
-      'mip',
-      'pandas',
-      'matplotlib',
-      'Cython',
-      'networkit'
+    'setuptools',
+    'wheel',
+    'flask',
+    'flask_limiter',
+    'tatsu',
+    'numpy',
+    'mip',
+    'pandas',
+    'matplotlib',
+    'networkit'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[

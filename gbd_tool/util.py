@@ -19,7 +19,20 @@ import bz2
 import gzip
 import lzma
 
-__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
+from gbd_tool import config
+
+__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number', 'context_from_name', 'prepend_context']
+
+
+def prepend_context(feature, context):
+    return feature if context == 'cnf' else "{}_{}".format(context, feature)
+
+def context_from_name(name):
+    pair = name.split('_')
+    if len(pair) > 1 and pair[0] in config.contexts():
+        return pair[0]
+    else:
+        return 'cnf'
 
 
 def is_number(s):

@@ -15,7 +15,7 @@ GBD can be used in other domains, if GBD-Hash is replaced accordingly.
 - Install GBD via ```pip3 install gbd-tools```
 
 ## Configuration
-- Download a database, e.g., [http://gbd.iti.kit.edu/getdatabase/](http://gbd.iti.kit.edu/getdatabase/), and safe it as [path/file]
+- Download a database, e.g., [http://gbd.iti.kit.edu/getdatabase/meta.db](http://gbd.iti.kit.edu/getdatabase/meta.db), and safe it as [path/file]
 - ```export GBD_DB=[path/file]``` (and put it in your .bashrc)
 - GBD_DB can contain several colon-spararted paths (semi-colon on Windows)
 - GBD_DB can be overriden by command-line argument ```gbd --db=[path/other]```
