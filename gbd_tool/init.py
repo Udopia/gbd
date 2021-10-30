@@ -88,7 +88,7 @@ def init_benchmarks(api: GBD, root):
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
-            if any(path.endswith(suffix) for suffix in config.contexts[api.context]):
+            if any(path.endswith(suffix) for suffix in config.suffix_list(api.context)):
                 feature="local" if api.context == 'cnf' else "{}.local".format(api.context)
                 hashes = api.query_search("{}='{}'".format(feature, path))
                 if len(hashes) != 0:

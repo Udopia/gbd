@@ -21,5 +21,8 @@ contexts_ = {
     "isp" : [".isp", ".isp.gz", ".isp.lzma", ".isp.xz", ".isp.bz2"]
 }
 
+def suffix_list(context):
+    return contexts_[context]
+
 def contexts():
     return contexts_.keys()
