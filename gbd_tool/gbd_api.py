@@ -36,8 +36,9 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, db_string, jobs=1, timeout=5000, separator=" ", join_type="LEFT", verbose=False):
+    def __init__(self, db_string, context='cnf', jobs=1, timeout=5000, separator=" ", join_type="LEFT", verbose=False):
         self.databases = db_string.split(os.pathsep)
+        self.context = context
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
         self.timeout = timeout
@@ -46,7 +47,7 @@ class GBD:
         self.verbose = verbose
 
     def __enter__(self):
-        self.database = Database(self.databases, self.verbose)
+        self.database = Database(self.databases, self.verbose, self.context)
         with ExitStack() as stack:
             stack.enter_context(self.database)
             self._stack = stack.pop_all()
@@ -63,7 +64,7 @@ class GBD:
         if path == None:
             return self.database.tables_and_views()
         elif path in self.databases:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 return db.tables_and_views()
         else:
             return []
@@ -73,7 +74,7 @@ class GBD:
         if path == None:
             return self.database.tables()
         elif path in self.databases:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 return db.tables()
         else:
             return []
@@ -83,7 +84,7 @@ class GBD:
         if path == None:
             return self.database.views()
         elif path in self.databases:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 return db.views()
         else:
             return []
@@ -127,7 +128,7 @@ class GBD:
             meta_record = self.database.meta_record(name)
             return {**system_record, **meta_record}
         else:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 system_record = db.system_record(name)
                 meta_record = db.meta_record(name)
                 return {**system_record, **meta_record}
@@ -138,7 +139,7 @@ class GBD:
             system_record = self.database.system_record(name)
             return {**system_record}
         else:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 system_record = db.system_record(name)
                 return {**system_record}
 
@@ -148,7 +149,7 @@ class GBD:
             meta_record = self.database.meta_record(name)
             return {**meta_record}
         else:
-            with Database([path]) as db:
+            with Database([path], self.verbose, self.context) as db:
                 meta_record = db.meta_record(name)
                 return {**meta_record}
 
@@ -167,7 +168,7 @@ class GBD:
         self.mutex.acquire()
         try:
             # create new connection due to limitations in multi-threaded use (cursor initialization issue)
-            with Database(self.databases) as db:
+            with Database(self.databases, self.verbose, self.context) as db:
                 for attr in attributes:
                     cmd, name, value = attr[0], attr[1], attr[2]
                     if not name in db.tables():
@@ -204,11 +205,6 @@ class GBD:
         if not feature in self.get_material_features():
             raise GBDException("Feature '{}' not found".format(feature))
         self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
-
-    def search(self, feature, hashvalue):
-        if not feature in self.get_features():
-            raise GBDException("Feature '{}' not found".format(feature))
-        return self.database.value_query("SELECT value FROM {} WHERE hash = '{}'".format(feature, hashvalue))
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:

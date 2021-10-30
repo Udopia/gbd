@@ -29,6 +29,7 @@ from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_co
 
 import networkit as nk
 
+from gbd_tool import config
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file
@@ -69,7 +70,8 @@ def init_local(api: GBD, path):
 
 def remove_stale_benchmarks(api: GBD):
     eprint("Sanitizing local path entries ... ")
-    paths = api.database.value_query("SELECT value FROM local")
+    feature="local" if api.context == 'cnf' else "{}.local".format(api.context)
+    paths = [path[0] for path in api.query_search(group_by=feature)]
     sanitize = list(filter(lambda path: not isfile(path), paths))
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
         for path in sanitize:
@@ -86,8 +88,9 @@ def init_benchmarks(api: GBD, root):
     for root, dirnames, filenames in os.walk(root):
         for filename in filenames:
             path = os.path.join(root, filename)
-            if any(path.endswith(suffix) for suffix in [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"]):
-                hashes = api.database.value_query("SELECT hash FROM local WHERE value = '{}'".format(path))
+            if any(path.endswith(suffix) for suffix in config.contexts[api.context]):
+                feature="local" if api.context == 'cnf' else "{}.local".format(api.context)
+                hashes = api.query_search("{}='{}'".format(feature, path))
                 if len(hashes) != 0:
                     eprint('Problem {} already hashed'.format(path))
                 else:

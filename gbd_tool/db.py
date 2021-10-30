@@ -19,9 +19,11 @@ import os
 import re
 import json
 import csv
+import itertools
 
+import gbd_tool.config as config
 from gbd_tool.gbd_hash import HASH_VERSION
-from gbd_tool.util import eprint, is_number
+from gbd_tool.util import eprint, is_number, prepend_context, context_from_name
 
 VERSION = 0
 
@@ -31,10 +33,11 @@ class DatabaseException(Exception):
 
 
 class Database:
-    def __init__(self, path_list, verbose=False):
+    def __init__(self, path_list, verbose=False, context='cnf'):
         self.paths = []
         self.csv = []
         self.verbose = verbose
+        self.context = context
         # init non-existent databases and check existing databases
         for path in path_list:
             if not os.path.isfile(path):
@@ -45,7 +48,9 @@ class Database:
                 try:
                     self.check(path, VERSION, HASH_VERSION)
                     self.paths.append(path)
-                except sqlite3.DatabaseError:
+                except sqlite3.DatabaseError as err:
+                    eprint(str(err))
+                    break
                     with open(path, 'r') as obj:
                         csvreader = csv.DictReader(obj)
                         if not "hash" in csvreader.fieldnames:
@@ -97,18 +102,27 @@ class Database:
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
         cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
-        cur.execute("CREATE TABLE local (hash TEXT NOT NULL, value TEXT NOT NULL)")
-        cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
-        cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
+        self.create_local(cur)
+        self.create_filename(cur)
+        self.create_hash(cur)
         con.commit()
         con.close()
 
+    def create_local(self, cur):
+        cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(prepend_context("local", self.context)))
+
+    def create_filename(self, cur):
+        cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(prepend_context("filename", self.context), prepend_context("local", self.context)))
+
+    def create_hash(self, cur):
+        cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT DISTINCT hash, hash FROM {}".format(prepend_context("hash", self.context), prepend_context("local", self.context)))
+
     def check(self, path, version, hash_version):
         con = sqlite3.connect(path)
-        cur = con.cursor()
-        lst = cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")
-        
-        tables = [x[0] for x in lst]
+        cur = con.cursor()        
+        tables = [x[0] for x in cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")]
+
+        # version control
         if not "__version" in tables:
             eprint("WARNING: Version info not available in database {}".format(path))
             return
@@ -119,25 +133,38 @@ class Database:
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
-        # upgrade legacy data-model
-        if not "filename" in tables:
-            cur.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
+        # existence of context translators
+        for (c0, c1) in list(itertools.combinations(config.contexts(), 2)):
+            translator = "__translator_{}_{}".format(c0, c1)
+            if not translator in tables:
+                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(translator))
+            translator = "__translator_{}_{}".format(c1, c0)
+            if not translator in tables:
+                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(translator))
 
-        if not "hash" in tables:
-            cur.execute("CREATE VIEW IF NOT EXISTS hash (hash, value) AS SELECT DISTINCT hash, hash FROM local")
-
+        # meta data (one json-blob per feature)
         if not "__meta" in tables:
             cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
+
+        # create required features
+        if not prepend_context("local", self.context) in tables:
+            self.create_local(cur)
+        if not prepend_context("filename", self.context) in tables:
+            self.create_filename(cur)
+        if not prepend_context("hash", self.context) in tables:
+            self.create_hash(cur)
 
         con.commit()
         con.close()
 
     def create_table(self, name, default_value=None):
+        context = context_from_name(name)
         if default_value is not None:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT UNIQUE NOT NULL, value TEXT NOT NULL DEFAULT "{}")'.format(name, default_value))
-            self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM local'.format(name))
-            self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON local BEGIN 
-                    INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(name, name))
+            self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM {}'.format(name, prepend_context("local", context)))
+            self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON {} BEGIN 
+                    INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(name, prepend_context("local", context), name))
+            # TODO: Delete Trigger; Sanitize Data by obsolete default values
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
         self.commit()
@@ -151,10 +178,6 @@ class Database:
         self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
         self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
         self.commit()
-
-    def value_query(self, q):
-        lst = self.cursor.execute(q).fetchall()
-        return set([row[0] for row in lst])
 
     def query(self, q):
         if self.verbose:
@@ -239,8 +262,8 @@ class Database:
     # return list of distinct values and value-range for numeric values
     def table_values(self, table):
         result = { "numeric" : [None, None], "discrete" : [] }
-        values = self.value_query('SELECT DISTINCT value FROM {}'.format(table))
-        for val in values:
+        records = self.query('SELECT DISTINCT value FROM {}'.format(table))
+        for val in [record[0] for record in records]:
             if is_number(val):
                 value = float(val)
                 if result["numeric"][0] == None:
@@ -254,7 +277,7 @@ class Database:
         return result
 
     def table_size(self, table):
-        return self.value_query('SELECT COUNT(*) FROM {}'.format(table)).pop()
+        return self.query('SELECT COUNT(*) FROM {}'.format(table))[0][0]
 
     def table_unique(self, table):
         return self.table_default_value(table) is not None
@@ -275,7 +298,8 @@ class Database:
         return system_record
 
     def meta_record(self, table):
-        return json.loads((self.value_query("SELECT value FROM __meta WHERE name = '{}'".format(table)) or {"{}"}).pop())
+        blob = self.query("SELECT value FROM __meta WHERE name = '{}'".format(table))
+        return json.loads(blob or "{}")
 
     def meta_clear(self, table, meta_feature=None):
         if not meta_feature:
