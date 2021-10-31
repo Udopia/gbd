@@ -57,7 +57,8 @@ def quick_search_results():
         if not len(selected_features):
             selected_features.append("filename")
         available_features = sorted(gbd_api.get_features())
-        available_features.remove("local")
+        if "local" in available_features:
+            available_features.remove("local")
         features = sorted(list(set(available_features) & set(selected_features)))
         try:
             rows = list(gbd_api.query_search(query, [], features))
