@@ -41,7 +41,7 @@ app = Flask(__name__)
 # Returns main index page
 @app.route("/", methods=['GET'])
 def quick_search():
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         pass
     return render_template('index.html')
 
@@ -50,7 +50,7 @@ def quick_search():
 # returns result as a serialized JSON object
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         app.logger.info("Received query '{}' from {}".format(request.form.get('query'), request.remote_addr))
         query = request.form.get('query')
         selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
@@ -75,7 +75,7 @@ def quick_search_results():
 @app.route("/exportcsv/", methods=['POST', 'GET'])
 @app.route("/exportcsv/<context>", methods=['POST', 'GET'])
 def get_csv_file(context='cnf'):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         query = None
         if "query" in request.form:
             query = request.form.get('query')
@@ -107,7 +107,7 @@ def get_csv_file(context='cnf'):
 def get_url_file(context='cnf'):
     if not context in config.contexts():
         context = 'cnf'
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         query = None
         if "query" in request.form:
             query = request.form.get('query')
@@ -130,7 +130,7 @@ def get_url_file(context='cnf'):
 # Return all basenames of the databases which the server was initialized with
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         app.logger.info("List all databases for IP {}".format(request.remote_addr))
         return Response(json.dumps(list(map(basename, gbd_api.get_databases()))), status=200,
                         mimetype="application/json")
@@ -140,7 +140,7 @@ def list_databases():
 @app.route('/getdatabase/')
 @app.route('/getdatabase/<database>')
 def get_database_file(database=None):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         if database is None:
             app.logger.info("Send default database file to IP {}".format(request.remote_addr))
             return send_file(gbd_api.get_databases()[0],
@@ -165,7 +165,7 @@ def get_database_file(database=None):
 @app.route('/listfeatures/')
 @app.route('/listfeatures/<database>')
 def list_features(database=None):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         if database is None:
             available_features = sorted(gbd_api.get_features())
             available_features.remove("local")
@@ -187,7 +187,7 @@ def list_features(database=None):
 # Get meta data and default value of feature
 @app.route('/features/info/<feature>/<database>')
 def get_feature_info(feature, database):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         try:
             if database in list(map(basename, gbd_api.get_databases())):
                 records = gbd_api.get_feature_info(feature, list(
@@ -208,7 +208,7 @@ def get_feature_info(feature, database):
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=[feature])
             if len(records) == 0:
@@ -228,7 +228,7 @@ def get_attribute(feature, hashvalue):
 @app.route('/info/<hashvalue>/')
 @app.route('/info/<hashvalue>/<context>')
 def get_all_attributes(hashvalue, context='cnf'):
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         features = gbd_api.get_features()
         info = dict([])
         for feature in features:
@@ -250,7 +250,7 @@ def get_all_attributes(hashvalue, context='cnf'):
 def get_file(hashvalue, context='cnf'):
     if not context in config.contexts():
         context = 'cnf'
-    with GBD(app.config['database']) as gbd_api:
+    with GBD(app.config['database' ], verbose=app.config['verbose'])as gbd_api:
         local = util.prepend_context("local", context)
         filename = util.prepend_context("filename", context)
         records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN")
@@ -272,6 +272,7 @@ def main():
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
+    parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
     parser.add_argument('-b', "--backup",
                         help='Specify the amount of kept logging files while log rotation (every midnight)',
                         default=10,
@@ -320,6 +321,7 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         global app
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = args.db
+        app.config['verbose'] = args.verbose
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
         app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         app.run(host='0.0.0.0', port=args.port)
