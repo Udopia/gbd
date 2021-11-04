@@ -283,7 +283,7 @@ class Database:
         return self.table_default_value(table) is not None
 
     def table_default_value(self, table):
-        return self.table_info_augmented(table)[1]['default_value']
+        return self.table_info(table)[1]['default_value']
 
     def system_record(self, table_name):
         system_record = dict()
