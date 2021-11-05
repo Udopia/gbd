@@ -102,7 +102,9 @@ GRAMMAR = r'''
             sconstraint | 
             aconstraint;
 
-    sconstraint = left:colname sop:('=' | '!=') right:alnum | left:colname sop:('unlike' | 'like') right:likean ;
+    sconstraint = left:colname sop:('=' | '!=') right:alnum | 
+                left:colname sop:('=' | '!=') "'" right:alnum "'" | 
+                left:colname sop:('unlike' | 'like') right:likean ;
         
     aconstraint = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
 

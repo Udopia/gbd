@@ -81,7 +81,7 @@ class Database:
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        self.commit()
+        self.connection.commit()
         self.connection.close()
         self.inmemory.close()
 
@@ -147,12 +147,13 @@ class Database:
             cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
 
         # create required features
-        if not prepend_context("local", self.context) in tables:
-            self.create_local(cur)
-        if not prepend_context("filename", self.context) in tables:
-            self.create_filename(cur)
-        if not prepend_context("hash", self.context) in tables:
-            self.create_hash(cur)
+        for context in config.contexts():
+            if not prepend_context("local", context) in tables:
+                self.create_local(cur)
+            if not prepend_context("filename", context) in tables:
+                self.create_filename(cur)
+            if not prepend_context("hash", context) in tables:
+                self.create_hash(cur)
 
         con.commit()
         con.close()
@@ -167,35 +168,47 @@ class Database:
             # TODO: Delete Trigger; Sanitize Data by obsolete default values
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
-        self.commit()
+        self.connection.commit()
 
     def delete_table(self, name):
         self.execute('DROP TABLE IF EXISTS {}'.format(name))
         self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-        self.commit()
+        self.connection.commit()
 
     def rename_table(self, old_name, new_name):
         self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
         self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
-        self.commit()
+        self.connection.commit()
 
     def query(self, q):
         if self.verbose:
             eprint(q)
         return self.cursor.execute(q).fetchall()
 
-    def submit(self, q):
-        self.execute(q)
-        self.commit()
-
     def execute(self, q):
         if self.verbose:
             eprint(q)
         self.cursor.execute(q)
 
-    def commit(self):
-        self.connection.commit()
+    def insert(self, feature, value, hashes, force=False):
+        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hashes])
+        method = 'REPLACE' if force and self.table_unique(feature) else 'INSERT'
+        self.execute('{} INTO {} (hash, value) VALUES {}'.format(method, feature, values))
 
+    def delete_hashes(self, feature, hashes):
+        dval = self.table_default_value(feature)
+        if dval is None:
+            self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
+        else:
+            self.insert(feature, dval, hashes, True)
+
+    def delete_values(self, feature, values):        
+        dval = self.table_default_value(feature)
+        if dval is None:
+            self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
+        else:
+            self.execute("UPDATE TABLE {} SET value = {} WHERE value IN ('{}')".format(feature, dval, "', '".join(values)))
+  
     def bulk_insert(self, table, lst):
         if self.table_unique(table):
             self.cursor.executemany("REPLACE INTO {} VALUES (?,?)".format(table), lst)
@@ -303,14 +316,14 @@ class Database:
 
     def meta_clear(self, table, meta_feature=None):
         if not meta_feature:
-            self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
+            self.execute("REPLACE INTO __meta (name, value) VALUES ('{}', '')".format(table))
         else:
             values = self.meta_record(table)
             if meta_feature in values:
                 values.pop(meta_feature)
-            self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+            self.execute("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
 
     def meta_set(self, table, meta_feature, value):
         values = self.meta_record(table)
         values[meta_feature] = value
-        self.submit("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))
+        self.execute("REPLACE INTO __meta (name, value) VALUES ('{}', '{}')".format(table, json.dumps(values)))

@@ -18,7 +18,7 @@
 
 contexts_ = {
     "cnf" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
-    "isp" : [".isp", ".isp.gz", ".isp.lzma", ".isp.xz", ".isp.bz2"]
+    "isp" : [".kis", ".kis.gz", ".kis.lzma", ".kis.xz", ".kis.bz2"]  # TODO: fix auto-initialization and rename to kis
 }
 
 def suffix_list(context):

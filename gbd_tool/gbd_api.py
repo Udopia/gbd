@@ -161,19 +161,16 @@ class GBD:
     def meta_clear(self, feature, meta_feature=None):
         self.database.meta_clear(feature, meta_feature)
 
-    def callback_set_attributes_locked(self, arg):
-        self.set_attributes_locked(arg['hashvalue'], arg['attributes'])
-
-    def set_attributes_locked(self, hash, attributes):
+    def set_attributes_locked(self, arg):
         self.mutex.acquire()
         try:
             # create new connection due to limitations in multi-threaded use (cursor initialization issue)
             with Database(self.databases, self.verbose, self.context) as db:
-                for attr in attributes:
-                    cmd, name, value = attr[0], attr[1], attr[2]
+                for attr in arg:
+                    name, value, hashv = attr[0], attr[1], attr[2]
                     if not name in db.tables():
                         db.create_table(name, "empty")
-                    db.submit('{} INTO {} (hash, value) VALUES ("{}", "{}")'.format(cmd, name, hash, value))
+                    db.insert(name, value, [hashv], True)
         finally:
             self.mutex.release()
 
@@ -182,29 +179,18 @@ class GBD:
         if not feature in self.get_material_features():
             raise GBDException("Feature '{}' missing or virtual".format(feature))
         hash_list = [hash[0] for hash in self.query_search(query, hashes)]
-        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hash_list])
-        if self.database.table_unique(feature):
-            if force:
-                self.database.submit('DELETE FROM {} WHERE hash IN ("{}")'.format(feature, '", "'.join(hash_list)))
-            try:
-                self.database.submit('REPLACE INTO {} (hash, value) VALUES {}'.format(feature, values))
-            except sqlite3.IntegrityError as err:
-                # thrown if existing value is not the default value or equal to the value to be set
-                # requires the unique on insert-triggers introduced in version 3.0.9
-                eprint(str(err) + ": Use the force!")
-        else:
-            try:
-                self.database.submit('INSERT INTO {} (hash, value) VALUES {}'.format(feature, values))
-            except Exception as err:
-                # thrown if hash+value combination is already set
-                # requires the unique constraint introduced in version 3.0.9
-                eprint(err)
+        try:
+            self.database.insert(feature, value, hash_list, force)
+        except sqlite3.IntegrityError as err:
+            raise GBDException(str(err) + ": Use the force!")
+        except Exception as err:
+            raise GBDException(str(err))
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, hash_list):
         if not feature in self.get_material_features():
             raise GBDException("Feature '{}' not found".format(feature))
-        self.database.submit("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hash_list)))
+        self.database.delete_hashes(feature, hash_list)
 
     def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
