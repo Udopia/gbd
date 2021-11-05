@@ -231,6 +231,9 @@ class Database:
         lst = self.query("PRAGMA table_info({})".format(table))
         columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
         table_infos = [dict(zip(columns, values)) for values in lst]
+        for info in table_infos:
+            if info['default_value'] is not None:
+                info['default_value'] = info['default_value'].strip('"')
         return table_infos
 
     def index_list(self, table):
@@ -253,10 +256,6 @@ class Database:
         for index in [e for e in index_list if e['unique']]:
             col = self.index_info(index['name'])['table_rank']
             table_infos[col]['unique'] = True
-
-        for info in table_infos:
-            if info['default_value'] is not None:
-                info['default_value'] = info['default_value'].strip('"')
         
         return table_infos
 
