@@ -86,8 +86,9 @@ def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
             print("Database: {}".format(db_str))
-            print("Features: {}".format(" ".join(api.get_material_features(db_str))))
-            print("Virtual: {}".format(" ".join(api.get_virtual_features(db_str))))
+            with GBD(db_str) as api2:
+                print("Features: {}".format(" ".join(api2.get_material_features())))
+                print("Virtual: {}".format(" ".join(api2.get_virtual_features())))
     else:
         info = api.get_feature_info(args.name)
         for key in info:

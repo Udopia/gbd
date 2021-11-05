@@ -184,27 +184,6 @@ def list_features(database=None):
             return Response(json.dumps(gbd_api.get_features(target_database)), status=200, mimetype="application/json")
 
 
-# Get meta data and default value of feature
-@app.route('/features/info/<feature>/<database>')
-def get_feature_info(feature, database):
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
-        try:
-            if database in list(map(basename, gbd_api.get_databases())):
-                records = gbd_api.get_feature_info(feature, list(
-                    filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0])
-            else:
-                app.logger.warning(
-                    "Device with IP {} requested info of feature in database '{}'. Database was not found".format(
-                        request.remote_addr,
-                        database))
-                return Response("Database does not exist in the running instance of GBD server", status=404,
-                                mimetype="text/plain")
-            return Response(json.dumps(records), status=200, mimetype="application/json")
-        except GBDException as err:
-            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=500, mimetype="text/plain")
-
-
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
