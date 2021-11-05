@@ -33,57 +33,68 @@ class DatabaseException(Exception):
 
 
 class Database:
-    def __init__(self, path_list, verbose=False, context='cnf'):
-        self.paths = []
+    def __init__(self, path_list, verbose=False):
+        self.dbs = []
         self.csv = []
+        self.names = []
         self.verbose = verbose
-        self.context = context
         # init non-existent databases and check existing databases
         for path in path_list:
             if not os.path.isfile(path):
-                eprint("{}: file does not exist, creating...".format(path))
                 self.init(path, VERSION, HASH_VERSION)
-                self.paths.append(path)
+                self.dbs.append(path)
+            elif self.is_database(path):
+                self.check(path, VERSION, HASH_VERSION)
+                self.dbs.append(path)
             else:
-                try:
-                    self.check(path, VERSION, HASH_VERSION)
-                    self.paths.append(path)
-                except sqlite3.DatabaseError as err:
-                    eprint(str(err))
-                    break
-                    with open(path, 'r') as obj:
-                        csvreader = csv.DictReader(obj)
-                        if not "hash" in csvreader.fieldnames:
-                            eprint("{}: file is neither a database nor csv-file having the key-column 'hash'".format(path))
-                        else:
-                            self.csv.append(path)
-        
-    def __enter__(self):
-        self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
-        for path in self.csv:
-            self.import_csv(path, self.inmemory)
-        if len(self.paths) > 0:
-            #eprint("Main connection: {}".format(self.paths[0]))
-            self.connection = sqlite3.connect(self.paths[0], uri=True)
+                self.csv.append(path)
+        # connect to main database self.dbs[0] and attach all others
+        if len(self.dbs) > 0:
+            self.connection = sqlite3.connect(self.dbs[0], uri=True)
             self.cursor = self.connection.cursor()
-            self.names = [ os.path.splitext(os.path.basename(self.paths[0]))[0] ]
-            for path in self.paths[1:]:
+            self.names.append(os.path.splitext(os.path.basename(self.dbs[0]))[0])
+            for path in self.dbs[1:]:
                 name = os.path.splitext(os.path.basename(path))[0]
                 self.names.append(name)
-                #eprint("Attaching '{}' as {}".format(path, name))
                 self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
-            if len(self.csv) > 0:
+        # import csv-files and attach in-memory database
+        if len(self.csv) > 0:
+            self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
+            for path in self.csv:
+                self.import_csv(path, self.inmemory)
+            if len(self.dbs) == 0:
+                eprint("Warning: Read-only mode (only csv-files given)")
+                self.connection = self.inmemory
+                self.cursor = self.connection.cursor()
+            else:
+                self.cursor = self.connection.cursor()
                 self.cursor.execute("ATTACH DATABASE 'file::memory:?cache=shared' AS _in_memory_")
-        else:
-            self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
-            self.cursor = self.connection.cursor()
-            self.names = [ "_in_memory_" ]
+            self.names.append("_in_memory_")
+        
+    def __enter__(self):
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
         self.connection.commit()
         self.connection.close()
-        self.inmemory.close()
+        if len(self.csv) > 0:
+            self.inmemory.close()
+
+    def is_database(self, db):
+        if not os.path.isfile(db): return False
+        sz = os.path.getsize(db)
+
+        # file is empty, give benefit of the doubt that its sqlite
+        # New sqlite3 files created in recent libraries are empty!
+        if sz == 0: return True
+
+        # SQLite database file header is 100 bytes
+        if sz < 100: return False
+        
+        # Validate file header
+        with open(db, 'rb') as fd: header = fd.read(100)    
+
+        return (header[:16] == b'SQLite format 3\x00')
 
     def import_csv(self, path, con):
         im_cursor = con.cursor()
@@ -97,30 +108,19 @@ class Database:
         con.commit()
 
     def init(self, path, version, hash_version):
+        eprint("Intitializing Fresh Database {}".format(path))
         con = sqlite3.connect(path)
         cur = con.cursor()
         cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
         cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
-        cur.execute("CREATE TABLE __meta (name TEXT UNIQUE, value BLOB)")
-        self.create_local(cur)
-        self.create_filename(cur)
-        self.create_hash(cur)
         con.commit()
-        con.close()
-
-    def create_local(self, cur):
-        cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(prepend_context("local", self.context)))
-
-    def create_filename(self, cur):
-        cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(prepend_context("filename", self.context), prepend_context("local", self.context)))
-
-    def create_hash(self, cur):
-        cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT DISTINCT hash, hash FROM {}".format(prepend_context("hash", self.context), prepend_context("local", self.context)))
+        con.close()        
 
     def check(self, path, version, hash_version):
         con = sqlite3.connect(path)
         cur = con.cursor()        
         tables = [x[0] for x in cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")]
+        views = [x[0] for x in cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='view'")]
 
         # version control
         if not "__version" in tables:
@@ -133,6 +133,19 @@ class Database:
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
+        # meta data (one json-blob per feature)
+        if not "__meta" in tables:
+            cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
+
+        # create required features
+        for context in config.contexts():
+            if not prepend_context("local", context) in tables:
+                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(prepend_context("local", context)))
+            if not prepend_context("filename", context) in views:
+                cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(prepend_context("filename", context), prepend_context("local", context)))
+            if not prepend_context("hash", context) in views:
+                cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT DISTINCT hash, hash FROM {}".format(prepend_context("hash", context), prepend_context("local", context)))
+
         # existence of context translators
         for (c0, c1) in list(itertools.combinations(config.contexts(), 2)):
             translator = "__translator_{}_{}".format(c0, c1)
@@ -141,19 +154,6 @@ class Database:
             translator = "__translator_{}_{}".format(c1, c0)
             if not translator in tables:
                 cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(translator))
-
-        # meta data (one json-blob per feature)
-        if not "__meta" in tables:
-            cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
-
-        # create required features
-        for context in config.contexts():
-            if not prepend_context("local", context) in tables:
-                self.create_local(cur)
-            if not prepend_context("filename", context) in tables:
-                self.create_filename(cur)
-            if not prepend_context("hash", context) in tables:
-                self.create_hash(cur)
 
         con.commit()
         con.close()
@@ -168,17 +168,14 @@ class Database:
             # TODO: Delete Trigger; Sanitize Data by obsolete default values
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
-        self.connection.commit()
 
     def delete_table(self, name):
         self.execute('DROP TABLE IF EXISTS {}'.format(name))
         self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-        self.connection.commit()
 
     def rename_table(self, old_name, new_name):
         self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
         self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
-        self.connection.commit()
 
     def query(self, q):
         if self.verbose:
@@ -215,27 +212,18 @@ class Database:
         else:
             self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
 
-    def tables_and_views(self):
-        pat = r"SELECT tbl_name FROM {} WHERE (type='table' OR type='view') AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
-        sql = [ pat.format("sqlite_master") ]
+    def tables(self, tables=True, views=False, system=False):
+        where = "NOT tbl_name LIKE 'sqlite\_%' escape '\\' AND type in ('table', 'view')"
+        if not system:
+            where = where + " AND NOT tbl_name LIKE '\_\_%' escape '\\'"
+        if not views:
+            where = where + " AND type != 'view'"
+        if not tables:
+            where = where + " AND type != 'table'"
+        pat = r"SELECT tbl_name FROM {} WHERE {}"
+        sql = [ pat.format("sqlite_master", where) ]
         for name in self.names[1:]:
-            sql.append(pat.format(name + ".sqlite_master"))
-        lst = self.query(" UNION ".join(sql))
-        return [x[0] for x in lst]
-
-    def tables(self):
-        pat = r"SELECT tbl_name FROM {} WHERE type='table' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
-        sql = [ pat.format("sqlite_master") ]
-        for name in self.names[1:]:
-            sql.append(pat.format(name + ".sqlite_master"))
-        lst = self.query(" UNION ".join(sql))
-        return [x[0] for x in lst]
-
-    def views(self):
-        pat = r"SELECT tbl_name FROM {} WHERE type='view' AND NOT tbl_name LIKE '\_\_%' escape '\' AND NOT tbl_name LIKE 'sqlite\_%' escape '\'"
-        sql = [ pat.format("sqlite_master") ]
-        for name in self.names[1:]:
-            sql.append(pat.format(name + ".sqlite_master"))
+            sql.append(pat.format(name + ".sqlite_master", where))
         lst = self.query(" UNION ".join(sql))
         return [x[0] for x in lst]
 

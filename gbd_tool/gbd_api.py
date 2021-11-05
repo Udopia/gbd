@@ -47,7 +47,7 @@ class GBD:
         self.verbose = verbose
 
     def __enter__(self):
-        self.database = Database(self.databases, self.verbose, self.context)
+        self.database = Database(self.databases, self.verbose)
         with ExitStack() as stack:
             stack.enter_context(self.database)
             self._stack = stack.pop_all()
@@ -59,39 +59,21 @@ class GBD:
     def get_databases(self):
         return self.databases
 
-    # Get all features (or those of given db)
-    def get_features(self, path=None):
-        if path == None:
-            return self.database.tables_and_views()
-        elif path in self.databases:
-            with Database([path], self.verbose, self.context) as db:
-                return db.tables_and_views()
-        else:
-            return []
+    # Get all features
+    def get_features(self):
+        return self.database.tables(tables=True, views=True)
 
-    # Get all material features (or those of given db)
-    def get_material_features(self, path=None):
-        if path == None:
-            return self.database.tables()
-        elif path in self.databases:
-            with Database([path], self.verbose, self.context) as db:
-                return db.tables()
-        else:
-            return []
+    # Get all material features
+    def get_material_features(self):
+        return self.database.tables(tables=True, views=False)
 
-    # Get all virtual features (or those of given db)
-    def get_virtual_features(self, path=None):
-        if path == None:
-            return self.database.views()
-        elif path in self.databases:
-            with Database([path], self.verbose, self.context) as db:
-                return db.views()
-        else:
-            return []
+    # Get all virtual features
+    def get_virtual_features(self):
+        return self.database.tables(tables=False, views=True)
 
     # Check for existence of given feature
     def feature_exists(self, name):
-        return name in self.database.tables()
+        return name in self.get_features()
 
     # Creates the given feature
     def create_feature(self, name, default_value=None):
@@ -116,42 +98,11 @@ class GBD:
         else:
             self.database.rename_table(old_name, new_name)
 
-    def get_feature_size(self, name):
-        if not name in self.get_features():
-            raise GBDException("Feature '{}' not found".format(name))
-        return self.database.table_size(name)
-
     # Retrieve information about a specific feature
-    def get_feature_info(self, name, path=None):
-        if path is None:
-            system_record = self.database.system_record(name)
-            meta_record = self.database.meta_record(name)
-            return {**system_record, **meta_record}
-        else:
-            with Database([path], self.verbose, self.context) as db:
-                system_record = db.system_record(name)
-                meta_record = db.meta_record(name)
-                return {**system_record, **meta_record}
-
-    # Retrieve system information about a specific feature
-    def get_feature_system_record(self, name, path=None):
-        if path is None:
-            system_record = self.database.system_record(name)
-            return {**system_record}
-        else:
-            with Database([path], self.verbose, self.context) as db:
-                system_record = db.system_record(name)
-                return {**system_record}
-
-    # Retrieve meta information about a specific feature
-    def get_feature_meta_record(self, name, path=None):
-        if path is None:
-            meta_record = self.database.meta_record(name)
-            return {**meta_record}
-        else:
-            with Database([path], self.verbose, self.context) as db:
-                meta_record = db.meta_record(name)
-                return {**meta_record}
+    def get_feature_info(self, name):
+        system_record = self.database.system_record(name)
+        meta_record = self.database.meta_record(name)
+        return {**system_record, **meta_record}
 
     def meta_set(self, feature, meta_feature, value):
         self.database.meta_set(feature, meta_feature, value)
@@ -165,7 +116,7 @@ class GBD:
         self.mutex.acquire()
         try:
             # create new connection due to limitations in multi-threaded use (cursor initialization issue)
-            with Database(self.databases, self.verbose, self.context) as db:
+            with Database(self.databases, self.verbose) as db:
                 for attr in arg:
                     name, value, hashv = attr[0], attr[1], attr[2]
                     if not name in db.tables():

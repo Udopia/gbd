@@ -15,7 +15,7 @@ from gbd_tool.db import Database
 class InitTestCase(unittest.TestCase):
 
     def test_db(self):
-        with Database(["/raid/gbd/meta.db"], context='cnf', verbose=True) as db:
+        with Database(["/raid/gbd/meta.db"], verbose=True) as db:
             for table in db.tables():
                 eprint(db.table_default_value(table))
 
