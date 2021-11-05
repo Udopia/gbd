@@ -36,17 +36,25 @@ from gbd_tool.util import eprint, confirm, open_cnf_file
 #import faulthandler
 #faulthandler.enable()
 
+METHOD_UNAVAILABLE = "Method '{}' not available. Install gdbc module from: https://github.com/sat-clique/cnftools"
+
 try:
     from gbdc import extract_base_features
 except ImportError:
     def extract_base_features(path, tlim, mlim) -> dict:
-        raise GBDException("Method 'extract_base_features' not available. Install gdbc module from: https://github.com/sat-clique/cnftools")
+        raise GBDException(METHOD_UNAVAILABLE.format("extract_base_features"))
 
 try:
     from gbdc import extract_gate_features
 except ImportError:
     def extract_gate_features(path, tlim, mlim) -> dict:
-        raise GBDException("Method 'extract_base_features' not available. Install gdbc module from: https://github.com/sat-clique/cnftools")
+        raise GBDException(METHOD_UNAVAILABLE.format("extract_gate_features"))
+
+try:
+    from gbdc import transform_cnf_to_kis
+except ImportError:
+    def transform_cnf_to_kis(path, tlim, mlim) -> dict:
+        raise GBDException(METHOD_UNAVAILABLE.format("transform_cnf_to_kisses"))
 
 
 def import_csv(api: GBD, path, key, source, target):
@@ -67,20 +75,34 @@ def init_local(api: GBD, path):
     remove_stale_benchmarks(api)
     init_benchmarks(api, path)
 
+def slice_iterator(data, slice_len):
+    it = iter(data)
+    while True:
+        items = []
+        for index in range(slice_len):
+            try:
+                item = next(it)
+            except StopIteration:
+                if items == []:
+                    return # we are done
+                else:
+                    break # exits the "for" loop
+            items.append(item)
+        yield items
+
 def remove_stale_benchmarks(api: GBD):
     eprint("Sanitizing local path entries ... ")
     feature=util.prepend_context("local", api.context)
     paths = [path[0] for path in api.query_search(group_by=feature)]
     sanitize = list(filter(lambda path: not isfile(path), paths))
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
-        for path in sanitize:
-            api.database.submit("DELETE FROM local WHERE value='{}'".format(path))
+        for paths in slice_iterator(sanitize, 10):
+            api.database.delete_values("local", paths)
 
 def compute_hash(nohashvalue, path):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
-    attributes = [ ('INSERT', 'local', path) ]
-    return { 'hashvalue': hashvalue, 'attributes': attributes }
+    return [ ('local', path, hashvalue) ]
 
 def init_benchmarks(api: GBD, root):
     resultset = []
@@ -101,7 +123,7 @@ def init_benchmarks(api: GBD, root):
 def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
     if api.jobs == 1:
         for (hash, local) in resultset:
-            api.callback_set_attributes_locked(func(hash, local, tlim, mlim))
+            api.set_attributes_locked(func(hash, local, tlim, mlim))
     else:
         while len(resultset) > 0:
             eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
@@ -128,11 +150,26 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
                                 eprint("{}: {}".format(e.__class__.__name__, e))
                         else:
                             resultset.remove(futures[f])
-                            api.callback_set_attributes_locked(f.result())
+                            api.set_attributes_locked(f.result())
                 except TimeoutError as e:
                     eprint("{}: {}".format(e.__class__.__name__, e))
                 except Exception as e:
                     eprint("{}: {}".format(e.__class__.__name__, e))
+
+
+def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim):
+    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
+    run(api, resultset, cnf_to_kis, tlim, mlim)
+
+def cnf_to_kis(hashvalue, filename, tlim, mlim):
+    output = filename
+    for suffix in config.suffix_list('cnf'):
+        output = output.removesuffix(suffix)
+    output = output + ".kis"
+    eprint('Transforming {} to k-ISP {}'.format(filename, output))
+    transform_cnf_to_kis(filename, output)
+    kishash = gbd_hash(output)
+    return [ ('isp_local', output, kishash), ('__translator_cnf_isp', kishash, hashvalue) ]
 
 
 # Initialize base feature tables for given instances
@@ -144,8 +181,7 @@ def base_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename, tlim, mlim)
     eprint('Done with base features from {}'.format(filename))
-    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
-    return { 'hashvalue': hashvalue, 'attributes': attributes }
+    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
 
 
 # Initialize gate feature tables for given instances
@@ -157,8 +193,7 @@ def gate_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting gate features from {}'.format(filename))
     rec = extract_gate_features(filename, tlim, mlim)
     eprint('Done with gate features from {}'.format(filename))
-    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
-    return { 'hashvalue': hashvalue, 'attributes': attributes }
+    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
 
 
 # Initialize Graph Features known from Network Analysis
@@ -173,8 +208,7 @@ def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
 
 def networkit_features(hashvalue, filename, tlim, mlim):
     rec = dict()
-    attributes = [ ('REPLACE', key, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
-    return { 'hashvalue': hashvalue, 'attributes': attributes }
+    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
 
 
 # Initialize degree_sequence_hash for given instances
@@ -208,4 +242,4 @@ def compute_degree_sequence_hash(hashvalue, filename, tlim, mlim):
 
     f.close()
 
-    return { 'hashvalue': hashvalue, 'attributes': [ ('REPLACE', 'degree_sequence_hash', hash_md5.hexdigest()) ] }
+    return [ ('degree_sequence_hash', hash_md5.hexdigest(), hashvalue) ]
