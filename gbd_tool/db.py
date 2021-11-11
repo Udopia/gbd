@@ -16,14 +16,14 @@
 
 import sqlite3
 import os
-import re
 import json
 import csv
 import itertools
+import collections
 
 import gbd_tool.config as config
 from gbd_tool.gbd_hash import HASH_VERSION
-from gbd_tool.util import eprint, is_number, prepend_context, context_from_name
+from gbd_tool.util import eprint, prepend_context, context_from_name, make_alnum_ul
 
 VERSION = 0
 
@@ -34,42 +34,28 @@ class DatabaseException(Exception):
 
 class Database:
     def __init__(self, path_list, verbose=False):
-        self.dbs = []
-        self.csv = []
-        self.names = []
+        self.database_infos = collections.OrderedDict()
+        self.feature_infos = dict()
         self.verbose = verbose
+        self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
         # init non-existent databases and check existing databases
         for path in path_list:
             if not os.path.isfile(path):
-                self.init(path, VERSION, HASH_VERSION)
-                self.dbs.append(path)
+                self.create(path, VERSION, HASH_VERSION)
+                self.extract_infos(path)
             elif self.is_database(path):
                 self.check(path, VERSION, HASH_VERSION)
-                self.dbs.append(path)
+                self.extract_infos(path)
             else:
-                self.csv.append(path)
-        # connect to main database self.dbs[0] and attach all others
-        if len(self.dbs) > 0:
-            self.connection = sqlite3.connect(self.dbs[0], uri=True)
-            self.cursor = self.connection.cursor()
-            self.names.append(os.path.splitext(os.path.basename(self.dbs[0]))[0])
-            for path in self.dbs[1:]:
-                name = os.path.splitext(os.path.basename(path))[0]
-                self.names.append(name)
-                self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(path, name))
-        # import csv-files and attach in-memory database
-        if len(self.csv) > 0:
-            self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
-            for path in self.csv:
-                self.import_csv(path, self.inmemory)
-            if len(self.dbs) == 0:
-                eprint("Warning: Read-only mode (only csv-files given)")
-                self.connection = self.inmemory
+                self.import_csv(path)
+        self.extract_infos("file::memory:?cache=shared", all_virtual=True)
+        for info in self.database_infos.values():
+            self.init_database(info)
+            if info['main']:
+                self.connection = sqlite3.connect(info['path'], uri=True)
                 self.cursor = self.connection.cursor()
             else:
-                self.cursor = self.connection.cursor()
-                self.cursor.execute("ATTACH DATABASE 'file::memory:?cache=shared' AS _in_memory_")
-            self.names.append("_in_memory_")
+                self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(info['path'], info['name']))
         
     def __enter__(self):
         return self
@@ -77,105 +63,157 @@ class Database:
     def __exit__(self, exception_type, exception_value, traceback):
         self.connection.commit()
         self.connection.close()
-        if len(self.csv) > 0:
-            self.inmemory.close()
 
     def is_database(self, db):
         if not os.path.isfile(db): return False
         sz = os.path.getsize(db)
-
-        # file is empty, give benefit of the doubt that its sqlite
-        # New sqlite3 files created in recent libraries are empty!
-        if sz == 0: return True
-
-        # SQLite database file header is 100 bytes
-        if sz < 100: return False
-        
-        # Validate file header
-        with open(db, 'rb') as fd: header = fd.read(100)    
-
+        if sz == 0: return True  # New sqlite3 files created in recent libraries are empty
+        if sz < 100: return False  # SQLite database file header is 100 bytes
+        with open(db, 'rb') as fd: header = fd.read(100)  # Validate file header
         return (header[:16] == b'SQLite format 3\x00')
 
-    def import_csv(self, path, con):
-        im_cursor = con.cursor()
-        with open(path) as csvfile:
-            csvreader = csv.DictReader(csvfile)
-            for source in csvreader.fieldnames:
-                if source != "hash":
-                    im_cursor.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL)'.format(source))
-                    lst = [(row["hash"].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
-            im_cursor.executemany("INSERT INTO {} VALUES (?,?)".format(source), lst)
-        con.commit()
+    def import_csv(self, csvfile):        
+        file = os.path.basename(csvfile)
+        name = "{}_{}".format(context_from_name(file), make_alnum_ul(file))
+        cur = self.inmemory.cursor()
+        if not len(cur.execute("SELECT * FROM sqlite_master WHERE tbl_name='{}'".format(name)).fetchall()):
+            with open(csvfile) as csvfile:
+                csvreader = csv.DictReader(csvfile)
+                if not "hash" in csvreader.fieldnames:
+                    raise DatabaseException("Column 'hash' not found in {}".format(csvfile))
+                cur.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(name, ", ".join(csvreader.fieldnames)))
+                for row in csvreader:
+                    cur.execute("INSERT INTO {} VALUES ('{}')".format(name, "', '".join(row.values())))
+            self.inmemory.commit()
 
-    def init(self, path, version, hash_version):
-        eprint("Intitializing Fresh Database {}".format(path))
+    def create(self, path, version, hash_version):
+        eprint("Warning: Creating Database {}".format(path))
         con = sqlite3.connect(path)
-        cur = con.cursor()
-        cur.execute("CREATE TABLE __version (entry UNIQUE, version INT, hash_version INT)")
-        cur.execute("INSERT INTO __version (entry, version, hash_version) VALUES (0, {}, {})".format(version, hash_version))
+        con.cursor().execute("CREATE TABLE __version (version INT, hash_version INT)")
+        con.cursor().execute("INSERT INTO __version (version, hash_version) VALUES ({}, {})".format(version, hash_version))
+        con.cursor().execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
         con.commit()
-        con.close()        
+        con.close()
 
     def check(self, path, version, hash_version):
-        con = sqlite3.connect(path)
-        cur = con.cursor()        
-        tables = [x[0] for x in cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'")]
-        views = [x[0] for x in cur.execute("SELECT tbl_name FROM sqlite_master WHERE type='view'")]
-
-        # version control
-        if not "__version" in tables:
-            eprint("WARNING: Version info not available in database {}".format(path))
-            return
-
-        __version = cur.execute("SELECT version, hash_version FROM __version").fetchall()
+        __version = sqlite3.connect(path).execute("SELECT version, hash_version FROM __version").fetchall()
         if __version[0][0] != version:
             eprint("WARNING: DB Version is {} but tool version is {}".format(__version[0][0], version))
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
-        # meta data (one json-blob per feature)
-        if not "__meta" in tables:
-            cur.execute("CREATE TABLE IF NOT EXISTS __meta (name TEXT UNIQUE, value BLOB)")
+    def extract_infos(self, path, all_virtual=False):
+        dbname = make_alnum_ul(os.path.basename(path))
+        firstdb = len(self.database_infos) == 0
+        self.database_infos[dbname] = { 'name': dbname, 'path': path, 'main': firstdb, 'contexts': [], 'tables': [], 'views': [] }
+        sql_tables="""SELECT tbl_name, type FROM sqlite_master WHERE type IN ('table', 'view') 
+                        AND NOT tbl_name LIKE 'sqlite$_%' ESCAPE '$' AND NOT tbl_name LIKE '$_$_%' ESCAPE '$'"""
+        tables = sqlite3.connect(path).execute(sql_tables).fetchall()
+        for (table, type) in tables:
+            context = context_from_name(table)
+            if not context in self.database_infos[dbname]['contexts']:
+                self.database_infos[dbname]['contexts'].append(context)
+            self.database_infos[dbname][type + 's'].append(table)
+            # determine features
+            infos = sqlite3.connect(path).execute("PRAGMA table_info({})".format(table)).fetchall()
+            names = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
+            for info in infos:
+                col = dict(zip(names, info))
+                if col['name'] != "hash":
+                    fname = table if col['name'] == "value" else col['name']
+                    self.feature_infos[fname] = { "table": table, 
+                        "column": col['name'], "default": col['default_value'], 
+                        "virtual": (type == 'view' or all_virtual), 
+                        "context": context, "database": dbname
+                    }
 
-        # create required features
-        for context in config.contexts():
-            if not prepend_context("local", context) in tables:
-                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(prepend_context("local", context)))
-            if not prepend_context("filename", context) in views:
-                cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(prepend_context("filename", context), prepend_context("local", context)))
-            if not prepend_context("hash", context) in views:
-                cur.execute("CREATE VIEW IF NOT EXISTS {} (hash, value) AS SELECT DISTINCT hash, hash FROM {}".format(prepend_context("hash", context), prepend_context("local", context)))
+    def ftable(self, feature):
+        return self.feature_infos[feature]['table']
 
+    def fcolumn(self, feature):
+        return self.feature_infos[feature]['column']
+
+    def fdefault(self, feature):
+        return self.feature_infos[feature]['default']
+
+    def fvirtual(self, feature):
+        return self.feature_infos[feature]['virtual']
+
+    def fcontext(self, feature):
+        return self.feature_infos[feature]['context']
+
+    def fdatabase(self, feature):
+        return self.feature_infos[feature]['database']
+
+    def databases(self):
+        return self.database_infos.keys()
+
+    def init_database(self, dbinfo):
+        # existence of local, filename and hash
+        for context in dbinfo['contexts']:
+            local = prepend_context("local", context)
+            filename = prepend_context("filename", context)
+            hashv = prepend_context("hash", context)
+            features = prepend_context("features", context)
+            if not local in dbinfo['tables']:
+                sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(local))
+            if not filename in dbinfo['views']:
+                sqlite3.connect(dbinfo['path']).execute("CREATE VIEW {} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(filename, context))
+            if not hashv in dbinfo['views']:
+                sqlite3.connect(dbinfo['path']).execute("CREATE VIEW {} (hash, value) AS SELECT DISTINCT hash, hash FROM {}".format(hashv, local))
+            if not features in dbinfo['tables']:
+                sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash UNIQUE NOT NULL)".format(features))
+                sqlite3.connect(dbinfo['path']).execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(features, local))
+                sqlite3.connect(dbinfo['path']).execute('''CREATE TRIGGER {}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(features, local, features))
+            
         # existence of context translators
-        for (c0, c1) in list(itertools.combinations(config.contexts(), 2)):
-            translator = "__translator_{}_{}".format(c0, c1)
-            if not translator in tables:
-                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(translator))
-            translator = "__translator_{}_{}".format(c1, c0)
-            if not translator in tables:
-                cur.execute("CREATE TABLE {} (hash TEXT NOT NULL, value TEXT NOT NULL)".format(translator))
+        for (c0, c1) in list(itertools.permutations(dbinfo["contexts"], 2)):
+            translator = "translator_{}_{}".format(c0, c1)
+            if not translator in dbinfo['tables']:
+                sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash, value)".format(translator))
 
-        con.commit()
-        con.close()
-
-    def create_table(self, name, default_value=None):
-        context = context_from_name(name)
+    def create_feature(self, name, default_value=None):
         if default_value is not None:
-            self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT UNIQUE NOT NULL, value TEXT NOT NULL DEFAULT "{}")'.format(name, default_value))
-            self.execute('INSERT OR IGNORE INTO {} (hash) SELECT hash FROM {}'.format(name, prepend_context("local", context)))
-            self.execute('''CREATE TRIGGER {}_dval AFTER INSERT ON {} BEGIN 
-                    INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END'''.format(name, prepend_context("local", context), name))
-            # TODO: Delete Trigger; Sanitize Data by obsolete default values
+            features = prepend_context("features", context_from_name(name))
+            self.execute('ALTER TABLE {} ADD {} TEXT NOT NULL DEFAULT {}'.format(features, name, default_value))
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
 
-    def delete_table(self, name):
-        self.execute('DROP TABLE IF EXISTS {}'.format(name))
-        self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
+    def delete_feature(self, name):
+        info = self.feature_infos[name]
+        if info["column"] == "value":
+            self.execute('DROP TABLE IF EXISTS {}'.format(name))
+            self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
+        else:
+            raise DatabaseException("Not Implemented")
 
-    def rename_table(self, old_name, new_name):
-        self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
-        self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
+    def rename_feature(self, old_name, new_name):
+        info = self.feature_infos[old_name]
+        if info["column"] == "value":
+            self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
+            self.execute("UPDATE __meta SET name='{}' WHERE name='{}'".format(new_name, old_name))
+        else:
+            raise DatabaseException("Not Implemented")
+
+    def insert(self, feature, value, hashes, force=False):
+        info = self.feature_infos[feature]
+        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hashes])
+        method = 'REPLACE' if force and info['default'] else 'INSERT'
+        self.execute('{} INTO {} (hash, {}) VALUES {}'.format(method, info['table'], info['column'], values))
+
+    def delete_hashes(self, feature, hashes):
+        info = self.feature_infos[feature]
+        if info['default'] is None:
+            self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
+        else:
+            self.insert(feature, info['default'], hashes, True)
+
+    def delete_values(self, feature, values):
+        info = self.feature_infos[feature]
+        if info['default'] is None:
+            self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
+        else:
+            self.execute("UPDATE TABLE {} SET {} = {} WHERE value IN ('{}')".format(info['table'], info['column'], info['default'], "', '".join(values)))
 
     def query(self, q):
         if self.verbose:
@@ -186,115 +224,40 @@ class Database:
         if self.verbose:
             eprint(q)
         self.cursor.execute(q)
-
-    def insert(self, feature, value, hashes, force=False):
-        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hashes])
-        method = 'REPLACE' if force and self.table_unique(feature) else 'INSERT'
-        self.execute('{} INTO {} (hash, value) VALUES {}'.format(method, feature, values))
-
-    def delete_hashes(self, feature, hashes):
-        dval = self.table_default_value(feature)
-        if dval is None:
-            self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
-        else:
-            self.insert(feature, dval, hashes, True)
-
-    def delete_values(self, feature, values):        
-        dval = self.table_default_value(feature)
-        if dval is None:
-            self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
-        else:
-            self.execute("UPDATE TABLE {} SET value = {} WHERE value IN ('{}')".format(feature, dval, "', '".join(values)))
   
-    def bulk_insert(self, table, lst):
-        if self.table_unique(table):
-            self.cursor.executemany("REPLACE INTO {} VALUES (?,?)".format(table), lst)
-        else:
-            self.cursor.executemany("INSERT INTO {} VALUES (?,?)".format(table), lst)
-
-    def tables(self, tables=True, views=False, system=False):
-        where = "NOT tbl_name LIKE 'sqlite\_%' escape '\\' AND type in ('table', 'view')"
-        if not system:
-            where = where + " AND NOT tbl_name LIKE '\_\_%' escape '\\'"
-        if not views:
-            where = where + " AND type != 'view'"
-        if not tables:
-            where = where + " AND type != 'table'"
-        pat = r"SELECT tbl_name FROM {} WHERE {}"
-        sql = [ pat.format("sqlite_master", where) ]
-        for name in self.names[1:]:
-            sql.append(pat.format(name + ".sqlite_master", where))
-        lst = self.query(" UNION ".join(sql))
-        return [x[0] for x in lst]
-
-    def table_info(self, table):
-        lst = self.query("PRAGMA table_info({})".format(table))
-        columns = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
-        table_infos = [dict(zip(columns, values)) for values in lst]
-        for info in table_infos:
-            if info['default_value'] is not None:
-                info['default_value'] = info['default_value'].strip('"')
-        return table_infos
-
-    def index_list(self, table):
-        lst = self.query("PRAGMA index_list({})".format(table))
-        columns = ('seq', 'name', 'unique', 'origin', 'partial')
-        index_list = [dict(zip(columns, values)) for values in lst]
-        return index_list
-    
-    def index_info(self, index):
-        tup = self.query("PRAGMA index_info({})".format(index))
-        columns = ('index_rank', 'table_rank', 'name')
-        index_info = dict(zip(columns, tup[0]))
-        return index_info
-
-    def table_info_augmented(self, table):
-        table_infos = [info.update({'unique': False}) or info for info in self.table_info(table)]
-        
-        # determine unique columns
-        index_list = self.index_list(table)
-        for index in [e for e in index_list if e['unique']]:
-            col = self.index_info(index['name'])['table_rank']
-            table_infos[col]['unique'] = True
-        
-        return table_infos
-
-    # return list of distinct values and value-range for numeric values
-    def table_values(self, table):
-        result = { "numeric" : [None, None], "discrete" : [] }
-        records = self.query('SELECT DISTINCT value FROM {}'.format(table))
-        for val in [record[0] for record in records]:
-            if is_number(val):
-                value = float(val)
-                if result["numeric"][0] == None:
-                    result["numeric"] = [value, value]
-                elif value < result["numeric"][0]:
-                    result["numeric"][0] = value
-                elif value > result["numeric"][1]:
-                    result["numeric"][1] = value
-            else:
-                result["discrete"].append(val)
+    def features(self, tables=True, views=False, database=None):
+        result = []
+        for (feature, info) in self.feature_infos.items():
+            if not views and info["virtual"]:
+                continue
+            if not tables and not info["virtual"]:
+                continue
+            if database and database != info["database"]:
+                continue
+            result.append(feature)
         return result
 
-    def table_size(self, table):
-        return self.query('SELECT COUNT(*) FROM {}'.format(table))[0][0]
+    # return list of distinct values and value-range for numeric values
+    def feature_values(self, feature):
+        table = self.feature_infos[feature]['table']
+        column = self.feature_infos[feature]['column']
+        result = { "numeric" : [None, None], "discrete" : [] }
+        minmax = self.query('SELECT MIN(CAST({col} AS NUMERIC)), MAX(CAST({col} AS NUMERIC)) FROM {tab} WHERE NOT {col} GLOB "*[^0-9.e\-]*" AND {col} LIKE "_%"'.format(col=column, tab=table))
+        if len(minmax):
+            result['numeric'] = minmax[0]
+        records = self.query('SELECT DISTINCT {col} FROM {tab} WHERE {col} GLOB "*[^0-9.e\-]*" OR {col} NOT LIKE "_%"'.format(col=column, tab=table))
+        result["discrete"] = [x[0] for x in records]
+        return result
 
-    def table_unique(self, table):
-        return self.table_default_value(table) is not None
-
-    def table_default_value(self, table):
-        return self.table_info(table)[1]['default_value']
-
-    def system_record(self, table_name):
+    def system_record(self, feature):
         system_record = dict()
-        system_record['table_name'] = table_name
-        system_record['table_size'] = self.table_size(table_name)
-        system_record['table_unique'] = self.table_unique(table_name)
-        system_record['table_default'] = self.table_default_value(table_name)
-        values = self.table_values(table_name)
-        system_record['table_intmin'] = values['numeric'][0]
-        system_record['table_intmax'] = values['numeric'][1]
-        system_record['table_values'] = " ".join(values['discrete'])
+        system_record['feature_name'] = feature
+        system_record['feature_count'] = self.query('SELECT COUNT(*) FROM {}'.format(self.feature_infos[feature]['table']))[0][0]
+        system_record['feature_default'] = self.feature_infos[feature]["default"]
+        values = self.feature_values(feature)
+        system_record['feature_min'] = values['numeric'][0]
+        system_record['feature_max'] = values['numeric'][1]
+        system_record['feature_values'] = " ".join(values['discrete'])
         return system_record
 
     def meta_record(self, table):

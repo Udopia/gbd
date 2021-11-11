@@ -57,16 +57,6 @@ except ImportError:
         raise GBDException(METHOD_UNAVAILABLE.format("transform_cnf_to_kisses"))
 
 
-def import_csv(api: GBD, path, key, source, target):
-    if not api.feature_exists(target):
-        raise GBDException("Target feature '{}' does not exist. Import canceled.".format(target))
-    with open(path, newline='') as csvfile:
-        csvreader = csv.DictReader(csvfile, delimiter=api.separator, quotechar='\'')
-        lst = [(row[key].strip(), row[source].strip()) for row in csvreader if row[source] and row[source].strip()]
-        eprint("Inserting {} values into target '{}'".format(len(lst), target))
-        api.database.bulk_insert(target, lst)
-
-
 # Initialize table 'local' with instances found under given path
 def init_local(api: GBD, path):
     eprint('Initializing local path entries {} using {} cores'.format(path, api.jobs))
@@ -96,7 +86,7 @@ def remove_stale_benchmarks(api: GBD):
     paths = [path[0] for path in api.query_search(group_by=feature)]
     sanitize = list(filter(lambda path: not isfile(path), paths))
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
-        for paths in slice_iterator(sanitize, 10):
+        for paths in slice_iterator(sanitize, 100):
             api.database.delete_values("local", paths)
 
 def compute_hash(nohashvalue, path):

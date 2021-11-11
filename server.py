@@ -179,10 +179,8 @@ def list_features(database=None):
             return Response("Database does not exist in the running instance of GBD server", status=404,
                             mimetype="text/plain")
         else:
-            target_database = list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0]
-            with GBD(target_database, verbose=app.config['verbose']) as gbd_api2:
-                app.logger.info("List all features of database '{}' for IP {}".format(database, request.remote_addr))
-                return Response(json.dumps(gbd_api2.get_features()), status=200, mimetype="application/json")
+            app.logger.info("List all features of database '{}' for IP {}".format(database, request.remote_addr))
+            return Response(json.dumps(gbd_api.get_features(dbname=database)), status=200, mimetype="application/json")
 
 
 # Resolves a hashvalue against a attribute and returns the result values
