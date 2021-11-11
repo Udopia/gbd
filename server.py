@@ -50,9 +50,9 @@ def quick_search():
 def quick_search_results():
     query = request.form.get('query')
     selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
+    features = sorted(list(set(app.config['features']['all']) & set(selected_features or ['filename']) - {'local'}))
     app.logger.info("Received query '{}' from {}".format(query, request.remote_addr))
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        features = sorted(list(set(gbd_api.get_features()) & set(selected_features or ['filename']) - {'local'}))
         try:
             rows = gbd_api.query_search(query, [], features)
             features.insert(0, "GBDhash")
@@ -68,7 +68,7 @@ def quick_search_results():
 @app.route("/exportcsv/", methods=['POST', 'GET'])
 @app.route("/exportcsv/<context>", methods=['POST', 'GET'])
 def get_csv_file(context='cnf'):
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         query = None
         if "query" in request.form:
             query = request.form.get('query')
@@ -98,9 +98,7 @@ def get_csv_file(context='cnf'):
 @app.route("/getinstances/", methods=['POST', 'GET'])
 @app.route("/getinstances/<context>", methods=['POST', 'GET'])
 def get_url_file(context='cnf'):
-    if not context in config.contexts():
-        context = 'cnf'
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         query = None
         if "query" in request.form:
             query = request.form.get('query')
@@ -131,12 +129,11 @@ def list_databases():
 @app.route('/getdatabase/')
 @app.route('/getdatabase/<database>')
 def get_database_file(database=None):
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        dbname=database if database and database in gbd_api.get_databases() else gbd_api.get_databases()[0]
-        dbpath=gbd_api.get_database_path(dbname)
-        dbfile=os.path.basename(dbpath)
-        app.logger.info("Sending database '{}' to IP {}".format(dbfile, request.remote_addr))
-        return send_file(dbpath, as_attachment=True, attachment_filename=dbfile, mimetype='application/x-sqlite3')
+    dbname=database if database and database in app.config['dbnames'] else app.config['dbnames'][0]
+    dbpath=app.config['dbpaths'][dbname]
+    dbfile=os.path.basename(dbpath)
+    app.logger.info("Sending database '{}' to IP {}".format(dbfile, request.remote_addr))
+    return send_file(dbpath, as_attachment=True, attachment_filename=dbfile, mimetype='application/x-sqlite3')
 
 
 # Get all features or features in a specified database
@@ -171,7 +168,7 @@ def get_attribute(feature, hashvalue):
 def get_all_attributes(hashvalue, context='cnf'):
     app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        features = gbd_api.get_features()
+        features = app.config['features']['all']
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=util.prepend_context("hash", context))
             return Response(json.dumps(zip(features, records)), status=200, mimetype="application/json")
@@ -258,8 +255,10 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
             app.config['features'] = { 'all': gbd.get_features() }
+            app.config['dbpaths'] = dict()
             for db in app.config['dbnames']:
                 app.config['features'][db] = gbd.get_features(dbname=db)
+                app.config['dbpaths'][db] = gbd.get_database_path(db)
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
         app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         app.run(host='0.0.0.0', port=args.port)
