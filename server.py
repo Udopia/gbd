@@ -123,9 +123,8 @@ def get_url_file(context='cnf'):
 # Return list of databases
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
-        app.logger.info("List all databases for IP {}".format(request.remote_addr))
-        return Response(json.dumps(gbd_api.get_databases()), status=200, mimetype="application/json")
+    app.logger.info("Listing all databases for IP {}".format(request.remote_addr))
+    return Response(json.dumps(app.config['dbnames']), status=200, mimetype="application/json")
 
 
 # Send database file
@@ -144,11 +143,12 @@ def get_database_file(database=None):
 @app.route('/listfeatures/')
 @app.route('/listfeatures/<database>')
 def list_features(database=None):
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        app.logger.info("List all features of database '{}' for IP {}".format(database or " ", request.remote_addr))
-        available_features = sorted(gbd_api.get_features(dbname=database))
-        return Response(json.dumps(available_features), status=200, mimetype="application/json")
-
+    app.logger.info("Listing features of database '{}' for IP {}".format(database or " ", request.remote_addr))
+    if database and database in app.config['dbnames']:
+        return Response(json.dumps(app.config['features'][database]), status=200, mimetype="application/json")
+    else:
+        return Response(json.dumps(app.config['features']['all']), status=200, mimetype="application/json")
+        
 
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
@@ -184,17 +184,14 @@ def get_all_attributes(hashvalue, context='cnf'):
 @app.route('/file/<hashvalue>/')
 @app.route('/file/<hashvalue>/<context>')
 def get_file(hashvalue, context='cnf'):
-    if not context in config.contexts():
-        context = 'cnf'
-    with GBD(app.config['database' ], verbose=app.config['verbose'])as gbd_api:
+    with GBD(app.config['database'], verbose=app.config['verbose'])as gbd_api:
         local = util.prepend_context("local", context)
         filename = util.prepend_context("filename", context)
         records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN")
         app.logger.info(str(records))
         if len(records) == 0:
-            app.logger.warning(
-                "{} requested file for hash '{}', which was not found".format(request.remote_addr, hashvalue))
-            return Response("No according file found in our database", status=404, mimetype="text/plain")
+            app.logger.warning("{} requested file for hash '{}' not found".format(request.remote_addr, hashvalue))
+            return Response("Hash not found", status=404, mimetype="text/plain")
         try:
             app.logger.info("Sending file for hashvalue '{}' to {}".format(hashvalue, request.remote_addr))
             return send_file(records[0][1], as_attachment=True, attachment_filename=records[0][2])
@@ -258,6 +255,11 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
         app.config['database'] = args.db
         app.config['verbose'] = args.verbose
+        with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+            app.config['dbnames'] = gbd.get_databases()
+            app.config['features'] = { 'all': gbd.get_features() }
+            for db in app.config['dbnames']:
+                app.config['features'][db] = gbd.get_features(dbname=db)
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
         app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
         app.run(host='0.0.0.0', port=args.port)
