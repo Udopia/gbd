@@ -120,16 +120,15 @@ def get_url_file(context='cnf'):
                                  "filename": "{}".format(file_name)})
 
 
-# Return all basenames of the databases which the server was initialized with
+# Return list of databases
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
     with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
         app.logger.info("List all databases for IP {}".format(request.remote_addr))
-        return Response(json.dumps(list(map(basename, gbd_api.get_databases()))), status=200,
-                        mimetype="application/json")
+        return Response(json.dumps(gbd_api.get_databases()), status=200, mimetype="application/json")
 
 
-# Send a desired database file, if it exists
+# Send database file
 @app.route('/getdatabase/')
 @app.route('/getdatabase/<database>')
 def get_database_file(database=None):
@@ -141,26 +140,14 @@ def get_database_file(database=None):
         return send_file(dbpath, as_attachment=True, attachment_filename=dbfile, mimetype='application/x-sqlite3')
 
 
-# Get either all cumulative features or features in a specified database (argument is basename of database file)
+# Get all features or features in a specified database
 @app.route('/listfeatures/')
 @app.route('/listfeatures/<database>')
 def list_features(database=None):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        if database is None:        
-            available_features = sorted(gbd_api.get_features())
-            available_features.remove("local")
-            app.logger.info("List all features for IP {}".format(request.remote_addr))
-            return Response(json.dumps(available_features), status=200, mimetype="application/json")
-        elif database not in list(map(basename, gbd_api.get_databases())):
-            app.logger.warning(
-                "Device with IP {} requested features of database '{}'. Database was not found".format(
-                    request.remote_addr,
-                    database))
-            return Response("Database does not exist in the running instance of GBD server", status=404,
-                            mimetype="text/plain")
-        else:
-            app.logger.info("List all features of database '{}' for IP {}".format(database, request.remote_addr))
-            return Response(json.dumps(gbd_api.get_features(dbname=database)), status=200, mimetype="application/json")
+        app.logger.info("List all features of database '{}' for IP {}".format(database or " ", request.remote_addr))
+        available_features = sorted(gbd_api.get_features(dbname=database))
+        return Response(json.dumps(available_features), status=200, mimetype="application/json")
 
 
 # Resolves a hashvalue against a attribute and returns the result values
