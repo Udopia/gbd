@@ -59,6 +59,9 @@ class GBD:
     def get_databases(self):
         return self.database.databases()
 
+    def get_database_path(self, dbname):
+        return self.database.database_infos[dbname]['path']
+
     # Get all features
     def get_features(self, dbname=None):
         return self.database.features(tables=True, views=True, database=dbname)

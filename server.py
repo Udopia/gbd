@@ -41,8 +41,6 @@ app = Flask(__name__)
 # Returns main index page
 @app.route("/", methods=['GET'])
 def quick_search():
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
-        pass
     return render_template('index.html')
 
 
@@ -50,18 +48,13 @@ def quick_search():
 # returns result as a serialized JSON object
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
-        app.logger.info("Received query '{}' from {}".format(request.form.get('query'), request.remote_addr))
-        query = request.form.get('query')
-        selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
-        if not len(selected_features):
-            selected_features.append("filename")
-        available_features = sorted(gbd_api.get_features())
-        if "local" in available_features:
-            available_features.remove("local")
-        features = sorted(list(set(available_features) & set(selected_features)))
+    query = request.form.get('query')
+    selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
+    app.logger.info("Received query '{}' from {}".format(query, request.remote_addr))
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
+        features = sorted(list(set(gbd_api.get_features()) & set(selected_features or ['filename']) - {'local'}))
         try:
-            rows = list(gbd_api.query_search(query, [], features))
+            rows = gbd_api.query_search(query, [], features)
             features.insert(0, "GBDhash")
             result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
             return Response(json.dumps(result), status=200, mimetype="application/json")
@@ -140,25 +133,12 @@ def list_databases():
 @app.route('/getdatabase/')
 @app.route('/getdatabase/<database>')
 def get_database_file(database=None):
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
-        if database is None:
-            app.logger.info("Send default database file to IP {}".format(request.remote_addr))
-            return send_file(gbd_api.get_databases()[0],
-                             as_attachment=True,
-                             attachment_filename=os.path.basename(gbd_api.get_databases()[0]),
-                             mimetype='application/x-sqlite3')
-        elif database not in list(map(basename, gbd_api.get_databases())):
-            app.logger.warning(
-                "Device with IP {} requested database '{}' which could not be found".format(request.remote_addr,
-                                                                                            database))
-            return Response("Database does not exist in the running instance of GBD server", status=404,
-                            mimetype="text/plain")
-        else:
-            app.logger.info("Sending database file '{}' to IP {}".format(database, request.remote_addr))
-            return send_file(list(filter(lambda x: basename(x) == database, gbd_api.get_databases()))[0],
-                             as_attachment=True,
-                             attachment_filename=database,
-                             mimetype='application/x-sqlite3')
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
+        dbname=database if database and database in gbd_api.get_databases() else gbd_api.get_databases()[0]
+        dbpath=gbd_api.get_database_path(dbname)
+        dbfile=os.path.basename(dbpath)
+        app.logger.info("Sending database '{}' to IP {}".format(dbfile, request.remote_addr))
+        return send_file(dbpath, as_attachment=True, attachment_filename=dbfile, mimetype='application/x-sqlite3')
 
 
 # Get either all cumulative features or features in a specified database (argument is basename of database file)
