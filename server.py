@@ -153,16 +153,12 @@ def list_features(database=None):
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
+    app.logger.info("Resolving '{}' with feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=[feature])
             if len(records) == 0:
-                app.logger.warning(
-                    "Device with IP {} issued questionable resolve '{}' -> '{}'".format(request.remote_addr, hashvalue,
-                                                                                        feature))
-                return Response("No feature associated with this hash", status=404, mimetype="text/plain")
-            app.logger.info(
-                "Resolved '{}' against feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
+                return Response("No feature associated with this hash", status=404, mimetype="text/plain")                
             return records[0][1]
         except GBDException as err:
             app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
@@ -173,20 +169,15 @@ def get_attribute(feature, hashvalue):
 @app.route('/info/<hashvalue>/')
 @app.route('/info/<hashvalue>/<context>')
 def get_all_attributes(hashvalue, context='cnf'):
-    with GBD(app.config['database' ], verbose=app.config['verbose']) as gbd_api:
+    app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         features = gbd_api.get_features()
-        info = dict([])
-        for feature in features:
-            try:
-                records = gbd_api.query_search(hashes=[hashvalue], resolve=[feature], 
-                    group_by=util.prepend_context("hash", context))
-            except GBDException as err:
-                app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
-                return Response(err.message, status=500, mimetype="text/plain")
-            if len(records) > 0:
-                info.update({feature: records[0][1]})
-        app.logger.info("List all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
-        return Response(json.dumps(info), status=200, mimetype="application/json")
+        try:
+            records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=util.prepend_context("hash", context))
+            return Response(json.dumps(zip(features, records)), status=200, mimetype="application/json")
+        except GBDException as err:
+            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
+            return Response(err.message, status=500, mimetype="text/plain")
 
 
 # Find the file corresponding to the hashvalue and send it to the client
