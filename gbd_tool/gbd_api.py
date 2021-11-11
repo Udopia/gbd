@@ -57,7 +57,7 @@ class GBD:
         self._stack.__exit__(exc_type, exc, traceback)
 
     def get_databases(self):
-        return self.database.databases()
+        return list(self.database.databases())
 
     def get_database_path(self, dbname):
         return self.database.database_infos[dbname]['path']
