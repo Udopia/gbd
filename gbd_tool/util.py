@@ -18,11 +18,15 @@ import sys
 import bz2
 import gzip
 import lzma
+import re
 
 from gbd_tool import config
 
 __all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number', 'context_from_name', 'prepend_context']
 
+
+def make_alnum_ul(str):
+    return re.sub("[^a-zA-Z0-9]", "_", str)
 
 def prepend_context(feature, context):
     return feature if context == 'cnf' else "{}_{}".format(context, feature)

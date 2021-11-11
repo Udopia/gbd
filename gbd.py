@@ -34,10 +34,6 @@ def cli_hash(api: GBD, args):
     print(gbd_tool.gbd_hash.gbd_hash(args.path))
 
 
-def cli_import(api: GBD, args):
-    from gbd_tool import init
-    init.import_csv(api, args.path, args.key, args.source, args.target)
-
 def cli_init_local(api: GBD, args):
     from gbd_tool import init
     init.init_local(api, args.path)
@@ -63,7 +59,7 @@ def cli_delete(api: GBD, args):
         if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
             api.remove_attributes(args.name, args.hashes)
     elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
-        api.remove_feature(args.name)
+        api.delete_feature(args.name)
 
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
@@ -86,9 +82,12 @@ def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
             print("Database: {}".format(db_str))
-            with GBD(db_str) as api2:
-                print("Features: {}".format(" ".join(api2.get_material_features())))
-                print("Virtual: {}".format(" ".join(api2.get_virtual_features())))
+            feat = api.get_material_features(dbname=db_str)
+            if len(feat):
+                print("Features: " + " ".join(feat))
+            feat = api.get_virtual_features(dbname=db_str)
+            if len(feat):
+                print("Virtuals: " + " ".join(feat))
     else:
         info = api.get_feature_info(args.name)
         for key in info:
@@ -214,14 +213,6 @@ def main():
     add_query_and_hashes_arguments(parser_set)
     parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
     parser_set.set_defaults(func=cli_set)
-
-    # IMPORT DATA FROM CSV
-    parser_import = subparsers.add_parser('import', help='Import attributes from csv-file')
-    parser_import.add_argument('path', type=file_type, help="Path to csv-file")
-    parser_import.add_argument('-k', '--key', type=column_type, help="Name of the key column (gbd-hash)", required=True)
-    parser_import.add_argument('-s', '--source', help="Name of source column in csv-file", required=True)
-    parser_import.add_argument('-t', '--target', type=column_type, help="Name of target column (in database)", required=True)
-    parser_import.set_defaults(func=cli_import)
 
     # CREATE/DELETE/MODIFY FEATURES
     parser_create = subparsers.add_parser('create', help='Create a new feature')

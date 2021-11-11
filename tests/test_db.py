@@ -16,8 +16,8 @@ class InitTestCase(unittest.TestCase):
 
     def test_db(self):
         with Database(["/raid/gbd/meta.db"], verbose=True) as db:
-            for table in db.tables():
-                eprint(db.table_default_value(table))
+            for feature in db.features():
+                eprint(db.feature_infos[feature])
 
 if __name__ == '__main__':
     unittest.main()

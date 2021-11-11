@@ -23,7 +23,7 @@ import os
 from contextlib import ExitStack
 
 # internal packages
-from gbd_tool import query_builder
+from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
 from gbd_tool.util import eprint
 
@@ -57,19 +57,19 @@ class GBD:
         self._stack.__exit__(exc_type, exc, traceback)
 
     def get_databases(self):
-        return self.databases
+        return self.database.databases()
 
     # Get all features
-    def get_features(self):
-        return self.database.tables(tables=True, views=True)
+    def get_features(self, dbname=None):
+        return self.database.features(tables=True, views=True, database=dbname)
 
     # Get all material features
-    def get_material_features(self):
-        return self.database.tables(tables=True, views=False)
+    def get_material_features(self, dbname=None):
+        return self.database.features(tables=True, views=False, database=dbname)
 
     # Get all virtual features
-    def get_virtual_features(self):
-        return self.database.tables(tables=False, views=True)
+    def get_virtual_features(self, dbname=None):
+        return self.database.features(tables=False, views=True, database=dbname)
 
     # Check for existence of given feature
     def feature_exists(self, name):
@@ -78,14 +78,14 @@ class GBD:
     # Creates the given feature
     def create_feature(self, name, default_value=None):
         if not self.feature_exists(name):
-            self.database.create_table(name, default_value)
+            self.database.create_feature(name, default_value)
         else:
             raise GBDException("Feature '{}' does already exist".format(name))
 
     # Removes the given feature
-    def remove_feature(self, name):
+    def delete_feature(self, name):
         if self.feature_exists(name):
-            self.database.delete_table(name)
+            self.database.delete_feature(name)
         else:
             raise GBDException("Feature '{}' does not exist or is virtual".format(name))
 
@@ -96,7 +96,7 @@ class GBD:
         elif self.feature_exists(new_name):
             raise GBDException("Feature '{}' does already exist".format(new_name))
         else:
-            self.database.rename_table(old_name, new_name)
+            self.database.rename_feature(old_name, new_name)
 
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
@@ -115,12 +115,12 @@ class GBD:
     def set_attributes_locked(self, arg):
         self.mutex.acquire()
         try:
-            # create new connection due to limitations in multi-threaded use (cursor initialization issue)
+            # create new connection as cursor can not be shared across threads
             with Database(self.databases, self.verbose) as db:
                 for attr in arg:
                     name, value, hashv = attr[0], attr[1], attr[2]
-                    if not name in db.tables():
-                        db.create_table(name, "empty")
+                    if not name in db.features():
+                        db.create_feature(name, "empty")
                     db.insert(name, value, [hashv], True)
         finally:
             self.mutex.release()
@@ -143,9 +143,10 @@ class GBD:
             raise GBDException("Feature '{}' not found".format(feature))
         self.database.delete_hashes(feature, hash_list)
 
-    def query_search(self, query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
+    def query_search(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
         try:
-            sql = query_builder.build_query(query, hashes, resolve or [], collapse, group_by or "hash", self.join_type)
+            query_builder = GBDQuery(self.database, self.join_type, collapse)
+            sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
             raise GBDException("Database Operational Error: {}".format(str(err)))
