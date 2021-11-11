@@ -45,9 +45,9 @@ class GBD:
         self.separator = separator
         self.join_type = join_type
         self.verbose = verbose
+        self.database = Database(self.databases, self.verbose)
 
     def __enter__(self):
-        self.database = Database(self.databases, self.verbose)
         with ExitStack() as stack:
             stack.enter_context(self.database)
             self._stack = stack.pop_all()
