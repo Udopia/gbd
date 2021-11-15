@@ -132,11 +132,11 @@ class GBD:
     def set_attribute(self, feature, value, query, hashes=[], force=False):
         if not feature in self.get_material_features():
             raise GBDException("Feature '{}' missing or virtual".format(feature))
-        hash_list = [hash[0] for hash in self.query_search(query, hashes)]
+        hash_list = hashes
+        if query:
+            hash_list = [hash[0] for hash in self.query_search(query, hashes)]
         try:
-            self.database.insert(feature, value, hash_list, force)
-        except sqlite3.IntegrityError as err:
-            raise GBDException(str(err) + ": Use the force!")
+            self.database.insert(feature, value, hash_list)
         except Exception as err:
             raise GBDException(str(err))
 

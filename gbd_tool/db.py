@@ -20,6 +20,7 @@ import json
 import csv
 import itertools
 import collections
+from sqlite3.dbapi2 import IntegrityError
 
 import gbd_tool.config as config
 from gbd_tool.gbd_hash import HASH_VERSION
@@ -37,25 +38,26 @@ class Database:
         self.database_infos = collections.OrderedDict()
         self.feature_infos = dict()
         self.verbose = verbose
-        self.inmemory = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        self.cursor = self.connection.cursor()
         # init non-existent databases and check existing databases
+        have_csv = False
         for path in path_list:
             if not os.path.isfile(path):
                 self.create(path, VERSION, HASH_VERSION)
-                self.extract_infos(path)
+                self.extract_database_infos(path)
             elif self.is_database(path):
                 self.check(path, VERSION, HASH_VERSION)
-                self.extract_infos(path)
+                self.extract_database_infos(path)
             else:
                 self.import_csv(path)
-        self.extract_infos("file::memory:?cache=shared", all_virtual=True)
+                have_csv = True
+        if have_csv:
+            self.extract_database_infos("file::memory:?cache=shared", all_virtual=True)
         for info in self.database_infos.values():
             self.init_database(info)
-            if info['main']:
-                self.connection = sqlite3.connect(info['path'], uri=True)
-                self.cursor = self.connection.cursor()
-            else:
-                self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(info['path'], info['name']))
+            self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(info['path'], info['name']))
+        # self.migrate()
         
     def __enter__(self):
         return self
@@ -102,7 +104,7 @@ class Database:
         if __version[0][1] != hash_version:
             eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
 
-    def extract_infos(self, path, all_virtual=False):
+    def extract_database_infos(self, path, all_virtual=False):
         dbname = make_alnum_ul(os.path.basename(path))
         firstdb = len(self.database_infos) == 0
         self.database_infos[dbname] = { 'name': dbname, 'path': path, 'main': firstdb, 'contexts': [], 'tables': [], 'views': [] }
@@ -114,39 +116,42 @@ class Database:
             if not context in self.database_infos[dbname]['contexts']:
                 self.database_infos[dbname]['contexts'].append(context)
             self.database_infos[dbname][type + 's'].append(table)
-            # determine features
-            infos = sqlite3.connect(path).execute("PRAGMA table_info({})".format(table)).fetchall()
-            names = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
-            for info in infos:
-                col = dict(zip(names, info))
-                if col['name'] != "hash":
-                    fname = table if col['name'] == "value" else col['name']
-                    self.feature_infos[fname] = { "table": table, 
+            self.extract_feature_infos(path, table, context, dbname, all_virtual)
+
+    def extract_feature_infos(self, path, table, context, dbname, all_virtual=False):
+        infos = sqlite3.connect(path).execute("PRAGMA table_info({})".format(table)).fetchall()
+        names = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
+        for info in infos:
+            col = dict(zip(names, info))
+            if col['name'] != "hash":
+                fname = table if col['name'] == "value" else col['name']
+                if fname in self.feature_infos:
+                    eprint("Warning: Feature {f} is in {d} and {e}. Using {e}.".format(f=fname, d=dbname, e=self.feature_infos[fname]['database']))
+                else:
+                    self.feature_infos[fname] = { "table": "{}.{}".format(dbname, table), 
                         "column": col['name'], "default": col['default_value'], 
                         "virtual": (type == 'view' or all_virtual), 
                         "context": context, "database": dbname
                     }
 
-    def ftable(self, feature):
-        return self.feature_infos[feature]['table']
-
-    def fcolumn(self, feature):
-        return self.feature_infos[feature]['column']
-
-    def fdefault(self, feature):
-        return self.feature_infos[feature]['default']
-
-    def fvirtual(self, feature):
-        return self.feature_infos[feature]['virtual']
-
-    def fcontext(self, feature):
-        return self.feature_infos[feature]['context']
-
-    def fdatabase(self, feature):
-        return self.feature_infos[feature]['database']
-
-    def databases(self):
-        return self.database_infos.keys()
+    # migrate to new data model
+    def migrate(self):
+        try:
+            self.execute('INSERT INTO features (hash) SELECT DISTINCT(hash) FROM local')
+        except IntegrityError as err:
+            eprint(str(err))
+        for feature in self.features():
+            if self.fdefault(feature) and self.fcolumn(feature) == "value" and not feature.startswith("migrate_"):
+                self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(feature))
+                self.execute('DROP TRIGGER IF EXISTS {}_unique'.format(feature))
+                temp = "migrate_" + feature
+                self.rename_feature(feature, temp)
+                self.execute('ALTER TABLE features ADD {} TEXT NOT NULL DEFAULT {}'.format(feature, self.fdefault(feature)))
+                self.execute('''UPDATE features SET {n} = (SELECT {m}.value FROM {m} WHERE features.hash = {m}.hash AND {m}.value IS NOT NULL)
+                                WHERE hash IN (SELECT hash FROM {m} WHERE {m}.hash = features.hash)'''.format(n=feature, m=temp))
+                self.execute('DROP TABLE {}'.format(temp))
+                self.feature_infos[feature]['table'] = "features"
+                self.feature_infos[feature]['column'] = feature
 
     def init_database(self, dbinfo):
         # existence of local, filename and hash
@@ -172,22 +177,75 @@ class Database:
             if not translator in dbinfo['tables']:
                 sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash, value)".format(translator))
 
+    def dpath(self, dbname):
+        return self.database_infos[dbname]['path']
+        
+    def dmain(self, dbname):
+        return self.database_infos[dbname]['main']
+        
+    def dcontexts(self, dbname):
+        return self.database_infos[dbname]['contexts']
+        
+    def dtables(self, dbname):
+        return self.database_infos[dbname]['tables']
+        
+    def dviews(self, dbname):
+        return self.database_infos[dbname]['views']
+
+    def ftable(self, feature):
+        return self.feature_infos[feature]['table']
+
+    def fcolumn(self, feature):
+        return self.feature_infos[feature]['column']
+
+    def fdefault(self, feature):
+        return self.feature_infos[feature]['default']
+
+    def fvirtual(self, feature):
+        return self.feature_infos[feature]['virtual']
+
+    def fcontext(self, feature):
+        return self.feature_infos[feature]['context']
+
+    def fdatabase(self, feature):
+        return self.feature_infos[feature]['database']
+
+    def databases(self):
+        return self.database_infos.keys()
+
+    def features(self):
+        return self.feature_infos.keys()
+
+    def valid_fname_or_raise(self, name):
+        if name in self.features():
+            raise DatabaseException("Feature '{}' exists.".format(name))
+        reserved = [ 'hash', 'value', 'local', 'filename', 'features' ]
+        if name.lower() in reserved or name.lower() in config.contexts() or name.startswith("__"):
+            raise DatabaseException("'{}' is reserved.".format(name))
+        sqlite_keywords = ['abort', 'action', 'add', 'after', 'all', 'alter', 'always', 'analyze', 'and', 'as', 'asc', 'attach', 'autoincrement', 
+            'before', 'begin', 'between', 'by', 'cascade', 'case', 'cast', 'check', 'collate', 'column', 'commit', 'conflict', 'constraint', 
+            'create', 'cross', 'current', 'current_date', 'current_time', 'current_timestamp', 'database', 'default', 'deferrable', 'deferred', 
+            'delete', 'desc', 'detach', 'distinct', 'do', 'drop', 'each', 'else', 'end', 'escape', 'except', 'exclude', 'exclusive', 'exists', 
+            'explain', 'fail', 'filter', 'first', 'following', 'for', 'foreign', 'from', 'full', 'generated', 'glob', 'group', 'groups', 
+            'having', 'if', 'ignore', 'immediate', 'in', 'index', 'indexed', 'initially', 'inner', 'insert', 'instead', 'intersect', 'into', 'is', 'isnull', 
+            'join', 'key', 'last', 'left', 'like', 'limit', 'match', 'materialized', 'natural', 'no', 'not', 'nothing', 'notnull', 'null', 'nulls', 
+            'of', 'offset', 'on', 'or', 'order', 'others', 'outer', 'over', 'partition', 'plan', 'pragma', 'preceding', 'primary', 'query', 
+            'raise', 'range', 'recursive', 'references', 'regexp', 'reindex', 'release', 'rename', 'replace', 'restrict', 'returning', 'right', 'rollback', 
+            'row', 'rows', 'savepoint', 'select', 'set', 'table', 'temp', 'temporary', 'then', 'ties', 'to', 'transaction', 'trigger', 'unbounded', 'union', 
+            'unique', 'update', 'using', 'vacuum', 'values', 'view', 'virtual', 'when', 'where', 'window', 'with', 'without']
+        if name.lower() in sqlite_keywords or name.startswith("sqlite_"):
+            raise DatabaseException("'{}' is reserved by sqlite.".format(name))
+
     def create_feature(self, name, default_value=None):
+        self.valid_fname_or_raise(name)
         if default_value is not None:
             features = prepend_context("features", context_from_name(name))
             self.execute('ALTER TABLE {} ADD {} TEXT NOT NULL DEFAULT {}'.format(features, name, default_value))
         else:
             self.execute('CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(name))
 
-    def delete_feature(self, name):
-        info = self.feature_infos[name]
-        if info["column"] == "value":
-            self.execute('DROP TABLE IF EXISTS {}'.format(name))
-            self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-        else:
-            raise DatabaseException("Not Implemented")
-
     def rename_feature(self, old_name, new_name):
+        self.valid_fname_or_raise(new_name)
         info = self.feature_infos[old_name]
         if info["column"] == "value":
             self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
@@ -195,25 +253,37 @@ class Database:
         else:
             raise DatabaseException("Not Implemented")
 
-    def insert(self, feature, value, hashes, force=False):
+    def delete_feature(self, name):
+        info = self.feature_infos[name]
+        if info["column"] == "value":
+            self.execute('DROP TABLE IF EXISTS {}'.format(name))
+            self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
+            self.execute('DROP TRIGGER IF EXISTS {}_unique'.format(name))
+        else:
+            raise DatabaseException("Not Implemented")
+
+    def insert(self, feature, value, hashes):
         info = self.feature_infos[feature]
-        values = ', '.join(['("{}", "{}")'.format(hash, value) for hash in hashes])
-        method = 'REPLACE' if force and info['default'] else 'INSERT'
-        self.execute('{} INTO {} (hash, {}) VALUES {}'.format(method, info['table'], info['column'], values))
+        if info["column"] == "value" and not info['default']:
+            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
+            self.execute('INSERT INTO {} (hash, {}) VALUES {}'.format(info['table'], info['column'], values))
+        else:
+            self.execute("UPDATE {} SET {}='{}' WHERE hash IN ('{}')".format(info['table'], info['column'], value, "', '".join(hashes)))
+
 
     def delete_hashes(self, feature, hashes):
         info = self.feature_infos[feature]
         if info['default'] is None:
             self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
         else:
-            self.insert(feature, info['default'], hashes, True)
+            self.insert(feature, info['default'], hashes)
 
     def delete_values(self, feature, values):
         info = self.feature_infos[feature]
         if info['default'] is None:
             self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
         else:
-            self.execute("UPDATE TABLE {} SET {} = {} WHERE value IN ('{}')".format(info['table'], info['column'], info['default'], "', '".join(values)))
+            self.execute("UPDATE {} SET {} = {} WHERE value IN ('{}')".format(info['table'], info['column'], info['default'], "', '".join(values)))
 
     def query(self, q):
         if self.verbose:
