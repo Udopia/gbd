@@ -16,7 +16,6 @@
 
 import tatsu
 
-from gbd_tool.util import context_from_name
 from gbd_tool.db import Database
 
 class GBDQuery:

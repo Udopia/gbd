@@ -25,6 +25,7 @@ import sys
 import gbd_tool
 
 from gbd_tool.gbd_api import GBD, GBDException
+from gbd_tool.db import DatabaseException
 from gbd_tool.util import eprint, read_hashes, confirm
 from gbd_tool import config
 
@@ -70,7 +71,7 @@ def cli_get(api: GBD, args):
         print(args.separator.join([(str(item or '')) for item in result]))
 
 def cli_set(api: GBD, args):
-    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes, args.force)
+    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
 
 def cli_info_set(api: GBD, args):
     api.meta_set(args.feature, args.name, args.value)
@@ -211,7 +212,6 @@ def main():
     parser_set = subparsers.add_parser('set', help='Set specified attribute-value for query result')
     parser_set.add_argument('assign', type=key_value_type, help='key=value')
     add_query_and_hashes_arguments(parser_set)
-    parser_set.add_argument('-f', '--force', action='store_true', help='Overwrite existing unique values')
     parser_set.set_defaults(func=cli_set)
 
     # CREATE/DELETE/MODIFY FEATURES
@@ -306,7 +306,10 @@ A database file containing some attributes of instances used in the SAT Competit
                         args.hashes = read_hashes()  # read hashes from stdin
                 args.func(api, args)
         except GBDException as err:
-            eprint(err)
+            eprint("GBD Exception: " + str(err))
+            sys.exit(1)
+        except DatabaseException as err:
+            eprint("Database Exception: " + str(err))
             sys.exit(1)
     else:
         parser.print_help()

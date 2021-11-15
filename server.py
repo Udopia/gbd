@@ -213,8 +213,7 @@ def main():
 A database path can be given in two ways:
 -- by setting the environment variable GBD_DB
 -- by giving a path via --db=[path]
-A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase
-Don't forget to initialize each database with the paths to your benchmarks by using the init-command. """)
+A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     else:
         logging_dir = os.environ.get('GBD_LOGGING_DIR')
         if (logging_dir == '') or (logging_dir is None):
@@ -254,6 +253,8 @@ Don't forget to initialize each database with the paths to your benchmarks by us
         app.config['verbose'] = args.verbose
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
+            if "file__memory__cache_shared" in app.config['dbnames']:
+                app.config['dbnames'].remove("file__memory__cache_shared")
             app.config['features'] = { 'all': gbd.get_features() }
             app.config['dbpaths'] = dict()
             for db in app.config['dbnames']:
