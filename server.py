@@ -253,12 +253,14 @@ A database file containing some attributes of instances used in the SAT Competit
         app.config['verbose'] = args.verbose
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
-            if "file__memory__cache_shared" in app.config['dbnames']:
-                app.config['dbnames'].remove("file__memory__cache_shared")
+            if "main" in app.config['dbnames']:
+                app.config['dbnames'].remove("main")
             app.config['features'] = { 'all': gbd.get_features() }
             app.config['dbpaths'] = dict()
             for db in app.config['dbnames']:
                 app.config['features'][db] = gbd.get_features(dbname=db)
+                if "local" in app.config['features'][db]:
+                    app.config['features'][db].remove("local")
                 app.config['dbpaths'][db] = gbd.get_database_path(db)
         app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
         app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
