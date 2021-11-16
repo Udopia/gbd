@@ -14,19 +14,24 @@ var app = new Vue({
             patterns: {
                 query_patterns: [
                     {
-                        value: 'competition_track = main_2020',
+                        value: 'track = main_2021',
                         features: ['author', 'family', 'filename'],
                         text: "Main Track 2020"
                     },
                     {
-                        value: 'competition_track = planning_2020',
+                        value: 'track = crypto_2021',
                         features: ['author', 'family', 'filename'],
-                        text: "Planning Track 2020"
+                        text: "Crypto Track 2021"
                     },
                     {
-                        value: 'competition_track = main_2019',
+                        value: 'track = main_2020',
                         features: ['author', 'family', 'filename'],
-                        text: "Main Track 2019"
+                        text: "Main Track 2020"
+                    },
+                    {
+                        value: 'track = planning_2020',
+                        features: ['author', 'family', 'filename'],
+                        text: "Planning Track 2020"
                     },
                     {
                         value: 'filename like %waerden%',
