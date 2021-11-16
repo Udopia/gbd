@@ -226,7 +226,7 @@ class Database:
         tables = list()
         for finfo in self.feature_infos.values():
             if (not context or context == finfo['context']) and not finfo['virtual'] and not finfo['table'] in tables:
-                tables.append([ finfo['table'] ])
+                tables.append(finfo['table'])
         return tables
 
     def valid_fname_or_raise(self, name):
