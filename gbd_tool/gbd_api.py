@@ -103,17 +103,7 @@ class GBD:
 
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
-        system_record = self.database.system_record(name)
-        meta_record = self.database.meta_record(name)
-        return {**system_record, **meta_record}
-
-    def meta_set(self, feature, meta_feature, value):
-        self.database.meta_set(feature, meta_feature, value)
-
-    # clears sepcified meta-features of feature, 
-    # or clears all meta-features if meta_feature is not specified
-    def meta_clear(self, feature, meta_feature=None):
-        self.database.meta_clear(feature, meta_feature)
+        return self.database.system_record(name)
 
     def set_attributes_locked(self, arg):
         self.mutex.acquire()

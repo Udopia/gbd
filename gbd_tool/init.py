@@ -159,7 +159,7 @@ def cnf_to_kis(hashvalue, filename, tlim, mlim):
     eprint('Transforming {} to k-ISP {}'.format(filename, output))
     transform_cnf_to_kis(filename, output)
     kishash = gbd_hash(output)
-    return [ ('isp_local', output, kishash), ('__translator_cnf_isp', kishash, hashvalue) ]
+    return [ ('isp_local', output, kishash), ('translator_cnf_isp', kishash, hashvalue) ]
 
 
 # Initialize base feature tables for given instances

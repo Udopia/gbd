@@ -73,12 +73,6 @@ def cli_get(api: GBD, args):
 def cli_set(api: GBD, args):
     api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
 
-def cli_info_set(api: GBD, args):
-    api.meta_set(args.feature, args.name, args.value)
-
-def cli_info_clear(api: GBD, args):
-    api.meta_clear(args.feature, args.name)
-
 def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
@@ -231,21 +225,10 @@ def main():
     parser_rename.add_argument('new_name', type=column_type, help='New name of feature')
     parser_rename.set_defaults(func=cli_rename)
 
-    # HANDLE META-FEATURES (e.g. specify runtime meta-data like timeout/memout/machine)
+    # GET META INFO
     parser_info = subparsers.add_parser('info', help='Print info about available features')
     parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_info.set_defaults(func=cli_info)
-
-    parser_info_set = subparsers.add_parser('info_set', help='Set feature meta-attributes')
-    parser_info_set.add_argument('feature', type=column_type, help='Feature name')
-    parser_info_set.add_argument('-n', '--name', type=column_type, help='Meta-feature name', required=True)
-    parser_info_set.add_argument('-v', '--value', help='Meta-feature value', required=True)
-    parser_info_set.set_defaults(func=cli_info_set)
-
-    parser_info_clear = subparsers.add_parser('info_clear', help='Clear feature meta-attributes')
-    parser_info_clear.add_argument('feature', type=column_type, help='Feature name')
-    parser_info_clear.add_argument('-n', '--name', type=column_type, help='Meta-feature name')
-    parser_info_clear.set_defaults(func=cli_info_clear)
 
     # SCORE CALCULATION
     parser_eval = subparsers.add_parser('eval', help='Evaluate Runtime Features')
