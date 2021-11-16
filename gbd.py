@@ -76,13 +76,14 @@ def cli_set(api: GBD, args):
 def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
-            print("Database: {}".format(db_str))
-            feat = api.get_material_features(dbname=db_str)
-            if len(feat):
-                print("Features: " + " ".join(feat))
-            feat = api.get_virtual_features(dbname=db_str)
-            if len(feat):
-                print("Virtuals: " + " ".join(feat))
+            if len(api.get_features(dbname=db_str)):
+                print("Database: {}".format(db_str))
+                feat = api.get_material_features(dbname=db_str)
+                if len(feat):
+                    print("Features: " + " ".join(feat))
+                feat = api.get_virtual_features(dbname=db_str)
+                if len(feat):
+                    print("Virtuals: " + " ".join(feat))
     else:
         info = api.get_feature_info(args.name)
         for key in info:
