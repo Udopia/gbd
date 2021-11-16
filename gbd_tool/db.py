@@ -269,7 +269,7 @@ class Database:
                 self.execute("CREATE VIEW IF NOT EXISTS {}.{} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(self.maindb, filename, name))
             if not context in self.database_infos[self.maindb]['contexts']:
                 self.database_infos[self.maindb]['contexts'].append(context)
-            self.database_infos[self.maindb]["table"].append(name)
+            self.database_infos[self.maindb]["tables"].append(name)
             self.feature_infos[name] = { "table": "{}.{}".format(self.maindb, name), "column": "value", "default": None, "virtual": False, "context": context, "database": self.maindb }
 
     def rename_feature(self, old_name, new_name):
@@ -292,7 +292,8 @@ class Database:
     def insert(self, feature, value, hashes):
         info = self.feature_infos[feature]
         values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
-        self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}'.format(tab=info['table'], col=info['column'], vals=values))
+        self.execute('INSERT or REPLACE INTO {tab} (hash, {col}) VALUES {vals}'.format(tab=info['table'], col=info['column'], vals=values))
+        #self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}'.format(tab=info['table'], col=info['column'], vals=values))
 
     def delete_hashes(self, feature, hashes):
         info = self.feature_infos[feature]

@@ -16,7 +16,7 @@
 
 import tatsu
 
-from gbd_tool.db import Database
+from gbd_tool.db import Database, DatabaseException
 
 class GBDQuery:
     GRAMMAR = r'''
@@ -89,7 +89,9 @@ class GBDQuery:
                     if feature_context == group_context:
                         result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
                     else:
-                        translator = "__translator_{}_{}".format(group_context, feature_context)
+                        translator = "translator_{}_{}".format(group_context, feature_context)
+                        if not translator in self.db.features():
+                            raise DatabaseException("Context translator table not found: " + translator)
                         if not feature_context in used_contexts:
                             used_contexts.append(feature_context)
                             result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(translator, gtab, translator)
