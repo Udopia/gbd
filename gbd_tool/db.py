@@ -77,7 +77,7 @@ class Database:
     def import_csv(self, csvfile):        
         file = os.path.basename(csvfile)
         name = "{}_{}".format(context_from_name(file), make_alnum_ul(file))
-        cur = self.inmemory.cursor()
+        cur = self.connection.cursor()
         if not len(cur.execute("SELECT * FROM sqlite_master WHERE tbl_name='{}'".format(name)).fetchall()):
             with open(csvfile) as csvfile:
                 csvreader = csv.DictReader(csvfile)
@@ -86,7 +86,7 @@ class Database:
                 cur.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(name, ", ".join(csvreader.fieldnames)))
                 for row in csvreader:
                     cur.execute("INSERT INTO {} VALUES ('{}')".format(name, "', '".join(row.values())))
-            self.inmemory.commit()
+            self.connection.commit()
 
     def create(self, path, version, hash_version):
         eprint("Warning: Creating Database {}".format(path))
@@ -269,6 +269,9 @@ class Database:
             self.execute('INSERT INTO {} (hash, {}) VALUES {}'.format(info['table'], info['column'], values))
         else:
             self.execute("UPDATE {} SET {}='{}' WHERE hash IN ('{}')".format(info['table'], info['column'], value, "', '".join(hashes)))
+            for hash in hashes:
+                self.execute("INSERT INTO {tab} ({hash}, {value}) SELECT {hash}, {value} WHERE (Select Changes() = 0)".format(tab=info['table'], hash=hash, value=value))
+
 
 
     def delete_hashes(self, feature, hashes):
