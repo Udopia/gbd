@@ -53,8 +53,9 @@ class Database:
             else:
                 self.import_csv(path)
         for info in self.database_infos.values():
-            self.create_feature_tables(info['name'])
-            self.create_context_translators(info['name'])
+            dbname = info['name']
+            self.create_feature_tables(dbname, self.dcontexts(dbname))
+            self.create_context_translators(dbname, self.dcontexts(dbname))
             self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(info['path'], info['name']))
             if info['main']:
                 self.maindb = info['name']
@@ -165,9 +166,9 @@ class Database:
         self.execute("CREATE TEMP VIEW {} (hash, value) AS {}".format(hashv, union))
         self.feature_infos[hashv] = { "table": "temp.{}".format(hashv), "column": "value", "default": True, "virtual": True, "context": context, "database": "temp" }
 
-    def create_feature_tables(self, dbname):
+    def create_feature_tables(self, dbname, contexts):
         dbinfo = self.database_infos[dbname]
-        for context in self.dcontexts(dbname):
+        for context in contexts:
             features = prepend_context("features", context)
             if not features in self.dtables(dbname):
                 sqlite3.connect(dbinfo['path']).execute("CREATE TABLE IF NOT EXISTS {} (hash UNIQUE NOT NULL)".format(features))
@@ -176,9 +177,9 @@ class Database:
                 if local in dbinfo['tables']:
                     sqlite3.connect(dbinfo['path']).execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(features, local))
 
-    def create_context_translators(self, dbname):
+    def create_context_translators(self, dbname, contexts):
         dbinfo = self.database_infos[dbname]
-        for (c0, c1) in list(itertools.permutations(dbinfo["contexts"], 2)):
+        for (c0, c1) in list(itertools.permutations(contexts, 2)):
             translator = "translator_{}_{}".format(c0, c1)
             if not translator in dbinfo['tables']:
                 sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash, value)".format(translator))
@@ -254,6 +255,8 @@ class Database:
         context = context_from_name(name)
         if default_value is not None:
             features = prepend_context("features", context)
+            if not features in self.database_infos[self.maindb]['tables']:
+                self.create_feature_tables(self.maindb, [context_from_name(name)])
             self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, default_value))
             if not context in self.database_infos[self.maindb]['contexts']:
                 self.database_infos[self.maindb]['contexts'].append(context)
