@@ -53,13 +53,13 @@ class Database:
             else:
                 self.import_csv(path)
         for info in self.database_infos.values():
-            dbname = info['name']
-            self.create_feature_tables(dbname)
-            self.create_context_translators(dbname, self.dcontexts(dbname))
             self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(info['path'], info['name']))
             if info['main']:
                 self.maindb = info['name']  # target of inserts and updates
         self.extract_database_infos(self.INMEMORYDB, virtual=True)
+        for dbname in self.database_infos.keys():
+            self.create_feature_tables(dbname)
+            self.create_context_translators(dbname, self.dcontexts(dbname))
         
     def __enter__(self):
         return self
@@ -126,7 +126,7 @@ class Database:
             col = dict(zip(names, info))
             if col['name'] != "hash":
                 fname = table if col['name'] == "value" else col['name']
-                if fname in self.feature_infos:
+                if fname in self.feature_infos.keys():
                     eprint("Warning: Feature {f} is in {d} and {e}. Using {e}.".format(f=fname, d=dbname, e=self.feature_infos[fname]['database']))
                 else:
                     self.feature_infos[fname] = { "table": "{}.{}".format(dbname, table), 
@@ -139,9 +139,13 @@ class Database:
             contexts = self.dcontexts(dbname)
         for context in contexts:
             features = prepend_context("features", context)
-            if not features in self.dtables(dbname):
-                sqlite3.connect(self.dpath(dbname)).execute("CREATE TABLE IF NOT EXISTS {} (hash UNIQUE NOT NULL)".format(features))
-                self.create_default_values(dbname)
+            tables = self.tables(context=context, dbname=dbname)
+            if not features in tables:
+                self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash UNIQUE NOT NULL)".format(dbname, features))
+                for table in tables:
+                    self.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(features, table))
+                    self.execute("CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(table, table, features))
+                self.database_infos[dbname]['tables'].append(features)
             hashv = prepend_context("hash", context)
             if not hashv in self.feature_infos.keys():
                 self.feature_infos[hashv] = { "table": "{}.{}".format(dbname, features), "column": hashv, "default": True, "virtual": True, "context": context, "database": dbname }
@@ -152,14 +156,6 @@ class Database:
             translator = "translator_{}_{}".format(c0, c1)
             if not translator in dbinfo['tables']:
                 sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash, value)".format(translator))
-
-    def create_default_values(self, dbname):
-        for context in self.dcontexts(dbname):
-            features = prepend_context("features", context)
-            tables = self.tables(context=context, dbname=dbname)
-            union = "UNION ".join([ "SELECT DISTINCT(hash) FROM {} ".format(table) for table in tables if table != "{}.{}".format(dbname, features) ])
-            if len(union):
-                self.execute("INSERT OR IGNORE INTO {}.{} (hash) {}".format(dbname, features, union))
 
     def dpath(self, dbname):
         return self.database_infos[dbname]['path']
@@ -244,8 +240,8 @@ class Database:
         context = context_from_name(name)
         if default_value is not None:
             features = prepend_context("features", context)
-            if not features in self.database_infos[self.maindb]['tables']:
-                self.create_feature_tables(self.maindb, [context_from_name(name)])
+            #if not features in self.database_infos[self.maindb]['tables']:
+            self.create_feature_tables(self.maindb, [context_from_name(name)])
             self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, default_value))
             # update info
             if not context in self.database_infos[self.maindb]['contexts']:
