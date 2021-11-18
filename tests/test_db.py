@@ -8,7 +8,7 @@ gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 if gbdroot in sys.path:
     sys.path.remove(gbdroot)
 sys.path.insert(0, gbdroot)
-print(sys.path)
+#print(sys.path)
 
 import unittest
 
@@ -27,7 +27,6 @@ class DatabaseTestCase(unittest.TestCase):
         with Database([self.TDB], verbose=True) as db:
             assert(db.is_database(self.TDB))
             assert(len(db.databases()) == 2)
-            eprint(db.features())
             assert(len(db.features()) == 0)
             assert(len(db.tables()) == 0)
         with Database([self.TDB], verbose=True) as db:
@@ -79,9 +78,9 @@ class DatabaseTestCase(unittest.TestCase):
             db.insert(FEAT, "b", [4, 5, 6])
             q = GBDQuery(db)
             r = db.query(q.build_query(resolve=[FEAT]))
-            eprint(r)
+            assert(r == [('1', 'a'), ('2', 'a'), ('3', 'a'), ('4', 'b'), ('5', 'b'), ('6', 'b')])
             r = db.query(q.build_query("{}=a".format(FEAT), resolve=[FEAT]))
-            eprint(r)
+            assert(r == [('1', 'a'), ('2', 'a'), ('3', 'a')])
 
 
 if __name__ == '__main__':
