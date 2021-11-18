@@ -24,7 +24,8 @@ setup(name='gbd_tools',
     'mip',
     'pandas',
     'matplotlib',
-    'networkit'
+    'networkit',
+    'waitress'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
