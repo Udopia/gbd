@@ -218,7 +218,7 @@ def main():
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
     global app
-    app.logger.info()
+    app.logger.info("Test")
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db
     app.config['verbose'] = args.verbose
