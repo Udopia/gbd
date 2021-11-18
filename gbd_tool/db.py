@@ -136,10 +136,10 @@ class Database:
         if not contexts:
             contexts = self.dcontexts(dbname)
         for context in contexts:
-            features = prepend_context("features", context)
+            features = "{}.{}".format(dbname, prepend_context("features", context))
             tables = self.tables(context=context, dbname=dbname)
             if not features in tables:
-                self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash UNIQUE NOT NULL)".format(dbname, features))
+                self.execute("CREATE TABLE IF NOT EXISTS {} (hash UNIQUE NOT NULL)".format(features))
                 for table in tables:
                     self.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(features, table))
                     self.execute("CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(table, table, features))
