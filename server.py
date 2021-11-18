@@ -205,9 +205,6 @@ def main():
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
     parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
     args = parser.parse_args()
-    with open(os.path.join(args.logdir, "WTF"), 'w') as fp:
-        fp.write('What the flickflack')
-    return
     formatter = logging.Formatter(fmt='[%(asctime)s, %(name)s, %(levelname)s] %(module)s.%(filename)s.%(funcName)s():%(lineno)d\n%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger().setLevel(logging.DEBUG)
     # Add sys.stdout to logging output
@@ -221,7 +218,9 @@ def main():
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
     global app
-    app.logger.info("Test")
+    if not args.db:
+        app.logger.error("No Database Given")
+        exit(1)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db
     app.config['verbose'] = args.verbose
