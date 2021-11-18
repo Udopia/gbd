@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# python packages
+
 import sqlite3
 import multiprocessing
 import tatsu
@@ -22,10 +22,8 @@ import os
 
 from contextlib import ExitStack
 
-# internal packages
 from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
-from gbd_tool.util import eprint
 
 
 class GBDException(Exception):

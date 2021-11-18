@@ -16,11 +16,9 @@
 
 import sqlite3
 import os
-import json
 import csv
 import itertools
 import collections
-from sqlite3.dbapi2 import IntegrityError
 
 import gbd_tool.config as config
 from gbd_tool.gbd_hash import HASH_VERSION
