@@ -224,18 +224,21 @@ def main():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db
     app.config['verbose'] = args.verbose
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
-        app.config['dbnames'] = gbd.get_databases()
-        if "main" in app.config['dbnames']:
-            app.config['dbnames'].remove("main")
-        app.config['features'] = { 'all': gbd.get_features() }
-        app.config['dbpaths'] = dict()
-        for db in app.config['dbnames']:
-            if db != 'main':
-                app.config['features'][db] = gbd.get_features(dbname=db)
-                if "local" in app.config['features'][db]:
-                    app.config['features'][db].remove("local")
-                app.config['dbpaths'][db] = gbd.get_database_path(db)
+    try:
+        with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+            app.config['dbnames'] = gbd.get_databases()
+            if "main" in app.config['dbnames']:
+                app.config['dbnames'].remove("main")
+            app.config['features'] = { 'all': gbd.get_features() }
+            app.config['dbpaths'] = dict()
+            for db in app.config['dbnames']:
+                if db != 'main':
+                    app.config['features'][db] = gbd.get_features(dbname=db)
+                    if "local" in app.config['features'][db]:
+                        app.config['features'][db].remove("local")
+                    app.config['dbpaths'][db] = gbd.get_database_path(db)
+    except Exception as e:
+        app.logger.error(str(e))
     app.static_folder = os.path.join(pwd, "static")
     app.template_folder = os.path.join(pwd, "templates-vue")
     #app.run(host='0.0.0.0', port=args.port)
