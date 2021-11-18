@@ -239,6 +239,7 @@ def main():
                     app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
+        exit(1)
     app.static_folder = os.path.join(pwd, "static")
     app.template_folder = os.path.join(pwd, "templates-vue")
     #app.run(host='0.0.0.0', port=args.port)
