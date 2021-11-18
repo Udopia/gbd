@@ -141,12 +141,12 @@ class Database:
             if not features in tables:
                 self.execute("CREATE TABLE IF NOT EXISTS {} (hash UNIQUE NOT NULL)".format(features))
                 for table in tables:
-                    self.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(features, table))
-                    self.execute("CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(table, table, features))
-                self.database_infos[dbname]['tables'].append(features)
+                    self.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(prepend_context("features", context), table))
+                    self.execute("CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(table, table, prepend_context("features", context)))
+                self.database_infos[dbname]['tables'].append(prepend_context("features", context))
             hashv = prepend_context("hash", context)
             if not hashv in self.feature_infos.keys():
-                self.feature_infos[hashv] = { "table": "{}.{}".format(dbname, features), "column": hashv, "default": True, "virtual": True, "context": context, "database": dbname }
+                self.feature_infos[hashv] = { "table": features, "column": hashv, "default": True, "virtual": True, "context": context, "database": dbname }
 
     def create_context_translators(self, dbname, contexts):
         dbinfo = self.database_infos[dbname]
