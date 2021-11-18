@@ -199,72 +199,44 @@ def get_file(hashvalue, context='cnf'):
 
 # Main method which configures Flask app at startup
 def main():
+    dir=os.path.dirname(os.path.abspath(gbd_server.__file__))
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
+    parser.add_argument('-l', "--logdir", help='Specify logging dir', default=os.environ.get('GBD_LOGGING_DIR') or dir, nargs='?')
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
     parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
-    parser.add_argument('-b', "--backup",
-                        help='Specify the amount of kept logging files while log rotation (every midnight)',
-                        default=10,
-                        type=int)
     args = parser.parse_args()
-    if not args.db:
-        eprint("""No database path is given. 
-A database path can be given in two ways:
--- by setting the environment variable GBD_DB
--- by giving a path via --db=[path]
-A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
-    else:
-        logging_dir = os.environ.get('GBD_LOGGING_DIR')
-        if (logging_dir == '') or (logging_dir is None):
-            print("""  --------------
-  WARNING: Created logging file in execution path.
-  If you wish, specify directory for the logging file with 'export GBD_LOGGING_DIR=<your_directory>' and restart
-  --------------""")
-            logging_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gbd-server-logs")
-        if not os.path.exists(logging_dir):
-            os.makedirs(logging_dir)
-        formatter = logging.Formatter(
-            fmt='\n'.join([
-                '[%(name)s] %(asctime)s.%(msecs)d',
-                '\t%(pathname)s [line: %(lineno)d]',
-                '\t%(processName)s[%(process)d] => %(threadName)s[%(thread)d] => %(module)s.%(filename)s:%(funcName)s()',
-                '\t%(levelname)s: %(message)s\n'
-            ]),
-            datefmt='%Y-%m-%d %H:%M:%S')
-        logging_file = '{}/{}'.format(logging_dir, "gbd-server-log")
-        logging.getLogger().setLevel(logging.DEBUG)
-        # Add sys.stdout for real time logging output
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        console_handler.setLevel(logging.INFO)
-        logging.getLogger().addHandler(console_handler)
-        # Add handler to write in rotating logging files
-        file_handler = TimedRotatingFileHandler(logging_file, when="midnight", backupCount=args.backup)
-        file_handler.setFormatter(formatter)
-        if os.environ.get('FLASK_ENV') == 'production':
-            file_handler.setLevel(logging.WARNING)
-        else:
-            file_handler.setLevel(logging.DEBUG)
-        logging.getLogger().addHandler(file_handler)
-        global app
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
-        app.config['database'] = args.db
-        app.config['verbose'] = args.verbose
-        with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
-            app.config['dbnames'] = gbd.get_databases()
-            if "main" in app.config['dbnames']:
-                app.config['dbnames'].remove("main")
-            app.config['features'] = { 'all': gbd.get_features() }
-            app.config['dbpaths'] = dict()
-            for db in app.config['dbnames']:
-                app.config['features'][db] = gbd.get_features(dbname=db)
-                if "local" in app.config['features'][db]:
-                    app.config['features'][db].remove("local")
-                app.config['dbpaths'][db] = gbd.get_database_path(db)
-        app.static_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "static")
-        app.template_folder = os.path.join(os.path.dirname(os.path.abspath(gbd_server.__file__)), "templates-vue")
-        app.run(host='0.0.0.0', port=args.port)
+    formatter = logging.Formatter(fmt='[%(asctime)s, %(name)s, %(levelname)s] %(module)s.%(filename)s.%(funcName)s():%(lineno)d\n%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging_file = '{}/{}'.format(args.logdir, "gbd-server-log")
+    logging.getLogger().setLevel(logging.DEBUG)
+    # Add sys.stdout for real time logging output
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+    logging.getLogger().addHandler(console_handler)
+    # Add handler to write in rotating logging files
+    file_handler = TimedRotatingFileHandler(logging_file, when="midnight", backupCount=10)
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.WARNING)
+    logging.getLogger().addHandler(file_handler)
+    global app
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+    app.config['database'] = args.db
+    app.config['verbose'] = args.verbose
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+        app.config['dbnames'] = gbd.get_databases()
+        app.config['features'] = { 'all': gbd.get_features() }
+        app.config['dbpaths'] = dict()
+        for db in app.config['dbnames']:
+            app.config['features'][db] = gbd.get_features(dbname=db)
+            if "local" in app.config['features'][db]:
+                app.config['features'][db].remove("local")
+            app.config['dbpaths'][db] = gbd.get_database_path(db)
+    app.static_folder = os.path.join(dir, "static")
+    app.template_folder = os.path.join(dir, "templates-vue")
+    app.run(host='0.0.0.0', port=args.port)
+    #from waitress import serve
+    #serve(app, host="0.0.0.0", port=5000)
 
 
 if __name__ == '__main__':
