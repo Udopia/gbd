@@ -1,0 +1,21 @@
+version: "2.4"
+services:
+  gbd:
+    image: gbd:latest
+    environment:
+    - VIRTUAL_HOST=localhost
+    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db:/raid/gbd/sc2021.db:/raid/gbd/sc2020.db:/raid/gbd/satzilla.db
+    - FLASK_ENV=production
+    networks:
+    - http
+    expose:
+    - "5000"
+    cpu_count: 4
+    mem_limit: 6g
+    volumes:
+    - /raid/gbd:/raid/gbd:ro
+    restart: always
+networks:
+  http:
+    external: true
+
