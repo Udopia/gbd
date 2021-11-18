@@ -3,13 +3,18 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath( os.path.join(os.path.dirname(__file__), '../') ))
+
+gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+if gbdroot in sys.path:
+    sys.path.remove(gbdroot)
+sys.path.insert(0, gbdroot)
+print(sys.path)
 
 import unittest
 
-import gbd_tool
 from gbd_tool.util import eprint, make_alnum_ul
 from gbd_tool.gbd_api import GBD
+from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
 
 class DatabaseTestCase(unittest.TestCase):
@@ -25,22 +30,59 @@ class DatabaseTestCase(unittest.TestCase):
             eprint(db.features())
             assert(len(db.features()) == 0)
             assert(len(db.tables()) == 0)
+        with Database([self.TDB], verbose=True) as db:
+            assert(db.dpath(self.TDBN) == self.TDB)
+            assert(db.dmain(self.TDBN))
+            assert(len(db.dcontexts(self.TDBN)) == 0)
+            assert(len(db.dtables(self.TDBN)) == 0)
+            assert(len(db.dviews(self.TDBN)) == 0)
 
     def test_create_feature(self):
         os.remove(self.TDB)
+        FEAT = "featA"
+        NAME = self.TDBN + "." + FEAT
         with Database([self.TDB], verbose=True) as db:
-            db.create_feature("A")
-            assert("A" in db.features())
-            tab = self.TDBN + ".A"
-            assert(tab in db.tables())
+            db.create_feature(FEAT)
+            assert(FEAT in db.features())
+            assert(NAME in db.tables())
+        with Database([self.TDB], verbose=True) as db:
+            assert(db.ftable(FEAT) == NAME)
+            assert(db.fcolumn(FEAT) == "value")
+            assert(db.fdefault(FEAT) == None)
+            assert(not db.fvirtual(FEAT))
+            assert(db.fcontext(FEAT) == "cnf")
+            assert(db.fdatabase(FEAT) == self.TDBN)
 
     def test_create_unique_feature(self):
         os.remove(self.TDB)
+        FEAT = "featB"
+        NAME = self.TDBN + ".features"
         with Database([self.TDB], verbose=True) as db:
-            db.create_feature("B", "empty")
-            assert("B" in db.features())
-            tab = self.TDBN + ".features"
-            assert(tab in db.tables())
+            db.create_feature(FEAT, "empty")
+            assert(FEAT in db.features())
+            assert(NAME in db.tables())
+        with Database([self.TDB], verbose=True) as db:
+            assert(db.ftable(FEAT) == NAME)
+            assert(db.fcolumn(FEAT) == FEAT)
+            assert(db.fdefault(FEAT) == "empty")
+            assert(not db.fvirtual(FEAT))
+            assert(db.fcontext(FEAT) == "cnf")
+            assert(db.fdatabase(FEAT) == self.TDBN)
+
+    def test_insert_values(self):
+        os.remove(self.TDB)
+        FEAT = "letter"
+        NAME = self.TDBN + ".features"
+        with Database([self.TDB], verbose=True) as db:
+            db.create_feature(FEAT, "empty")
+            db.insert(FEAT, "a", [1, 2, 3])
+            db.insert(FEAT, "b", [4, 5, 6])
+            q = GBDQuery(db)
+            r = db.query(q.build_query(resolve=[FEAT]))
+            eprint(r)
+            r = db.query(q.build_query("{}=a".format(FEAT), resolve=[FEAT]))
+            eprint(r)
+
 
 if __name__ == '__main__':
     unittest.main()
