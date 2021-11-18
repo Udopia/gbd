@@ -224,18 +224,21 @@ def main():
     app.config['verbose'] = args.verbose
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         app.config['dbnames'] = gbd.get_databases()
+        if "main" in app.config['dbnames']:
+            app.config['dbnames'].remove("main")
         app.config['features'] = { 'all': gbd.get_features() }
         app.config['dbpaths'] = dict()
         for db in app.config['dbnames']:
-            app.config['features'][db] = gbd.get_features(dbname=db)
-            if "local" in app.config['features'][db]:
-                app.config['features'][db].remove("local")
-            app.config['dbpaths'][db] = gbd.get_database_path(db)
+            if db != 'main':
+                app.config['features'][db] = gbd.get_features(dbname=db)
+                if "local" in app.config['features'][db]:
+                    app.config['features'][db].remove("local")
+                app.config['dbpaths'][db] = gbd.get_database_path(db)
     app.static_folder = os.path.join(pwd, "static")
     app.template_folder = os.path.join(pwd, "templates-vue")
-    app.run(host='0.0.0.0', port=args.port)
-    #from waitress import serve
-    #serve(app, host="0.0.0.0", port=5000)
+    #app.run(host='0.0.0.0', port=args.port)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)
 
 
 if __name__ == '__main__':
