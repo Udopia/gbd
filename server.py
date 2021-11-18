@@ -21,19 +21,18 @@ import logging
 import os
 import argparse
 
-from gbd_tool import config
-from gbd_tool import util
-from gbd_tool.util import eprint
-from os.path import basename
-
-import gbd_server
-
 import flask
 from flask import Flask, request, send_file, json, Response
 from flask import render_template
+
 from logging.handlers import TimedRotatingFileHandler
-from gbd_tool.gbd_api import GBD, GBDException
+
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+from gbd_tool import util
+from gbd_tool.gbd_api import GBD, GBDException
+
+import gbd_server
 
 app = Flask(__name__)
 
@@ -199,27 +198,27 @@ def get_file(hashvalue, context='cnf'):
 
 # Main method which configures Flask app at startup
 def main():
-    dir=os.path.dirname(os.path.abspath(gbd_server.__file__))
+    pwd=os.path.dirname(os.path.abspath(gbd_server.__file__))
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
-    parser.add_argument('-l', "--logdir", help='Specify logging dir', default=os.environ.get('GBD_LOGGING_DIR') or dir, nargs='?')
+    parser.add_argument('-l', "--logdir", help='Specify logging dir', default=os.environ.get('GBD_LOGGING_DIR') or pwd, nargs='?')
     parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
     parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
     args = parser.parse_args()
     formatter = logging.Formatter(fmt='[%(asctime)s, %(name)s, %(levelname)s] %(module)s.%(filename)s.%(funcName)s():%(lineno)d\n%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    logging_file = '{}/{}'.format(args.logdir, "gbd-server-log")
     logging.getLogger().setLevel(logging.DEBUG)
-    # Add sys.stdout for real time logging output
+    # Add sys.stdout to logging output
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     console_handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
     # Add handler to write in rotating logging files
-    file_handler = TimedRotatingFileHandler(logging_file, when="midnight", backupCount=10)
+    file_handler = TimedRotatingFileHandler(os.path.join(args.logdir, "gbd-server-log"), when="midnight", backupCount=10)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
     global app
+    app.logger.info()
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db
     app.config['verbose'] = args.verbose
@@ -232,8 +231,8 @@ def main():
             if "local" in app.config['features'][db]:
                 app.config['features'][db].remove("local")
             app.config['dbpaths'][db] = gbd.get_database_path(db)
-    app.static_folder = os.path.join(dir, "static")
-    app.template_folder = os.path.join(dir, "templates-vue")
+    app.static_folder = os.path.join(pwd, "static")
+    app.template_folder = os.path.join(pwd, "templates-vue")
     app.run(host='0.0.0.0', port=args.port)
     #from waitress import serve
     #serve(app, host="0.0.0.0", port=5000)
