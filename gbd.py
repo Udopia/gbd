@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # GBD Benchmark Database (GBD)
-# Copyright (C) 2020 Markus Iser, Karlsruhe Institute of Technology (KIT)
+# Copyright (C) 2021 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -169,11 +169,11 @@ def main():
     parser.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
                             help='Select context (affects hash-selection and feature-extraction in init)')
 
-    subparsers = parser.add_subparsers(help='Available Commands:')
+    subparsers = parser.add_subparsers(help='Available Commands:', required=True, dest='gbd command')
 
     # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
-    parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:')
+    parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:', required=True, dest='init what?')
     # init local paths:
     parser_init_local = parser_init_subparsers.add_parser('local', help='Initialize Local Hash/Path Entries')
     parser_init_local.add_argument('path', type=directory_type, help="Path to benchmarks")
@@ -238,7 +238,7 @@ def main():
 
     # SCORE CALCULATION
     parser_eval = subparsers.add_parser('eval', help='Evaluate Runtime Features')
-    parser_eval_subparsers = parser_eval.add_subparsers(help='Select Evaluation Procedure')
+    parser_eval_subparsers = parser_eval.add_subparsers(help='Select Evaluation Procedure', required=True, dest='eval type')
 
     parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
     add_query_and_hashes_arguments(parser_eval_par2)
@@ -259,7 +259,7 @@ def main():
 
     # PLOTS
     parser_plot = subparsers.add_parser('plot', help='Plot Runtimes')
-    parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot')
+    parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot', required=True, dest='plot type')
 
     parser_plot_scatter = parser_plot_subparsers.add_parser('scatter', help='Scatter Plot')
     add_query_and_hashes_arguments(parser_plot_scatter)
