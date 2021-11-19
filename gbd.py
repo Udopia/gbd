@@ -103,7 +103,7 @@ def cli_eval_vbs(api: GBD, args):
     eval.vbs(api, args.query, args.runtimes, args.tlim, args.separator)
 
 def cli_eval_combinations(api: GBD, args):
-    from gbd_tool import eval_comp_ilp as eci
+    from gbd_tool import eval_comb_ilp as eci
     #eval.greedy_comb(api, args.query, args.runtimes, args.tlim, args.size)
     eci.optimal_comb(api, args.query, args.runtimes, args.tlim, args.size)
 
