@@ -38,6 +38,7 @@ main/build/*
 
 */global_benchmark_database_tool.egg-info/*
 
+gbd_server/gbd-server-log*
 cli_config/*
 server/server_config/*
 */default_config/*
