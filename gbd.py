@@ -22,6 +22,11 @@ import os
 import re
 import sys
 
+#gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+#if gbdroot in sys.path:
+#    sys.path.remove(gbdroot)
+#sys.path.insert(0, gbdroot)
+
 import gbd_tool
 
 from gbd_tool.gbd_api import GBD, GBDException

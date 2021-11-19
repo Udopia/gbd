@@ -20,6 +20,7 @@
 import logging
 import os
 import argparse
+import operator
 
 import flask
 from flask import Flask, request, send_file, json, Response
@@ -30,6 +31,7 @@ from logging.handlers import TimedRotatingFileHandler
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from gbd_tool import util
+from gbd_tool.db import DatabaseException
 from gbd_tool.gbd_api import GBD, GBDException
 
 import gbd_server
@@ -43,23 +45,51 @@ def quick_search():
     return render_template('index.html')
 
 
+def request_query(request):
+    query = None
+    if "query" in request.form:
+        query = request.form.get('query')
+    elif len(request.args) > 0:
+        query = " and ".join(["{}={}".format(key, value) for (key, value) in request.args.items()])
+    return query
+
+def request_features(request):
+    selected_features = []
+    if "selected_features" in request.form:
+        selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
+    return sorted(list(set(app.config['features']['all']) & set(selected_features or ['filename'])))
+
+
+def error_response(msg, addr, errno=404):
+    app.logger.error("{}: {}".format(addr, msg))
+    return Response(msg, status=errno, mimetype="text/plain")
+
+def file_response(text_blob, filename, mimetype, addr):
+    app.logger.info("{}: Sending generated file {}".format(addr, filename))
+    return Response(text_blob, mimetype=mimetype, headers={"Content-Disposition": "attachment; filename=\"{}\"".format(filename), "filename": filename})
+
+def path_response(path, filename, mimetype, addr):
+    app.logger.info("{}: Sending file {}".format(addr, path))
+    return send_file(path, as_attachment=True, attachment_filename=filename, mimetype=mimetype)
+
+def json_response(json_blob, msg, addr):
+    app.logger.info("{}: {}".format(addr, msg))
+    return Response(json_blob, status=200, mimetype="application/json")
+
+
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # returns result as a serialized JSON object
 @app.route("/results", methods=['POST'])
 def quick_search_results():
-    query = request.form.get('query')
-    selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
-    features = sorted(list(set(app.config['features']['all']) & set(selected_features or ['filename']) - {'local'}))
-    app.logger.info("Received query '{}' from {}".format(query, request.remote_addr))
+    query = request_query(request)
+    features = request_features(request)
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         try:
-            rows = gbd_api.query_search(query, [], features)
-            features.insert(0, "GBDhash")
-            result = list(dict((features[index], row[index]) for index in range(0, len(features))) for row in rows)
-            return Response(json.dumps(result), status=200, mimetype="application/json")
-        except GBDException as err:
-            app.logger.error("While handling query search: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=400, mimetype="text/plain")
+            rows = gbd_api.query_search(query, resolve=features)
+            result = json.dumps([ dict(zip(["GBDhash"] + features, row)) for row in rows ])
+            return json_response(result, "Sending query results (Query='{}')".format(query), request.remote_addr)
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -68,28 +98,16 @@ def quick_search_results():
 @app.route("/exportcsv/<context>", methods=['POST', 'GET'])
 def get_csv_file(context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        query = None
-        if "query" in request.form:
-            query = request.form.get('query')
-        elif len(request.args) > 0:
-            query = " and ".join(["{}={}".format(key, value) for (key, value) in request.args.items()])
-        selected_features = None
-        if "selected_features" in request.form:
-            selected_features = list(filter(lambda x: x != util.prepend_context("hash", context) and x != '', request.form.get('selected_features').split(',')))
-        else:
-            selected_features = list(filter(lambda x: x != util.prepend_context("hash", context) and util.context_from_name(x) == context, gbd_api.get_features()))
+        query = request_query(request)
+        features = request_features(request)
+        group = util.prepend_context("hash", context)
         try:
-            results = gbd_api.query_search(query, [], selected_features, group_by=util.prepend_context("hash", context))
-        except GBDException as err:
-            app.logger.error("While handling data request: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=400, mimetype="text/plain")
-        headers = [ util.prepend_context("hash", context) ] + selected_features
+            results = gbd_api.query_search(query, [], features, group_by=group)
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
+        titles = " ".join([ group ] + features) + "\n"
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
-        file_name = "query_result.csv"
-        app.logger.info("Sending CSV file to {}".format(request.remote_addr))
-        return Response(" ".join(headers) + "\n" + content, mimetype='text/csv',
-                        headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
-                                 "filename": file_name})
+        return file_response(titles + content, "query_result.csv", "text/csv", request.remote_addr)
 
 
 # Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
@@ -98,30 +116,27 @@ def get_csv_file(context='cnf'):
 @app.route("/getinstances/<context>", methods=['POST', 'GET'])
 def get_url_file(context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        query = None
-        if "query" in request.form:
-            query = request.form.get('query')
-        elif len(request.args) > 0:
-            query = " and ".join(["{}={}".format(key, value) for (key, value) in request.args.items()])
+        query = request_query(request)
         try:
-            result = gbd_api.query_search(query, [], [util.prepend_context("filename", context)], group_by=util.prepend_context("hash", context))
-        except GBDException as err:
-            app.logger.error("While handling instance request: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=500, mimetype="text/plain")
-        content = "\n".join(
-            [flask.url_for("get_file", hashvalue=row[0], context=context, _external=True) for row in result])
-        file_name = "query_result.uri"
-        app.logger.info("Sending CSV file to {}".format(request.remote_addr))
-        return Response(content, mimetype='text/uri-list',
-                        headers={"Content-Disposition": "attachment; filename=\"{}\"".format(file_name),
-                                 "filename": "{}".format(file_name)})
+            result = gbd_api.query_search(query, group_by=util.prepend_context("hash", context))
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
+        content = "\n".join([ flask.url_for("get_file", hashvalue=row[0], context=context, _external=True) for row in result ])
+        return file_response(content, "query_result.uri", "text/uri-list", request.remote_addr)
 
 
 # Return list of databases
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
-    app.logger.info("Listing all databases for IP {}".format(request.remote_addr))
-    return Response(json.dumps(app.config['dbnames']), status=200, mimetype="application/json")
+    return json_response(json.dumps(app.config['dbnames']), "Sending list of databases", request.remote_addr)
+
+
+# Get all features or features in a specified database
+@app.route('/listfeatures/')
+@app.route('/listfeatures/<database>')
+def list_features(database=None):
+    dbname=database if database and database in app.config['dbnames'] else 'all'
+    return json_response(json.dumps(app.config['features'][dbname]), "Sending list of features", request.remote_addr)
 
 
 # Send database file
@@ -130,20 +145,23 @@ def list_databases():
 def get_database_file(database=None):
     dbname=database if database and database in app.config['dbnames'] else app.config['dbnames'][0]
     dbpath=app.config['dbpaths'][dbname]
-    dbfile=os.path.basename(dbpath)
-    app.logger.info("Sending database '{}' to IP {}".format(dbfile, request.remote_addr))
-    return send_file(dbpath, as_attachment=True, attachment_filename=dbfile, mimetype='application/x-sqlite3')
+    return path_response(dbpath, os.path.basename(dbpath), 'application/x-sqlite3', request.remote_addr)
 
 
-# Get all features or features in a specified database
-@app.route('/listfeatures/')
-@app.route('/listfeatures/<database>')
-def list_features(database=None):
-    app.logger.info("Listing features of database '{}' for IP {}".format(database or " ", request.remote_addr))
-    if database and database in app.config['dbnames']:
-        return Response(json.dumps(app.config['features'][database]), status=200, mimetype="application/json")
-    else:
-        return Response(json.dumps(app.config['features']['all']), status=200, mimetype="application/json")
+# Find the file corresponding to the hashvalue and send it to the client
+@app.route('/file/<hashvalue>/')
+@app.route('/file/<hashvalue>/<context>')
+def get_file(hashvalue, context='cnf'):
+    with GBD(app.config['database'], verbose=app.config['verbose'])as gbd_api:
+        local = util.prepend_context("local", context)
+        filename = util.prepend_context("filename", context)
+        records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN")
+        if len(records) == 0:
+            return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
+        path, file = operator.itemgetter(1, 2)(records[0])
+        if not os.path.exists(path):
+            return error_response("Files temporarily not accessible", request.remote_addr)
+        return path_response(path, file, 'text/plain', request.remote_addr)
         
 
 # Resolves a hashvalue against a attribute and returns the result values
@@ -154,11 +172,10 @@ def get_attribute(feature, hashvalue):
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=[feature])
             if len(records) == 0:
-                return Response("No feature associated with this hash", status=404, mimetype="text/plain")                
+                return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
             return records[0][1]
-        except GBDException as err:
-            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=500, mimetype="text/plain")
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
 
 # Get all attributes associated with the hashvalue (resolving against all features)
@@ -170,30 +187,11 @@ def get_all_attributes(hashvalue, context='cnf'):
         features = app.config['features']['all']
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=util.prepend_context("hash", context))
-            return Response(json.dumps(zip(features, records)), status=200, mimetype="application/json")
-        except GBDException as err:
-            app.logger.error("While handling feature request: {}, IP: {}".format(err.message, request.remote_addr))
-            return Response(err.message, status=500, mimetype="text/plain")
-
-
-# Find the file corresponding to the hashvalue and send it to the client
-@app.route('/file/<hashvalue>/')
-@app.route('/file/<hashvalue>/<context>')
-def get_file(hashvalue, context='cnf'):
-    with GBD(app.config['database'], verbose=app.config['verbose'])as gbd_api:
-        local = util.prepend_context("local", context)
-        filename = util.prepend_context("filename", context)
-        records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN")
-        app.logger.info(str(records))
-        if len(records) == 0:
-            app.logger.warning("{} requested file for hash '{}' not found".format(request.remote_addr, hashvalue))
-            return Response("Hash not found", status=404, mimetype="text/plain")
-        try:
-            app.logger.info("Sending file for hashvalue '{}' to {}".format(hashvalue, request.remote_addr))
-            return send_file(records[0][1], as_attachment=True, attachment_filename=records[0][2])
-        except FileNotFoundError:
-            app.logger.critial("Files for hashvalues are not accessible")
-            return Response("Files temporarily not accessible", status=404, mimetype="text/plain")
+            if len(records) == 0:
+                return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
+            return json_response(json.dumps(dict(zip(features, records[0]))), "Sending list of attributes", request.remote_addr)
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
 
 # Main method which configures Flask app at startup
@@ -230,6 +228,8 @@ def main():
             if "main" in app.config['dbnames']:
                 app.config['dbnames'].remove("main")
             app.config['features'] = { 'all': gbd.get_features() }
+            if "local" in app.config['features']['all']:
+                app.config['features']['all'].remove("local")
             app.config['dbpaths'] = dict()
             for db in app.config['dbnames']:
                 if db != 'main':

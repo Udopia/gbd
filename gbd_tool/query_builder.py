@@ -17,6 +17,7 @@
 import tatsu
 
 from gbd_tool.db import Database, DatabaseException
+from gbd_tool.util import eprint
 
 class GBDQuery:
     GRAMMAR = r'''
@@ -53,6 +54,8 @@ class GBDQuery:
     def build_query(self, query=None, hashes=[], resolve=[], group_by="hash"):
         ast = None if not query else tatsu.parse(self.GRAMMAR, query)
 
+        self.features_exist_or_throw(resolve)
+
         sel = self.build_select(group_by, resolve)
         fro = self.build_from(group_by)
         joi = self.build_join(group_by, self.collect_features(ast, resolve))
@@ -60,6 +63,12 @@ class GBDQuery:
         gro = self.build_group_by(group_by)
         
         return "SELECT {} FROM {} {} WHERE {} GROUP BY {}".format(sel, fro, joi, whe, gro)
+
+
+    def features_exist_or_throw(self, features):
+        for feature in features:
+            if not feature in self.db.features(tables=True, views=True):
+                raise DatabaseException("Unknown feature '{}'".format(feature))
 
 
     def build_select(self, group_by, resolve):
@@ -103,6 +112,7 @@ class GBDQuery:
         result = set(resolve)
         if ast:
             result.update(self.collect_features_recursive(ast))
+        self.features_exist_or_throw(result)
         return result
 
     def collect_features_recursive(self, ast):
