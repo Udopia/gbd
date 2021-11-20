@@ -40,7 +40,7 @@ class GBDQuery:
         term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
         num = /[0-9\.\-]+/ ;
-        alnum = /[a-zA-Z0-9_\.\-\/\?]+/ ;
+        alnum = /[a-zA-Z0-9_\.\-\/\?\#]+/ ;
         likean = /[\%]?[a-zA-Z0-9_\.\-\/\?]+[\%]?/;
         colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
     '''
