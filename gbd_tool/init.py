@@ -86,10 +86,10 @@ def remove_stale_benchmarks(api: GBD):
     paths = [path[0] for path in api.query_search(group_by=feature)]
     sanitize = list(filter(lambda path: not isfile(path), paths))
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
-        for paths in slice_iterator(sanitize, 100):
+        for paths in slice_iterator(sanitize, 1000):
             api.database.delete_values("local", paths)
 
-def compute_hash(nohashvalue, path):
+def compute_hash(nohashvalue, path, tlim, mlim):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
     return [ ('local', path, hashvalue) ]
@@ -123,7 +123,7 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
                     for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
                 }
                 try:
-                    for f in as_completed(futures, timeout=tlim):
+                    for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
                         e = f.exception()
                         if e is not None:
                             if type(e) == BrokenProcessPool:

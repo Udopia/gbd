@@ -112,7 +112,7 @@ class GBD:
                     name, value, hashv = attr[0], attr[1], attr[2]
                     if not name in db.features():
                         db.create_feature(name, "empty")
-                    db.insert(name, value, [hashv], True)
+                    db.insert(name, value, [hashv])
         finally:
             self.mutex.release()
 
