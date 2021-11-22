@@ -24,7 +24,7 @@ import gbd_tool.config as config
 from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint, prepend_context, context_from_name, make_alnum_ul
 
-VERSION = 0
+VERSION = 1
 
 
 class DatabaseException(Exception):
@@ -99,9 +99,10 @@ class Database:
     def check(self, path, version, hash_version):
         __version = sqlite3.connect(path).execute("SELECT version, hash_version FROM __version").fetchall()
         if __version[0][0] != version:
-            eprint("WARNING: DB Version is {} but tool version is {}".format(__version[0][0], version))
+            eprint("WARNING: Database schema version is {} but tool supported schema version is {}".format(__version[0][0], version))
         if __version[0][1] != hash_version:
-            eprint("WARNING: DB Hash-Version is {} but tool hash-version is {}".format(__version[0][1], hash_version))
+            eprint("WARNING: Database hash version is {} but tool supported hash version is {}".format(__version[0][1], hash_version))
+
 
     def extract_database_infos(self, path, virtual=False):
         dbname = "main" if path == self.INMEMORYDB else make_alnum_ul(os.path.basename(path))
