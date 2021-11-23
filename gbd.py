@@ -52,6 +52,10 @@ def cli_init_gate_features(api: GBD, args):
     from gbd_tool import init
     init.init_gate_features(api, args.query, args.hashes, args.tlim, args.mlim)
 
+def cli_init_cnf2kis(api: GBD, args):
+    from gbd_tool import init
+    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.tlim, args.mlim)
+
 def cli_init_dsh(api: GBD, args):
     from gbd_tool import init
     init.init_degree_sequence_hash(api, args.hashes, args.tlim, args.mlim)
@@ -186,6 +190,10 @@ def main():
     parser_init_gate_features = parser_init_subparsers.add_parser('gate_features', help='Initialize Gate Features')
     add_query_and_hashes_arguments(parser_init_gate_features)
     parser_init_gate_features.set_defaults(func=cli_init_gate_features)
+    # generate kis instances from cnf instances:
+    parser_init_cnf2kis = parser_init_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
+    add_query_and_hashes_arguments(parser_init_cnf2kis)
+    parser_init_cnf2kis.set_defaults(func=cli_init_cnf2kis)
     # init degree_sequence_hash:
     parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
     add_query_and_hashes_arguments(parser_init_dsh)

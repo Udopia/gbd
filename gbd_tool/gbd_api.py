@@ -109,7 +109,7 @@ class GBD:
             # create new connection as cursor can not be shared across threads
             with Database(self.databases, self.verbose) as db:
                 for attr in arg:
-                    name, value, hashv = attr[0], attr[1], attr[2]
+                    name, hashv, value = attr[0], attr[1], attr[2]
                     if not name in db.features():
                         db.create_feature(name, "empty")
                     db.insert(name, value, [hashv])
