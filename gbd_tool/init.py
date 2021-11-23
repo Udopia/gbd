@@ -21,10 +21,11 @@ from multiprocessing import Pool
 import os
 from os.path import isfile
 
-import hashlib
-import csv
+from functools import reduce
 
-from concurrent.futures import ProcessPoolExecutor, wait, FIRST_EXCEPTION, as_completed, CancelledError, TimeoutError
+import hashlib
+
+from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
 
 import networkit as nk
 
@@ -51,10 +52,10 @@ except ImportError:
         raise GBDException(METHOD_UNAVAILABLE.format("extract_gate_features"))
 
 try:
-    from gbdc import transform_cnf_to_kis
+    from gbdc import cnf2kis
 except ImportError:
-    def transform_cnf_to_kis(path, tlim, mlim) -> dict:
-        raise GBDException(METHOD_UNAVAILABLE.format("transform_cnf_to_kisses"))
+    def cnf2kis(path, tlim, mlim) -> dict:
+        raise GBDException(METHOD_UNAVAILABLE.format("cnf2kis"))
 
 
 # Initialize table 'local' with instances found under given path
@@ -92,7 +93,7 @@ def remove_stale_benchmarks(api: GBD):
 def compute_hash(nohashvalue, path, tlim, mlim):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
-    return [ ('local', path, hashvalue) ]
+    return [ ('local', hashvalue, path) ]
 
 def init_benchmarks(api: GBD, root):
     resultset = []
@@ -149,17 +150,15 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
 
 def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, cnf_to_kis, tlim, mlim)
+    run(api, resultset, transform_cnf_to_kis, tlim, mlim)
 
-def cnf_to_kis(hashvalue, filename, tlim, mlim):
-    output = filename
-    for suffix in config.suffix_list('cnf'):
-        output = output.removesuffix(suffix)
-    output = output + ".kis"
-    eprint('Transforming {} to k-ISP {}'.format(filename, output))
-    transform_cnf_to_kis(filename, output)
-    kishash = gbd_hash(output)
-    return [ ('isp_local', output, kishash), ('translator_cnf_isp', kishash, hashvalue) ]
+def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim):
+    kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, config.suffix_list('cnf'), cnfpath)
+    kispath = kispath + ".kis"
+    eprint('Transforming {} to k-ISP {}'.format(cnfpath, kispath))
+    cnf2kis(cnfpath, kispath)
+    kishash = gbd_hash(kispath)
+    return [ ('kis_local', kishash, kispath), ('translator_cnf_kis', cnfhash, kishash), ('translator_kis_cnf', kishash, cnfhash) ]
 
 
 # Initialize base feature tables for given instances
@@ -171,7 +170,7 @@ def base_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename, tlim, mlim)
     eprint('Done with base features from {}'.format(filename))
-    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
+    return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize gate feature tables for given instances
@@ -183,7 +182,7 @@ def gate_features(hashvalue, filename, tlim, mlim):
     eprint('Extracting gate features from {}'.format(filename))
     rec = extract_gate_features(filename, tlim, mlim)
     eprint('Done with gate features from {}'.format(filename))
-    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
+    return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize Graph Features known from Network Analysis
@@ -198,7 +197,7 @@ def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
 
 def networkit_features(hashvalue, filename, tlim, mlim):
     rec = dict()
-    return [ (key, int(value) if isinstance(value, float) and value.is_integer() else value, hashvalue) for key, value in rec.items() ]
+    return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize degree_sequence_hash for given instances
@@ -232,4 +231,4 @@ def compute_degree_sequence_hash(hashvalue, filename, tlim, mlim):
 
     f.close()
 
-    return [ ('degree_sequence_hash', hash_md5.hexdigest(), hashvalue) ]
+    return [ ('degree_sequence_hash', hashvalue, hash_md5.hexdigest()) ]

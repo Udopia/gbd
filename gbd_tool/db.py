@@ -147,14 +147,14 @@ class Database:
                 self.database_infos[dbname]['tables'].append(prepend_context("features", context))
             hashv = prepend_context("hash", context)
             if not hashv in self.feature_infos.keys():
-                self.feature_infos[hashv] = { "table": features, "column": hashv, "default": True, "virtual": True, "context": context, "database": dbname }
+                self.feature_infos[hashv] = { "table": features, "column": hashv, "default": True, "virtual": False, "context": context, "database": dbname }
 
     def create_context_translators(self, dbname, contexts):
         dbinfo = self.database_infos[dbname]
         for (c0, c1) in list(itertools.permutations(contexts, 2)):
-            translator = "translator_{}_{}".format(c0, c1)
+            translator = "{}.translator_{}_{}".format(dbname, c0, c1)
             if not translator in dbinfo['tables']:
-                sqlite3.connect(dbinfo['path']).execute("CREATE TABLE {} (hash, value)".format(translator))
+                self.execute("CREATE TABLE IF NOT EXISTS {} (hash, value)".format(translator))
 
     def dpath(self, dbname):
         return self.database_infos[dbname]['path']
@@ -307,6 +307,7 @@ class Database:
         if self.verbose:
             eprint(q)
         self.cursor.execute(q)
+        self.connection.commit()
 
     # return list of distinct values and value-range for numeric values
     def feature_values(self, feature):
