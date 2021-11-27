@@ -68,7 +68,7 @@ class GBDQuery:
 
     def features_exist_or_throw(self, features):
         for feature in features:
-            if not feature in self.db.features(tables=True, views=True):
+            if not feature in self.db.get_features(tables=True, views=True):
                 raise DatabaseException("Unknown feature '{}'".format(feature))
 
 
@@ -102,7 +102,7 @@ class GBDQuery:
                         else:
                             translator = "translator_{}_{}".format(group_context, feature_context)
                             dbtrans = "{}.{}".format(self.db.fdatabase(translator), translator)
-                            if not translator in self.db.features():
+                            if not translator in self.db.get_features():
                                 raise DatabaseException("Context translator table not found: " + translator)
                             if not feature_context in used_contexts and not dbtrans in used_tables:
                                 used_contexts.append(feature_context)
