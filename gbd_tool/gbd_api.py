@@ -55,22 +55,22 @@ class GBD:
         self._stack.__exit__(exc_type, exc, traceback)
 
     def get_databases(self):
-        return list(self.database.databases())
+        return list(self.database.get_databases())
 
     def get_database_path(self, dbname):
-        return self.database.database_infos[dbname]['path']
+        return self.database.dpath(dbname)
 
     # Get all features
     def get_features(self, dbname=None):
-        return self.database.features(tables=True, views=True, database=dbname)
+        return self.database.get_features(tables=True, views=True, database=dbname)
 
     # Get all material features
     def get_material_features(self, dbname=None):
-        return self.database.features(tables=True, views=False, database=dbname)
+        return self.database.get_features(tables=True, views=False, database=dbname)
 
     # Get all virtual features
     def get_virtual_features(self, dbname=None):
-        return self.database.features(tables=False, views=True, database=dbname)
+        return self.database.get_features(tables=False, views=True, database=dbname)
 
     # Check for existence of given feature
     def feature_exists(self, name):
@@ -101,7 +101,7 @@ class GBD:
 
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
-        return self.database.system_record(name)
+        return self.database.feature_info(name)
 
     def set_attributes_locked(self, arg):
         self.mutex.acquire()
@@ -110,9 +110,9 @@ class GBD:
             with Database(self.databases, self.verbose) as db:
                 for attr in arg:
                     name, hashv, value = attr[0], attr[1], attr[2]
-                    if not name in db.features():
+                    if not name in db.get_features():
                         db.create_feature(name, "empty")
-                    db.insert(name, value, [hashv])
+                    db.set_values(name, value, [hashv])
         finally:
             self.mutex.release()
 
@@ -124,7 +124,7 @@ class GBD:
         if query:
             hash_list = [hash[0] for hash in self.query_search(query, hashes)]
         try:
-            self.database.insert(feature, value, hash_list)
+            self.database.set_values(feature, value, hash_list)
         except Exception as err:
             raise GBDException(str(err))
 

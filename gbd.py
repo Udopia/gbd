@@ -31,6 +31,7 @@ import gbd_tool
 
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.db import DatabaseException
+from gbd_tool.schema import SchemaException
 from gbd_tool.util import eprint, read_hashes, confirm
 from gbd_tool import config
 
@@ -307,6 +308,9 @@ A database file containing some attributes of instances used in the SAT Competit
             sys.exit(1)
         except DatabaseException as err:
             eprint("Database Exception: " + str(err))
+            sys.exit(1)
+        except SchemaException as err:
+            eprint("Schema Exception: " + str(err))
             sys.exit(1)
     else:
         parser.print_help()
