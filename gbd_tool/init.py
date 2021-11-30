@@ -27,8 +27,6 @@ import hashlib
 
 from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
 
-import networkit as nk
-
 from gbd_tool import config, util
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
@@ -187,6 +185,10 @@ def gate_features(hashvalue, filename, tlim, mlim):
 
 # Initialize Graph Features known from Network Analysis
 def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
+    try:
+        import networkit as nk
+    except ImportError as e:
+        raise GBDException("Module 'networkit' not found. Setup https://networkit.github.io/")
     nk.setNumberOfThreads(min(multiprocessing.cpu_count(), api.jobs))
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     for (hash, local) in resultset: 

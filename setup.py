@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='3.6.4',
+  version='3.6.5',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -12,7 +12,6 @@ setup(name='gbd_tools',
   scripts=["gbd.py", "server.py"],
   include_package_data=True,
   setup_requires=[
-    'cython'
   ],
   install_requires=[
     'setuptools',
@@ -24,7 +23,6 @@ setup(name='gbd_tools',
     'mip',
     'pandas',
     'matplotlib',
-    'networkit',
     'waitress'
   ],
   install_obsoletes=['global-benchmark-database-tool'],

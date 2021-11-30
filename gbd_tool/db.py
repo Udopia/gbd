@@ -157,8 +157,10 @@ class Database:
             features = prepend_context("features", context)
             self.schemas[self.maindb].create_main_feature_table(context_from_name(name))
             self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, default_value))
+            # update schema
             self.features[name] = FeatureInfo(name, self.maindb, context, features, name, default_value, False)
             self.schemas[self.maindb].features.append(self.features[name])
+            # initialize hash
             hashfeature = prepend_context("hash", context)
             if not hashfeature in self.features:
                 self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, features, "hash", None, False)
@@ -172,12 +174,14 @@ class Database:
             if name == prepend_context("local", context):
                 filename = prepend_context("filename", context)
                 self.execute("CREATE VIEW IF NOT EXISTS {}.{} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(self.maindb, filename, name))
-            # update info
+            # update contexts
             if not context in self.schemas[self.maindb].contexts:
                 self.schemas[self.maindb].contexts.append(context)
-            self.schemas[self.maindb].tables.append(name)
+            # update schema
             self.features[name] = FeatureInfo(name, self.maindb, context, name, "value", None, False)
             self.schemas[self.maindb].features.append(self.features[name])
+            self.schemas[self.maindb].tables.append(name)
+            # initialize hash
             hashfeature = prepend_context("hash", context)
             if not hashfeature in self.features:
                 self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, name, "hash", None, False)
