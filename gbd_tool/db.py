@@ -113,6 +113,10 @@ class Database:
     def fexists(self, feature):
         return feature in self.features.keys()
 
+    def fexists_or_raise(self, feature):
+        if not self.fexists(feature):
+            raise DatabaseException("Feature {} does not exists".format(feature))
+
     def fdatabase(self, feature):
         return self.features[feature].database
 
@@ -202,25 +206,27 @@ class Database:
 
     def rename_feature(self, old_name, new_name):
         Schema.valid_feature_or_raise(new_name)
+        self.fexists_or_raise(old_name)
         if not self.features[old_name].default:
             self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
-            self.features[new_name] = self.features.pop(old_name)
-            self.features[new_name].name = new_name
         else:
-            # TODO: copy modified features table, delete old features table, rename new features table
-            raise DatabaseException("Not Implemented")
+            table = self.features[old_name].table
+            self.execute("ALTER TABLE {} RENAME COLUMN {} TO {}".format(table, old_name, new_name))
+        self.features[new_name] = self.features.pop(old_name)
+        self.features[new_name].name = new_name
 
     def delete_feature(self, name):
+        self.fexists_or_raise(name)
         if not self.features[name].default:
             self.execute('DROP TABLE IF EXISTS {}'.format(name))
             self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-            self.execute('DROP TRIGGER IF EXISTS {}_unique'.format(name))  # legacy
-            self.features.pop(name)
         else:
-            # TODO: copy modified features table, delete old features table, rename new features table
-            raise DatabaseException("Not Implemented")
+            table = self.features[name].table
+            self.execute("ALTER TABLE {} DROP COLUMN {}".format(table, name))
+        self.features.pop(name)
 
     def set_values(self, feature, value, hashes):
+        self.fexists_or_raise(feature)
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
@@ -228,9 +234,11 @@ class Database:
             values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
             self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
         else:
-            self.execute("UPDATE {} SET {} = '{}' WHERE hash IN ('{}')".format(table, column, value, "', '".join(hashes)))
+            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
+            self.execute("INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(tab=table, col=column, vals=values))
 
     def delete_hashes(self, feature, hashes):
+        self.fexists_or_raise(feature)
         default = self.features[feature].default
         if not default:
             self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
@@ -238,6 +246,7 @@ class Database:
             self.set_values(feature, default, hashes)
 
     def delete_values(self, feature, values):
+        self.fexists_or_raise(feature)
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
@@ -248,6 +257,7 @@ class Database:
 
 
     def feature_info(self, feature):
+        self.fexists_or_raise(feature)
         result = dict()
         table = self.features[feature].table
         column = self.features[feature].column
