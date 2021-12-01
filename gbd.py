@@ -55,7 +55,7 @@ def cli_init_gate_features(api: GBD, args):
 
 def cli_init_cnf2kis(api: GBD, args):
     from gbd_tool import init
-    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.tlim, args.mlim)
+    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.tlim, args.mlim, args.max_edges, args.max_nodes)
 
 def cli_init_dsh(api: GBD, args):
     from gbd_tool import init
@@ -194,6 +194,8 @@ def main():
     # generate kis instances from cnf instances:
     parser_init_cnf2kis = parser_init_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
     add_query_and_hashes_arguments(parser_init_cnf2kis)
+    parser_init_cnf2kis.add_argument('-e', '--max_edges', default=0, type=int, help='Maximum Number of Edges (0 = unlimited)')
+    parser_init_cnf2kis.add_argument('-n', '--max_nodes', default=0, type=int, help='Maximum Number of Nodes (0 = unlimited)')
     parser_init_cnf2kis.set_defaults(func=cli_init_cnf2kis)
     # init degree_sequence_hash:
     parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')

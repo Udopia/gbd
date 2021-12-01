@@ -55,7 +55,7 @@ class GBDQuery:
     def build_query(self, query=None, hashes=[], resolve=[], group_by="hash"):
         ast = None if not query else tatsu.parse(self.GRAMMAR, query)
 
-        self.features_exist_or_throw(resolve)
+        self.features_exist_or_throw(resolve + [group_by])
 
         sel = self.build_select(group_by, resolve)
         fro = self.build_from(group_by)
@@ -100,7 +100,7 @@ class GBDQuery:
                         if feature_context == group_context:
                             result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
                         else:
-                            translator = "translator_{}_{}".format(group_context, feature_context)
+                            translator = "{}_to_{}".format(group_context, feature_context)
                             dbtrans = "{}.{}".format(self.db.fdatabase(translator), translator)
                             if not translator in self.db.get_features():
                                 raise DatabaseException("Context translator table not found: " + translator)

@@ -70,10 +70,13 @@ class Database:
             feature: FeatureInfo
             for feature in schema.features:
                 if not feature.name in result:
-                    result[feature.name] = feature
+                    if feature.column != "hash": 
+                        result[feature.name] = feature
+                    else:
+                        result[prepend_context(feature.name, feature.context)] = feature
                 elif feature.column == "hash": 
                     if not Schema.is_main_hash_column(result[feature.name]) and Schema.is_main_hash_column(feature):
-                        result[feature.name] = feature
+                        result[prepend_context(feature.name, feature.context)] = feature
                 else:
                     eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, feature.database))
         return result
@@ -91,6 +94,9 @@ class Database:
         self.connection.commit()
 
 
+    def dexists(self, dbname):
+        return dbname in self.schemas.keys()
+
     def dmain(self, dbname):
         return dbname == self.maindb
 
@@ -106,6 +112,9 @@ class Database:
     def dviews(self, dbname):
         return self.schemas[dbname].views
 
+
+    def fexists(self, feature):
+        return feature in self.features.keys()
 
     def fdatabase(self, feature):
         return self.features[feature].database
@@ -150,8 +159,14 @@ class Database:
         return tables
 
 
-    def create_feature(self, name, default_value=None):
-        Schema.valid_feature_or_raise(name)
+    def create_feature(self, name, default_value=None, permissive=False):
+        if not permissive:  # internal use can be unchecked, e.g., to create the reserved feature local
+            Schema.valid_feature_or_raise(name)
+        if self.fexists(name):
+            if not permissive:
+                raise DatabaseException("Feature {} exists".format(name))
+            else:
+                return
         context = context_from_name(name)
         if default_value is not None:
             features = prepend_context("features", context)
