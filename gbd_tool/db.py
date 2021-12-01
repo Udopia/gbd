@@ -202,6 +202,7 @@ class Database:
             if not hashfeature in self.features:
                 self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, name, "hash", None, False)
                 self.schemas[self.maindb].features.append(self.features[hashfeature])
+        self.connection.commit()
 
 
     def rename_feature(self, old_name, new_name):
@@ -230,11 +231,10 @@ class Database:
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
+        values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
         if not default:
-            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
             self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
         else:
-            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
             self.execute("INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(tab=table, col=column, vals=values))
 
     def delete_hashes(self, feature, hashes):
