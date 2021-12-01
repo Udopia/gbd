@@ -33,7 +33,7 @@ class Database:
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
         self.features = self.init_features()
-        self.connection = sqlite3.connect(Schema.IN_MEMORY_DB, uri=True)
+        self.connection = sqlite3.connect(Schema.IN_MEMORY_DB, uri=True, timeout=10)
         self.cursor = self.connection.cursor()
         self.maindb = None
         schema: Schema
@@ -202,7 +202,6 @@ class Database:
             if not hashfeature in self.features:
                 self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, name, "hash", None, False)
                 self.schemas[self.maindb].features.append(self.features[hashfeature])
-        self.connection.commit()
 
 
     def rename_feature(self, old_name, new_name):

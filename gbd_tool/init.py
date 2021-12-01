@@ -92,19 +92,19 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0, args=dict()):
                     p.submit(func, hash, local, tlim, mlim, args): (hash, local)
                     for (hash, local) in resultset[:100]
                 }
-                try:
-                    for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
-                        e = f.exception()
-                        if e is not None:
-                            resultset.remove(futures[f])
-                            eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
-                            if type(e) == BrokenProcessPool:
-                                break
-                        else:
-                            resultset.remove(futures[f])
+                for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
+                    e = f.exception()
+                    if e is not None:
+                        resultset.remove(futures[f])
+                        eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
+                        if type(e) == BrokenProcessPool:
+                            break
+                    else:
+                        resultset.remove(futures[f])
+                        try:
                             api.set_attributes_locked(f.result())
-                except Exception as e:
-                    eprint("{}: {}".format(e.__class__.__name__, e))
+                        except Exception as e:
+                            eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim, max_edges, max_nodes):
