@@ -23,6 +23,8 @@ from os.path import isfile
 
 from functools import reduce
 
+import glob
+
 import hashlib
 
 from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
@@ -30,7 +32,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
 from gbd_tool import config, util
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
-from gbd_tool.util import eprint, confirm, open_cnf_file
+from gbd_tool.util import eprint, confirm, open_cnf_file, slice_iterator
 
 #import faulthandler
 #faulthandler.enable()
@@ -52,111 +54,87 @@ except ImportError:
 try:
     from gbdc import cnf2kis
 except ImportError:
-    def cnf2kis(path, tlim, mlim) -> dict:
+    def cnf2kis(in_path, out_path, max_edges, max_nodes) -> dict:
         raise GBDException(METHOD_UNAVAILABLE.format("cnf2kis"))
 
 
 # Initialize table 'local' with instances found under given path
-def init_local(api: GBD, path):
-    eprint('Initializing local path entries {} using {} cores'.format(path, api.jobs))
-    if api.jobs == 1 and multiprocessing.cpu_count() > 1:
-        eprint("Activate parallel initialization using --jobs={}".format(multiprocessing.cpu_count()))
-    remove_stale_benchmarks(api)
-    init_benchmarks(api, path)
-
-def slice_iterator(data, slice_len):
-    it = iter(data)
-    while True:
-        items = []
-        for index in range(slice_len):
-            try:
-                item = next(it)
-            except StopIteration:
-                if items == []:
-                    return # we are done
-                else:
-                    break # exits the "for" loop
-            items.append(item)
-        yield items
-
-def remove_stale_benchmarks(api: GBD):
-    eprint("Sanitizing local path entries ... ")
-    feature=util.prepend_context("local", api.context)
-    paths = [path[0] for path in api.query_search(group_by=feature)]
-    sanitize = list(filter(lambda path: not isfile(path), paths))
+def init_local(api: GBD, root):
+    clocal=util.prepend_context("local", api.context)
+    api.database.create_feature(clocal, permissive=True)
+    sanitize = [path[0] for path in api.query_search(group_by=clocal) if not isfile(path[0])]
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
         for paths in slice_iterator(sanitize, 1000):
             api.database.delete_values("local", paths)
+    resultset = []
+    for suffix in config.suffix_list(api.context):
+        for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
+            if not len(api.query_search("{}='{}'".format(clocal, path))):
+                resultset.append(("", path))
+    run(api, resultset, compute_hash)
 
-def compute_hash(nohashvalue, path, tlim, mlim):
+
+def compute_hash(nohashvalue, path, tlim, mlim, args):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
     return [ ('local', hashvalue, path) ]
 
-def init_benchmarks(api: GBD, root):
-    resultset = []
-    for root, dirnames, filenames in os.walk(root):
-        for filename in filenames:
-            path = os.path.join(root, filename)
-            if any(path.endswith(suffix) for suffix in config.suffix_list(api.context)):
-                feature=util.prepend_context("local", api.context)
-                hashes = api.query_search("{}='{}'".format(feature, path))
-                if len(hashes) != 0:
-                    eprint('Problem {} already hashed'.format(path))
-                else:
-                    resultset.append(("", path))
-    run(api, resultset, compute_hash)
-
 
 # Parallel Runner
-def run(api: GBD, resultset, func, tlim = 0, mlim = 0):
+def run(api: GBD, resultset, func, tlim = 0, mlim = 0, args=dict()):
     if api.jobs == 1:
         for (hash, local) in resultset:
-            api.set_attributes_locked(func(hash, local, tlim, mlim))
+            api.set_attributes_locked(func(hash, local, tlim, mlim, args))
     else:
         while len(resultset) > 0:
             eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
             with ProcessPoolExecutor(min(multiprocessing.cpu_count(), api.jobs)) as p:
                 futures = {
-                    p.submit(func, hash, local, tlim, mlim): (hash, local)
-                    for (hash, local) in resultset[:max(multiprocessing.cpu_count(), api.jobs)]
+                    p.submit(func, hash, local, tlim, mlim, args): (hash, local)
+                    for (hash, local) in resultset[:100]
                 }
                 try:
                     for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
                         e = f.exception()
                         if e is not None:
+                            resultset.remove(futures[f])
+                            eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
                             if type(e) == BrokenProcessPool:
-                                try:
-                                    eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
-                                    resultset.remove(futures[f])
-                                    break
-                                except ValueError as err:
-                                    eprint("Value error: {} {}".format(err, f))
-                            elif type(e) == GBDException:
-                                eprint("{}: {}".format(e.__class__.__name__, e))
-                                return
-                            else:
-                                eprint("{}: {}".format(e.__class__.__name__, e))
+                                break
                         else:
                             resultset.remove(futures[f])
                             api.set_attributes_locked(f.result())
-                except TimeoutError as e:
-                    eprint("{}: {}".format(e.__class__.__name__, e))
                 except Exception as e:
                     eprint("{}: {}".format(e.__class__.__name__, e))
 
 
-def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim):
+def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim, max_edges, max_nodes):
+    api.database.create_feature('kis_local', permissive=True)
+    api.database.create_feature('kis_nodes', "empty", permissive=True)
+    api.database.create_feature('kis_edges', "empty", permissive=True)
+    api.database.create_feature('kis_k', "empty", permissive=True)
+    api.database.create_feature('cnf_to_kis', permissive=True)
+    api.database.create_feature('kis_to_cnf', permissive=True)
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, transform_cnf_to_kis, tlim, mlim)
+    run(api, resultset, transform_cnf_to_kis, tlim, mlim, { 'max_edges': max_edges, 'max_nodes': max_nodes })
 
-def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim):
+def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim, args):
+    if not cnfhash or not cnfpath:
+        raise GBDException("Illegal arguments: transform_cnf_to_kis({}, {}, {}, {})".format(cnfhash, cnfpath, tlim, mlim))
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, config.suffix_list('cnf'), cnfpath)
     kispath = kispath + ".kis"
     eprint('Transforming {} to k-ISP {}'.format(cnfpath, kispath))
-    cnf2kis(cnfpath, kispath)
-    kishash = gbd_hash(kispath)
-    return [ ('kis_local', kishash, kispath), ('translator_cnf_kis', cnfhash, kishash), ('translator_kis_cnf', kishash, cnfhash) ]
+    result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'])
+
+    if not "local" in result:
+        raise GBDException('''{} exceeds size limits. (N {}, E {}, K {}).'''.format(kispath, result['nodes'], result['edges'], result['k']))
+
+    return [ ('kis_local', result['hash'], result['local']),
+            ('kis_nodes', result['hash'], result['nodes']), 
+            ('kis_edges', result['hash'], result['edges']), 
+            ('kis_k', result['hash'], result['k']), 
+            ('cnf_to_kis', cnfhash, result['hash']), 
+            ('kis_to_cnf', result['hash'], cnfhash) ]
 
 
 # Initialize base feature tables for given instances
@@ -164,7 +142,7 @@ def init_base_features(api: GBD, query, hashes, tlim, mlim):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     run(api, resultset, base_features, tlim, mlim)
 
-def base_features(hashvalue, filename, tlim, mlim):
+def base_features(hashvalue, filename, tlim, mlim, args):
     eprint('Extracting base features from {}'.format(filename))
     rec = extract_base_features(filename, tlim, mlim)
     eprint('Done with base features from {}'.format(filename))
@@ -176,7 +154,7 @@ def init_gate_features(api: GBD, query, hashes, tlim, mlim):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     run(api, resultset, gate_features, tlim, mlim)
 
-def gate_features(hashvalue, filename, tlim, mlim):
+def gate_features(hashvalue, filename, tlim, mlim, args):
     eprint('Extracting gate features from {}'.format(filename))
     rec = extract_gate_features(filename, tlim, mlim)
     eprint('Done with gate features from {}'.format(filename))
@@ -199,6 +177,7 @@ def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
 
 def networkit_features(hashvalue, filename, tlim, mlim):
     rec = dict()
+    # TODO: Calculate Networkit Features
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 

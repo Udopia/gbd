@@ -146,7 +146,9 @@ class Schema:
             for record in columns:
                 col = dict(zip(names, record))
                 fname = table if col['name'] == "value" else col['name']
-                self.features.append(FeatureInfo(prepend_context(fname, context), self.dbname, context, table, col['name'], col['default_value'], type == "view"))
+                if fname == "hash":
+                    fname = prepend_context("hash", context)
+                self.features.append(FeatureInfo(fname, self.dbname, context, table, col['name'], col['default_value'], type == "view"))
         for context in self.contexts:
             self.create_main_feature_table(context)
 
@@ -168,7 +170,7 @@ class Schema:
     def create_context_translator_table(self, src, dst):
         self.valid_context_or_raise(src)
         self.valid_context_or_raise(dst)
-        translator = "translator_{}_{}".format(src, dst)
+        translator = "{}_to_{}".format(src, dst)
         if not translator in self.tables:
             self.connection.execute("CREATE TABLE IF NOT EXISTS {} (hash, value)".format(translator))
             self.connection.commit()
