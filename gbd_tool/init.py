@@ -92,7 +92,7 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0, args=dict()):
                     p.submit(func, hash, local, tlim, mlim, args): (hash, local)
                     for (hash, local) in resultset[:100]
                 }
-                for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
+                for f in as_completed(futures): #, timeout=tlim if tlim > 0 else None):
                     e = f.exception()
                     if e is not None:
                         resultset.remove(futures[f])
