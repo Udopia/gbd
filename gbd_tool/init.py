@@ -18,8 +18,7 @@ from concurrent.futures.process import BrokenProcessPool
 import multiprocessing
 from multiprocessing import Pool
 
-import os
-from os.path import isfile
+from os.path import isfile, basename
 
 from functools import reduce
 
@@ -127,7 +126,7 @@ def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim, args):
     result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'])
 
     if not "local" in result:
-        raise GBDException('''{} exceeds size limits. (N {}, E {}, K {}).'''.format(kispath, result['nodes'], result['edges'], result['k']))
+        raise GBDException('''{} (N {}, E {}, K {}) exceeds size limits, cancelled.'''.format(basename(kispath), result['nodes'], result['edges'], result['k']))
 
     return [ ('kis_local', result['hash'], result['local']),
             ('kis_nodes', result['hash'], result['nodes']), 

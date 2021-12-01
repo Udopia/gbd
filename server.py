@@ -30,7 +30,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd_tool import util
+from gbd_tool import util, config
 from gbd_tool.db import DatabaseException
 from gbd_tool.gbd_api import GBD, GBDException
 
@@ -228,14 +228,18 @@ def main():
             if "main" in app.config['dbnames']:
                 app.config['dbnames'].remove("main")
             app.config['features'] = { 'all': gbd.get_features() }
-            if "local" in app.config['features']['all']:
-                app.config['features']['all'].remove("local")
+            for context in config.contexts():
+                local = util.prepend_context("local", context)
+                if local in app.config['features']['all']:
+                    app.config['features']['all'].remove(local)
             app.config['dbpaths'] = dict()
             for db in app.config['dbnames']:
                 if db != 'main':
                     app.config['features'][db] = gbd.get_features(dbname=db)
-                    if "local" in app.config['features'][db]:
-                        app.config['features'][db].remove("local")
+                    for context in config.contexts():
+                        local = util.prepend_context("local", context)
+                        if local in app.config['features'][db]:
+                            app.config['features'][db].remove(local)
                     app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
