@@ -162,6 +162,7 @@ class Schema:
                 self.connection.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(main_table, table))
                 self.connection.execute("""CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} 
                                             BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(table, table, main_table))
+                self.connection.commit()
             self.tables.append(main_table)
             if not context in self.contexts:
                 self.contexts.append(context)
