@@ -74,10 +74,11 @@ class DatabaseTestCase(unittest.TestCase):
         NAME = self.TDBN + ".features"
         with Database([self.TDB], verbose=True) as db:
             db.create_feature(FEAT, "empty")
-            db.set_values(FEAT, "a", [1, 2, 3])
-            db.set_values(FEAT, "b", [4, 5, 6])
+            db.set_values(FEAT, "a", ['1', '2', '3'])
+            db.set_values(FEAT, "b", ['4', '5', '6'])
             q = GBDQuery(db)
             r = db.query(q.build_query(resolve=[FEAT]))
+            eprint(r)
             assert(r == [('1', 'a'), ('2', 'a'), ('3', 'a'), ('4', 'b'), ('5', 'b'), ('6', 'b')])
             r = db.query(q.build_query("{}=a".format(FEAT), resolve=[FEAT]))
             assert(r == [('1', 'a'), ('2', 'a'), ('3', 'a')])
