@@ -70,13 +70,10 @@ class Database:
             feature: FeatureInfo
             for feature in schema.features:
                 if not feature.name in result:
-                    if feature.column != "hash": 
-                        result[feature.name] = feature
-                    else:
-                        result[prepend_context(feature.name, feature.context)] = feature
+                    result[feature.name] = feature
                 elif feature.column == "hash": 
                     if not Schema.is_main_hash_column(result[feature.name]) and Schema.is_main_hash_column(feature):
-                        result[prepend_context(feature.name, feature.context)] = feature
+                        result[feature.name] = feature
                 else:
                     eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, feature.database))
         return result
