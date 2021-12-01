@@ -223,8 +223,12 @@ class Database:
     def set_values(self, feature, value, hashes):
         table = self.features[feature].table
         column = self.features[feature].column
-        values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
-        self.execute('INSERT or REPLACE INTO {tab} (hash, {col}) VALUES {vals}'.format(tab=table, col=column, vals=values))
+        default = self.features[feature].default
+        if not default:
+            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
+            self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
+        else:
+            self.execute("UPDATE {} SET {} = '{}' WHERE hash IN ('{}')".format(table, column, value, "', '".join(hashes)))
 
     def delete_hashes(self, feature, hashes):
         default = self.features[feature].default
@@ -240,7 +244,7 @@ class Database:
         if not default:
             self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
         else:
-            self.execute("UPDATE {} SET {} = {} WHERE value IN ('{}')".format(table, column, default, "', '".join(values)))
+            self.execute("UPDATE {} SET {} = '{}' WHERE value IN ('{}')".format(table, column, default, "', '".join(values)))
 
 
     def feature_info(self, feature):

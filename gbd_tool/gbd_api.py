@@ -24,6 +24,7 @@ from contextlib import ExitStack
 
 from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
+from gbd_tool.util import eprint
 
 
 class GBDException(Exception):
