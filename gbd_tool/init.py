@@ -14,9 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from concurrent.futures.process import BrokenProcessPool
-import multiprocessing
-from multiprocessing import Pool
+
 
 from os.path import isfile, basename
 
@@ -26,15 +24,14 @@ import glob
 
 import hashlib
 
-from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
+import multiprocessing
+import pebble
+from concurrent.futures import as_completed
 
 from gbd_tool import config, util
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file, slice_iterator
-
-#import faulthandler
-#faulthandler.enable()
 
 METHOD_UNAVAILABLE = "Method '{}' not available. Install gdbc module from: https://github.com/sat-clique/cnftools"
 
@@ -85,26 +82,15 @@ def run(api: GBD, resultset, func, tlim = 0, mlim = 0, args=dict()):
         for (hash, local) in resultset:
             api.set_attributes_locked(func(hash, local, tlim, mlim, args))
     else:
-        while len(resultset) > 0:
-            eprint("Starting ProcessPoolExecutor with {} jobs".format(len(resultset)))
-            with ProcessPoolExecutor(min(multiprocessing.cpu_count(), api.jobs)) as p:
-                futures = {
-                    p.submit(func, hash, local, tlim, mlim, args): (hash, local)
-                    for (hash, local) in resultset[:100]
-                }
-                for f in as_completed(futures): #, timeout=tlim if tlim > 0 else None):
-                    e = f.exception()
-                    if e is not None:
-                        resultset.remove(futures[f])
-                        eprint("{}: {} in {}".format(e.__class__.__name__, e, futures[f]))
-                        if type(e) == BrokenProcessPool:
-                            break
-                    else:
-                        resultset.remove(futures[f])
-                        try:
-                            api.set_attributes_locked(f.result())
-                        except Exception as e:
-                            eprint("{}: {}".format(e.__class__.__name__, e))
+        with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
+            futures = [ p.schedule(func, (hash, local, tlim, mlim, args)) for (hash, local) in resultset ]
+            for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
+                try:
+                    result = f.result()
+                    api.set_attributes_locked(result)
+                except pebble.ProcessExpired as e:
+                    f.cancel()
+                    eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim, max_edges, max_nodes):
