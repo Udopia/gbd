@@ -60,9 +60,9 @@ deploy_prod:
     - chmod 600 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H baldur3.iti.kit.edu >> ~/.ssh/known_hosts
+    - ssh-keyscan -H i12docker.iti.kit.edu >> ~/.ssh/known_hosts
   script:
-    - ssh deploy@baldur3.iti.kit.edu "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml stop; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml rm --force; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml pull; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml up -d; docker logout ${CI_REGISTRY}"
+    - ssh deploy@i12docker.iti.kit.edu "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml stop; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml rm --force; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml pull; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml up -d; docker logout ${CI_REGISTRY}"
 
 deploy_dev:
   stage: deploy
@@ -81,8 +81,8 @@ deploy_dev:
     - chmod 600 ~/.ssh/id_rsa
     - eval "$(ssh-agent -s)"
     - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H baldur3.iti.kit.edu >> ~/.ssh/known_hosts
+    - ssh-keyscan -H i12docker.iti.kit.edu >> ~/.ssh/known_hosts
   script:
-    - ssh -T deploy@baldur3.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker-compose stop; docker-compose rm --force"
-    - 'ssh -T deploy@baldur3.iti.kit.edu "sed -i ''s/image: qpr-registry.iti.kit.edu\/gbd\/gbd:.*/image: qpr-registry.iti.kit.edu\/gbd\/gbd:$CI_COMMIT_SHA/g'' /srv/docker/compose/gbd-staging/docker-compose.yml"'
-    - ssh -T deploy@baldur3.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose pull; docker-compose up -d; docker logout ${CI_REGISTRY}"
+    - ssh -T deploy@i12docker.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker-compose stop; docker-compose rm --force"
+    - 'ssh -T deploy@i12docker.iti.kit.edu "sed -i ''s/image: qpr-registry.iti.kit.edu\/gbd\/gbd:.*/image: qpr-registry.iti.kit.edu\/gbd\/gbd:$CI_COMMIT_SHA/g'' /srv/docker/compose/gbd-staging/docker-compose.yml"'
+    - ssh -T deploy@i12docker.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose pull; docker-compose up -d; docker logout ${CI_REGISTRY}"
