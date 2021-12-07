@@ -33,12 +33,14 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, db_string, context='cnf', jobs=1, timeout=5000, separator=" ", join_type="LEFT", verbose=False):
+    def __init__(self, db_string, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, separator=" ", join_type="LEFT", verbose=False):
         self.databases = db_string.split(os.pathsep)
         self.context = context
         self.jobs = jobs
         self.mutex = multiprocessing.Lock()
-        self.timeout = timeout
+        self.tlim = tlim  # time limit (seconds)
+        self.mlim = mlim  # memory limit (mega bytes)
+        self.flim = flim  # file size limit (mega bytes)
         self.separator = separator
         self.join_type = join_type
         self.verbose = verbose
@@ -52,6 +54,9 @@ class GBD:
 
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
+
+    def get_limits(self) -> dict():
+        return { 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
 
     def get_databases(self):
         return list(self.database.get_databases())
@@ -142,3 +147,5 @@ class GBD:
             raise GBDException("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
             raise GBDException("Parser Error: {}".format(str(err)))
+
+
