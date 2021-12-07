@@ -50,7 +50,7 @@ except ImportError:
 try:
     from gbdc import cnf2kis
 except ImportError:
-    def cnf2kis(in_path, out_path, max_edges, max_nodes) -> dict:
+    def cnf2kis(in_path, out_path, max_edges, max_nodes, tlim, mlim, flim) -> dict:
         raise GBDException(METHOD_UNAVAILABLE.format("cnf2kis"))
 
 

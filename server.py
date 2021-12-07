@@ -153,9 +153,10 @@ def get_database_file(database=None):
 @app.route('/file/<hashvalue>/<context>')
 def get_file(hashvalue, context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose'])as gbd_api:
+        hash = util.prepend_context("hash", context)
         local = util.prepend_context("local", context)
         filename = util.prepend_context("filename", context)
-        records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN")
+        records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN", group_by=hash)
         if len(records) == 0:
             return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
         path, file = operator.itemgetter(1, 2)(records[0])
