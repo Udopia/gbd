@@ -112,6 +112,10 @@ def transform_cnf_to_kis(cnfhash, cnfpath, args):
         raise GBDException("Arguments missing: transform_cnf_to_kis({}, {})".format(cnfhash, cnfpath))
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, config.suffix_list('cnf'), cnfpath)
     kispath = kispath + ".kis"
+
+    if isfile(kispath):
+        raise GBDException("{} already exists. Aborting.".format(kispath))
+
     eprint('Transforming {} to k-ISP {}'.format(cnfpath, kispath))
     result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'], args['tlim'], args['mlim'], args['flim'])
 
