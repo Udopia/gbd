@@ -47,19 +47,19 @@ def cli_init_local(api: GBD, args):
 
 def cli_init_base_features(api: GBD, args):
     from gbd_tool import init
-    init.init_base_features(api, args.query, args.hashes, args.tlim, args.mlim)
+    init.init_base_features(api, args.query, args.hashes)
 
 def cli_init_gate_features(api: GBD, args):
     from gbd_tool import init
-    init.init_gate_features(api, args.query, args.hashes, args.tlim, args.mlim)
+    init.init_gate_features(api, args.query, args.hashes)
 
 def cli_init_cnf2kis(api: GBD, args):
     from gbd_tool import init
-    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.tlim, args.mlim, args.max_edges, args.max_nodes)
+    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
 
 def cli_init_dsh(api: GBD, args):
     from gbd_tool import init
-    init.init_degree_sequence_hash(api, args.hashes, args.tlim, args.mlim)
+    init.init_degree_sequence_hash(api, args.hashes)
 
 
 def cli_create(api: GBD, args):
@@ -166,8 +166,9 @@ def main():
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, nargs='?')
-    parser.add_argument('-t', '--tlim', help="Time limit per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
-    parser.add_argument('-m', '--mlim', help="Memory limit per instance for 'init' sub-commands", default=5000, type=int)
+    parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
+    parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
+    parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
     parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
@@ -300,7 +301,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GBD(args.db, args.context, int(args.jobs), args.tlim, args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db, args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
                 if hasattr(args, 'hashes') and not sys.stdin.isatty():
                     if not args.hashes or len(args.hashes) == 0:
                         args.hashes = read_hashes()  # read hashes from stdin

@@ -70,30 +70,34 @@ def init_local(api: GBD, root):
     run(api, resultset, compute_hash)
 
 
-def compute_hash(nohashvalue, path, tlim, mlim, args):
+def compute_hash(nohashvalue, path, args):
     eprint('Hashing {}'.format(path))
     hashvalue = gbd_hash(path)
     return [ ('local', hashvalue, path) ]
 
 
 # Parallel Runner
-def run(api: GBD, resultset, func, tlim = 0, mlim = 0, args=dict()):
+def run(api: GBD, resultset, func, args: dict):
     if api.jobs == 1:
         for (hash, local) in resultset:
-            api.set_attributes_locked(func(hash, local, tlim, mlim, args))
+            api.set_attributes_locked(func(hash, local, args))
     else:
         with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
-            futures = [ p.schedule(func, (hash, local, tlim, mlim, args)) for (hash, local) in resultset ]
-            for f in as_completed(futures, timeout=tlim if tlim > 0 else None):
+            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
+            for f in as_completed(futures, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
                     api.set_attributes_locked(result)
                 except pebble.ProcessExpired as e:
                     f.cancel()
                     eprint("{}: {}".format(e.__class__.__name__, e))
+                except GBDException as e:  # might receive special handling in the future
+                    eprint("{}: {}".format(e.__class__.__name__, e))
+                except Exception as e:
+                    eprint("{}: {}".format(e.__class__.__name__, e))
 
 
-def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim, max_edges, max_nodes):
+def init_transform_cnf_to_kis(api: GBD, query, hashes, max_edges, max_nodes):
     api.database.create_feature('kis_local', permissive=True)
     api.database.create_feature('kis_nodes', "empty", permissive=True)
     api.database.create_feature('kis_edges', "empty", permissive=True)
@@ -101,15 +105,15 @@ def init_transform_cnf_to_kis(api: GBD, query, hashes, tlim, mlim, max_edges, ma
     api.database.create_feature('cnf_to_kis', permissive=True)
     api.database.create_feature('kis_to_cnf', permissive=True)
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, transform_cnf_to_kis, tlim, mlim, { 'max_edges': max_edges, 'max_nodes': max_nodes })
+    run(api, resultset, transform_cnf_to_kis, { **api.get_limits(), 'max_edges': max_edges, 'max_nodes': max_nodes })
 
-def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim, args):
+def transform_cnf_to_kis(cnfhash, cnfpath, args):
     if not cnfhash or not cnfpath:
-        raise GBDException("Illegal arguments: transform_cnf_to_kis({}, {}, {}, {})".format(cnfhash, cnfpath, tlim, mlim))
+        raise GBDException("Arguments missing: transform_cnf_to_kis({}, {})".format(cnfhash, cnfpath))
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, config.suffix_list('cnf'), cnfpath)
     kispath = kispath + ".kis"
     eprint('Transforming {} to k-ISP {}'.format(cnfpath, kispath))
-    result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'])
+    result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'], args['tlim'], args['mlim'], args['flim'])
 
     if not "local" in result:
         raise GBDException('''{} (N {}, E {}, K {}) exceeds size limits, cancelled.'''.format(basename(kispath), result['nodes'], result['edges'], result['k']))
@@ -123,31 +127,31 @@ def transform_cnf_to_kis(cnfhash, cnfpath, tlim, mlim, args):
 
 
 # Initialize base feature tables for given instances
-def init_base_features(api: GBD, query, hashes, tlim, mlim):
+def init_base_features(api: GBD, query, hashes):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, base_features, tlim, mlim)
+    run(api, resultset, base_features, api.get_limits())
 
-def base_features(hashvalue, filename, tlim, mlim, args):
+def base_features(hashvalue, filename, args):
     eprint('Extracting base features from {}'.format(filename))
-    rec = extract_base_features(filename, tlim, mlim)
+    rec = extract_base_features(filename, args['tlim'], args['mlim'])
     eprint('Done with base features from {}'.format(filename))
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize gate feature tables for given instances
-def init_gate_features(api: GBD, query, hashes, tlim, mlim):
+def init_gate_features(api: GBD, query, hashes):
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, gate_features, tlim, mlim)
+    run(api, resultset, gate_features, api.get_limits())
 
-def gate_features(hashvalue, filename, tlim, mlim, args):
+def gate_features(hashvalue, filename, args):
     eprint('Extracting gate features from {}'.format(filename))
-    rec = extract_gate_features(filename, tlim, mlim)
+    rec = extract_gate_features(filename, args['tlim'], args['mlim'])
     eprint('Done with gate features from {}'.format(filename))
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize Graph Features known from Network Analysis
-def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
+def init_networkit_features(api: GBD, query, hashes):
     try:
         import networkit as nk
     except ImportError as e:
@@ -155,25 +159,25 @@ def init_networkit_features(api: GBD, query, hashes, tlim, mlim):
     nk.setNumberOfThreads(min(multiprocessing.cpu_count(), api.jobs))
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
     for (hash, local) in resultset: 
-        result = networkit_features(hash, local, tlim, mlim)
+        result = networkit_features(hash, local, {})
         eprint(result['hashvalue'])
         for att in result['attributes']:
             eprint(att[1] + "=" + att["2"])
 
-def networkit_features(hashvalue, filename, tlim, mlim):
+def networkit_features(hashvalue, filename, args):
     rec = dict()
     # TODO: Calculate Networkit Features
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
 # Initialize degree_sequence_hash for given instances
-def init_degree_sequence_hash(api: GBD, hashes, tlim, mlim):
+def init_degree_sequence_hash(api: GBD, query, hashes):
     if not api.feature_exists("degree_sequence_hash"):
         api.create_feature("degree_sequence_hash", "empty")
-    resultset = api.query_search(None, hashes, ["local"], collapse="MIN")
-    run(api, resultset, compute_degree_sequence_hash)
+    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
+    run(api, resultset, compute_degree_sequence_hash, api.get_limits())
 
-def compute_degree_sequence_hash(hashvalue, filename, tlim, mlim):
+def compute_degree_sequence_hash(hashvalue, filename, args):
     eprint('Computing degree-sequence hash for {}'.format(filename))
     hash_md5 = hashlib.md5()
     degrees = dict()
