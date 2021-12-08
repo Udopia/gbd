@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-from os.path import isfile, basename
+import os
+from os.path import isfile, basename, exists
 
 from functools import reduce
 
@@ -84,7 +84,7 @@ def run(api: GBD, resultset, func, args: dict):
     else:
         with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
             futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
-            for f in as_completed(futures, timeout=api.tlim if api.tlim > 0 else None):
+            for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
                     api.set_attributes_locked(result)
@@ -114,13 +114,17 @@ def transform_cnf_to_kis(cnfhash, cnfpath, args):
     kispath = kispath + ".kis"
 
     if isfile(kispath):
-        raise GBDException("{} already exists. Aborting.".format(kispath))
+        raise GBDException("{} already exists. Aborting.".format(basename(kispath)))
 
     eprint('Transforming {} to k-ISP {}'.format(cnfpath, kispath))
     result = cnf2kis(cnfpath, kispath, args['max_edges'], args['max_nodes'], args['tlim'], args['mlim'], args['flim'])
 
     if not "local" in result:
-        raise GBDException('''{} (N {}, E {}, K {}) exceeds size limits, cancelled.'''.format(basename(kispath), result['nodes'], result['edges'], result['k']))
+        if exists(kispath):
+            os.path.remove(kispath)
+        eprint('''{} got {}. Aborting.'''.format(basename(kispath), result['hash']))
+        return [ ('cnf_to_kis', cnfhash, result['hash']), ('kis_to_cnf', result['hash'], cnfhash) ]
+
 
     return [ ('kis_local', result['hash'], result['local']),
             ('kis_nodes', result['hash'], result['nodes']), 
