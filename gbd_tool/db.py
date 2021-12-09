@@ -232,7 +232,10 @@ class Database:
         default = self.features[feature].default
         values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
         if not default:
-            self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
+            try:
+                self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
+            except sqlite3.OperationalError:  # unique constraint can be missing in old databases
+                self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals}'.format(tab=table, col=column, vals=values))
         else:
             self.execute("INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(tab=table, col=column, vals=values))
 
