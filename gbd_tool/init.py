@@ -53,6 +53,12 @@ except ImportError:
     def cnf2kis(in_path, out_path, max_edges, max_nodes, tlim, mlim, flim) -> dict:
         raise GBDException(METHOD_UNAVAILABLE.format("cnf2kis"))
 
+try:
+    from gbdc import isohash
+except ImportError:
+    def isohash(path) -> dict:
+        raise GBDException(METHOD_UNAVAILABLE.format("isohash"))
+
 
 # Initialize table 'local' with instances found under given path
 def init_local(api: GBD, root):
@@ -179,34 +185,13 @@ def networkit_features(hashvalue, filename, args):
 
 
 # Initialize degree_sequence_hash for given instances
-def init_degree_sequence_hash(api: GBD, query, hashes):
-    if not api.feature_exists("degree_sequence_hash"):
-        api.create_feature("degree_sequence_hash", "empty")
+def init_iso_hash(api: GBD, query, hashes):
+    if not api.feature_exists("isohash"):
+        api.create_feature("isohash", "empty")
     resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, compute_degree_sequence_hash, api.get_limits())
+    run(api, resultset, compute_iso_hash, api.get_limits())
 
-def compute_degree_sequence_hash(hashvalue, filename, args):
-    eprint('Computing degree-sequence hash for {}'.format(filename))
-    hash_md5 = hashlib.md5()
-    degrees = dict()
-    f = open_cnf_file(filename, 'rt')
-    for line in f:
-        line = line.strip()
-        if line and line[0] not in ['p', 'c']:
-            for lit in line.split()[:-1]:
-                num = int(lit)
-                tup = degrees.get(abs(num), (0,0))
-                degrees[abs(num)] = (tup[0], tup[1]+1) if num < 0 else (tup[0]+1, tup[1])
-
-    degree_list = list(degrees.values())
-    degree_list.sort(key=lambda t: (t[0]+t[1], abs(t[0]-t[1])))
-    
-    for t in degree_list:
-        hash_md5.update(str(t[0]+t[1]).encode('utf-8'))
-        hash_md5.update(b' ')
-        hash_md5.update(str(abs(t[0]-t[1])).encode('utf-8'))
-        hash_md5.update(b' ')
-
-    f.close()
-
-    return [ ('degree_sequence_hash', hashvalue, hash_md5.hexdigest()) ]
+def compute_iso_hash(hashvalue, filename, args):
+    eprint('Computing iso hash for {}'.format(filename))
+    isoh = isohash(filename)
+    return [ ('isohash', hashvalue, isoh) ]
