@@ -57,9 +57,9 @@ def cli_init_cnf2kis(api: GBD, args):
     from gbd_tool import init
     init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
 
-def cli_init_dsh(api: GBD, args):
+def cli_init_iso(api: GBD, args):
     from gbd_tool import init
-    init.init_degree_sequence_hash(api, args.hashes)
+    init.init_iso_hash(api, args.query, args.hashes)
 
 
 def cli_create(api: GBD, args):
@@ -198,10 +198,10 @@ def main():
     parser_init_cnf2kis.add_argument('-e', '--max_edges', default=0, type=int, help='Maximum Number of Edges (0 = unlimited)')
     parser_init_cnf2kis.add_argument('-n', '--max_nodes', default=0, type=int, help='Maximum Number of Nodes (0 = unlimited)')
     parser_init_cnf2kis.set_defaults(func=cli_init_cnf2kis)
-    # init degree_sequence_hash:
-    parser_init_dsh = parser_init_subparsers.add_parser('degree_sequence_hash', help='Initialize Degree-Sequence Hash')
-    add_query_and_hashes_arguments(parser_init_dsh)
-    parser_init_dsh.set_defaults(func=cli_init_dsh)
+    # init iso-hash:
+    parser_init_iso = parser_init_subparsers.add_parser('isohash', help='Initialize Isomorphic Hash (MD5 of sorted degree sequence)')
+    add_query_and_hashes_arguments(parser_init_iso)
+    parser_init_iso.set_defaults(func=cli_init_iso)
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
