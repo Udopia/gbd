@@ -75,7 +75,7 @@ class Database:
                     if not Schema.is_main_hash_column(result[feature.name]) and Schema.is_main_hash_column(feature):
                         result[feature.name] = feature
                 else:
-                    eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, feature.database))
+                    eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, result[feature.name].database))
         return result
 
 
@@ -227,17 +227,18 @@ class Database:
 
     def set_values(self, feature, value, hashes):
         self.fexists_or_raise(feature)
+        database = self.features[feature].database
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
         values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
         if not default:
             try:
-                self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(tab=table, col=column, vals=values))
+                self.execute('INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(d=database, tab=table, col=column, vals=values))
             except sqlite3.OperationalError:  # unique constraint can be missing in old databases
-                self.execute('INSERT INTO {tab} (hash, {col}) VALUES {vals}'.format(tab=table, col=column, vals=values))
+                self.execute('INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals}'.format(d=database, tab=table, col=column, vals=values))
         else:
-            self.execute("INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(tab=table, col=column, vals=values))
+            self.execute("INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(d=database, tab=table, col=column, vals=values))
 
     def delete_hashes(self, feature, hashes):
         self.fexists_or_raise(feature)
