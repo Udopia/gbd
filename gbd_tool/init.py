@@ -69,11 +69,12 @@ def init_local(api: GBD, root):
         for paths in slice_iterator(sanitize, 1000):
             api.database.delete_values("local", paths)
     resultset = []
+    #if clocal in api.get_features():
     for suffix in config.suffix_list(api.context):
         for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
             if not len(api.query_search("{}='{}'".format(clocal, path))):
                 resultset.append(("", path))
-    run(api, resultset, compute_hash)
+    run(api, resultset, compute_hash, api.get_limits())
 
 
 def compute_hash(nohashvalue, path, args):
