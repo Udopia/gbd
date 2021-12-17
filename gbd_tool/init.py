@@ -83,18 +83,27 @@ def compute_hash(nohashvalue, path, args):
     return [ ('local', hashvalue, path) ]
 
 
+def safe_run_results(api: GBD, result):
+    for attr in result:
+        name, hashv, value = attr[0], attr[1], attr[2]
+        if not name in api.database.get_features():
+            api.database.create_feature(name, "empty")
+        api.database.set_values(name, value, [hashv])
+
+
 # Parallel Runner
 def run(api: GBD, resultset, func, args: dict):
     if api.jobs == 1:
         for (hash, local) in resultset:
-            api.set_attributes_locked(func(hash, local, args))
+            result = func(hash, local, args)
+            safe_run_results(api, result)
     else:
         with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
             futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
-                    api.set_attributes_locked(result)
+                    safe_run_results(api, result)
                 except pebble.ProcessExpired as e:
                     f.cancel()
                     eprint("{}: {}".format(e.__class__.__name__, e))
@@ -131,7 +140,6 @@ def transform_cnf_to_kis(cnfhash, cnfpath, args):
             os.path.remove(kispath)
         eprint('''{} got {}. Aborting.'''.format(basename(kispath), result['hash']))
         return [ ('cnf_to_kis', cnfhash, result['hash']), ('kis_to_cnf', result['hash'], cnfhash) ]
-
 
     return [ ('kis_local', result['hash'], result['local']),
             ('kis_nodes', result['hash'], result['nodes']), 

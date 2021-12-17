@@ -16,7 +16,6 @@
 
 
 import sqlite3
-import multiprocessing
 import tatsu
 import os
 
@@ -37,7 +36,6 @@ class GBD:
         self.databases = db_string.split(os.pathsep)
         self.context = context
         self.jobs = jobs
-        self.mutex = multiprocessing.Lock()
         self.tlim = tlim  # time limit (seconds)
         self.mlim = mlim  # memory limit (mega bytes)
         self.flim = flim  # file size limit (mega bytes)
@@ -106,19 +104,6 @@ class GBD:
     # Retrieve information about a specific feature
     def get_feature_info(self, name):
         return self.database.feature_info(name)
-
-    def set_attributes_locked(self, arg):
-        self.mutex.acquire()
-        try:
-            # create new connection as cursor can not be shared across threads
-            with Database(self.databases, self.verbose) as db:
-                for attr in arg:
-                    name, hashv, value = attr[0], attr[1], attr[2]
-                    if not name in db.get_features():
-                        db.create_feature(name, "empty")
-                    db.set_values(name, value, [hashv])
-        finally:
-            self.mutex.release()
 
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, query, hashes=[], force=False):
