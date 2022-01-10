@@ -83,27 +83,31 @@ def compute_hash(nohashvalue, path, args):
     return [ ('local', hashvalue, path) ]
 
 
-def safe_run_results(api: GBD, result):
+def safe_run_results(api: GBD, result, check=False):
     for attr in result:
         name, hashv, value = attr[0], attr[1], attr[2]
-        if not name in api.database.get_features():
+        eprint("Saving {}={} for {}".format(name, value, hashv))
+        if check and not name in api.database.get_features():
             api.database.create_feature(name, "empty")
         api.database.set_values(name, value, [hashv])
 
 
 # Parallel Runner
 def run(api: GBD, resultset, func, args: dict):
+    first = True
     if api.jobs == 1:
         for (hash, local) in resultset:
             result = func(hash, local, args)
-            safe_run_results(api, result)
+            safe_run_results(api, result, check=first)
+            first = False
     else:
         with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
             futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
-                    safe_run_results(api, result)
+                    safe_run_results(api, result, check=first)
+                    first = False
                 except pebble.ProcessExpired as e:
                     f.cancel()
                     eprint("{}: {}".format(e.__class__.__name__, e))

@@ -132,5 +132,3 @@ class GBD:
             raise GBDException("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
             raise GBDException("Parser Error: {}".format(str(err)))
-
-
