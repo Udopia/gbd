@@ -124,6 +124,21 @@ def cli_plot_cdf(api: GBD, args):
     from gbd_tool import plot
     plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
+def cli_classify(api:GBD, args):
+    resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
+    from gbd_tool import classification
+    classification.classify(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
+
+def cli_classify_train(api:GBD, args):
+    resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
+    from gbd_tool import classification
+    classification.classify_train(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
+
+def cli_classify_test(api:GBD, args):
+    resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
+    from gbd_tool import classification
+    classification.classify_test(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
+
 
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):
@@ -290,6 +305,47 @@ def main():
     parser_graph.add_argument('path', type=file_type, help='CNF File')
     parser_graph.add_argument('proof', type=file_type, help='Proof File')
     parser_graph.set_defaults(func=cli_graph)
+
+    #CLASSIFICATION
+    parser_classify = subparsers.add_parser('classify', help='trains the classifier and interprets it')
+    add_query_and_hashes_arguments(parser_classify)
+    parser_classify.add_argument('-f', '--feature', help='Feature that should be classified')
+    parser_classify.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_classify.add_argument('-c', '--collapse', default='group_concat',
+                                   choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
+                                   help='Treatment of multiple values per hash (or grouping value resp.)')
+    parser_classify.add_argument('-s', '--save', default='empty', help='Save result to file')
+    parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_classify.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
+    parser_classify.set_defaults(func=cli_classify)
+
+    parser_classify_train = subparsers.add_parser('classify_train', help='trains the classifier')
+    add_query_and_hashes_arguments(parser_classify_train)
+    parser_classify_train.add_argument('-f', '--feature', help='Feature that should be classified')
+    parser_classify_train.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_classify_train.add_argument('-c', '--collapse', default='group_concat',
+                                 choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
+                                 help='Treatment of multiple values per hash (or grouping value resp.)')
+    parser_classify_train.add_argument('-s', '--save', default='empty', help='Save result to file')
+    parser_classify_train.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_classify_train.add_argument('-o', '--timeout_memout', default=[],
+                                 help='List of features to resolve against that can have a memout or timeout',
+                                 nargs='+')
+    parser_classify_train.set_defaults(func=cli_classify_train)
+
+    parser_classify_test = subparsers.add_parser('classify_test', help='trains the classifier and interprets it')
+    add_query_and_hashes_arguments(parser_classify_test)
+    parser_classify_test.add_argument('-f', '--feature', help='Feature that should be classified')
+    parser_classify_test.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_classify_test.add_argument('-c', '--collapse', default='group_concat',
+                                 choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
+                                 help='Treatment of multiple values per hash (or grouping value resp.)')
+    parser_classify_test.add_argument('-s', '--save', default='empty', help='Save result to file')
+    parser_classify_test.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_classify_test.add_argument('-o', '--timeout_memout', default=[],
+                                 help='List of features to resolve against that can have a memout or timeout',
+                                 nargs='+')
+    parser_classify_test.set_defaults(func=cli_classify)
 
     # PARSE ARGUMENTS
     args = parser.parse_args()
