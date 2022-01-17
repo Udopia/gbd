@@ -18,11 +18,14 @@
 import sqlite3
 import tatsu
 import os
+import numpy as np
+import pandas as pd
 
 from contextlib import ExitStack
 
 from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
+import gbd_tool.util as util
 from gbd_tool.util import eprint
 
 
@@ -132,3 +135,60 @@ class GBD:
             raise GBDException("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
             raise GBDException("Parser Error: {}".format(str(err)))
+
+
+    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[]):
+
+        #what values to replace
+        replace_dict = {
+            "replace_tuples": [("timeout", np.inf), ("memout", np.inf), ("error", np.NaN)],
+        }
+
+        #no features selected error
+        if resolve==[]:
+            print("No features selected.")
+        if feature == '':
+            print("No classification feature selected.")
+
+
+        # two matrices, one for the normal, one for the timeout features
+        result1 = self.query_search(gbd_query, hashes, resolve+[feature], collapse, group_by) #family
+        result2 = self.query_search(gbd_query, hashes, tmout, collapse, group_by) #features
+
+        #conversion to the dataframes
+        df1 = pd.DataFrame(result1, columns=(['hash'] + resolve+[feature]))
+        df2 = pd.DataFrame(result2, columns=(['hash'] + tmout))
+
+        #check of dataframe values
+        for replacement in replace_dict:
+            for (key, value) in replace_dict[replacement]:
+                df2.replace(key, value)
+
+        df = df1.join(df2.set_index('hash'), on='hash')
+
+        #delete hash column
+        del df['hash']
+
+
+        #delete unknown feature entries
+        for i in range(len(df)):
+            if df.at[i, feature] == 'unknown' or df.at[i, feature] == 'empty':
+                df = df.drop(i)
+
+        df = df.reset_index(drop=True)
+
+
+        # convert to floats where possible
+
+        for col in df.columns:
+            for i in range(len(df)):
+                e = df.iloc[i][col]
+
+                if util.is_number(e):
+                    if float(e).is_integer():
+                        df.at[i, col] = int(float(e))
+                    else:
+                        df.at[i, col] = float(e)
+
+        # return a dataframe that is as prepared for classification as possible
+        return df
