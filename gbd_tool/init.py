@@ -159,9 +159,8 @@ def init_base_features(api: GBD, query, hashes):
     run(api, resultset, base_features, api.get_limits())
 
 def base_features(hashvalue, filename, args):
-    eprint('Extracting base features from {}'.format(filename))
+    eprint('Extracting base features from {} {}'.format(hashvalue, filename))
     rec = extract_base_features(filename, args['tlim'], args['mlim'])
-    eprint('Done with base features from {}'.format(filename))
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
@@ -171,9 +170,8 @@ def init_gate_features(api: GBD, query, hashes):
     run(api, resultset, gate_features, api.get_limits())
 
 def gate_features(hashvalue, filename, args):
-    eprint('Extracting gate features from {}'.format(filename))
+    eprint('Extracting gate features from {} {}'.format(hashvalue, filename))
     rec = extract_gate_features(filename, args['tlim'], args['mlim'])
-    eprint('Done with gate features from {}'.format(filename))
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
