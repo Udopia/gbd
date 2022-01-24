@@ -7,6 +7,8 @@ import piskle
 import json
 
 from sklearn import tree
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 from gbd_tool.gbd_api import GBD
 
@@ -131,6 +133,38 @@ def classify(api: GBD, feature, resultset, features, filename):
         file.writelines("The classifier has a total of "+str(misses)+" misses.\n")
         file.write("This makes up a total of "+ str(misses / len(diff))+ " percent fault rate.")
         file.close()
+
+def classify2(api: GBD, feature, resultset, features, filename):
+    (df, dict_str_c) = set_up_dictionnaries(resultset)
+
+    x = resultset
+    y = resultset.pop(feature)
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.4, random_state = 0)
+
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(x_train.to_numpy(), y_train.to_numpy())
+
+    #s = clf.score(x_test, y_test)
+
+    cl = clf.predict(x_test)
+
+    class_df = pd.DataFrame(cl)
+    class_df.columns = ['predicted']
+
+
+    print(classification_report(y_test, class_df))
+
+    # stores the result in case a filename is given
+    if (filename != 'empty'):
+        pd.set_option('display.max_rows', None)
+        file = open(filename, 'w')
+        #file.writelines("Score: "+ str(s)+".\n")
+        file.writelines("Classification report: "+ classification_report(y_test, class_df)+".\n")
+        file.close()
+
+
+
     
 def classify_train(api: GBD, feature, resultset, features, filename):
 
