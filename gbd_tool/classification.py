@@ -18,6 +18,7 @@ from gbd_tool.gbd_api import GBD
 Creates the dataframe for further classification work.
 '''
 def set_up_dictionnaries(df):
+    # MI: this should be obsolete
 
     #Creates dictionaries for the translation of non-numerical and conituous numerical entries
     dict_str_c = {}

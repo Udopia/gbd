@@ -125,16 +125,19 @@ def cli_plot_cdf(api: GBD, args):
     plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
 def cli_classify(api:GBD, args):
+    # MI: query should be run in classification.py
     resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
     from gbd_tool import classification
     classification.classify(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
 
 def cli_classify_train(api:GBD, args):
+    # MI: merge with classify (default behavior)
     resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
     from gbd_tool import classification
     classification.classify_train(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
 
 def cli_classify_test(api:GBD, args):
+    # MI: merge with classify (as additional behavior for classify, pre-analysis)
     resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
     from gbd_tool import classification
     classification.classify_test(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)

@@ -140,6 +140,7 @@ class GBD:
     def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[]):
 
         #what values to replace
+        # MI: this shoul come from outside
         replace_dict = {
             "replace_tuples": [("timeout", np.inf), ("memout", np.inf), ("error", np.NaN)],
         }
@@ -149,6 +150,7 @@ class GBD:
             #print("No features selected.")
             raise GBDException("No features selected.")
         if feature == '':
+            # MI: classification code does not belong here
             #print("No classification feature selected.")
             raise GBDException("No classification feature selected.")
 
@@ -187,6 +189,7 @@ class GBD:
                 e = df.iloc[i][col]
 
                 if util.is_number(e):
+                    # MI: does not belong here
                     if float(e).is_integer():
                         df.at[i, col] = int(float(e))
                     else:
