@@ -146,9 +146,11 @@ class GBD:
 
         #no features selected error
         if resolve==[]:
-            print("No features selected.")
+            #print("No features selected.")
+            raise GBDException("No features selected.")
         if feature == '':
-            print("No classification feature selected.")
+            #print("No classification feature selected.")
+            raise GBDException("No classification feature selected.")
 
 
         # two matrices, one for the normal, one for the timeout features
