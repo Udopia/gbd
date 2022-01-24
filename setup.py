@@ -24,7 +24,9 @@ setup(name='gbd_tools',
     'pandas',
     'matplotlib',
     'waitress',
-    'pebble'
+    'pebble',
+    'sklearn',
+    'piskle'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
