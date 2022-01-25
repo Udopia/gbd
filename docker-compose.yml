@@ -4,7 +4,7 @@ services:
     image: gbd:latest
     environment:
     - VIRTUAL_HOST=localhost
-    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db:/raid/gbd/sc2021.db:/raid/gbd/sc2020.db:/raid/gbd/satzilla.db
+    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db:/raid/gbd/sc2021.db:/raid/gbd/sc2020.db
     - FLASK_ENV=production
     networks:
     - http
