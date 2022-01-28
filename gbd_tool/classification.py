@@ -72,7 +72,10 @@ def set_up_dictionnaries(df):
     df = df.astype(np.int)
     return df, dict_str_c
 
-def classify(api: GBD, feature, resultset, features, filename):
+def classify(api: GBD, query, feature, hashes, features, collapse,group_by, timeout_memout, filename, replace_dict):
+
+    resultset = api.query_search2(query, feature, hashes, features,collapse, group_by,
+                                  timeout_memout, replace_dict)
 
     (df, dict_str_c) = set_up_dictionnaries(resultset)
 
