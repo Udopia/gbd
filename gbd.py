@@ -125,10 +125,8 @@ def cli_plot_cdf(api: GBD, args):
     plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
 def cli_classify(api:GBD, args):
-    # MI: query should be run in classification.py
-    resultset = api.query_search2(args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout)
     from gbd_tool import classification
-    classification.classify(api, args.feature, resultset, args.resolve + args.timeout_memout, args.save)
+    classification.classify(api,args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict)
 
 def cli_classify_train(api:GBD, args):
     # MI: merge with classify (default behavior)
@@ -319,6 +317,7 @@ def main():
                                    help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_classify.add_argument('-s', '--save', default='empty', help='Save result to file')
     parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_classify.add_argument('-d', '--dict', default='default', help='Dictionary to replace the margin values')
     parser_classify.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
     parser_classify.set_defaults(func=cli_classify)
 

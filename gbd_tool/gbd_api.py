@@ -137,13 +137,13 @@ class GBD:
             raise GBDException("Parser Error: {}".format(str(err)))
 
 
-    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[]):
+    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[], dict = "default"):
 
         #what values to replace
-        # MI: this shoul come from outside
-        replace_dict = {
-            "replace_tuples": [("timeout", np.inf), ("memout", np.inf), ("error", np.NaN)],
-        }
+        if dict == "default":
+            replace_dict = {
+                "replace_tuples": [("timeout", np.inf), ("memout", np.inf), ("error", np.NaN)],
+            }
 
         #no features selected error
         if resolve==[]:
@@ -183,7 +183,6 @@ class GBD:
 
 
         # convert to floats where possible
-
         for col in df.columns:
             for i in range(len(df)):
                 e = df.iloc[i][col]
