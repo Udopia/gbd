@@ -137,7 +137,7 @@ class GBD:
             raise GBDException("Parser Error: {}".format(str(err)))
 
 
-    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[], dict = "default"):
+    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[], dict = "default", filenames=[]):
 
         #what values to replace
         if dict == "default":
