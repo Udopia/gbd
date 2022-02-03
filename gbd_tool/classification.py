@@ -72,10 +72,10 @@ def set_up_dictionnaries(df):
     df = df.astype(np.int)
     return df, dict_str_c
 
-def classify(api: GBD, query, feature, hashes, features, collapse,group_by, timeout_memout, filename, replace_dict):
+def classify(api: GBD, query, feature, hashes, features, collapse,group_by, timeout_memout, filenames, replace_dict):
 
     resultset = api.query_search2(query, feature, hashes, features,collapse, group_by,
-                                  timeout_memout, replace_dict)
+                                  timeout_memout, replace_dict, filenames)
 
     (df, dict_str_c) = set_up_dictionnaries(resultset)
 
@@ -93,6 +93,13 @@ def classify(api: GBD, query, feature, hashes, features, collapse,group_by, time
     #Builds the classificator on the training data
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(x.to_numpy(), y.to_numpy())
+
+
+    if (filenames != []):
+        # store classificator and dictionary
+        with open(filenames[0] + '_dict.txt', 'w') as convert_file:
+            convert_file.write(json.dumps(dict_str_c))
+        piskle.dump(clf, filenames[0] + '.pskl')
 
     #Prepares the test data
     test_classes = test_df.pop(feature)
@@ -130,47 +137,69 @@ def classify(api: GBD, query, feature, hashes, features, collapse,group_by, time
     print("This makes up a total of "+ str(misses / len(diff))+ " percent fault rate.")
 
     #stores the result in case a filename is given
-    if(filename != 'empty'):
+    if(len(filenames) ==2):
         pd.set_option('display.max_rows', None)
-        file = open(filename, 'w')
+        file = open(filenames[1], 'w')
         print(diff, file=file)
         file.writelines("The classifier has a total of "+str(misses)+" misses.\n")
         file.write("This makes up a total of "+ str(misses / len(diff))+ " percent fault rate.")
         file.close()
 
-def classify2(api: GBD, feature, resultset, features, filename):
+def classify2(api: GBD, query, feature, hashes, features, collapse,group_by, timeout_memout, filenames, replace_dict):
+
+    resultset = api.query_search2(query, feature, hashes, features, collapse, group_by,
+                                  timeout_memout, replace_dict, filenames)
+
     (df, dict_str_c) = set_up_dictionnaries(resultset)
 
+    #split train and test data
     x = resultset
     y = resultset.pop(feature)
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.4, random_state = 0)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 0)
 
+    #create and apply classifier
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(x_train.to_numpy(), y_train.to_numpy())
 
     #s = clf.score(x_test, y_test)
 
-    cl = clf.predict(x_test)
+    # store classificator and dictionary
+    if (filenames != []):
+        with open(filenames[0] + '_dict.txt', 'w') as convert_file:
+            convert_file.write(json.dumps(dict_str_c))
+        piskle.dump(clf, filenames[0] + '.pskl')
 
-    class_df = pd.DataFrame(cl)
-    class_df.columns = ['predicted']
+    if(len(filenames) == 3):
+        # read classificator and dictionary
+        clf2 = piskle.load(filenames[1])
+        dict_str_c = {}
+        with open(filenames[1] + '_dict.txt') as f:
+            for line in f:
+                (key, val) = line.split()
+                dict_str_c[int(key)] = val
 
 
-    print(classification_report(y_test, class_df))
+        cl = clf2.predict(x_test)
 
-    # stores the result in case a filename is given
-    if (filename != 'empty'):
-        pd.set_option('display.max_rows', None)
-        file = open(filename, 'w')
-        #file.writelines("Score: "+ str(s)+".\n")
-        file.writelines("Classification report: "+ classification_report(y_test, class_df)+".\n")
-        file.close()
+        class_df = pd.DataFrame(cl)
+        class_df.columns = ['predicted']
+
+
+        print(classification_report(y_test, class_df))
+
+        # stores the result in case a filename is given
+        if (filenames[2] != 'empty'):
+            pd.set_option('display.max_rows', None)
+            file = open(filenames[2], 'w')
+            #file.writelines("Score: "+ str(s)+".\n")
+            file.writelines("Classification report: "+ classification_report(y_test, class_df)+".\n")
+            file.close()
 
 
 
     
-def classify_train(api: GBD, feature, resultset, features, filename):
+'''def classify_train(api: GBD, feature, resultset, features, filename):
 
     (df, dict_str_c) = set_up_dictionnaries(resultset)
 
@@ -185,10 +214,10 @@ def classify_train(api: GBD, feature, resultset, features, filename):
     # store classificator and dictionary
     with open(filename+'_dict.txt', 'w') as convert_file:
         convert_file.write(json.dumps(dict_str_c))
-    piskle.dump(clf, filename+'.pskl')
+    piskle.dump(clf, filename+'.pskl')'''
 
 
-def classify_test(api: GBD, feature, df, features, filename):
+'''def classify_test(api: GBD, feature, df, features, filename):
 
     # read classificator and dictionary
     clf = piskle.load(filename)
@@ -231,9 +260,9 @@ def classify_test(api: GBD, feature, df, features, filename):
             misses = misses + 1
 
     print("The classifier has a total of "+str(misses)+" misses.")
-    print("This makes up a total of "+ str(misses / len(diff))+ " percent fault rate.")
+    print("This makes up a total of "+ str(misses / len(diff))+ " percent fault rate.")'''
 
-    '''#stores the result in case a filename is given
+'''#stores the result in case a filename is given
     if(filename != 'empty'):
         pd.set_option('display.max_rows', None)
         file = open(filename, 'w')
