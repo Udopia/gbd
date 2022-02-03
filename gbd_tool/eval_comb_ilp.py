@@ -25,7 +25,6 @@ def optimal_comb(api: GBD, query, runtimes, timeout, k):
     result = api.query_search(query, [], runtimes)
     result = [[int(float(val)) if is_number(val) and float(val) < float(timeout) else int(2*timeout) for val in row[1:]] for row in result]
     dataset = pd.DataFrame(result, columns=runtimes)
-    dataset = dataset[(dataset != 2*timeout).any(axis='columns')]
     model = mip.Model()
     instance_solver_vars = [[model.add_var(f'x_{i}_{j}', var_type=mip.BINARY)
                             for j in range(dataset.shape[1])] for i in range(dataset.shape[0])]
