@@ -360,7 +360,7 @@ A database path can be given in two ways:
 A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
     elif len(sys.argv) > 1:
         try:
-            with GBD(args.db, args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+            with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
                 if hasattr(args, 'hashes') and not sys.stdin.isatty():
                     if not args.hashes or len(args.hashes) == 0:
                         args.hashes = read_hashes()  # read hashes from stdin

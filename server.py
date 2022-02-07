@@ -221,7 +221,7 @@ def main():
         app.logger.error("No Database Given")
         exit(1)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
-    app.config['database'] = args.db
+    app.config['database'] = args.db.split(os.pathsep)
     app.config['verbose'] = args.verbose
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
