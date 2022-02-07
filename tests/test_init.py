@@ -15,7 +15,7 @@ class InitTestCase(unittest.TestCase):
 
     def test_init_local(self):
         context = 'cnf'
-        db="/raid/gbd/meta.db"
+        db=["/raid/gbd/meta.db"]
         eprint("Sanitizing local path entries ... ")
         feature="local" if context == 'cnf' else "{}.local".format(context)
         with GBD(db) as api:
