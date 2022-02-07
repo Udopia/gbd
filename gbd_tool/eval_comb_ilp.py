@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from gbd_tool.gbd_api import GBD
 from gbd_tool.util import is_number
 
@@ -37,9 +36,11 @@ def optimal_comb(api: GBD, query, runtimes, timeout, k):
     model.add_constr(mip.xsum(solver_vars) <= k)
     model.objective = mip.minimize(mip.xsum(instance_solver_vars[i][j] * int(dataset.iloc[i, j])
                                             for i in range(dataset.shape[0]) for j in range(dataset.shape[1])))
-    print(dataset.sum().min())
-    print(model.optimize())
-    print(model.objective_value)
+    print("SBS Score: {}".format(dataset.sum().min() / len(result)))
+    model.verbose = int(api.verbose)
+    model.threads = api.jobs
+    model.optimize()
+    print("VBS Score (k={}): {}".format(k, model.objective_value / len(result)))
     for index, item in enumerate([var.x for var in solver_vars]):
         if item > 0:
             print(runtimes[index])
