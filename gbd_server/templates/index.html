@@ -12,7 +12,12 @@
 
     <div class="form">
         <form method="post">
-            <input type="text" name="query">
+            <input type="text" name="query" size="64">
+            <br /><br />
+            <button type="submit" formaction="/results">Show Instances and Features</button>
+            <button type="submit" formaction="/getinstances">Download Instances (URIs)</button>
+            <button type="submit" formaction="/exportcsv">Download Features (CSVs)</button>
+            <br />
             {% for dbname, features in features.items() %}
                 {% if dbname != "all" %}
                     <button formmethod="get" formaction="/getdatabase/{{ dbname }}">{{ dbname }}</button> 
@@ -24,12 +29,8 @@
                         {% endif %}
                     {% endfor %}
                 {% endif %}
-                <br />
+                <br /><br />
             {% endfor %}
-            <br />
-            <button type="submit" formaction="/results">Show Instances and Features</button>
-            <button type="submit" formaction="/getinstances">Download Instances (URIs)</button>
-            <button type="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
     </div>
     
