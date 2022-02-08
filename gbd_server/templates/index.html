@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>GBD Benchmark Database</title>
+</head>
+<body>
+<div class="main">
+    <div class="logo">
+        <img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" alt="GBD-Logo">
+    </div>
+
+    <div class="form">
+        <form method="post">
+            <input type="text" name="query">
+            {% for dbname, features in features.items() %}
+                {% if dbname != "all" %}
+                    <button formmethod="get" formaction="/getdatabase/{{ dbname }}">{{ dbname }}</button> 
+                    {% for feat in features %}
+                        <input type="checkbox" name="selected_features" value="{{ feat }}">{{ feat }}
+                    {% endfor %}
+                {% endif %}
+                <br />
+            {% endfor %}
+            <br />
+            <button type="submit" formaction="/results">Show Instances and Features</button>
+            <button type="submit" formaction="/getinstances">Download Instances (URIs)</button>
+            <button type="submit" formaction="/exportcsv">Download Features (CSVs)</button>
+        </form>
+    </div>
+    
+    <div class="table">
+        <ul>
+            {% for row in result %}
+            <li>{{ row }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

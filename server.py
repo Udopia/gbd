@@ -39,12 +39,6 @@ import gbd_server
 app = Flask(__name__)
 
 
-# Returns main index page
-@app.route("/", methods=['GET'])
-def quick_search():
-    return render_template('index.html')
-
-
 def request_query(request):
     query = None
     if "query" in request.form:
@@ -77,17 +71,22 @@ def json_response(json_blob, msg, addr):
     return Response(json_blob, status=200, mimetype="application/json")
 
 
+# Returns main index page
+@app.route("/", methods=['POST', 'GET'])
+def quick_search():
+    return render_template('index.html', result=[], features=app.config["features"])
+
+
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # returns result as a serialized JSON object
-@app.route("/results", methods=['POST'])
+@app.route("/results", methods=['POST', 'GET'])
 def quick_search_results():
     query = request_query(request)
     features = request_features(request)
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         try:
-            rows = gbd_api.query_search(query, resolve=features)
-            result = json.dumps([ dict(zip(["GBDhash"] + features, row)) for row in rows ])
-            return json_response(result, "Sending query results (Query='{}')".format(query), request.remote_addr)
+            rows = gbd_api.query_search(query, resolve=features, collapse="MIN")
+            return render_template('index.html', result=rows, features=app.config["features"])
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
@@ -223,6 +222,7 @@ def main():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db.split(os.pathsep)
     app.config['verbose'] = args.verbose
+    app.config["CACHE_TYPE"] = "null"
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
@@ -246,7 +246,7 @@ def main():
         app.logger.error(str(e))
         exit(1)
     app.static_folder = os.path.join(pwd, "static")
-    app.template_folder = os.path.join(pwd, "templates-vue")
+    app.template_folder = os.path.join(pwd, "templates")
     #app.run(host='0.0.0.0', port=args.port)
     from waitress import serve
     serve(app, host="0.0.0.0", port=5000)
