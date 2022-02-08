@@ -17,7 +17,11 @@
                 {% if dbname != "all" %}
                     <button formmethod="get" formaction="/getdatabase/{{ dbname }}">{{ dbname }}</button> 
                     {% for feat in features %}
+                        {% if feat in selected %}
+                        <input type="checkbox" name="selected_features" value="{{ feat }}" checked>{{ feat }}
+                        {% else %}
                         <input type="checkbox" name="selected_features" value="{{ feat }}">{{ feat }}
+                        {% endif %}
                     {% endfor %}
                 {% endif %}
                 <br />
