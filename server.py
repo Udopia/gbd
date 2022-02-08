@@ -50,7 +50,7 @@ def request_query(request):
 def request_features(request):
     selected_features = []
     if "selected_features" in request.form:
-        selected_features = list(filter(lambda x: x != '', request.form.get('selected_features').split(',')))
+        selected_features = list(filter(lambda x: x != '', request.form.getlist('selected_features')))
     return sorted(list(set(app.config['features']['all']) & set(selected_features or ['filename'])))
 
 
@@ -74,7 +74,7 @@ def json_response(json_blob, msg, addr):
 # Returns main index page
 @app.route("/", methods=['POST', 'GET'])
 def quick_search():
-    return render_template('index.html', result=[], features=app.config["features"])
+    return render_template('index.html', result=[], selected=[], features=app.config["features"])
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -86,7 +86,7 @@ def quick_search_results():
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         try:
             rows = gbd_api.query_search(query, resolve=features, collapse="MIN")
-            return render_template('index.html', result=rows, features=app.config["features"])
+            return render_template('index.html', result=rows, selected=features, features=app.config["features"])
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
