@@ -96,3 +96,14 @@ table, th, td {
 th, td {
   padding:5px;
 }
+
+table th {
+	background-color:var(--background-color-1);
+	color:var(--link-color-1);
+	font-weight: bold;
+	cursor: default;
+}
+
+table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+	content: " \25B4\25BE" 
+}
