@@ -78,6 +78,7 @@ def page_response(query, features):
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
+
 # Returns main index page
 @app.route("/", methods=['POST', 'GET'])
 def quick_search():
