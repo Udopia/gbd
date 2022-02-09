@@ -51,7 +51,7 @@ def request_features(request):
     selected_features = []
     if "selected_features" in request.form:
         selected_features = list(filter(lambda x: x != '', request.form.getlist('selected_features')))
-    return sorted(list(set(app.config['features']['all']) & set(selected_features or ['filename'])))
+    return list(set(app.config['features_flat']) & set(selected_features))
 
 
 def error_response(msg, addr, errno=404):
@@ -70,25 +70,20 @@ def json_response(json_blob, msg, addr):
     app.logger.info("{}: {}".format(addr, msg))
     return Response(json_blob, status=200, mimetype="application/json")
 
+def page_response(query, features):
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
+        try:
+            rows = gbd_api.query_search(query, resolve=features, collapse="MIN")
+            return render_template('index.html', query=query, result=rows, selected=features, features=app.config["features"])
+        except (GBDException, DatabaseException) as err:
+            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
 # Returns main index page
 @app.route("/", methods=['POST', 'GET'])
 def quick_search():
-    return render_template('index.html', result=[], selected=[], features=app.config["features"])
-
-
-# Expects POST form with a query as text input and selected features as checkbox inputs,
-# returns result as a serialized JSON object
-@app.route("/results", methods=['POST', 'GET'])
-def quick_search_results():
-    query = request_query(request)
-    features = request_features(request)
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        try:
-            rows = gbd_api.query_search(query, resolve=features, collapse="MIN")
-            return render_template('index.html', result=rows, selected=features, features=app.config["features"])
-        except (GBDException, DatabaseException) as err:
-            return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
+    query = request_query(request) or "track = main_2021"
+    features = request_features(request) or ["family", "filename"]
+    return page_response(query, features)
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -184,7 +179,7 @@ def get_attribute(feature, hashvalue):
 def get_all_attributes(hashvalue, context='cnf'):
     app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
-        features = app.config['features']['all']
+        features = app.config['features_flat']
         try:
             records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=util.prepend_context("hash", context))
             if len(records) == 0:
@@ -223,17 +218,20 @@ def main():
     app.config['database'] = args.db.split(os.pathsep)
     app.config['verbose'] = args.verbose
     app.config["CACHE_TYPE"] = "null"
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
             if "main" in app.config['dbnames']:
                 app.config['dbnames'].remove("main")
-            app.config['features'] = { 'all': gbd.get_features() }
+            app.config['features_flat'] = gbd.get_features()
             for context in config.contexts():
                 local = util.prepend_context("local", context)
-                if local in app.config['features']['all']:
-                    app.config['features']['all'].remove(local)
+                if local in app.config['features_flat']:
+                    app.config['features_flat'].remove(local)
             app.config['dbpaths'] = dict()
+            app.config['features'] = dict()
             for db in app.config['dbnames']:
                 if db != 'main':
                     app.config['features'][db] = gbd.get_features(dbname=db)

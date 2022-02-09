@@ -3,43 +3,91 @@
 <html lang="en">
 <head>
     <title>GBD Benchmark Database</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='select2/css/select2.min.css') }}" />
+    <script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('.features').select2({
+                placeholder: 'Select Features',
+                allowClear: true,
+                closeOnSelect: false,
+                width: 'element'
+            })
+        });
+    </script>
 </head>
+
 <body>
 <div class="main">
-    <div class="logo">
-        <img center src="{{ url_for('static', filename='resources/gbd_logo_small.png') }}" alt="GBD-Logo">
+    <div class="navigation">
+    <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
+    <br /><br />
+    <ul>
+        <li>Download Databases: <br />
+            <ul>
+            {% for dbname, features in features.items() %}
+                <li>
+                <a href="/getdatabase/{{ dbname }}">Download {{ dbname }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        </li>
+        <li>Background: <br />
+            <ul>
+                <li>
+                <a href="https://arxiv.org/abs/2009.02995">Paper: CoRR 2020</a>
+                </li>
+                <li>
+                <a href="https://easychair.org/publications/paper/jQXv">Paper: POS@SAT 2018</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
     </div>
 
-    <div class="form">
+    <div class="heading">
+        <h3>Find and Download CNF Benchmark Instances by Feature Values.</h3>
         <form method="post">
-            <input type="text" name="query" size="64">
-            <br /><br />
-            <button type="submit" formaction="/results">Show Instances and Features</button>
-            <button type="submit" formaction="/getinstances">Download Instances (URIs)</button>
-            <button type="submit" formaction="/exportcsv">Download Features (CSVs)</button>
+            <input type="text" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
             <br />
+            <select multiple name="selected_features" class="features">
             {% for dbname, features in features.items() %}
-                {% if dbname != "all" %}
-                    <button formmethod="get" formaction="/getdatabase/{{ dbname }}">{{ dbname }}</button> 
-                    {% for feat in features %}
-                        {% if feat in selected %}
-                        <input type="checkbox" name="selected_features" value="{{ feat }}" checked>{{ feat }}
-                        {% else %}
-                        <input type="checkbox" name="selected_features" value="{{ feat }}">{{ feat }}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-                <br /><br />
+                <optgroup label="{{ dbname }}">
+                {% for feat in features %}
+                    {% if feat in selected %}
+                    <option value="{{ feat }}" selected>{{ feat }}</option>
+                    {% else %}
+                    <option value="{{ feat }}">{{ feat }}</option>
+                    {% endif %}
+                {% endfor %}
+                </optgroup>
             {% endfor %}
+            </select>
+            <br />
+            <button type="submit" class="submit" formaction="/" style="border-color: var(--link-color-2);">Show Instances and Features</button>
+            <button type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
+            <button type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
     </div>
     
-    <div class="table">
-        <ul>
-            {% for row in result %}
-            <li>{{ row }}</li>
+    <div class="content">
+        <table>
+            <th>
+            {% for feature in selected_features %}
+                <td>{{ feature }}</td>
             {% endfor %}
-        </ul>
+            </th>
+            
+            {% for row in result %}
+            <tr>
+                {% for item in row %}
+                <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </div>
 </body>
