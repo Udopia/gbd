@@ -19,6 +19,7 @@
 
 import logging
 import os
+import re
 import argparse
 import operator
 
@@ -52,6 +53,10 @@ def request_features(request):
     if "selected_features" in request.form:
         selected_features = list(filter(lambda x: x != '', request.form.getlist('selected_features')))
     return list(set(app.config['features_flat']) & set(selected_features))
+
+
+def query_to_name(query):
+    return re.sub(r'[^\w]', '_', query)
 
 
 def error_response(msg, addr, errno=404):
@@ -102,7 +107,7 @@ def get_csv_file(context='cnf'):
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         titles = " ".join([ group ] + features) + "\n"
         content = "\n".join([" ".join([str(entry) for entry in result]) for result in results])
-        return file_response(titles + content, "query_result.csv", "text/csv", request.remote_addr)
+        return file_response(titles + content, query_to_name(query) + ".csv", "text/csv", request.remote_addr)
 
 
 # Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
@@ -116,8 +121,11 @@ def get_url_file(context='cnf'):
             result = gbd_api.query_search(query, group_by=util.prepend_context("hash", context))
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
-        content = "\n".join([ flask.url_for("get_file", hashvalue=row[0], context=context, _external=True) for row in result ])
-        return file_response(content, "query_result.uri", "text/uri-list", request.remote_addr)
+        if context == 'cnf':
+            content = "\n".join([ flask.url_for("get_file", hashvalue=row[0], _external=True) for row in result ])
+        else:
+            content = "\n".join([ flask.url_for("get_file", hashvalue=row[0], context=context, _external=True) for row in result ])
+        return file_response(content, query_to_name(query) + ".uri", "text/uri-list", request.remote_addr)
 
 
 # Return list of databases
