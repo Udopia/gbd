@@ -26,6 +26,19 @@
     <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
     <br /><br />
     <ul>
+        <li>Query Shortcuts: <br />
+            <ul>
+                <li>
+                <a href="{{ url_for('quick_search', track='main_2021') }}">SC2021: Main Track</a>
+                </li>
+                <li>
+                <a href="{{ url_for('quick_search', track='crypto_2021') }}">SC2021: Crypto Track</a>
+                </li>
+                <li>
+                <a href="{{ url_for('quick_search', family='cryptography', result='sat') }}">Satisfiable Cryptographic<br /> Instances</a>
+                </li>
+            </ul>
+        </li>
         <li>Download Databases: <br />
             <ul>
             {% for dbname, features in features.items() %}
