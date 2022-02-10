@@ -137,42 +137,24 @@ class GBD:
             raise GBDException("Parser Error: {}".format(str(err)))
 
 
-    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", tmout=[], dict = "default", filenames=[]):
-
-        #what values to replace
-        if dict == "default":
-            replace_dict = {
-                "replace_tuples": [("timeout", np.inf), ("memout", np.inf), ("error", np.NaN)],
-            }
-
-        #no features selected error
-        if resolve==[]:
-            #print("No features selected.")
-            raise GBDException("No features selected.")
-        if feature == '':
-            # MI: classification code does not belong here
-            #print("No classification feature selected.")
-            raise GBDException("No classification feature selected.")
+    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", rep_features=[], replace_dict = {}, filenames=[]):
 
 
-        # two matrices, one for the normal, one for the timeout features
-        result1 = self.query_search(gbd_query, hashes, resolve+[feature], collapse, group_by) #family
-        result2 = self.query_search(gbd_query, hashes, tmout, collapse, group_by) #features
+        # create matrix
+        result = self.query_search(gbd_query, hashes, resolve + rep_features + [feature], collapse, group_by)
 
-        #conversion to the dataframes
-        df1 = pd.DataFrame(result1, columns=(['hash'] + resolve+[feature]))
-        df2 = pd.DataFrame(result2, columns=(['hash'] + tmout))
+        #conversion to the dataframe
+        df = pd.DataFrame(result, columns=(['hash'] + resolve + rep_features + [feature]))
 
         #check of dataframe values
         for replacement in replace_dict:
             for (key, value) in replace_dict[replacement]:
-                df2.replace(key, value)
+                df.replace(key, value)
 
-        df = df1.join(df2.set_index('hash'), on='hash')
-
-        #delete hash column
-        del df['hash']
-
+        for col in rep_features:
+            for replacement in replace_dict:
+                for (key, value) in replace_dict[replacement]:
+                    df[col] = df[col].replace(key, value)
 
         #delete unknown feature entries
         for i in range(len(df)):
@@ -180,7 +162,6 @@ class GBD:
                 df = df.drop(i)
 
         df = df.reset_index(drop=True)
-
 
         # convert to floats where possible
         for col in df.columns:
