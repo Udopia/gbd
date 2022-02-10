@@ -169,7 +169,7 @@ def main():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
-    parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, choices=range(1, multiprocessing.cpu_count()), nargs='?')
+    parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, type=int, choices=range(1, multiprocessing.cpu_count()), nargs='?')
     parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
     parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
     parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
