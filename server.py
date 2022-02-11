@@ -87,8 +87,8 @@ def page_response(query, features):
 # Returns main index page
 @app.route("/", methods=['POST', 'GET'])
 def quick_search():
-    query = request_query(request) or "track = main_2021"
-    features = request_features(request) or ["family", "filename"]
+    query = request_query(request)
+    features = request_features(request) or ["filename"]
     return page_response(query, features)
 
 
