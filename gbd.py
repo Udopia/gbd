@@ -127,7 +127,7 @@ def cli_plot_cdf(api: GBD, args):
 
 def cli_classify(api:GBD, args):
     from gbd_tool import classification
-    classification.classify2(api,args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict)
+    classification.classify2(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict)
 
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):

@@ -137,8 +137,7 @@ class GBD:
             raise GBDException("Parser Error: {}".format(str(err)))
 
 
-    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", rep_features=[], replace_dict = {}, filenames=[]):
-
+    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", rep_features=[], replace_dict = {}):
 
         # create matrix
         result = self.query_search(gbd_query, hashes, resolve + rep_features + [feature], collapse, group_by)
@@ -156,24 +155,6 @@ class GBD:
                 for (key, value) in replace_dict[replacement]:
                     df[col] = df[col].replace(key, value)
 
-        #delete unknown feature entries
-        for i in range(len(df)):
-            if df.at[i, feature] == 'unknown' or df.at[i, feature] == 'empty':
-                df = df.drop(i)
-
-        df = df.reset_index(drop=True)
-
-        # convert to floats where possible
-        for col in df.columns:
-            for i in range(len(df)):
-                e = df.iloc[i][col]
-
-                if util.is_number(e):
-                    # MI: does not belong here
-                    if float(e).is_integer():
-                        df.at[i, col] = int(float(e))
-                    else:
-                        df.at[i, col] = float(e)
 
         # return a dataframe that is as prepared for classification as possible
         return df
