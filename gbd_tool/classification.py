@@ -37,12 +37,29 @@ def classify2(api: GBD, query, feature, hashes, features, collapse,group_by, tim
     resultset = api.query_search2(query, feature, hashes, features, collapse, group_by,
                                   timeout_memout, replace_dict, filenames)
 
+    # in query ergänzen oder rausnehmen
+    # delete unknown feature entries
+    for i in range(len(resultset)):
+        if df.at[i, feature] == 'unknown' or df.at[i, feature] == 'empty':
+            df = df.drop(i)
+
+    df = df.reset_index(drop=True)
+
+    # convert to floats where possible
+    for col in resultset.columns:
+        for i in range(len(resultset)):
+            e = resultset.iloc[i][col]
+
+            if util.is_number(e):
+                # MI: does not belong here
+                if float(e).is_integer():
+                    resultset.at[i, col] = int(float(e))
+                else:
+                    resultset.at[i, col] = float(e)
 
     #Creates dictionaries for the translation of non-numerical and conituous numerical entries
     dict_str_e = {}
     dict_flt_f ={}
-
-
 
 
     dict_str_e[feature] = {}
