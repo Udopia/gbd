@@ -127,7 +127,7 @@ def cli_plot_cdf(api: GBD, args):
 
 def cli_classify(api:GBD, args):
     from gbd_tool import classification
-    classification.classify2(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict)
+    classification.classify(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict, args.mode)
 
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):
@@ -303,9 +303,10 @@ def main():
     parser_classify.add_argument('-c', '--collapse', default='group_concat',
                                    choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
                                    help='Treatment of multiple values per hash (or grouping value resp.)')
-    parser_classify.add_argument('-s', '--save', help='Save result to file', nargs='+')
+    parser_classify.add_argument('-s', '--save', help='Filename')
     parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser_classify.add_argument('-d', '--dict', default='default', help='Dictionary to replace the margin values')
+    parser_classify.add_argument('-m', '--mode', default ='0', help='How to evaluate the classification. 0: generates and stores classifier. 1: applies given clas0sifier. 2: generates a classifier and evaluates it.' )
     parser_classify.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
     parser_classify.set_defaults(func=cli_classify)
 
