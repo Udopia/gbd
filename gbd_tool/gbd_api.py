@@ -137,24 +137,9 @@ class GBD:
             raise GBDException("Parser Error: {}".format(str(err)))
 
 
-    def query_search2(self, gbd_query=None, feature='', hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", rep_features=[], replace_dict = {}):
-
-        # create matrix
-        result = self.query_search(gbd_query, hashes, resolve + rep_features + [feature], collapse, group_by)
-
-        #conversion to the dataframe
-        df = pd.DataFrame(result, columns=(['hash'] + resolve + rep_features + [feature]))
-
-        #check of dataframe values
-        for replacement in replace_dict:
-            for (key, value) in replace_dict[replacement]:
-                df.replace(key, value)
-
-        for col in rep_features:
-            for replacement in replace_dict:
-                for (key, value) in replace_dict[replacement]:
-                    df[col] = df[col].replace(key, value)
-
-
-        # return a dataframe that is as prepared for classification as possible
+    def query_search2(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", replace = []):
+        result = self.query_search(gbd_query, hashes, resolve, collapse, group_by)
+        df = pd.DataFrame(result, columns=['hash'] + resolve)
+        for (key, value) in replace:
+            df.replace(key, value)
         return df
