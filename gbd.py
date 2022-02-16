@@ -298,14 +298,14 @@ def main():
     #CLASSIFICATION
     parser_classify = subparsers.add_parser('classify', help='trains the classifier and interprets it')
     add_query_and_hashes_arguments(parser_classify)
-    parser_classify.add_argument('-f', '--feature', help='Feature that should be classified')
-    parser_classify.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_classify.add_argument('-f', '--feature', help='Feature that should be classified', required=True)
+    parser_classify.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+', required=True)
     parser_classify.add_argument('-c', '--collapse', default='group_concat',
                                    choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
                                    help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_classify.add_argument('-s', '--save', help='Filename')
     parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
-    parser_classify.add_argument('-d', '--dict', default='default', help='Dictionary to replace the margin values')
+    parser_classify.add_argument('-d', '--dict', default=[], help='Dictionary to replace the margin values')
     parser_classify.add_argument('-m', '--mode', default ='0', help='How to evaluate the classification. 0: generates and stores classifier. 1: applies given clas0sifier. 2: generates a classifier and evaluates it.' )
     parser_classify.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
     parser_classify.set_defaults(func=cli_classify)
