@@ -141,5 +141,5 @@ class GBD:
         result = self.query_search(gbd_query, hashes, resolve, collapse, group_by)
         df = pd.DataFrame(result, columns=['hash'] + resolve)
         for (key, value) in replace:
-            df.replace(key, value)
+            df.replace(key, value, inplace=True)
         return df
