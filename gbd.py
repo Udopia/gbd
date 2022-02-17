@@ -158,6 +158,14 @@ def key_value_type(s):
         raise argparse.ArgumentTypeError('key-value type: {0} must be separated by exactly one = '.format(s))
     return (column_type(tup[0]), tup[1])
 
+def gbd_db_type(dbstr):
+    if not dbstr:
+        default=os.environ.get('GBD_DB')
+        if not default:
+            raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Get databases: http://gbd.iti.kit.edu/)")
+        return default
+    return dbstr
+
 def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('query', help='GBD Query', nargs='?')
     parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
@@ -168,16 +176,18 @@ def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
 def main():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
-    parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
+    parser.add_argument('-d', "--db", help='Specify database to work with', type=gbd_db_type, nargs='?', default=os.environ.get('GBD_DB'))
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, type=int, choices=range(1, multiprocessing.cpu_count()), nargs='?')
+    parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
+
     parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
     parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
     parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
+
     parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
-    parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
     parser.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
-                            help='Select context (affects hash-selection and feature-extraction in init)')
+                            help='Select context (affects selection of hash/identifier and available feature-extractors in init)')
 
     subparsers = parser.add_subparsers(help='Available Commands:', required=True, dest='gbd command')
 
@@ -312,30 +322,15 @@ def main():
 
     # PARSE ARGUMENTS
     args = parser.parse_args()
-    if not args.db:
-            eprint("""Error: No database path is given. 
-A database path can be given in two ways:
--- by setting the environment variable GBD_DB
--- by giving a path via --db=[path]
-A database file containing some attributes of instances used in the SAT Competitions can be obtained at http://gbd.iti.kit.edu/getdatabase""")
-    elif len(sys.argv) > 1:
-        try:
-            with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
-                if hasattr(args, 'hashes') and not sys.stdin.isatty():
-                    if not args.hashes or len(args.hashes) == 0:
-                        args.hashes = read_hashes()  # read hashes from stdin
-                args.func(api, args)
-        except GBDException as err:
-            eprint("GBD Exception: " + str(err))
-            sys.exit(1)
-        except DatabaseException as err:
-            eprint("Database Exception: " + str(err))
-            sys.exit(1)
-        except SchemaException as err:
-            eprint("Schema Exception: " + str(err))
-            sys.exit(1)
-    else:
-        parser.print_help()
+    try:
+        if hasattr(args, 'hashes') and not sys.stdin.isatty():
+            if not args.hashes or len(args.hashes) == 0:
+                args.hashes = read_hashes()  # read hashes from stdin
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+            args.func(api, args)
+    except Exception as e:
+        eprint("{}: {}".format(type(e), str(e)))
+        sys.exit(1)
 
 
 if __name__ == '__main__':
