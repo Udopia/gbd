@@ -35,7 +35,7 @@ class GBDQuery:
                     left:colname sop:('=' | '!=') "'" right:alnumplus "'" | 
                     left:colname sop:('unlike' | 'like') right:likean ;
             
-        aconstraint = left:term aop:('=' | '!=' | '<' | '>' | '<=' | '>=' ) right:term ;
+        aconstraint = left:term aop:('=' | '!=' | '<=' | '>=' | '<' | '>' ) right:term ;
 
         term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
 
