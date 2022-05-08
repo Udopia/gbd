@@ -72,8 +72,8 @@ def init_local(api: GBD, root):
     #if clocal in api.get_features():
     for suffix in config.suffix_list(api.context):
         for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
-            if not len(api.query_search("{}='{}'".format(clocal, path))):
-                resultset.append(("", path))
+            #if not len(api.query_search("{}='{}'".format(clocal, path))):
+            resultset.append(("", path))
     run(api, resultset, compute_hash, api.get_limits())
 
 
