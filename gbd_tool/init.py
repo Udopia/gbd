@@ -101,8 +101,9 @@ def run(api: GBD, resultset, func, args: dict):
             safe_run_results(api, result, check=first)
             first = False
     else:
+        clocal=util.prepend_context("local", api.context)
         with pebble.ProcessPool(max_workers=min(multiprocessing.cpu_count(), api.jobs), max_tasks=1) as p:
-            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
+            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset if not len(api.query_search("{}='{}'".format(clocal, local))) ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
