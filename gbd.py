@@ -166,6 +166,13 @@ def gbd_db_type(dbstr):
         return default
     return dbstr
 
+def jobs_type(jobs):
+    val = int(jobs)
+    if val >= 1 and val <= multiprocessing.cpu_count():
+        return val
+    else:
+        raise argparse.ArgumentTypeError('number of jobs not accepted')
+
 def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('query', help='GBD Query', nargs='?')
     parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
@@ -177,7 +184,7 @@ def main():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
     parser.add_argument('-d', "--db", help='Specify database to work with', type=gbd_db_type, nargs='?', default=os.environ.get('GBD_DB'))
-    parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, type=int, choices=range(1, multiprocessing.cpu_count()), nargs='?')
+    parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, type=jobs_type, nargs='?')
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
 
     parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
