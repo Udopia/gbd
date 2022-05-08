@@ -101,7 +101,7 @@ def run(api: GBD, resultset, func, args: dict):
             safe_run_results(api, result, check=first)
             first = False
     else:
-        with pebble.ProcessPool(min(multiprocessing.cpu_count(), api.jobs)) as p:
+        with pebble.ProcessPool(max_workers=min(multiprocessing.cpu_count(), api.jobs), max_tasks=1) as p:
             futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
