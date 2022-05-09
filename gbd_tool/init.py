@@ -64,16 +64,18 @@ except ImportError:
 def init_local(api: GBD, root):
     clocal=util.prepend_context("local", api.context)
     api.database.create_feature(clocal, permissive=True)
-    sanitize = [path[0] for path in api.query_search(group_by=clocal) if not isfile(path[0])]
+    paths = set(res[0] for res in api.query_search(group_by=clocal))
+    sanitize = [path for path in paths if not isfile(path)]
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
-        for paths in slice_iterator(sanitize, 1000):
-            api.database.delete_values("local", paths)
+        for paths_chunk in slice_iterator(sanitize, 1000):
+            api.database.delete_values("local", paths_chunk)
     resultset = []
     #if clocal in api.get_features():
     for suffix in config.suffix_list(api.context):
         for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
             #if not len(api.query_search("{}='{}'".format(clocal, path))):
-            resultset.append(("", path))
+            if not path in paths:
+                resultset.append(("", path))
     run(api, resultset, compute_hash, api.get_limits())
 
 
@@ -103,7 +105,7 @@ def run(api: GBD, resultset, func, args: dict):
     else:
         clocal=util.prepend_context("local", api.context)
         with pebble.ProcessPool(max_workers=min(multiprocessing.cpu_count(), api.jobs), max_tasks=1) as p:
-            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset if not len(api.query_search("{}='{}'".format(clocal, local))) ]
+            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
