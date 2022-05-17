@@ -68,21 +68,35 @@ def init_local(api: GBD, root):
     sanitize = [path for path in paths if not isfile(path)]
     if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
         for paths_chunk in slice_iterator(sanitize, 1000):
-            api.database.delete_values("local", paths_chunk)
+            api.database.delete_values(clocal, paths_chunk)
     resultset = []
     #if clocal in api.get_features():
-    for suffix in config.suffix_list(api.context):
-        for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
-            #if not len(api.query_search("{}='{}'".format(clocal, path))):
-            if not path in paths:
-                resultset.append(("", path))
-    run(api, resultset, compute_hash, api.get_limits())
+    if api.context == "cnf2":
+        for [hash, local] in api.query_search(resolve=["local"]):
+            if local:
+                missing = [ p for p in local.split(",") if not p in paths ]
+                if len(missing):
+                    resultset.append([hash, ",".join(missing)])
+    else:
+        for suffix in config.suffix_list(api.context):
+            for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
+                #if not len(api.query_search("{}='{}'".format(clocal, path))):
+                if not path in paths:
+                    resultset.append(("", path))
+    run(api, resultset, compute_hash, {'context': api.context, **api.get_limits()})
 
 
-def compute_hash(nohashvalue, path, args):
+def compute_hash(buggyhash, path, args):
     eprint('Hashing {}'.format(path))
-    hashvalue = gbd_hash(path)
-    return [ ('local', hashvalue, path) ]
+    if args["context"] == "cnf2":
+        paths=path.split(",")
+        hashvalue = gbd_hash(paths[0])
+        clocal=util.prepend_context("local", args["context"])
+        return [ (clocal, hashvalue, p) for p in paths ] + [ ("cnf_to_cnf2", buggyhash, hashvalue), ("cnf2_to_cnf", hashvalue, buggyhash) ]
+    else:
+        hashvalue = gbd_hash(path)
+        clocal=util.prepend_context("local", args["context"])
+        return [ (clocal, hashvalue, path) ]
 
 
 def safe_run_results(api: GBD, result, check=False):

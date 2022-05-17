@@ -18,6 +18,7 @@
 
 contexts_ = {
     "cnf" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
+    "cnf2" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
     "kis" : [".kis", ".kis.gz", ".kis.lzma", ".kis.xz", ".kis.bz2"]
 }
 
