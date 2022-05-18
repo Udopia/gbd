@@ -29,6 +29,7 @@ import atexit
 import multiprocessing
 import pebble
 from concurrent.futures import as_completed
+from iteration_utilities import grouper
 
 from gbd_tool import config, util
 from gbd_tool.gbd_api import GBD, GBDException
@@ -215,20 +216,22 @@ def run(api: GBD, resultset, func, args: dict):
             first = False
     else:
         clocal=util.prepend_context("local", api.context)
-        with pebble.ProcessPool(max_workers=min(multiprocessing.cpu_count(), api.jobs), max_tasks=1) as p:
-            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
-            for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
-                try:
-                    result = f.result()
-                    safe_run_results(api, result, check=first)
-                    first = False
-                except pebble.ProcessExpired as e:
-                    f.cancel()
-                    eprint("{}: {}".format(e.__class__.__name__, e))
-                except GBDException as e:  # might receive special handling in the future
-                    eprint("{}: {}".format(e.__class__.__name__, e))
-                except Exception as e:
-                    eprint("{}: {}".format(e.__class__.__name__, e))
+        njobs=min(multiprocessing.cpu_count(), api.jobs)
+        for subset in grouper(resultset, 3*njobs):
+            with pebble.ProcessPool(max_workers=njobs, max_tasks=1) as p:
+                futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in subset ]
+                for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
+                    try:
+                        result = f.result()
+                        safe_run_results(api, result, check=first)
+                        first = False
+                    except pebble.ProcessExpired as e:
+                        f.cancel()
+                        eprint("{}: {}".format(e.__class__.__name__, e))
+                    except GBDException as e:  # might receive special handling in the future
+                        eprint("{}: {}".format(e.__class__.__name__, e))
+                    except Exception as e:
+                        eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 def init_transform_cnf_to_kis(api: GBD, query, hashes, max_edges, max_nodes):
