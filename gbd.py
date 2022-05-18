@@ -62,6 +62,9 @@ def cli_init_iso(api: GBD, args):
     from gbd_tool import init
     init.init_iso_hash(api, args.query, args.hashes)
 
+def cli_init_sani(api: GBD, args):
+    from gbd_tool import init
+    init.init_sani(api, args.query, args.hashes)
 
 def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
@@ -223,6 +226,10 @@ def main():
     parser_init_iso = parser_init_subparsers.add_parser('isohash', help='Initialize Isomorphic Hash (MD5 of sorted degree sequence)')
     add_query_and_hashes_arguments(parser_init_iso)
     parser_init_iso.set_defaults(func=cli_init_iso)
+    # init sanitized:
+    parser_init_sani = parser_init_subparsers.add_parser('sanitize', help='Initialize sanitized benchmarks')
+    add_query_and_hashes_arguments(parser_init_sani)
+    parser_init_sani.set_defaults(func=cli_init_sani)
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
