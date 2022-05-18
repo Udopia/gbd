@@ -193,11 +193,11 @@ def compute_sani(hashvalue, paths, args):
             sanname = os.path.splitext(path)[0]
             #with lzma.open(sanname, 'w') as f, stdout_redirected(f):
             with open(sanname, 'w') as f, stdout_redirected(f):
-                atexit.register(os.remove, sanname)
+                #atexit.register(os.remove, sanname)
                 if sanitize(path): 
                     sanhash = gbd_hash(sanname)
                     result.extend([ ('sancnf_local', sanhash, sanname), ('sancnf_to_cnf', sanhash, hashvalue), ('cnf_to_sancnf', hashvalue, sanhash) ])
-                atexit.unregister(os.remove)
+                #atexit.unregister(os.remove)
         else:
             sanname2 = os.path.splitext(path)[0]
             shutil.copy(sanname, sanname2)
@@ -215,23 +215,22 @@ def run(api: GBD, resultset, func, args: dict):
             safe_run_results(api, result, check=first)
             first = False
     else:
-        clocal=util.prepend_context("local", api.context)
         njobs=min(multiprocessing.cpu_count(), api.jobs)
-        for subset in grouper(resultset, 3*njobs):
-            with pebble.ProcessPool(max_workers=njobs, max_tasks=1) as p:
-                futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in subset ]
-                for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
-                    try:
-                        result = f.result()
-                        safe_run_results(api, result, check=first)
-                        first = False
-                    except pebble.ProcessExpired as e:
-                        f.cancel()
-                        eprint("{}: {}".format(e.__class__.__name__, e))
-                    except GBDException as e:  # might receive special handling in the future
-                        eprint("{}: {}".format(e.__class__.__name__, e))
-                    except Exception as e:
-                        eprint("{}: {}".format(e.__class__.__name__, e))
+        #for subset in grouper(resultset, njobs):
+        with pebble.ProcessPool(max_workers=njobs, max_tasks=1) as p:
+            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
+            for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
+                try:
+                    result = f.result()
+                    safe_run_results(api, result, check=first)
+                    first = False
+                except pebble.ProcessExpired as e:
+                    f.cancel()
+                    eprint("{}: {}".format(e.__class__.__name__, e))
+                except GBDException as e:  # might receive special handling in the future
+                    eprint("{}: {}".format(e.__class__.__name__, e))
+                except Exception as e:
+                    eprint("{}: {}".format(e.__class__.__name__, e))
 
 
 def init_transform_cnf_to_kis(api: GBD, query, hashes, max_edges, max_nodes):
