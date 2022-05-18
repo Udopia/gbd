@@ -128,9 +128,13 @@ def cli_plot_cdf(api: GBD, args):
     from gbd_tool import plot
     plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
-def cli_classify(api:GBD, args):
+def cli_classify(api: GBD, args):
     from gbd_tool import classification
     classification.classify(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict, args.mode)
+
+def cli_merge_contexts(api: GBD, args):
+    from gbd_tool import contexts
+    contexts.merge(api, args.source, args.target)
 
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):
@@ -275,6 +279,14 @@ def main():
     parser_info = subparsers.add_parser('info', help='Print info about available features')
     parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_info.set_defaults(func=cli_info)
+
+    # CONTEXTS RELATED STUFF
+    parser_context = subparsers.add_parser('context', help='manipulate contexts')
+    parser_context_subparsers = parser_context.add_subparsers(help='select method', required=True)
+    parser_context_merge = parser_context_subparsers.add_parser('merge', help='merge contexts: replaces target hashes with source hashes in all tables')
+    parser_context_merge.add_argument('source', help='source context')
+    parser_context_merge.add_argument('target', help='target context')
+    parser_context_merge.set_defaults(func=cli_merge_contexts)
 
     # SCORE CALCULATION
     parser_eval = subparsers.add_parser('eval', help='Evaluate Runtime Features')
