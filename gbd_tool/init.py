@@ -24,6 +24,7 @@ import glob
 import lzma
 import shutil
 import sys
+import atexit
 
 import multiprocessing
 import pebble
@@ -191,9 +192,11 @@ def compute_sani(hashvalue, paths, args):
             sanname = os.path.splitext(path)[0]
             #with lzma.open(sanname, 'w') as f, stdout_redirected(f):
             with open(sanname, 'w') as f, stdout_redirected(f):
+                atexit.register(os.remove, sanname)
                 if sanitize(path): 
                     sanhash = gbd_hash(sanname)
                     result.extend([ ('sancnf_local', sanhash, sanname), ('sancnf_to_cnf', sanhash, hashvalue), ('cnf_to_sancnf', hashvalue, sanhash) ])
+                atexit.unregister(os.remove)
         else:
             sanname2 = os.path.splitext(path)[0]
             shutil.copy(sanname, sanname2)
