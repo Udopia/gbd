@@ -21,8 +21,9 @@ from os.path import isfile, basename, exists
 from functools import reduce
 
 import glob
-
-import hashlib
+import lzma
+import shutil
+import sys
 
 import multiprocessing
 import pebble
@@ -59,24 +60,63 @@ except ImportError:
     def isohash(path) -> dict:
         raise GBDException(METHOD_UNAVAILABLE.format("isohash"))
 
+try:
+    from gbdc import sanitize
+except ImportError:
+    def sanitize(path) -> bool:
+        raise GBDException(METHOD_UNAVAILABLE.format("sanitize"))
+
+# Thanks to Boris V. for this code https://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python
+from contextlib import contextmanager
+
+def fileno(file_or_fd):
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
+
+@contextmanager
+def stdout_redirected(to=os.devnull, stdout=None):
+    if stdout is None:
+       stdout = sys.stdout
+
+    stdout_fd = fileno(stdout)
+    # copy stdout_fd before it is overwritten
+    #NOTE: `copied` is inheritable on Windows when duplicating a standard stream
+    with os.fdopen(os.dup(stdout_fd), 'wb') as copied: 
+        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        try:
+            os.dup2(fileno(to), stdout_fd)  # $ exec >&to
+        except ValueError:  # filename
+            with open(to, 'wb') as to_file:
+                os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
+        try:
+            yield stdout # allow code to be run with the redirected stdout
+        finally:
+            # restore stdout to its previous value
+            #NOTE: dup2 makes stdout_fd inheritable unconditionally
+            stdout.flush()
+            os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
+
 
 # Initialize table 'local' with instances found under given path
 def init_local(api: GBD, root):
     clocal=util.prepend_context("local", api.context)
     api.database.create_feature(clocal, permissive=True)
     paths = set(res[0] for res in api.query_search(group_by=clocal))
-    sanitize = [path for path in paths if not isfile(path)]
-    if len(sanitize) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
-        for paths_chunk in slice_iterator(sanitize, 1000):
+    missing_files = [path for path in paths if not isfile(path)]
+    if len(missing_files) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
+        for paths_chunk in slice_iterator(missing_files, 1000):
             api.database.delete_values(clocal, paths_chunk)
     resultset = []
     #if clocal in api.get_features():
     if api.context == "cnf2":
-        for [hash, local] in api.query_search(resolve=["local"]):
-            if local:
-                missing = [ p for p in local.split(",") if not p in paths ]
-                if len(missing):
-                    resultset.append([hash, ",".join(missing)])
+        #for [hash, local] in api.query_search(resolve=["local"]):
+        #    if local:
+        #        missing = [ p for p in local.split(",") if not p in paths ]
+        #        if len(missing):
+        #            resultset.append([hash, ",".join(missing)])
+        resultset = api.query_search("cnf_to_cnf2 = empty", resolve=["local"])
     else:
         for suffix in config.suffix_list(api.context):
             for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
@@ -104,8 +144,51 @@ def safe_run_results(api: GBD, result, check=False):
         name, hashv, value = attr[0], attr[1], attr[2]
         eprint("Saving {}={} for {}".format(name, value, hashv))
         if check and not name in api.database.get_features():
-            api.database.create_feature(name, "empty")
+            if name.endswith() == "_local":
+                api.database.create_feature(name)
+            else:
+                api.database.create_feature(name, "empty")
         api.database.set_values(name, value, [hashv])
+
+
+# Sanitize given instances
+def init_sani(api: GBD, query, hashes):
+    resultset = []
+
+    for [hash, local] in api.query_search(query, hashes, ["local"]):
+        if local:
+            missing = []
+            for path in local.split(","):
+                (dirname, filename) = os.path.split(path)
+                sanname = "{}san-{}".format(dirname, filename)
+                if not isfile(sanname):
+                    missing.append(path)
+            if len(missing):
+                resultset.append([hash, ",".join(missing)])
+
+    run(api, resultset, compute_sani, api.get_limits())
+
+def compute_sani(hashvalue, paths, args):
+    result = []
+
+    sanname = None
+    sanhash = None
+    for path in paths:
+        eprint('Sanitizing {}'.format(path))
+
+        (dirname, filename) = os.path.split(path)
+        if sanname == None or sanhash == None:
+            sanname = "{}san-{}".format(dirname, filename)
+            with lzma.open(sanname, 'w') as f, stdout_redirected(f):
+                if sanitize(path): 
+                    sanhash = gbd_hash(sanname)
+                    result.extend([ ('sancnf_local', sanhash, sanname), ('sancnf_to_cnf', sanhash, hashvalue), ('cnf_to_sancnf', hashvalue, sanhash) ])
+        else:
+            sanname2 = "{}san-{}".format(dirname, filename)
+            shutil.copy(sanname, sanname2)
+            result.append(('sancnf_local', sanhash, sanname2))
+
+    return result
 
 
 # Parallel Runner
