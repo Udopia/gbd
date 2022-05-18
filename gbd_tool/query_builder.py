@@ -110,7 +110,7 @@ class GBDQuery:
                                 translator2 = "{}_to_{}".format(feature_context, group_context)
                                 dbtrans2 = self.db.ftable(translator2)
                                 result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(self.db.ftable(translator2), gtab, dbtrans2)
-                            result = result + " INNER JOIN {} ON {} = {}.hash".format(ftab, dbtrans2, ftab)
+                            result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(ftab, dbtrans2, ftab)
         return result
 
     def collect_features(self, ast, resolve):
