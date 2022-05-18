@@ -87,7 +87,7 @@ class GBDQuery:
     def build_join(self, group_by, features):
         group_context = self.db.fcontext(group_by)
         used_contexts = []
-        used_tables = []
+        used_tables = [ self.db.ftable(group_by) ]
         result = ""
         for feature in features:
             if feature != group_by:
@@ -101,14 +101,16 @@ class GBDQuery:
                             result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
                         else:
                             translator = "{}_to_{}".format(group_context, feature_context)
-                            dbtrans = "{}.{}".format(self.db.fdatabase(translator), translator)
+                            dbtrans = "{}.{}".format(self.db.ftable(translator), translator)
                             if not translator in self.db.get_features():
                                 raise DatabaseException("Context translator table not found: " + translator)
                             if not feature_context in used_contexts and not dbtrans in used_tables:
                                 used_contexts.append(feature_context)
                                 used_tables.append(dbtrans)
-                                result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(dbtrans, gtab, dbtrans)
-                            result = result + " INNER JOIN {} ON {}.value = {}.hash".format(ftab, dbtrans, ftab)
+                                translator2 = "{}_to_{}".format(feature_context, group_context)
+                                dbtrans2 = "{}.{}".format(self.db.ftable(translator2), translator2)
+                                result = result + " INNER JOIN {} ON {}.hash = {}".format(self.db.ftable(translator2), gtab, dbtrans2)
+                            result = result + " INNER JOIN {} ON {} = {}.hash".format(ftab, dbtrans, ftab)
         return result
 
     def collect_features(self, ast, resolve):

@@ -111,12 +111,13 @@ def init_local(api: GBD, root):
     resultset = []
     #if clocal in api.get_features():
     if api.context == "cnf2":
-        #for [hash, local] in api.query_search(resolve=["local"]):
-        #    if local:
-        #        missing = [ p for p in local.split(",") if not p in paths ]
-        #        if len(missing):
-        #            resultset.append([hash, ",".join(missing)])
-        resultset = api.query_search("cnf_to_cnf2 = empty", resolve=["local"])
+        api.database.create_feature("cnf_to_cnf2", permissive=True)
+        api.database.create_feature("cnf2_to_cnf", permissive=True)
+        for [hash, local] in api.query_search(resolve=["local"]):
+            if local:
+                missing = [ p for p in local.split(",") if not p in paths ]
+                if len(missing):
+                    resultset.append([hash, ",".join(missing)])
     else:
         for suffix in config.suffix_list(api.context):
             for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
@@ -127,16 +128,20 @@ def init_local(api: GBD, root):
 
 
 def compute_hash(buggyhash, path, args):
-    eprint('Hashing {}'.format(path))
-    if args["context"] == "cnf2":
-        paths=path.split(",")
-        hashvalue = gbd_hash(paths[0])
-        clocal=util.prepend_context("local", args["context"])
-        return [ (clocal, hashvalue, p) for p in paths ] + [ ("cnf_to_cnf2", buggyhash, hashvalue), ("cnf2_to_cnf", hashvalue, buggyhash) ]
+    if path:
+        eprint('Hashing {}'.format(path))
+        if args["context"] == "cnf2":
+            paths=path.split(",")
+            hashvalue = gbd_hash(paths[0])
+            clocal=util.prepend_context("local", args["context"])
+            return [ (clocal, hashvalue, p) for p in paths ] + [ ("cnf_to_cnf2", buggyhash, hashvalue), ("cnf2_to_cnf", hashvalue, buggyhash) ]
+        else:
+            hashvalue = gbd_hash(path)
+            clocal=util.prepend_context("local", args["context"])
+            return [ (clocal, hashvalue, path) ]
     else:
-        hashvalue = gbd_hash(path)
-        clocal=util.prepend_context("local", args["context"])
-        return [ (clocal, hashvalue, path) ]
+        eprint("Entry not found: " + buggyhash)
+        return []
 
 
 def safe_run_results(api: GBD, result, check=False):
@@ -153,18 +158,24 @@ def safe_run_results(api: GBD, result, check=False):
 
 # Sanitize given instances
 def init_sani(api: GBD, query, hashes):
+    api.database.create_feature("sancnf_local", permissive=True)
+    api.database.create_feature("cnf_to_sancnf", permissive=True)
+    api.database.create_feature("sancnf_to_cnf", permissive=True)
+
     resultset = []
 
-    for [hash, local] in api.query_search(query, hashes, ["local"]):
+    for [hashv, local] in api.query_search(query, hashes, ["local"]):
         if local:
             missing = []
             for path in local.split(","):
-                (dirname, filename) = os.path.split(path)
-                sanname = "{}san-{}".format(dirname, filename)
+                sanname = os.path.splitext(path)[0]
                 if not isfile(sanname):
                     missing.append(path)
             if len(missing):
-                resultset.append([hash, ",".join(missing)])
+                resultset.append([hashv, ",".join(missing)])
+        else:
+            eprint("Entry not found: " + hashv)
+            return []
 
     run(api, resultset, compute_sani, api.get_limits())
 
@@ -173,18 +184,18 @@ def compute_sani(hashvalue, paths, args):
 
     sanname = None
     sanhash = None
-    for path in paths:
+    for path in paths.split(","):
         eprint('Sanitizing {}'.format(path))
 
-        (dirname, filename) = os.path.split(path)
         if sanname == None or sanhash == None:
-            sanname = "{}san-{}".format(dirname, filename)
-            with lzma.open(sanname, 'w') as f, stdout_redirected(f):
+            sanname = os.path.splitext(path)[0]
+            #with lzma.open(sanname, 'w') as f, stdout_redirected(f):
+            with open(sanname, 'w') as f, stdout_redirected(f):
                 if sanitize(path): 
                     sanhash = gbd_hash(sanname)
                     result.extend([ ('sancnf_local', sanhash, sanname), ('sancnf_to_cnf', sanhash, hashvalue), ('cnf_to_sancnf', hashvalue, sanhash) ])
         else:
-            sanname2 = "{}san-{}".format(dirname, filename)
+            sanname2 = os.path.splitext(path)[0]
             shutil.copy(sanname, sanname2)
             result.append(('sancnf_local', sanhash, sanname2))
 
