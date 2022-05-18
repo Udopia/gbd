@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='3.9.4',
+  version='3.9.5',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -25,7 +25,8 @@ setup(name='gbd_tools',
     'matplotlib',
     'waitress',
     'pebble',
-    'sklearn'#,
+    'sklearn',
+    'iteration_utilities'#,
     #'piskle'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
