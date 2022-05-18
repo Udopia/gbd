@@ -171,7 +171,7 @@ class Database:
         context = context_from_name(name)
         if default_value is not None:
             features = prepend_context("features", context)
-            self.schemas[self.maindb].create_main_feature_table(context_from_name(name))
+            self.schemas[self.maindb].create_main_feature_table(context)
             self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, default_value))
             # update schema
             self.features[name] = FeatureInfo(name, self.maindb, context, features, name, default_value, False)
@@ -185,6 +185,7 @@ class Database:
             self.execute('CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(self.maindb, name))
             # insert default values for new hashes into features table
             features = prepend_context("features", context)
+            self.schemas[self.maindb].create_main_feature_table(context)
             self.execute("CREATE TRIGGER IF NOT EXISTS {}.{}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(self.maindb, name, name, features))
             # create "filename" view for "local" tables
             if name == prepend_context("local", context):
