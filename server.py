@@ -165,7 +165,7 @@ def get_file(hashvalue, context='cnf'):
         path, file = operator.itemgetter(1, 2)(records[0])
         if not os.path.exists(path):
             return error_response("Files temporarily not accessible", request.remote_addr)
-        return path_response(path, file, 'text/plain', request.remote_addr)
+        return path_response(path, hash+"-"+file, 'text/plain', request.remote_addr)
         
 
 # Resolves a hashvalue against a attribute and returns the result values
