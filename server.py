@@ -162,10 +162,10 @@ def get_file(hashvalue, context='cnf'):
         records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN", group_by=hash)
         if len(records) == 0:
             return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
-        path, file = operator.itemgetter(1, 2)(records[0])
+        hashv, path, file = operator.itemgetter(0, 1, 2)(records[0])
         if not os.path.exists(path):
             return error_response("Files temporarily not accessible", request.remote_addr)
-        return path_response(path, hash+"-"+file, 'text/plain', request.remote_addr)
+        return path_response(path, hashv+"-"+file, 'text/plain', request.remote_addr)
         
 
 # Resolves a hashvalue against a attribute and returns the result values
