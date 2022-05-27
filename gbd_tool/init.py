@@ -107,7 +107,7 @@ def init_local(api: GBD, root):
     api.database.create_feature(clocal, permissive=True)
     paths = set(res[0] for res in api.query_search(group_by=clocal))
     missing_files = [path for path in paths if not isfile(path)]
-    if len(missing_files) and confirm("{} files not found. Remove stale entries from local table?".format(len(sanitize))):
+    if len(missing_files) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing_files))):
         for paths_chunk in slice_iterator(missing_files, 1000):
             api.database.delete_values(clocal, paths_chunk)
     resultset = []
