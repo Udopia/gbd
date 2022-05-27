@@ -221,6 +221,10 @@ class Database:
         if not self.features[name].default:
             self.execute('DROP TABLE IF EXISTS {}'.format(name))
             self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
+            context = context_from_name(name)
+            if name == prepend_context("local", context):
+                filename = prepend_context("filename", context)
+                self.execute('DROP VIEW IF EXISTS {}'.format(filename))
         else:
             table = self.features[name].table
             self.execute("ALTER TABLE {} DROP COLUMN {}".format(table, name))

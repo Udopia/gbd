@@ -22,6 +22,7 @@ import multiprocessing
 import os
 import re
 import sys
+import traceback
 
 #gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 #if gbdroot in sys.path:
@@ -30,9 +31,7 @@ import sys
 
 import gbd_tool
 
-from gbd_tool.gbd_api import GBD, GBDException
-from gbd_tool.db import DatabaseException
-from gbd_tool.schema import SchemaException
+from gbd_tool.gbd_api import GBD
 from gbd_tool.util import eprint, read_hashes, confirm
 from gbd_tool import config
 
@@ -356,6 +355,8 @@ def main():
             args.func(api, args)
     except Exception as e:
         eprint("{}: {}".format(type(e), str(e)))
+        if args.verbose:
+            eprint(traceback.format_exc())
         sys.exit(1)
 
 
