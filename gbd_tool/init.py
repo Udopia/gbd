@@ -151,7 +151,7 @@ def safe_run_results(api: GBD, result, check=False):
         name, hashv, value = attr[0], attr[1], attr[2]
         eprint("Saving {}={} for {}".format(name, value, hashv))
         if check and not name in api.database.get_features():
-            if name.endswith() == "_local":
+            if name.endswith("_local"):
                 api.database.create_feature(name)
             else:
                 api.database.create_feature(name, "empty")
