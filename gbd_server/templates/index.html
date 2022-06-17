@@ -84,6 +84,7 @@
             <button type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
             <button type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
+        {{ result | length }} results for query "{{ query }}"
     </div>
     
     <div class="content">
