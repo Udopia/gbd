@@ -1,19 +1,31 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+#  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
+  release:
+    types: [ published ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
+# thanks to pjlamb12/angular-cli for the template
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag gbd-server:$(date +%s)
+    - uses: actions/checkout@v1
+    - name: Login to DockerHub Registry
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: Get the version
+      id: vars
+      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+    - name: Build the tagged Docker image
+      run: docker build . --file Dockerfile --tag udopia/gbd:${{steps.vars.outputs.tag}}
+    - name: Push the tagged Docker image
+      run: docker push udopia/gbd:${{steps.vars.outputs.tag}}
+    - name: Build the latest Docker image
+      run: docker build . --file Dockerfile --tag udopia/gbd:latest
+    - name: Push the latest Docker image
+      run: docker push udopia/gbd:latest
 
