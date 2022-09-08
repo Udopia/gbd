@@ -8,6 +8,7 @@
     <script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
+    <script src="{{ url_for('static', filename='w3.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('.features').select2({
@@ -26,20 +27,17 @@
     <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
     <br /><br />
     <ul>
-        <li>Query Shortcuts: <br />
+        <li>Shortcuts: <br />
             <ul>
                 <li>
-                <a href="{{ url_for('quick_search', track='main_2021') }}">SC2021: Main Track</a>
+                <a href="{{ url_for('quick_search', track='main_2022') }}">Main 2022</a>
                 </li>
                 <li>
-                <a href="{{ url_for('quick_search', track='crypto_2021') }}">SC2021: Crypto Track</a>
-                </li>
-                <li>
-                <a href="{{ url_for('quick_search', family='cryptography', result='sat') }}">Satisfiable Cryptographic<br /> Instances</a>
+                <a href="{{ url_for('quick_search', track='anni_2022') }}">Anniversary 2022</a>
                 </li>
             </ul>
         </li>
-        <li>Download Databases: <br />
+        <li>Databases: <br />
             <ul>
             {% for dbname, features in features.items() %}
                 <li>
@@ -48,7 +46,7 @@
             {% endfor %}
             </ul>
         </li>
-        <li>Background: <br />
+        <li>Literature: <br />
             <ul>
                 <li>
                 <a href="https://arxiv.org/abs/2009.02995">Paper: CoRR 2020</a>
@@ -80,11 +78,16 @@
             {% endfor %}
             </select>
             <br />
-            <button type="submit" class="submit" formaction="/" style="border-color: var(--link-color-2);">Show Instances and Features</button>
-            <button type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
-            <button type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
+            <button onclick="w3.hide('.info'); w3.show('#query')" type="submit" class="submit" formaction="/">Show Instances and Features</button>
+            <button onclick="w3.hide('.info'); w3.show('#download')" type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
+            <button onclick="w3.hide('.info')" type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
-        {{ result | length }} results for query "{{ query }}"
+        <div class="info" id="query">
+            29922 benchmarks
+        </div>
+        <div class="info" id="download">
+            The downloaded file contains the benchmark URIs. Use for example <b>wget --content-disposition -i filename.uri</b> for downloading them. 
+        </div>
     </div>
     
     <div class="content">
