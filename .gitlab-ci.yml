@@ -1,7 +1,7 @@
 stages:
 - build-image
 - tag-image
-- deploy
+
 
 variables:
   BUILD_IMAGE: qpr-registry.iti.kit.edu/gbd/gbd:$CI_COMMIT_SHA
@@ -43,46 +43,3 @@ tag-image:
     - docker tag $BUILD_IMAGE $RELEASE_IMAGE
     - docker push $RELEASE_IMAGE
 
-deploy_prod:
-  stage: deploy
-  image: ubuntu:18.04
-  environment:
-    name: production
-    url: gbd.iti.kit.edu
-  tags:
-    - linux
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  before_script:
-    - which ssh-agent || (apt-get update -y && apt-get install openssh-client -y)
-    - mkdir -p ~/.ssh
-    - echo "$DEPLOY_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H i12docker.iti.kit.edu >> ~/.ssh/known_hosts
-  script:
-    - ssh deploy@i12docker.iti.kit.edu "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml stop; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml rm --force; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml pull; docker-compose -f /srv/docker/compose/gbd/docker-compose.yml up -d; docker logout ${CI_REGISTRY}"
-
-deploy_dev:
-  stage: deploy
-  image: ubuntu:18.04
-  environment:
-    name: develop
-    url: gbd-staging.iti.kit.edu
-  tags:
-    - linux
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop"'
-  before_script:
-    - which ssh-agent || (apt-get update -y && apt-get install openssh-client -y)
-    - mkdir -p ~/.ssh
-    - echo "$DEPLOY_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H i12docker.iti.kit.edu >> ~/.ssh/known_hosts
-  script:
-    - ssh -T deploy@i12docker.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker-compose stop; docker-compose rm --force"
-    - 'ssh -T deploy@i12docker.iti.kit.edu "sed -i ''s/image: qpr-registry.iti.kit.edu\/gbd\/gbd:.*/image: qpr-registry.iti.kit.edu\/gbd\/gbd:$CI_COMMIT_SHA/g'' /srv/docker/compose/gbd-staging/docker-compose.yml"'
-    - ssh -T deploy@i12docker.iti.kit.edu "cd /srv/docker/compose/gbd-staging; docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY; docker-compose pull; docker-compose up -d; docker logout ${CI_REGISTRY}"
