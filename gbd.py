@@ -79,9 +79,9 @@ def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
 def cli_get(api: GBD, args):
-    resultset = api.query_search(args.query, args.hashes, args.resolve, args.collapse, args.group_by)
-    for result in resultset:
-        print(args.separator.join([(str(item or '')) for item in result]))
+    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.subselect)
+    for index, row in df.iterrows():
+        print(" ".join([ item or "None" for item in row.to_list() ]))
 
 def cli_set(api: GBD, args):
     api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
@@ -192,6 +192,7 @@ def main():
     parser.add_argument('-d', "--db", help='Specify database to work with', type=gbd_db_type, nargs='?', default=os.environ.get('GBD_DB'))
     parser.add_argument('-j', "--jobs", help='Specify number of parallel jobs', default=1, type=jobs_type, nargs='?')
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
+    parser.add_argument('-w', '--subselect', help='Move where to subselect', action='store_true')
 
     parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
     parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
