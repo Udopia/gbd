@@ -246,7 +246,7 @@ def main():
     add_query_and_hashes_arguments(parser_get)
     parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
     parser_get.add_argument('-c', '--collapse', default='group_concat', 
-                            choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'], 
+                            choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'], 
                             help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser_get.set_defaults(func=cli_get)
@@ -336,7 +336,7 @@ def main():
     parser_classify.add_argument('-f', '--feature', help='Feature that should be classified', required=True)
     parser_classify.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+', required=True)
     parser_classify.add_argument('-c', '--collapse', default='group_concat',
-                                   choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum'],
+                                   choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'],
                                    help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_classify.add_argument('-s', '--save', help='Filename')
     parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')

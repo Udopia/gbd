@@ -49,7 +49,7 @@ class GBDQuery:
     def __init__(self, db: Database, join_type="LEFT", collapse="GROUP_CONCAT"):
         self.db = db
         self.join_type = join_type
-        self.collapse = collapse
+        self.collapse = collapse if collapse != "none" else None
 
     # Generate SQL Query from given GBD Query 
     def build_query(self, query=None, hashes=[], resolve=[], group_by="hash"):
@@ -61,9 +61,10 @@ class GBDQuery:
         fro = self.build_from(group_by)
         joi = self.build_join(group_by, self.collect_features(ast, resolve))
         whe = self.build_where(ast, hashes, group_by)
-        gro = self.build_group_by(group_by)
+
+        gro = "GROUP BY {}".format(self.addr(group_by)) if self.collapse else " "
         
-        return "SELECT {} FROM {} {} WHERE {} GROUP BY {}".format(sel, fro, joi, whe, gro)
+        return "SELECT {} FROM {} {} WHERE {} {} ORDER BY {}".format(sel, fro, joi, whe, gro, self.addr(group_by))
 
 
     def features_exist_or_throw(self, features):
@@ -71,11 +72,16 @@ class GBDQuery:
             if not feature in self.db.get_features(tables=True, views=True):
                 raise DatabaseException("Unknown feature '{}'".format(feature))
 
+    def addr(self, feature):
+        return "{}.{}".format(self.db.ftable(feature), self.db.fcolumn(feature))
+
 
     def build_select(self, group_by, resolve):
         result = "{}.{}".format(self.db.ftable(group_by), self.db.fcolumn(group_by))
-        if len(resolve):
-            res = ", ".join(["{}(DISTINCT({}.{}))".format(self.collapse, self.db.ftable(f), self.db.fcolumn(f)) for f in resolve])
+        for res in resolve:
+            res = "{}.{}".format(self.db.ftable(res), self.db.fcolumn(res))
+            if self.collapse:
+                res = "{}(DISTINCT({}))".format(self.collapse, res)
             result = result + ", " + res
         return result
 
@@ -173,9 +179,3 @@ class GBDQuery:
             return "CAST({}.{} AS FLOAT)".format(ftab, fcol)
         elif ast["constant"]:
             return ast["constant"]
-
-
-    def build_group_by(self, group_by):
-        gtab = self.db.ftable(group_by)
-        gcol = self.db.fcolumn(group_by)
-        return "{}.{}".format(gtab, gcol)
