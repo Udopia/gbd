@@ -82,8 +82,8 @@
             <button onclick="w3.hide('.info'); w3.show('#download')" type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
             <button onclick="w3.hide('.info')" type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
-        <div class="info" id="query">
-            29922 benchmarks
+        <div class="info" id="query" style="display:block">
+            {{ result | length }} benchmarks
         </div>
         <div class="info" id="download">
             The downloaded file contains the benchmark URIs. Use for example <b>wget --content-disposition -i filename.uri</b> for downloading them. 
