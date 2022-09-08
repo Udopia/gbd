@@ -126,9 +126,9 @@ class GBD:
             raise GBDException("Feature '{}' not found".format(feature))
         self.database.delete_hashes(feature, hash_list)
 
-    def query_search(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash"):
+    def query_search(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", subselect=False):
         try:
-            query_builder = GBDQuery(self.database, self.join_type, collapse)
+            query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
             sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
             return self.database.query(sql)
         except sqlite3.OperationalError as err:
@@ -142,4 +142,11 @@ class GBD:
         df = pd.DataFrame(result, columns=['hash'] + resolve)
         for (key, value) in replace:
             df.replace(key, value, inplace=True)
+        return df
+
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
+        result = self.query_search(gbd_query, hashes, resolve, collapse, group_by, subselect)
+        cols = [ group_by ] + (resolve or [])
+        df = pd.DataFrame(result, columns=cols)
+        #df.set_index(group_by, inplace=True)
         return df

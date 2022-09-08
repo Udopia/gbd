@@ -46,9 +46,10 @@ class GBDQuery:
         colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
     '''
 
-    def __init__(self, db: Database, join_type="LEFT", collapse="GROUP_CONCAT"):
+    def __init__(self, db: Database, join_type="LEFT", collapse="GROUP_CONCAT", where_in_subselect=False):
         self.db = db
         self.join_type = join_type
+        self.subselect = where_in_subselect
         self.collapse = collapse if collapse != "none" else None
 
     # Generate SQL Query from given GBD Query 
@@ -142,7 +143,13 @@ class GBDQuery:
     def build_where(self, ast, hashes, group_by):
         result = "1=1"
         if ast:
-            result = self.build_where_recursive(ast)
+            if self.subselect:
+                fro = self.build_from(group_by)
+                joi = self.build_join(group_by, self.collect_features_recursive(ast))
+                whe = self.build_where_recursive(ast)
+                result = "{}.hash in (SELECT {}.hash FROM {} {} WHERE {})".format(self.db.ftable(group_by), self.db.ftable(group_by), fro, joi, whe)
+            else:
+                result = self.build_where_recursive(ast)
         if len(hashes):
             result = result + " AND {}.hash in ('{}')".format(self.db.ftable(group_by), "', '".join(hashes))
         return result
