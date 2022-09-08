@@ -35,8 +35,8 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, db_list, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, separator=" ", join_type="LEFT", verbose=False):
-        self.databases = db_list
+    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, separator=" ", join_type="LEFT", verbose=False):
+        self.databases = dbs if isinstance(dbs, list) else dbs.split(os.pathsep)
         self.context = context
         self.jobs = jobs
         self.tlim = tlim  # time limit (seconds)
