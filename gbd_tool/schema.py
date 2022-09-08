@@ -17,6 +17,7 @@
 import sqlite3
 import os
 import csv
+import re
 
 from dataclasses import dataclass
 
@@ -117,11 +118,12 @@ class Schema:
         try:
             with open(self.path) as csvfile:
                 csvreader = csv.DictReader(csvfile)
-                if not "hash" in csvreader.fieldnames:
+                cols = [ re.sub('[^0-9a-zA-Z]+', '_', n) for n in csvreader.fieldnames ]
+                if not "hash" in cols:
                     raise SchemaException("Column 'hash' not found in {}".format(csvfile))
-                for title in csvreader.fieldnames:
+                for title in cols:
                     self.features.append(FeatureInfo(prepend_context(title, context), self.dbname, context, table, title, None, True))
-                self.connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(table, ", ".join(csvreader.fieldnames)))
+                self.connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(table, ", ".join(cols)))
                 for row in csvreader:
                     self.connection.execute("INSERT INTO {} VALUES ('{}')".format(table, "', '".join(row.values())))
             self.connection.commit()
