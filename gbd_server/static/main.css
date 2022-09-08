@@ -85,7 +85,11 @@ button.submit {
 }
 
 .content ul li {
-  margin:10pt
+  margin:10pt;
+}
+
+.info {
+  display:none;
 }
 
 table, th, td {
