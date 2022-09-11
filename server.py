@@ -69,7 +69,7 @@ def file_response(text_blob, filename, mimetype, addr):
 
 def path_response(path, filename, mimetype, addr):
     app.logger.info("{}: Sending file {}".format(addr, path))
-    return send_file(path, as_attachment=True, attachment_filename=filename, mimetype=mimetype)
+    return send_file(path, as_attachment=True, download_name=filename, mimetype=mimetype)
 
 def json_response(json_blob, msg, addr):
     app.logger.info("{}: {}".format(addr, msg))
