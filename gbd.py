@@ -69,9 +69,9 @@ def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
 
 def cli_delete(api: GBD, args):
-    if args.hashes and len(args.hashes) > 0:
-        if args.force or confirm("Delete attributes of given hashes from '{}'?".format(args.name)):
-            api.remove_attributes(args.name, args.hashes)
+    if args.hashes and len(args.hashes) > 0 or args.values and len(args.values):
+        if args.force or confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
+            api.remove_attributes(args.name, args.values, args.hashes)
     elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.delete_feature(args.name)
 
@@ -81,7 +81,7 @@ def cli_rename(api: GBD, args):
 def cli_get(api: GBD, args):
     df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.subselect)
     for index, row in df.iterrows():
-        print(" ".join([ item or "None" for item in row.to_list() ]))
+        print(" ".join([ item or "[None]" for item in row.to_list() ]))
 
 def cli_set(api: GBD, args):
     api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
@@ -265,7 +265,8 @@ def main():
     parser_create.set_defaults(func=cli_create)
 
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
-    parser_delete.add_argument('--hashes', help='Hashes', nargs='*', default=[])
+    parser_delete.add_argument('--hashes', help='Hashes for which to delete values', nargs='*', default=[])
+    parser_delete.add_argument('--values', help='Values to delete', nargs='*', default=[])
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
