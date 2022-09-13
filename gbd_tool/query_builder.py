@@ -78,9 +78,9 @@ class GBDQuery:
 
 
     def build_select(self, group_by, resolve):
-        result = "{}.{}".format(self.db.ftable(group_by), self.db.fcolumn(group_by))
+        result = self.addr(group_by)
         for res in resolve:
-            res = "{}.{}".format(self.db.ftable(res), self.db.fcolumn(res))
+            res = self.addr(res)
             if self.collapse:
                 res = "{}(DISTINCT({}))".format(self.collapse, res)
             result = result + ", " + res
@@ -97,27 +97,28 @@ class GBDQuery:
         used_tables = [ self.db.ftable(group_by) ]
         result = ""
         for feature in features:
-            if feature != group_by:
-                ftab = self.db.ftable(feature)
-                if not ftab in used_tables:
-                    used_tables.append(ftab)
-                    gtab = self.db.ftable(group_by)
-                    if ftab != gtab:
-                        feature_context = self.db.fcontext(feature)
-                        if feature_context == group_context:
-                            result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
-                        else:
-                            translator = "{}_to_{}".format(group_context, feature_context)
-                            dbtrans = self.db.ftable(translator)
-                            if not translator in self.db.get_features():
-                                raise DatabaseException("Context translator table not found: " + translator)
-                            if not feature_context in used_contexts and not dbtrans in used_tables:
-                                used_contexts.append(feature_context)
-                                used_tables.append(dbtrans)
-                                translator2 = "{}_to_{}".format(feature_context, group_context)
-                                dbtrans2 = self.db.ftable(translator2)
-                                result = result + " INNER JOIN {} ON {}.hash = {}.value".format(self.db.ftable(translator2), gtab, dbtrans2)
-                            result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(ftab, dbtrans2, ftab)
+            ftab = self.db.ftable(feature)
+            if not ftab in used_tables:
+                used_tables.append(ftab)
+                gtab = self.db.ftable(group_by)
+                feature_context = self.db.fcontext(feature)
+                if feature_context == group_context:
+                    if self.db.fdefault(feature) or self.db.fvirtual(feature):
+                        result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
+                    else:
+                        result = result + " {} JOIN {} ON {}.{} = {}.hash".format(self.join_type, ftab, gtab, feature, ftab)
+                else:
+                    translator = "{}_to_{}".format(group_context, feature_context)
+                    dbtrans = self.db.ftable(translator)
+                    if not translator in self.db.get_features():
+                        raise DatabaseException("Context translator table not found: " + translator)
+                    if not feature_context in used_contexts and not dbtrans in used_tables:
+                        used_contexts.append(feature_context)
+                        used_tables.append(dbtrans)
+                        translator2 = "{}_to_{}".format(feature_context, group_context)
+                        dbtrans2 = self.db.ftable(translator2)
+                        result = result + " INNER JOIN {} ON {}.hash = {}.value".format(self.db.ftable(translator2), gtab, dbtrans2)
+                    result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(ftab, dbtrans2, ftab)
         return result
 
     def collect_features(self, ast, resolve):
@@ -141,15 +142,15 @@ class GBDQuery:
 
 
     def build_where(self, ast, hashes, group_by):
-        result = "1=1"
+        result = "{}.{} != 'None'".format(self.db.ftable(group_by), group_by)
         if ast:
             if self.subselect:
                 fro = self.build_from(group_by)
                 joi = self.build_join(group_by, self.collect_features_recursive(ast))
                 whe = self.build_where_recursive(ast)
-                result = "{}.hash in (SELECT {}.hash FROM {} {} WHERE {})".format(self.db.ftable(group_by), self.db.ftable(group_by), fro, joi, whe)
+                result = result + " AND {}.hash in (SELECT {}.hash FROM {} {} WHERE {})".format(self.db.ftable(group_by), self.db.ftable(group_by), fro, joi, whe)
             else:
-                result = self.build_where_recursive(ast)
+                result = result + " AND " + self.build_where_recursive(ast)
         if len(hashes):
             result = result + " AND {}.hash in ('{}')".format(self.db.ftable(group_by), "', '".join(hashes))
         return result

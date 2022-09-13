@@ -51,7 +51,7 @@ class Schema:
         self.contexts = []
         self.tables = []
         self.views = []
-        self.features = []
+        self.features = [FeatureInfo]
         if self.is_database(path):
             self.dbname = make_alnum_ul(os.path.basename(path))
             self.path = path
@@ -145,7 +145,8 @@ class Schema:
                 self.tables.append(table)
             columns = self.connection.execute("PRAGMA table_info({})".format(table)).fetchall()
             names = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
-            for record in columns:
+            # iterate columns skipping join hooks of multi-valued features:
+            for record in filter(lambda col: not col in tables, columns):
                 col = dict(zip(names, record))
                 fname = table if col['name'] == "value" else col['name']
                 if fname == "hash":
@@ -157,6 +158,7 @@ class Schema:
 
     def create_main_feature_table(self, context):
         self.valid_context_or_raise(context)
+        # create main table for context if it does not exist
         main_table = prepend_context("features", context)
         if not main_table in self.tables:
             self.connection.execute("CREATE TABLE IF NOT EXISTS {} (hash UNIQUE NOT NULL)".format(main_table))
@@ -169,6 +171,24 @@ class Schema:
             if not context in self.contexts:
                 self.contexts.append(context)
             self.features.append(FeatureInfo(prepend_context("hash", context), self.dbname, context, main_table, "hash", None, False))
+        # create join hooks for multi-valued tables if they do not exist
+        main_table_features = [ g.name for g in filter(lambda f: f.table == main_table, self.features) ]
+        tables = [ t for t in self.tables if context == context_from_name(t) and t != main_table ]
+        missing = [ f for f in tables if f not in main_table_features ]
+        for feature in missing:
+            self.connection.execute('ALTER TABLE {} ADD {} TEXT NOT NULL DEFAULT {}'.format(main_table, feature, "None"))
+            self.connection.commit()
+        #for feature in tables:
+            result = self.connection.execute("SELECT DISTINCT hash FROM " + feature).fetchall()
+            query = "UPDATE {} SET {} = ? WHERE hash = ?".format(main_table, feature)
+            hashes = [ [h, h] for (h,) in result ]
+            k = int(len(hashes) / 1000)
+            for subl in [ hashes[i : i + k] for i in range(0, len(hashes), k) ]:
+                self.connection.executemany(query, subl)
+                self.connection.commit()
+            self.connection.execute("INSERT OR REPLACE INTO {} VALUES ('None', 'None')".format(feature))
+            self.connection.commit()
+            
 
     def create_context_translator_table(self, src, dst):
         self.valid_context_or_raise(src)

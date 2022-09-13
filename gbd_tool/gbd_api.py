@@ -121,10 +121,10 @@ class GBD:
             raise GBDException(str(err))
 
     # Remove the attribute value for the given hashes
-    def remove_attributes(self, feature, hash_list):
+    def remove_attributes(self, feature, values=[], hashes=[]):
         if not feature in self.get_material_features():
-            raise GBDException("Feature '{}' not found".format(feature))
-        self.database.delete_hashes(feature, hash_list)
+            raise GBDException("Feature '{}' not found or virtual".format(feature))
+        self.database.delete(feature, values, hashes)
 
     def query_search(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", subselect=False):
         try:

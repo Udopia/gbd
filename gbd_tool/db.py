@@ -182,11 +182,15 @@ class Database:
                 self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, features, "hash", None, False)
                 self.schemas[self.maindb].features.append(self.features[hashfeature])
         else:
-            self.execute('CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))'.format(self.maindb, name))
-            # insert default values for new hashes into features table
+            self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(self.maindb, name))
+            self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')")
+            # insert join hook column into features table
             features = prepend_context("features", context)
             self.schemas[self.maindb].create_main_feature_table(context)
-            self.execute("CREATE TRIGGER IF NOT EXISTS {}.{}_dval AFTER INSERT ON {} BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END".format(self.maindb, name, name, features))
+            self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, "None"))
+            # always insert new hashes also into main table
+            self.execute("""CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {}
+                                            BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(name, name, features))
             # create "filename" view for "local" tables
             if name == prepend_context("local", context):
                 filename = prepend_context("filename", context)
@@ -208,11 +212,10 @@ class Database:
     def rename_feature(self, old_name, new_name):
         Schema.valid_feature_or_raise(new_name)
         self.fexists_or_raise(old_name)
+        table = self.features[old_name].table
+        self.execute("ALTER TABLE {} RENAME COLUMN {} TO {}".format(table, old_name, new_name))
         if not self.features[old_name].default:
             self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
-        else:
-            table = self.features[old_name].table
-            self.execute("ALTER TABLE {} RENAME COLUMN {} TO {}".format(table, old_name, new_name))
         self.features[new_name] = self.features.pop(old_name)
         self.features[new_name].name = new_name
 
@@ -236,32 +239,30 @@ class Database:
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
-        values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
         if not default:
-            try:
-                self.execute('INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash, value) DO UPDATE SET value=excluded.value'.format(d=database, tab=table, col=column, vals=values))
-            except sqlite3.OperationalError:  # unique constraint can be missing in old databases
-                self.execute('INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals}'.format(d=database, tab=table, col=column, vals=values))
+            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
+            self.execute("INSERT OR IGNORE INTO {d}.{tab} (hash, {col}) VALUES {vals}".format(d=database, tab=table, col=column, vals=values))
+            self.execute("UPDATE {d}.{tab} SET {col}=hash WHERE hash in ('{h}')".format(d=database, tab="features", col=table, h="', '".join(hashes)))
         else:
-            self.execute("INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT(hash) DO UPDATE SET {col}=excluded.{col}".format(d=database, tab=table, col=column, vals=values))
+            self.execute("UPDATE {d}.{tab} SET {col}='{val}' WHERE hash IN ('{h}')".format(d=database, tab=table, col=column, val=value, h="', '".join(hashes)))
 
-    def delete_hashes(self, feature, hashes):
+    def delete(self, feature, values=[], hashes=[]):
         self.fexists_or_raise(feature)
-        default = self.features[feature].default
-        if not default:
-            self.execute("DELETE FROM {} WHERE hash IN ('{}')".format(feature, "', '".join(hashes)))
-        else:
-            self.set_values(feature, default, hashes)
-
-    def delete_values(self, feature, values):
-        self.fexists_or_raise(feature)
+        database = self.features[feature].database
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
+        w1 = "value IN ('{v}')".format(v="', '".join(values)) if len(values) else "1=1"
+        w2 = "hash IN ('{h}')".format(h="', '".join(hashes)) if len(hashes) else "1=1"
+        where = "{} AND {}".format(w1, w2)
         if not default:
-            self.execute("DELETE FROM {} WHERE value IN ('{}')".format(feature, "', '".join(values)))
+            hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=database, tab=feature, w=where)) ]
+            self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=database, tab=feature, w=where))
+            remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=database, tab=feature, h="', '".join(hashlist))) ]
+            setnone = [ h for h in hashlist if not h in remaining ]
+            self.execute("UPDATE {d}.{tab} SET {col} = 'None' WHERE hash IN ('{h}')".format(d=database, tab="features", col=feature, h="', '".join(setnone)))
         else:
-            self.execute("UPDATE {} SET {} = '{}' WHERE value IN ('{}')".format(table, column, default, "', '".join(values)))
+            self.execute("UPDATE {d}.{tab} SET {col} = '{df}' WHERE {w}".format(d=database, tab=table, col=column, df=default, w=where))
 
 
     def feature_info(self, feature):
