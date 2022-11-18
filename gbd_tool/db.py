@@ -17,6 +17,8 @@
 import sqlite3
 import typing
 
+from pprint import pprint
+
 from gbd_tool.gbd_hash import HASH_VERSION
 from gbd_tool.util import eprint, prepend_context, context_from_name, make_alnum_ul
 from gbd_tool.schema import Schema, FeatureInfo
