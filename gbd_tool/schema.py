@@ -51,7 +51,7 @@ class Schema:
         self.contexts = []
         self.tables = []
         self.views = []
-        self.features = [FeatureInfo]
+        self.features = []
         if self.is_database(path):
             self.dbname = make_alnum_ul(os.path.basename(path))
             self.path = path
@@ -146,12 +146,15 @@ class Schema:
             columns = self.connection.execute("PRAGMA table_info({})".format(table)).fetchall()
             names = ('index', 'name', 'type', 'notnull', 'default_value', 'pk')
             # iterate columns skipping join hooks of multi-valued features:
-            for record in filter(lambda col: not col in tables, columns):
+            for record in columns:
+                if record[1] in [t[0] for t in tables]:
+                    continue
                 col = dict(zip(names, record))
                 fname = table if col['name'] == "value" else col['name']
+                dval = col['default_value'].strip('"') if col['default_value'] else None
                 if fname == "hash":
                     fname = prepend_context("hash", context)
-                self.features.append(FeatureInfo(fname, self.dbname, context, table, col['name'], col['default_value'], type == "view"))
+                self.features.append(FeatureInfo(fname, self.dbname, context, table, col['name'], dval, type == "view"))
         for context in self.contexts:
             self.create_main_feature_table(context)
 
@@ -171,7 +174,12 @@ class Schema:
             if not context in self.contexts:
                 self.contexts.append(context)
             self.features.append(FeatureInfo(prepend_context("hash", context), self.dbname, context, main_table, "hash", None, False))
+        #self.create_join_hooks()
+
+    #migrate from old schema to new schema
+    def create_join_hooks(self, context):
         # create join hooks for multi-valued tables if they do not exist
+        main_table = prepend_context("features", context)
         main_table_features = [ g.name for g in filter(lambda f: f.table == main_table, self.features) ]
         tables = [ t for t in self.tables if context == context_from_name(t) and t != main_table ]
         missing = [ f for f in tables if f not in main_table_features ]
