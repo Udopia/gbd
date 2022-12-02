@@ -41,7 +41,7 @@ class Database:
         schema: Schema
         for schema in self.schemas.values():
             if not schema.csv:
-                self.cursor.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname))
+                self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname), commit=False)
             if not self.maindb:
                 self.maindb = schema.dbname  # target of inserts and updates
         
@@ -86,12 +86,12 @@ class Database:
             eprint(q)
         return self.cursor.execute(q).fetchall()
 
-    def execute(self, q):
+    def execute(self, q, commit=True):
         if self.verbose:
             eprint(q)
         self.cursor.execute(q)
-        self.connection.commit()
-
+        if commit:
+            self.connection.commit()
 
     def dexists(self, dbname):
         return dbname in self.schemas.keys()
@@ -185,14 +185,14 @@ class Database:
                 self.schemas[self.maindb].features.append(self.features[hashfeature])
         else:
             self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(self.maindb, name))
-            self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')")
+            self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')".format(self.maindb, name))
             # insert join hook column into features table
             features = prepend_context("features", context)
             self.schemas[self.maindb].create_main_feature_table(context)
             self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, "None"))
             # always insert new hashes also into main table
-            self.execute("""CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {}
-                                            BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(name, name, features))
+            self.execute("""CREATE TRIGGER IF NOT EXISTS {}.{}_hash AFTER INSERT ON {}
+                                BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(self.maindb, name, name, features))
             # create "filename" view for "local" tables
             if name == prepend_context("local", context):
                 filename = prepend_context("filename", context)

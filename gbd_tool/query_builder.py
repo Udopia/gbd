@@ -142,7 +142,7 @@ class GBDQuery:
 
 
     def build_where(self, ast, hashes, group_by):
-        result = "{}.{} != 'None'".format(self.db.ftable(group_by), group_by)
+        result = "{}.{} != 'None'".format(self.db.ftable(group_by), self.db.fcolumn(group_by))
         if ast:
             if self.subselect:
                 fro = self.build_from(group_by)
