@@ -135,6 +135,8 @@ class Schema:
         sql_tables="""SELECT tbl_name, type FROM sqlite_master WHERE type IN ('table', 'view') 
                         AND NOT tbl_name LIKE 'sqlite$_%' ESCAPE '$' AND NOT tbl_name LIKE '$_$_%' ESCAPE '$'"""
         tables = self.connection.execute(sql_tables).fetchall()
+        if ("features", "table") in tables:
+            tables.insert(len(tables)-1, tables.pop(tables.index(("features", "table")))) # process features-table first
         for (table, type) in tables:
             context = context_from_name(table)
             if not context in self.contexts:
