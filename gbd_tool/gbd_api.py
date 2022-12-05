@@ -67,15 +67,15 @@ class GBD:
 
     # Get all features
     def get_features(self, dbname=None):
-        return self.database.get_features(tables=True, views=True, database=dbname)
+        return self.database.get_features(tables=True, views=True, db=dbname)
 
     # Get all material features
     def get_material_features(self, dbname=None):
-        return self.database.get_features(tables=True, views=False, database=dbname)
+        return self.database.get_features(tables=True, views=False, db=dbname)
 
     # Get all virtual features
     def get_virtual_features(self, dbname=None):
-        return self.database.get_features(tables=False, views=True, database=dbname)
+        return self.database.get_features(tables=False, views=True, db=dbname)
 
     # Check for existence of given feature
     def feature_exists(self, name):

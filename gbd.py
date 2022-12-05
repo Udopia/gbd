@@ -33,7 +33,7 @@ import gbd_tool
 
 from gbd_tool.gbd_api import GBD
 from gbd_tool.util import eprint, read_hashes, confirm
-from gbd_tool import config
+from gbd_tool import contexts
 
 
 ### Command-Line Interface Entry Points
@@ -200,7 +200,7 @@ def main():
 
     parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
-    parser.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
+    parser.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), 
                             help='Select context (affects selection of hash/identifier and available feature-extractors in init)')
 
     subparsers = parser.add_subparsers(help='Available Commands:', required=True, dest='gbd command')
@@ -237,7 +237,7 @@ def main():
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-    parser_hash.add_argument('-c', '--context', default='cnf', choices=config.contexts(), 
+    parser_hash.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), 
                             help='Select context (affects hashes and features)')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)

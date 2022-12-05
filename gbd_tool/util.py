@@ -20,23 +20,10 @@ import gzip
 import lzma
 import re
 
-from gbd_tool import config
+from gbd_tool import contexts
 
-__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number', 'context_from_name', 'prepend_context']
+__all__ = ['eprint', 'read_hashes', 'confirm', 'open_cnf_file', 'is_number']
 
-
-def make_alnum_ul(str):
-    return re.sub("[^a-zA-Z0-9]", "_", str)
-
-def prepend_context(feature, context):
-    return feature if context == 'cnf' else "{}_{}".format(context, feature)
-
-def context_from_name(name):
-    pair = name.split('_')
-    if len(pair) > 1 and pair[0] in config.contexts():
-        return pair[0]
-    else:
-        return 'cnf'
 
 
 
