@@ -19,9 +19,9 @@ import typing
 
 from pprint import pprint
 
-from gbd_tool.gbd_hash import HASH_VERSION
-from gbd_tool.util import eprint, prepend_context, context_from_name, make_alnum_ul
+from gbd_tool.util import eprint
 from gbd_tool.schema import Schema, FeatureInfo
+from gbd_tool import contexts
 
 
 class DatabaseException(Exception):
@@ -29,18 +29,17 @@ class DatabaseException(Exception):
 
 
 class Database:
-    INMEMORYDB = "file::memory:?cache=shared"
 
     def __init__(self, path_list, verbose=False):
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
         self.features = self.init_features()
-        self.connection = sqlite3.connect(Schema.IN_MEMORY_DB, uri=True, timeout=10)
+        self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True, timeout=10)
         self.cursor = self.connection.cursor()
         self.maindb = None
         schema: Schema
         for schema in self.schemas.values():
-            if not schema.csv:
+            if not schema.is_in_memory():
                 self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname), commit=False)
             if not self.maindb:
                 self.maindb = schema.dbname  # target of inserts and updates
@@ -56,14 +55,19 @@ class Database:
     def init_schemas(self, path_list) -> typing.Dict[str, Schema]:
         result = dict()
         for path in path_list:
-            schema: Schema = Schema(path)
+            schema = Schema.create(path)
+            schema.validate()
             if not schema.dbname in result:
                 result[schema.dbname] = schema
-            elif schema.csv:
+            elif schema.is_in_memory():
                 result[schema.dbname].absorb(schema)
             else:
                 raise DatabaseException("Database name collision on " + schema.dbname)
         return result
+
+    
+    def is_features_table(self, info: FeatureInfo):
+        return contexts.prepend_context("features", info.context) == info.table
 
     def init_features(self) -> typing.Dict[str, FeatureInfo]:
         result = dict()
@@ -73,8 +77,9 @@ class Database:
             for feature in schema.features:
                 if not feature.name in result:
                     result[feature.name] = feature
-                elif feature.column == "hash": 
-                    if not Schema.is_main_hash_column(result[feature.name]) and Schema.is_main_hash_column(feature):
+                elif feature.column == "hash" and self.is_features_table(feature): 
+                    # first found features table is the one that serves the hash
+                    if not self.is_features_table(result[feature.name]):
                         result[feature.name] = feature
                 else:
                     eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, result[feature.name].database))
@@ -103,13 +108,13 @@ class Database:
         return self.schemas[dbname].path
         
     def dcontexts(self, dbname):
-        return self.schemas[dbname].contexts
+        return self.schemas[dbname].get_contexts()
         
     def dtables(self, dbname):
-        return self.schemas[dbname].tables
+        return self.schemas[dbname].get_tables()
         
     def dviews(self, dbname):
-        return self.schemas[dbname].views
+        return self.schemas[dbname].get_views()
 
 
     def fexists(self, feature):
@@ -141,74 +146,54 @@ class Database:
     def get_databases(self):
         return self.schemas.keys()
   
-    def get_features(self, tables=True, views=True, database=None):
-        result = []
-        for (feature, info) in self.features.items():
-            if not views and info.virtual:
-                continue
-            if not tables and not info.virtual:
-                continue
-            if database and database != info.database:
-                continue
-            result.append(feature)
-        return result
+    def get_features(self, tables=True, views=True, db=None):
+        return [ f for (f, i) in self.features.items() if (views and i.virtual) or (tables and not i.virtual) and (not db or db == i.database) ]
 
-    def get_tables(self, context = None, dbname = None):
-        tables = list()
-        for finfo in self.features.values():
-            if (not context or context == finfo.context) and (not dbname or dbname == finfo.database) and not finfo.virtual:
-                if not finfo.table in tables:
-                    tables.append(finfo.table)
-        return tables
+    def get_tables(self, context = None, db = None):
+        tables = [ i.table for i in self.features.values() if not i.virtual and (not context or context == i.context) and (not db or db == i.database) ]
+        return list(set(tables))
 
 
     def create_feature(self, name, default_value=None, permissive=False):
-        if not permissive:  # internal use can be unchecked, e.g., to create the reserved feature local
+        if not permissive:  # internal use can be unchecked, e.g., to create the reserved features during initialization
             Schema.valid_feature_or_raise(name)
-        if self.fexists(name):
-            if not permissive:
-                raise DatabaseException("Feature {} exists".format(name))
+        
+        if not self.fexists(name):
+            # ensure existence of main features-table for context:
+            context = contexts.context_from_name(name)
+            context_main_table = contexts.prepend_context("features", context)
+            context_hash = contexts.prepend_context("hash", context)
+            if not context_main_table in self.get_tables():
+                self.features[context_hash] = self.schemas[self.maindb].create_main_feature_table(context)
+
+            # create new feature:
+            self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, context_main_table, name, default_value or "None"))
+            if default_value is not None:
+                # feature is unique and resides in main features-table:
+                self.features[name] = FeatureInfo(name, self.maindb, context, context_main_table, name, default_value, False)
             else:
-                return
-        context = context_from_name(name)
-        if default_value is not None:
-            features = prepend_context("features", context)
-            self.schemas[self.maindb].create_main_feature_table(context)
-            self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, default_value))
-            # update schema
-            self.features[name] = FeatureInfo(name, self.maindb, context, features, name, default_value, False)
+                # feature is not unique and resides in a separate table (column in main features-table is a foreign key):
+                self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(self.maindb, name))
+                self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')".format(self.maindb, name))
+                self.execute("""CREATE TRIGGER IF NOT EXISTS {}.{}_hash AFTER INSERT ON {}
+                                    BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(self.maindb, name, name, context_main_table))
+                self.features[name] = FeatureInfo(name, self.maindb, context, name, "value", None, False)
+
+            # update schema:
             self.schemas[self.maindb].features.append(self.features[name])
-            # initialize hash
-            hashfeature = prepend_context("hash", context)
-            if not hashfeature in self.features:
-                self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, features, "hash", None, False)
-                self.schemas[self.maindb].features.append(self.features[hashfeature])
-        else:
-            self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(self.maindb, name))
-            self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')".format(self.maindb, name))
-            # insert join hook column into features table
-            features = prepend_context("features", context)
-            self.schemas[self.maindb].create_main_feature_table(context)
-            self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, features, name, "None"))
-            # always insert new hashes also into main table
-            self.execute("""CREATE TRIGGER IF NOT EXISTS {}.{}_hash AFTER INSERT ON {}
-                                BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(self.maindb, name, name, features))
-            # create "filename" view for "local" tables
-            if name == prepend_context("local", context):
-                filename = prepend_context("filename", context)
-                self.execute("CREATE VIEW IF NOT EXISTS {}.{} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(self.maindb, filename, name))
-            # update contexts
-            if not context in self.schemas[self.maindb].contexts:
-                self.schemas[self.maindb].contexts.append(context)
-            # update schema
-            self.features[name] = FeatureInfo(name, self.maindb, context, name, "value", None, False)
-            self.schemas[self.maindb].features.append(self.features[name])
-            self.schemas[self.maindb].tables.append(name)
-            # initialize hash
-            hashfeature = prepend_context("hash", context)
-            if not hashfeature in self.features:
-                self.features[hashfeature] = FeatureInfo(hashfeature, self.maindb, context, name, "hash", None, False)
-                self.schemas[self.maindb].features.append(self.features[hashfeature])
+
+            # create default filename-views for local path features:
+            if name == contexts.prepend_context("local", context):
+                self.create_filename_view(context)
+
+        elif not permissive:
+            raise DatabaseException("Feature {} already exists".format(name))
+
+
+    def create_filename_view(self, context):
+        local = contexts.prepend_context("local", context)
+        filename = contexts.prepend_context("filename", context)
+        self.execute("CREATE VIEW IF NOT EXISTS {}.{} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(self.maindb, filename, local))
 
 
     def rename_feature(self, old_name, new_name):
@@ -226,9 +211,9 @@ class Database:
         if not self.features[name].default:
             self.execute('DROP TABLE IF EXISTS {}'.format(name))
             self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-            context = context_from_name(name)
-            if name == prepend_context("local", context):
-                filename = prepend_context("filename", context)
+            context = contexts.context_from_name(name)
+            if name == contexts.prepend_context("local", context):
+                filename = contexts.prepend_context("filename", context)
                 self.execute('DROP VIEW IF EXISTS {}'.format(filename))
         else:
             table = self.features[name].table

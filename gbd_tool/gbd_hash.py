@@ -19,7 +19,7 @@ import hashlib
 
 from gbd_tool.util import open_cnf_file
 
-__all__ = ['gbd_hash', 'gbd_hash_inner', 'HASH_VERSION']
+__all__ = ['gbd_hash', 'gbd_hash_inner']
 
 
 BUFFER_SIZE = io.DEFAULT_BUFFER_SIZE * 16
@@ -44,8 +44,6 @@ except ImportError:
 # Hash-Version 1: skip header for normalization (streaming normalization)
 # Hash-Version 2: fixed bug in version 1 (do not skip -)
 # Hash-Version 3: add trailing zero to last clause if missing
-
-HASH_VERSION = 3
 
 def gbd_hash_inner(file):
     space = False

@@ -31,7 +31,7 @@ import pebble
 from concurrent.futures import as_completed
 from iteration_utilities import grouper
 
-from gbd_tool import config, util
+from gbd_tool import contexts, util
 from gbd_tool.gbd_api import GBD, GBDException
 from gbd_tool.gbd_hash import gbd_hash
 from gbd_tool.util import eprint, confirm, open_cnf_file, slice_iterator
@@ -103,7 +103,7 @@ def stdout_redirected(to=os.devnull, stdout=None):
 
 # Initialize table 'local' with instances found under given path
 def init_local(api: GBD, root):
-    clocal=util.prepend_context("local", api.context)
+    clocal = contexts.prepend_context("local", api.context)
     api.database.create_feature(clocal, permissive=True)
     paths = set(res[0] for res in api.query_search(group_by=clocal))
     missing_files = [path for path in paths if not isfile(path)]
@@ -121,7 +121,7 @@ def init_local(api: GBD, root):
                 if len(missing):
                     resultset.append([hash, ",".join(missing)])
     else:
-        for suffix in config.suffix_list(api.context):
+        for suffix in contexts.suffix_list(api.context):
             for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
                 #if not len(api.query_search("{}='{}'".format(clocal, path))):
                 if not path in paths:
@@ -135,11 +135,11 @@ def compute_hash(buggyhash, path, args):
         if args["context"] == "cnf2":
             paths=path.split(",")
             hashvalue = gbd_hash(paths[0])
-            clocal=util.prepend_context("local", args["context"])
+            clocal = contexts.prepend_context("local", args["context"])
             return [ (clocal, hashvalue, p) for p in paths ] + [ ("cnf_to_cnf2", buggyhash, hashvalue), ("cnf2_to_cnf", hashvalue, buggyhash) ]
         else:
             hashvalue = gbd_hash(path)
-            clocal=util.prepend_context("local", args["context"])
+            clocal = contexts.prepend_context("local", args["context"])
             return [ (clocal, hashvalue, path) ]
     else:
         eprint("Entry not found: " + buggyhash)
@@ -246,7 +246,7 @@ def init_transform_cnf_to_kis(api: GBD, query, hashes, max_edges, max_nodes):
 def transform_cnf_to_kis(cnfhash, cnfpath, args):
     if not cnfhash or not cnfpath:
         raise GBDException("Arguments missing: transform_cnf_to_kis({}, {})".format(cnfhash, cnfpath))
-    kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, config.suffix_list('cnf'), cnfpath)
+    kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), cnfpath)
     kispath = kispath + ".kis"
 
     if isfile(kispath):

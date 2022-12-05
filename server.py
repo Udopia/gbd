@@ -31,8 +31,9 @@ from logging.handlers import TimedRotatingFileHandler
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd_tool import util, config
+from gbd_tool import contexts, util
 from gbd_tool.db import DatabaseException
+from gbd_tool.schema import Schema
 from gbd_tool.gbd_api import GBD, GBDException
 
 import gbd_server
@@ -100,7 +101,7 @@ def get_csv_file(context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         query = request_query(request)
         features = request_features(request)
-        group = util.prepend_context("hash", context)
+        group = contexts.prepend_context("hash", context)
         try:
             results = gbd_api.query_search(query, [], features, group_by=group)
         except (GBDException, DatabaseException) as err:
@@ -118,7 +119,7 @@ def get_url_file(context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         query = request_query(request)
         try:
-            result = gbd_api.query_search(query, group_by=util.prepend_context("hash", context))
+            result = gbd_api.query_search(query, group_by=contexts.prepend_context("hash", context))
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         if context == 'cnf':
@@ -156,9 +157,9 @@ def get_database_file(database=None):
 @app.route('/file/<hashvalue>/<context>')
 def get_file(hashvalue, context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose'])as gbd_api:
-        hash = util.prepend_context("hash", context)
-        local = util.prepend_context("local", context)
-        filename = util.prepend_context("filename", context)
+        hash = contexts.prepend_context("hash", context)
+        local = contexts.prepend_context("local", context)
+        filename = contexts.prepend_context("filename", context)
         records = gbd_api.query_search(hashes=[hashvalue], resolve=[local, filename], collapse="MIN", group_by=hash)
         if len(records) == 0:
             return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
@@ -190,7 +191,7 @@ def get_all_attributes(hashvalue, context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd_api:
         features = app.config['features_flat']
         try:
-            records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=util.prepend_context("hash", context))
+            records = gbd_api.query_search(hashes=[hashvalue], resolve=features, group_by=contexts.prepend_context("hash", context))
             if len(records) == 0:
                 return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
             return json_response(json.dumps(dict(zip(features, records[0]))), "Sending list of attributes", request.remote_addr)
@@ -232,11 +233,11 @@ def main():
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = gbd.get_databases()
-            if "main" in app.config['dbnames']:
-                app.config['dbnames'].remove("main")
+            if Schema.IN_MEMORY_DB_NAME in app.config['dbnames']:
+                app.config['dbnames'].remove(Schema.IN_MEMORY_DB_NAME)
             app.config['features_flat'] = gbd.get_features()
-            for context in config.contexts():
-                local = util.prepend_context("local", context)
+            for context in contexts.contexts():
+                local = contexts.prepend_context("local", context)
                 if local in app.config['features_flat']:
                     app.config['features_flat'].remove(local)
             app.config['dbpaths'] = dict()
@@ -244,8 +245,8 @@ def main():
             for db in app.config['dbnames']:
                 if db != 'main':
                     app.config['features'][db] = gbd.get_features(dbname=db)
-                    for context in config.contexts():
-                        local = util.prepend_context("local", context)
+                    for context in contexts.contexts():
+                        local = contexts.prepend_context("local", context)
                         if local in app.config['features'][db]:
                             app.config['features'][db].remove(local)
                     app.config['dbpaths'][db] = gbd.get_database_path(db)
