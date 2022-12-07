@@ -72,10 +72,12 @@ def slice_iterator(data, slice_len):
 
 def is_number(s):
     try:
-        float(s)
-        return True
+        if s is not None:
+            float(s)
+            return True
     except ValueError:
         return False
+    return False
 
 
 def open_cnf_file(filename, mode):
