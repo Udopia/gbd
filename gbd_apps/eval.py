@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # GBD Benchmark Database (GBD)
 # Copyright (C) 2021 Markus Iser, Karlsruhe Institute of Technology (KIT)
 # 
@@ -16,9 +17,13 @@
 
 from gbd_tool.gbd_api import GBD
 import gbd_tool.util as util
+from gbd_tool.util_argparse import *
 
 from itertools import combinations
 from operator import itemgetter
+
+import traceback
+import sys
 
 def par2(api: GBD, query, runtimes, timeout, divisor):
     for name in runtimes:
@@ -39,18 +44,44 @@ def vbs(api: GBD, query, runtimes, timeout, separator):
     for result in resultset:
         print(separator.join([(str(item or '')) for item in result]))
 
-def greedy_comb(api: GBD, query, runtimes, timeout, size):
-    result = api.query_search(query, [], runtimes)
-    result = [[float(val) if util.is_number(val) and float(val) < float(timeout) else 2*timeout for val in row] for row in result]
-    runtimes.insert(0, "dummy")
-    for comb in combinations(range(1, len(runtimes)), size):
-        comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
-        print(str(itemgetter(*comb)(runtimes)) + ": " + str(comb_par2))
-
 def cli_eval_par2(api: GBD, args):
-    from gbd_tool import eval
-    eval.par2(api, args.query, args.runtimes, args.tlim, args.divisor)
+    par2(api, args.query, args.runtimes, args.tlim, args.divisor)
 
 def cli_eval_vbs(api: GBD, args):
-    from gbd_tool import eval
-    eval.vbs(api, args.query, args.runtimes, args.tlim, args.separator)
+    vbs(api, args.query, args.runtimes, args.tlim, args.separator)
+
+
+### Define Command-Line Interface and Map Sub-Commands to Methods
+def main():
+    parser = get_gbd_argparser()
+
+    subparsers = parser.add_subparsers(help='Available Commands:', required=True, dest='gbd command')
+
+    parser_par2 = subparsers.add_parser('par2', help='Calculate Penalized Average Runtimes')
+    add_query_and_hashes_arguments(parser_par2)
+    parser_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_par2.add_argument('-d', '--divisor', help='Divisor for PAR2', type=int, default=None)
+    parser_par2.set_defaults(func=cli_eval_par2)
+
+    parser_vbs = subparsers.add_parser('vbs', help='Calculate Virtual Best Solver')
+    add_query_and_hashes_arguments(parser_vbs)
+    parser_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_vbs.set_defaults(func=cli_eval_vbs)
+
+    # PARSE ARGUMENTS
+    args = parser.parse_args()
+    try:
+        if hasattr(args, 'hashes') and not sys.stdin.isatty():
+            if not args.hashes or len(args.hashes) == 0:
+                args.hashes = util.read_hashes()  # read hashes from stdin
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+            args.func(api, args)
+    except Exception as e:
+        util.eprint("{}: {}".format(type(e), str(e)))
+        if args.verbose:
+            util.eprint(traceback.format_exc())
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,5 +1,7 @@
+#!/usr/bin/python3
 from gbd_tool.gbd_api import GBD
 from gbd_tool import util, contexts
+from gbd_tool.util_argparse import *
 
 import os
 import pandas as pd
@@ -11,6 +13,8 @@ import matplotlib.pyplot as plt
 import itertools
 
 import argparse
+import traceback
+import sys
 
 #matplotlib.use("pgf")
 #matplotlib.rcParams.update({
@@ -53,7 +57,6 @@ def scatter(api: GBD, query, runtimes, timeout, groups):
     for g in groups:
         color=next(ax._get_lines.prop_cycler)['color']
         marker=next(markers)[0]
-
         result = api.query_search(query + " and (" + g + ")", [], runtimes)
         df = pd.DataFrame(result, columns = ["hash"] + runtimes)
         for r in runtimes:
@@ -149,81 +152,39 @@ def cli_plot_cdf(api: GBD, args):
     from gbd_apps import plot
     plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
 
-### Argument Types for Input Sanitation in ArgParse Library
-def directory_type(path):
-    if not os.path.isdir(path):
-        raise argparse.ArgumentTypeError('{0} is not a directory'.format(path))
-    if os.access(path, os.R_OK):
-        return os.path.abspath(path)
-    else:
-        raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
-
-def file_type(path):
-    if not os.path.isfile(path):
-        raise argparse.ArgumentTypeError('{0} is not a regular file'.format(path))
-    if os.access(path, os.R_OK):
-        return os.path.abspath(path)
-    else:
-        raise argparse.ArgumentTypeError('{0} is not readable'.format(path))
-
-def column_type(s):
-    pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
-    if not pat.match(s):
-        raise argparse.ArgumentTypeError('Column "{0}" does not match regular expression {1}'.format(s, pat.pattern))
-    return s
-
-def key_value_type(s):
-    tup = s.split('=', 1)
-    if len(tup) != 2:
-        raise argparse.ArgumentTypeError('key-value type: {0} must be separated by exactly one = '.format(s))
-    return (column_type(tup[0]), tup[1])
-
-def gbd_db_type(dbstr):
-    if not dbstr:
-        default=os.environ.get('GBD_DB')
-        if not default:
-            raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Get databases: http://gbd.iti.kit.edu/)")
-        return default
-    return dbstr
-
-def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
-    parser.add_argument('query', help='GBD Query', nargs='?')
-    parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
-
-
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
 def main():
-    parser = argparse.ArgumentParser(description='GBD Benchmark Database')
-
-    parser.add_argument('-d', "--db", help='Specify database to work with', type=gbd_db_type, nargs='?', default=os.environ.get('GBD_DB'))
-    parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
-    parser.add_argument('-w', '--subselect', help='Move where to subselect', action='store_true')
-
-    parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
-    parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
-    parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
-
-    parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
-    parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
-    parser.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), 
-                            help='Select context (affects selection of hash/identifier and available feature-extractors in init)')
+    parser = get_gbd_argparser()
 
     subparsers = parser.add_subparsers(help='Available Commands:', required=True, dest='gbd command')
 
+    parser_scatter = subparsers.add_parser('scatter', help='Scatter Plot')
+    add_query_and_hashes_arguments(parser_scatter)
+    parser_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
+    parser_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
+    parser_scatter.set_defaults(func=cli_plot_scatter)
 
-    # PLOTS
-    parser_plot = subparsers.add_parser('plot', help='Plot Runtimes')
-    parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot', required=True, dest='plot type')
+    parser_cdf = subparsers.add_parser('cdf', help='CDF Plot')
+    add_query_and_hashes_arguments(parser_cdf)
+    parser_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
+    parser_cdf.add_argument('--title', help='Plot Title')
+    parser_cdf.set_defaults(func=cli_plot_cdf)
 
-    parser_plot_scatter = parser_plot_subparsers.add_parser('scatter', help='Scatter Plot')
-    add_query_and_hashes_arguments(parser_plot_scatter)
-    parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
-    parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
-    parser_plot_scatter.set_defaults(func=cli_plot_scatter)
+    # PARSE ARGUMENTS
+    args = parser.parse_args()
+    try:
+        if hasattr(args, 'hashes') and not sys.stdin.isatty():
+            if not args.hashes or len(args.hashes) == 0:
+                args.hashes = util.read_hashes()  # read hashes from stdin
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+            args.func(api, args)
+    except Exception as e:
+        util.eprint("{}: {}".format(type(e), str(e)))
+        if args.verbose:
+            util.eprint(traceback.format_exc())
+        sys.exit(1)
 
-    parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
-    add_query_and_hashes_arguments(parser_plot_cdf)
-    parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_plot_cdf.add_argument('--title', help='Plot Title')
-    parser_plot_cdf.set_defaults(func=cli_plot_cdf)
+
+if __name__ == '__main__':
+    main()
