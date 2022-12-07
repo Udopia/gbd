@@ -46,3 +46,11 @@ def greedy_comb(api: GBD, query, runtimes, timeout, size):
     for comb in combinations(range(1, len(runtimes)), size):
         comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
         print(str(itemgetter(*comb)(runtimes)) + ": " + str(comb_par2))
+
+def cli_eval_par2(api: GBD, args):
+    from gbd_tool import eval
+    eval.par2(api, args.query, args.runtimes, args.tlim, args.divisor)
+
+def cli_eval_vbs(api: GBD, args):
+    from gbd_tool import eval
+    eval.vbs(api, args.query, args.runtimes, args.tlim, args.separator)

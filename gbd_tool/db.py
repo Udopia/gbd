@@ -225,8 +225,7 @@ class Database:
         database = self.features[feature].database
         table = self.features[feature].table
         column = self.features[feature].column
-        default = self.features[feature].default
-        if not default:
+        if not self.features[feature].default:
             values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
             self.execute("INSERT OR IGNORE INTO {d}.{tab} (hash, {col}) VALUES {vals}".format(d=database, tab=table, col=column, vals=values))
             self.execute("UPDATE {d}.{tab} SET {col}=hash WHERE hash in ('{h}')".format(d=database, tab="features", col=table, h="', '".join(hashes)))

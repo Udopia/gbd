@@ -32,8 +32,7 @@ import traceback
 import gbd_tool
 
 from gbd_tool.gbd_api import GBD
-from gbd_tool.util import eprint, read_hashes, confirm
-from gbd_tool import contexts
+from gbd_tool import contexts, util
 
 
 ### Command-Line Interface Entry Points
@@ -65,18 +64,20 @@ def cli_init_sani(api: GBD, args):
     from gbd_tool import init
     init.init_sani(api, args.query, args.hashes)
 
+
 def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique)
 
 def cli_delete(api: GBD, args):
     if args.hashes and len(args.hashes) > 0 or args.values and len(args.values):
-        if args.force or confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
+        if args.force or util.confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
             api.remove_attributes(args.name, args.values, args.hashes)
-    elif args.force or confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
+    elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.delete_feature(args.name)
 
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
+
 
 def cli_get(api: GBD, args):
     df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.subselect)
@@ -86,11 +87,12 @@ def cli_get(api: GBD, args):
 def cli_set(api: GBD, args):
     api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
 
+
 def cli_info(api: GBD, args):
     if args.name is None:
         for db_str in api.get_databases():
             if len(api.get_features(dbname=db_str)):
-                print("Database: {}".format(api.get_database_path(db_str)))
+                print("\nDatabase: {}".format(api.get_database_path(db_str)))
                 feat = api.get_material_features(dbname=db_str)
                 if len(feat):
                     print("Features: " + " ".join(feat))
@@ -102,38 +104,6 @@ def cli_info(api: GBD, args):
         for key in info:
             print("{}: {}".format(key, info[key]))
 
-def cli_eval_par2(api: GBD, args):
-    from gbd_tool import eval
-    eval.par2(api, args.query, args.runtimes, args.tlim, args.divisor)
-
-def cli_eval_vbs(api: GBD, args):
-    from gbd_tool import eval
-    eval.vbs(api, args.query, args.runtimes, args.tlim, args.separator)
-
-def cli_eval_combinations(api: GBD, args):
-    from gbd_tool import eval_comb_ilp as eci
-    #eval.greedy_comb(api, args.query, args.runtimes, args.tlim, args.size)
-    eci.optimal_comb(api, args.query, args.runtimes, args.tlim, args.size)
-
-def cli_graph(api: GBD, args):
-    from gbd_tool import graph
-    graph.animate_proof(api, args.path, args.proof)
-
-def cli_plot_scatter(api: GBD, args):
-    from gbd_tool import plot
-    plot.scatter(api, args.query, args.runtimes, args.tlim, args.groups)
-
-def cli_plot_cdf(api: GBD, args):
-    from gbd_tool import plot
-    plot.cdf(api, args.query, args.runtimes, args.tlim, args.title)
-
-def cli_classify(api: GBD, args):
-    from gbd_tool import classification
-    classification.classify(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict, args.mode)
-
-def cli_merge_contexts(api: GBD, args):
-    from gbd_tool import contexts
-    contexts.merge(api, args.source, args.target)
 
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):
@@ -194,7 +164,7 @@ def main():
     parser.add_argument('-v', '--verbose', help='Print additional (or diagnostic) information to stderr', action='store_true')
     parser.add_argument('-w', '--subselect', help='Move where to subselect', action='store_true')
 
-    parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')", default=5000, type=int)
+    parser.add_argument('-t', '--tlim', help="Time limit (sec) per instance for 'init' sub-commands", default=5000, type=int)
     parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
     parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
 
@@ -281,84 +251,18 @@ def main():
     parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_info.set_defaults(func=cli_info)
 
-    # CONTEXTS RELATED STUFF
-    parser_context = subparsers.add_parser('context', help='manipulate contexts')
-    parser_context_subparsers = parser_context.add_subparsers(help='select method', required=True)
-    parser_context_merge = parser_context_subparsers.add_parser('merge', help='merge contexts: replaces target hashes with source hashes in all tables')
-    parser_context_merge.add_argument('source', help='source context')
-    parser_context_merge.add_argument('target', help='target context')
-    parser_context_merge.set_defaults(func=cli_merge_contexts)
-
-    # SCORE CALCULATION
-    parser_eval = subparsers.add_parser('eval', help='Evaluate Runtime Features')
-    parser_eval_subparsers = parser_eval.add_subparsers(help='Select Evaluation Procedure', required=True, dest='eval type')
-
-    parser_eval_par2 = parser_eval_subparsers.add_parser('par2', help='Calculate PAR-2 Score')
-    add_query_and_hashes_arguments(parser_eval_par2)
-    parser_eval_par2.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_par2.add_argument('-d', '--divisor', type=int, help='Overwrite Divisor used for Averaging Scores', nargs='?')
-    parser_eval_par2.set_defaults(func=cli_eval_par2)
-
-    parser_eval_vbs = parser_eval_subparsers.add_parser('vbs', help='Calculate VBS')
-    add_query_and_hashes_arguments(parser_eval_vbs)
-    parser_eval_vbs.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_vbs.set_defaults(func=cli_eval_vbs)
-
-    parser_eval_comb = parser_eval_subparsers.add_parser('comb', help='Calculate VBS of Solver Combinations')
-    add_query_and_hashes_arguments(parser_eval_comb)
-    parser_eval_comb.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_eval_comb.add_argument('-k', '--size', default=2, type=int, help='Number of Solvers per Combination')
-    parser_eval_comb.set_defaults(func=cli_eval_combinations)
-
-    # PLOTS
-    parser_plot = subparsers.add_parser('plot', help='Plot Runtimes')
-    parser_plot_subparsers = parser_plot.add_subparsers(help='Select Plot', required=True, dest='plot type')
-
-    parser_plot_scatter = parser_plot_subparsers.add_parser('scatter', help='Scatter Plot')
-    add_query_and_hashes_arguments(parser_plot_scatter)
-    parser_plot_scatter.add_argument('-r', '--runtimes', help='Two runtime features', nargs=2)
-    parser_plot_scatter.add_argument('-g', '--groups', help='Highlight specific groups (e.g. family=cryptography)', nargs='+')
-    parser_plot_scatter.set_defaults(func=cli_plot_scatter)
-
-    parser_plot_cdf = parser_plot_subparsers.add_parser('cdf', help='CDF Plot')
-    add_query_and_hashes_arguments(parser_plot_cdf)
-    parser_plot_cdf.add_argument('-r', '--runtimes', help='List of runtime features', nargs='+')
-    parser_plot_cdf.add_argument('--title', help='Plot Title')
-    parser_plot_cdf.set_defaults(func=cli_plot_cdf)
-
-    # GRAPHS
-    parser_graph = subparsers.add_parser('graph', help='Visualize Formula')
-    parser_graph.add_argument('path', type=file_type, help='CNF File')
-    parser_graph.add_argument('proof', type=file_type, help='Proof File')
-    parser_graph.set_defaults(func=cli_graph)
-
-    #CLASSIFICATION
-    parser_classify = subparsers.add_parser('classify', help='trains the classifier and interprets it')
-    add_query_and_hashes_arguments(parser_classify)
-    parser_classify.add_argument('-f', '--feature', help='Feature that should be classified', required=True)
-    parser_classify.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+', required=True)
-    parser_classify.add_argument('-c', '--collapse', default='group_concat',
-                                   choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'],
-                                   help='Treatment of multiple values per hash (or grouping value resp.)')
-    parser_classify.add_argument('-s', '--save', help='Filename')
-    parser_classify.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
-    parser_classify.add_argument('-d', '--dict', default=[], help='Dictionary to replace the margin values')
-    parser_classify.add_argument('-m', '--mode', default ='0', help='How to evaluate the classification. 0: generates and stores classifier. 1: applies given clas0sifier. 2: generates a classifier and evaluates it.' )
-    parser_classify.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
-    parser_classify.set_defaults(func=cli_classify)
-
     # PARSE ARGUMENTS
     args = parser.parse_args()
     try:
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
-                args.hashes = read_hashes()  # read hashes from stdin
+                args.hashes = util.read_hashes()  # read hashes from stdin
         with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
-        eprint("{}: {}".format(type(e), str(e)))
+        util.eprint("{}: {}".format(type(e), str(e)))
         if args.verbose:
-            eprint(traceback.format_exc())
+            util.eprint(traceback.format_exc())
         sys.exit(1)
 
 
