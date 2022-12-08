@@ -23,6 +23,7 @@ class DatabaseTestCase(unittest.TestCase):
     name = Schema.dbname_from_path(file)
 
     def setUp(self) -> None:
+        self.db = Database([self.file], verbose=True)
         return super().setUp()
 
     def tearDown(self) -> None:
@@ -31,17 +32,54 @@ class DatabaseTestCase(unittest.TestCase):
         return super().tearDown()
 
     def test_create_db(self):
-        with Database([self.file], verbose=True) as db:
-            assert(Schema.is_database(self.file))
-            assert(len(db.get_databases()) == 1)
-            assert(len(db.get_features()) == 0)
-            assert(len(db.get_tables()) == 0)
-        with Database([self.file], verbose=True) as db:
-            assert(db.dpath(self.name) == self.file)
-            assert(db.dmain(self.name))
-            assert(len(db.dcontexts(self.name)) == 0)
-            assert(len(db.dtables(self.name)) == 0)
-            assert(len(db.dviews(self.name)) == 0)
+        self.assertTrue(Schema.is_database(self.file))
+        self.assertEqual(len(self.db.get_databases()), 1)
+        self.assertTrue(self.db.dexists(self.name))
+        
+    def test_create_unique_feature(self):
+        FEAT = "featA"
+        self.db.create_feature(FEAT, default_value="empty")
+        self.assertIn(FEAT, self.db.get_features())
+        self.assertIn("features", self.db.get_tables())
+        self.assertEqual(self.db.ftable(FEAT, full=False), "features")
+        self.assertEqual(self.db.fcolumn(FEAT), FEAT)
+        self.assertEqual(self.db.fdefault(FEAT), "empty")
+        self.assertFalse(self.db.fvirtual(FEAT))
+        self.assertEqual(self.db.fcontext(FEAT), "cnf")
+        self.assertEqual(self.db.fdatabase(FEAT), self.name)
+        
+    def test_create_nonunique_feature(self):
+        FEAT = "featB"
+        self.db.create_feature(FEAT, default_value=None)
+        self.assertIn(FEAT, self.db.get_features())
+        self.assertIn("features", self.db.get_tables())
+        self.assertEqual(self.db.ftable(FEAT, full=False), FEAT)
+        self.assertEqual(self.db.fcolumn(FEAT), "value")
+        self.assertEqual(self.db.fdefault(FEAT), None)
+        self.assertFalse(self.db.fvirtual(FEAT))
+        self.assertEqual(self.db.fcontext(FEAT), "cnf")
+        self.assertEqual(self.db.fdatabase(FEAT), self.name)
+
+    def test_unique_feature_values(self):
+        FEAT = "featA"
+        VAL1 = "val1"
+        VAL2 = "val2"
+        self.db.create_feature(FEAT, default_value="empty")
+        self.db.set_values(FEAT, VAL1, ["a", "b", "c"])
+        qb = GBDQuery(self.db)
+        q = qb.build_query("{}={}".format(FEAT, VAL1))
+        hashes = [ hash for (hash, ) in self.db.query(q) ]
+        self.assertEqual(len(hashes), 3)
+        self.assertSetEqual(set(hashes), set(["a", "b", "c"]))
+        self.db.set_values(FEAT, VAL2, ["a"])
+        q = qb.build_query("{}={}".format(FEAT, VAL1))
+        hashes = [ hash for (hash, ) in self.db.query(q) ]
+        self.assertEqual(len(hashes), 2)
+        self.assertSetEqual(set(hashes), set(["b", "c"]))
+        q = qb.build_query("{}={}".format(FEAT, VAL2))
+        hashes = [ hash for (hash, ) in self.db.query(q) ]
+        self.assertEqual(len(hashes), 1)
+        self.assertSetEqual(set(hashes), set(["a"]))
 
 
 
