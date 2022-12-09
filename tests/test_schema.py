@@ -17,13 +17,13 @@ from gbd_tool.query_builder import GBDQuery
 from gbd_tool.db import Database
 from gbd_tool.schema import Schema
 
-class DatabaseTestCase(unittest.TestCase):
+class SchemaTestCase(unittest.TestCase):
 
     file = "test.db"
     name = Schema.dbname_from_path(file)
 
     def setUp(self) -> None:
-        self.db = Database([self.file], verbose=True)
+        self.db = Database([self.file], verbose=False)
         return super().setUp()
 
     def tearDown(self) -> None:
@@ -60,28 +60,3 @@ class DatabaseTestCase(unittest.TestCase):
         self.assertEqual(self.db.fcontext(FEAT), "cnf")
         self.assertEqual(self.db.fdatabase(FEAT), self.name)
 
-    def test_unique_feature_values(self):
-        FEAT = "featA"
-        VAL1 = "val1"
-        VAL2 = "val2"
-        self.db.create_feature(FEAT, default_value="empty")
-        self.db.set_values(FEAT, VAL1, ["a", "b", "c"])
-        qb = GBDQuery(self.db)
-        q = qb.build_query("{}={}".format(FEAT, VAL1))
-        hashes = [ hash for (hash, ) in self.db.query(q) ]
-        self.assertEqual(len(hashes), 3)
-        self.assertSetEqual(set(hashes), set(["a", "b", "c"]))
-        self.db.set_values(FEAT, VAL2, ["a"])
-        q = qb.build_query("{}={}".format(FEAT, VAL1))
-        hashes = [ hash for (hash, ) in self.db.query(q) ]
-        self.assertEqual(len(hashes), 2)
-        self.assertSetEqual(set(hashes), set(["b", "c"]))
-        q = qb.build_query("{}={}".format(FEAT, VAL2))
-        hashes = [ hash for (hash, ) in self.db.query(q) ]
-        self.assertEqual(len(hashes), 1)
-        self.assertSetEqual(set(hashes), set(["a"]))
-
-
-
-if __name__ == '__main__':
-    unittest.main()

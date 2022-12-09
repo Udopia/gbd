@@ -230,7 +230,8 @@ class Database:
             self.execute("INSERT OR IGNORE INTO {d}.{tab} (hash, {col}) VALUES {vals}".format(d=database, tab=table, col=column, vals=values))
             self.execute("UPDATE {d}.{tab} SET {col}=hash WHERE hash in ('{h}')".format(d=database, tab="features", col=table, h="', '".join(hashes)))
         else:
-            self.execute("UPDATE {d}.{tab} SET {col}='{val}' WHERE hash IN ('{h}')".format(d=database, tab=table, col=column, val=value, h="', '".join(hashes)))
+            #self.execute("UPDATE {d}.{tab} SET {col}='{val}' WHERE hash IN ('{h}')".format(d=database, tab=table, col=column, val=value, h="', '".join(hashes)))
+            self.execute("INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT (hash) DO UPDATE SET {col}='{val}' WHERE hash in ('{h}')".format(d=database, tab=table, col=column, val=value, vals=', '.join(["('{}', '{}')".format(hash, value) for hash in hashes]), h="', '".join(hashes)))
 
     def delete(self, feature, values=[], hashes=[]):
         self.fexists_or_raise(feature)
@@ -238,7 +239,7 @@ class Database:
         table = self.features[feature].table
         column = self.features[feature].column
         default = self.features[feature].default
-        w1 = "value IN ('{v}')".format(v="', '".join(values)) if len(values) else "1=1"
+        w1 = "{col} IN ('{v}')".format(col=column, v="', '".join(values)) if len(values) else "1=1"
         w2 = "hash IN ('{h}')".format(h="', '".join(hashes)) if len(hashes) else "1=1"
         where = "{} AND {}".format(w1, w2)
         if not default:
@@ -248,7 +249,7 @@ class Database:
             setnone = [ h for h in hashlist if not h in remaining ]
             self.execute("UPDATE {d}.{tab} SET {col} = 'None' WHERE hash IN ('{h}')".format(d=database, tab="features", col=feature, h="', '".join(setnone)))
         else:
-            self.execute("UPDATE {d}.{tab} SET {col} = '{df}' WHERE {w}".format(d=database, tab=table, col=column, df=default, w=where))
+            self.execute("UPDATE {d}.{tab} SET {col} = '{default}' WHERE {w}".format(d=database, tab=table, col=column, default=default, w=where))
 
 
     def feature_info(self, feature):
