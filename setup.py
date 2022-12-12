@@ -1,21 +1,27 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='4.1.4',
+  version='4.1.8',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
   url='https://github.com/Udopia/gbd',
-  author='Markus Iser, Luca Springer',
+  author='Markus Iser, Karlsruhe Institute of Technology (KIT)',
   author_email='markus.iser@kit.edu',
-  packages=["gbd_tool", "gbd_server"],
-  scripts=["gbd.py", "server.py"],
+  packages=[
+    "gbd_tool", 
+    "gbd_server"
+  ],
+  scripts=[
+    "gbd.py", 
+    "server.py"
+  ],
   include_package_data=True,
   setup_requires=[
+    'wheel',
+    'setuptools'
   ],
   install_requires=[
-    'setuptools',
-    'wheel',
     'flask',
     'flask_limiter',
     'tatsu',
@@ -25,9 +31,8 @@ setup(name='gbd_tools',
     'matplotlib',
     'waitress',
     'pebble',
-    'sklearn',
-    'iteration_utilities'#,
-    #'piskle'
+    'scikit-learn',
+    'iteration_utilities'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
