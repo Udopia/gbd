@@ -52,6 +52,12 @@ class Database:
         self.connection.close()
 
 
+    # returns major version of sqlite3 as float
+    @classmethod
+    def sqlite3_version(cls):
+        return float(sqlite3.sqlite_version.rsplit('.', 1)[0])
+
+
     def init_schemas(self, path_list) -> typing.Dict[str, Schema]:
         result = dict()
         for path in path_list:
@@ -215,9 +221,11 @@ class Database:
             if name == contexts.prepend_context("local", context):
                 filename = contexts.prepend_context("filename", context)
                 self.execute('DROP VIEW IF EXISTS {}'.format(filename))
-        else:
+        elif Database.sqlite3_version() >= 3.35:
             table = self.features[name].table
             self.execute("ALTER TABLE {} DROP COLUMN {}".format(table, name))
+        else:
+            raise DatabaseException("Cannot delete unique feature {} in SQLite version < 3.35".format(name))
         self.features.pop(name)
 
     def set_values(self, feature, value, hashes):
