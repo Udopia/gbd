@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from gbd_tool.gbd_api import GBD
-from gbd_tool.util import eprint, is_number
+from gbd.api import GBD
+from gbd.util import eprint, is_number
 from pysat.formula import CNF
 from pysat.solvers import Lingeling
 from pysat.solvers import Cadical

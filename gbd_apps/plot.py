@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-from gbd_tool.gbd_api import GBD
-from gbd_tool import util, contexts
-from gbd_tool.util_argparse import *
+from gbd.api import GBD
+from gbd import util
+from gbd.util_argparse import *
 
 import os
 import pandas as pd
@@ -12,7 +12,6 @@ matplotlib.use('GTK3Agg')
 import matplotlib.pyplot as plt
 import itertools
 
-import argparse
 import traceback
 import sys
 

@@ -31,10 +31,10 @@ from logging.handlers import TimedRotatingFileHandler
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd_tool import contexts, util
-from gbd_tool.db import DatabaseException
-from gbd_tool.schema import Schema
-from gbd_tool.gbd_api import GBD, GBDException
+from gbd import contexts
+from gbd.db import DatabaseException
+from gbd.schema import Schema
+from gbd.api import GBD, GBDException
 
 import gbd_server
 

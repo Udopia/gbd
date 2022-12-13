@@ -17,53 +17,44 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import multiprocessing
 import os
-import re
 import sys
 import traceback
 
-#gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-#if gbdroot in sys.path:
-#    sys.path.remove(gbdroot)
-#sys.path.insert(0, gbdroot)
-
-import gbd_tool
-
-from gbd_tool.gbd_api import GBD
-from gbd_tool import contexts, util
-from gbd_tool.util_argparse import *
+from gbd.api import GBD, GBDException
+from gbd import contexts, util
+from gbd.util_argparse import *
+from gbd.init.cnf_hash import gbd_hash
 
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    print(gbd_tool.gbd_hash.gbd_hash(args.path))
+    print(gbd_hash.gbd_hash(args.path))
 
 
 def cli_init_local(api: GBD, args):
-    from gbd_tool import init
-    init.init_local(api, args.path)
+    from gbd.init.cnf_hash import init_local
+    init_local(api, args.path)
 
 def cli_init_base_features(api: GBD, args):
-    from gbd_tool import init
-    init.init_base_features(api, args.query, args.hashes)
+    from gbd.init.cnf_base_features import init_base_features
+    init_base_features(api, args.query, args.hashes)
 
 def cli_init_gate_features(api: GBD, args):
-    from gbd_tool import init
-    init.init_gate_features(api, args.query, args.hashes)
+    from gbd.init.cnf_gate_features import init_gate_features
+    init_gate_features(api, args.query, args.hashes)
 
 def cli_init_cnf2kis(api: GBD, args):
-    from gbd_tool import init
-    init.init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
+    from gbd.init.cnf_to_kis import init_transform_cnf_to_kis
+    init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
 
 def cli_init_iso(api: GBD, args):
-    from gbd_tool import init
-    init.init_iso_hash(api, args.query, args.hashes)
+    from gbd.init.cnf_hash import init_iso_hash
+    init_iso_hash(api, args.query, args.hashes)
 
 def cli_init_sani(api: GBD, args):
-    from gbd_tool import init
-    init.init_sani(api, args.query, args.hashes)
+    from gbd.init.cnf_sanitize import init_sani
+    init_sani(api, args.query, args.hashes)
 
 
 def cli_create(api: GBD, args):
@@ -196,6 +187,11 @@ def main():
                 args.hashes = util.read_hashes()  # read hashes from stdin
         with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
             args.func(api, args)
+    except ModuleNotFoundError as e:
+        util.eprint("Module '{}' not found. Please install it.".format(e.name))
+        if e.name == 'gdbc':
+            util.eprint("You can install 'gdbc' from source: https://github.com/sat-clique/cnftools")
+        sys.exit(1)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))
         if args.verbose:

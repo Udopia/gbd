@@ -18,15 +18,13 @@
 import sqlite3
 import tatsu
 import os
-import numpy as np
 import pandas as pd
 
 from contextlib import ExitStack
 
-from gbd_tool.query_builder import GBDQuery
-from gbd_tool.db import Database
-import gbd_tool.util as util
-from gbd_tool.util import eprint
+from gbd.query_builder import GBDQuery
+from gbd.db import Database
+from gbd.util import eprint
 
 
 class GBDException(Exception):
