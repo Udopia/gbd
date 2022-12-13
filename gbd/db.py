@@ -19,9 +19,9 @@ import typing
 
 from pprint import pprint
 
-from gbd_tool.util import eprint
-from gbd_tool.schema import Schema, FeatureInfo
-from gbd_tool import contexts
+from gbd.util import eprint
+from gbd.schema import Schema, FeatureInfo
+from gbd import contexts
 
 
 class DatabaseException(Exception):

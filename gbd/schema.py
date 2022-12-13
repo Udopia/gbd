@@ -21,8 +21,8 @@ import re
 
 from dataclasses import dataclass
 
-from gbd_tool import contexts
-from gbd_tool.util import eprint
+from gbd import contexts
+from gbd.util import eprint
 
 
 class SchemaException(Exception):

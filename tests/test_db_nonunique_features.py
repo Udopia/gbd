@@ -2,20 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-
-#gbdroot=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-#if gbdroot in sys.path:
-#    sys.path.remove(gbdroot)
-#sys.path.insert(0, gbdroot)
-#print(sys.path)
-
 import unittest
 
-from gbd_tool.util import eprint
-from gbd_tool.query_builder import GBDQuery
-from gbd_tool.db import Database
-from gbd_tool.schema import Schema
+from gbd.util import eprint
+from gbd.query_builder import GBDQuery
+from gbd.db import Database
+from gbd.schema import Schema
 
 class DatabaseTestCase(unittest.TestCase):
 

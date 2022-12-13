@@ -1,14 +1,12 @@
 import unittest
-import io
-import importlib.util as imp
-import os.path
 import random
-#from gbd_tool.gbd_hash import gbd_hash_inner as gbd_hash
+import os
+import tempfile
+import shutil
+
+from gbd.init.cnf_hash import gbd_hash
 
 class TestGBDHash(unittest.TestCase):
-
-    def gbd_hash(self, string):
-        return self.mod.gbd_hash_inner(io.BytesIO(string.encode('utf-8')))
 
     def get_random_clause(self, max_len=30):
         return ' '.join([str(random.randint(-2**31, 2**31-1)) for _ in range(random.randint(0, max_len))]) + ' 0'
@@ -17,15 +15,19 @@ class TestGBDHash(unittest.TestCase):
         return '\n'.join([self.get_random_clause() for _ in range(random.randint(0, max_num))]) + '\n'
 
     def setUp(self):
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'gbd_tool/gbd_hash.py')
-        spec = imp.spec_from_file_location('gbd_hash', path)
-        self.mod = imp.module_from_spec(spec)
-        spec.loader.exec_module(self.mod)
         self.reference = self.get_random_formula()
-        self.reference_hash = self.gbd_hash(self.reference)
+        self.ref_file = "reference.cnf"
+        with open(self.ref_file, 'w') as ref:
+            ref.write(self.reference)
+        self.reference_hash = gbd_hash(self.ref_file)
 
     def tearDown(self):
-        pass
+        if self.currentResult.wasSuccessful():
+            os.remove(self.ref_file)
+
+    def run(self, result=None):
+        self.currentResult = result
+        unittest.TestCase.run(self, result)
 
     def get_random_character(self):
         c = chr(random.randint(0, 255))
@@ -60,12 +62,12 @@ class TestGBDHash(unittest.TestCase):
                 if c.isspace():
                     variant += self.get_random_whitespace()
             variant += self.get_random_whitespace()
-            variant_hash = self.gbd_hash(variant)
-            if self.reference_hash != variant_hash:
-                print("Reference:")
-                print(self.reference)
-                print("Variant:")
-                print(variant)
-                print("Reference hash: {}".format(self.reference_hash))
-                print("Variant hash: {}".format(variant_hash))
+
+            var_file = "variant.cnf"
+            with open(var_file, 'w') as f:
+                f.write(variant)
+            variant_hash = gbd_hash(var_file)
+            if self.reference_hash == variant_hash:
+                os.remove(var_file)
+
             self.assertEqual(self.reference_hash, variant_hash)
