@@ -21,14 +21,11 @@ class GBDException(Exception):
     pass
 
 
-def classify(api: GBD, query, feature, hashes, features, collapse, group_by, timeout_memout, filename, replace, flag):
-    # what values to replace
-    if len(replace) == 0:
-        replace = [("timeout", np.nan), ("memout", np.nan)]
+def classify(api: GBD, query, feature, hashes, features, collapse, group_by, filename, flag):
+    df = api.query(query + " and {f} != unknown and {f} != empty".format(f=feature), hashes, features + [ feature ], collapse, group_by)
 
-    res = features + timeout_memout + [ feature ]
-
-    df = api.query_search2(query + " and {f} != unknown and {f} != empty".format(f=feature), hashes, res, collapse, group_by, replace)
+    for (key, value) in [("timeout", np.nan), ("memout", np.nan)]:
+        df.replace(key, value, inplace=True)
 
     df.drop(["hash"], axis=1, inplace=True)
 
@@ -67,7 +64,7 @@ def classify(api: GBD, query, feature, hashes, features, collapse, group_by, tim
 
 def cli_classify(api: GBD, args):
     from gbd_apps import classification
-    classification.classify(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.dict, args.mode)
+    classification.classify(api, args.query, args.feature, args.hashes, args.resolve, args.collapse, args.group_by, args.timeout_memout, args.save, args.mode)
 
 
 def main():
@@ -82,8 +79,7 @@ def main():
     parser.add_argument('-s', '--save', help='Filename')
     parser.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
     parser.add_argument('-d', '--dict', default=[], help='Dictionary to replace the margin values')
-    parser.add_argument('-m', '--mode', default ='0', help='How to evaluate the classification. 0: generates and stores classifier. 1: applies given clas0sifier. 2: generates a classifier and evaluates it.' )
-    parser.add_argument('-o', '--timeout_memout', default = [],  help='List of features to resolve against that can have a memout or timeout', nargs ='+')
+    parser.add_argument('-m', '--mode', default ='0', help='How to evaluate the classification. 0: generates and stores classifier. 1: applies given classifier. 2: generates a classifier and evaluates it.' )
     parser.set_defaults(func=cli_classify)
 
     # PARSE ARGUMENTS
@@ -92,7 +88,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))

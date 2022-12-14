@@ -23,7 +23,7 @@ import pandas as pd
 from contextlib import ExitStack
 
 from gbd.query_builder import GBDQuery
-from gbd.db import Database
+from gbd.database import Database
 from gbd.util import eprint
 
 
@@ -33,14 +33,13 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, separator=" ", join_type="LEFT", verbose=False):
+    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, join_type="LEFT", verbose=False):
         self.databases = dbs if isinstance(dbs, list) else dbs.split(os.pathsep)
         self.context = context
         self.jobs = jobs
         self.tlim = tlim  # time limit (seconds)
         self.mlim = mlim  # memory limit (mega bytes)
         self.flim = flim  # file size limit (mega bytes)
-        self.separator = separator
         self.join_type = join_type
         self.verbose = verbose
         self.database = Database(self.databases, self.verbose)
@@ -112,7 +111,8 @@ class GBD:
             raise GBDException("Feature '{}' missing or virtual".format(feature))
         hash_list = hashes
         if query:
-            hash_list = [hash[0] for hash in self.query_search(query, hashes)]
+            df = self.query(query, hash_list)
+            hash_list = df['hash'].tolist()
         try:
             self.database.set_values(feature, value, hash_list)
         except Exception as err:
@@ -124,26 +124,15 @@ class GBD:
             raise GBDException("Feature '{}' not found or virtual".format(feature))
         self.database.delete(feature, values, hashes)
 
-    def query_search(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", subselect=False):
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
+        query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
         try:
-            query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
             sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
-            return self.database.query(sql)
+            result = self.database.query(sql)
         except sqlite3.OperationalError as err:
             raise GBDException("Database Operational Error: {}".format(str(err)))
         except tatsu.exceptions.FailedParse as err:
             raise GBDException("Parser Error: {}".format(str(err)))
-
-
-    def query_search2(self, gbd_query=None, hashes=[], resolve=[], collapse="GROUP_CONCAT", group_by="hash", replace = []):
-        result = self.query_search(gbd_query, hashes, resolve, collapse, group_by)
-        df = pd.DataFrame(result, columns=['hash'] + resolve)
-        for (key, value) in replace:
-            df.replace(key, value, inplace=True)
-        return df
-
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
-        result = self.query_search(gbd_query, hashes, resolve, collapse, group_by, subselect)
         cols = [ group_by ] + (resolve or [])
         df = pd.DataFrame(result, columns=cols)
         #df.set_index(group_by, inplace=True)

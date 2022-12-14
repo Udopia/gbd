@@ -28,48 +28,38 @@ import mip
 import pandas as pd
 
 
-
-def greedy_comb(api: GBD, query, runtimes, timeout, size):
-    result = api.query_search(query, [], runtimes)
-    result = [[float(val) if util.is_number(val) and float(val) < float(timeout) else 2*timeout for val in row] for row in result]
-    runtimes.insert(0, "dummy")
-    for comb in combinations(range(1, len(runtimes)), size):
-        comb_par2 = sum([min(itemgetter(*comb)(row)) for row in result]) / len(result)
-        print(str(itemgetter(*comb)(runtimes)) + ": " + str(comb_par2))
-
-
-
-def optimal_comb(api: GBD, query, runtimes, timeout, k):
-    result = api.query_search(query, [], runtimes)
-    result = [[int(float(val)) if util.is_number(val) and float(val) < float(timeout) else int(2*timeout) for val in row[1:]] for row in result]
-    dataset = pd.DataFrame(result, columns=runtimes)
+def cli_eval_combinations_ilp(api: GBD, args):
+    df = api.query(args.query, [], args.runtimes)
+    df = df[args.runtimes][df.applymap(util.is_number)].applymap(float)
+    df.fillna(2*args.tlim, inplace=True)
     model = mip.Model()
     instance_solver_vars = [[model.add_var(f'x_{i}_{j}', var_type=mip.BINARY)
-                            for j in range(dataset.shape[1])] for i in range(dataset.shape[0])]
-    solver_vars = [model.add_var(f's_{j}', var_type=mip.BINARY)for j in range(dataset.shape[1])]
+                            for j in range(df.shape[1])] for i in range(df.shape[0])]
+    solver_vars = [model.add_var(f's_{j}', var_type=mip.BINARY)for j in range(df.shape[1])]
     for var_list in instance_solver_vars:  # per-instance constraints
         model.add_constr(mip.xsum(var_list) == 1)
-    for j in range(dataset.shape[1]):  # per-solver-constraints
-        model.add_constr(mip.xsum(instance_solver_vars[i][j] for i in range(dataset.shape[0])) <=
-                        dataset.shape[0] * solver_vars[j])  # "Implies" in Z3
-    model.add_constr(mip.xsum(solver_vars) <= k)
-    model.objective = mip.minimize(mip.xsum(instance_solver_vars[i][j] * int(dataset.iloc[i, j])
-                                            for i in range(dataset.shape[0]) for j in range(dataset.shape[1])))
-    print("SBS Score: {}".format(dataset.sum().min() / len(result)))
+    for j in range(df.shape[1]):  # per-solver-constraints
+        model.add_constr(mip.xsum(instance_solver_vars[i][j] for i in range(df.shape[0])) <= df.shape[0] * solver_vars[j])  # "Implies" in Z3
+    model.add_constr(mip.xsum(solver_vars) <= args.size)
+    model.objective = mip.minimize(mip.xsum(instance_solver_vars[i][j] * int(df.iloc[i, j])
+                                            for i in range(df.shape[0]) for j in range(df.shape[1])))
+    print("SBS Score: {}".format(df.sum().min() / len(df.index)))
     model.verbose = int(api.verbose)
     model.threads = api.jobs
     model.optimize()
-    print("VBS Score (k={}): {}".format(k, model.objective_value / len(result)))
+    print("VBS Score (k={}): {}".format(args.size, model.objective_value / len(df.index)))
     for index, item in enumerate([var.x for var in solver_vars]):
         if item > 0:
-            print(runtimes[index])
-
-
-def cli_eval_combinations_ilp(api: GBD, args):
-    optimal_comb(api, args.query, args.runtimes, args.tlim, args.size)
+            print(args.runtimes[index])
 
 def cli_eval_combinations_greedy(api: GBD, args):
-    greedy_comb(api, args.query, args.runtimes, args.tlim, args.size)
+    df = api.query(args.query, [], args.runtimes)
+    df[args.runtimes] = df[args.runtimes][df.applymap(util.is_number)].applymap(float)
+    df.fillna(2*args.tlim, inplace=True)
+    runtimes = ["dummy"] + args.runtimes
+    for comb in combinations(range(1, len(runtimes)), args.size):
+        comb_par2 = sum([min(itemgetter(*comb)(row)) for _, row in df.iterrows()]) / len(df.index)
+        print(str(itemgetter(*comb)(runtimes)) + ": " + str(comb_par2))
 
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
@@ -96,7 +86,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))

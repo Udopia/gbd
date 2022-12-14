@@ -87,8 +87,8 @@ class Database:
                     # first found features table is the one that serves the hash
                     if not self.is_features_table(result[feature.name]):
                         result[feature.name] = feature
-                else:
-                    eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, result[feature.name].database))
+                #else:
+                #    eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, result[feature.name].database))
         return result
 
 

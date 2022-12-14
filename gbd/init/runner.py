@@ -33,17 +33,17 @@ def safe_run_results(api: GBD, result, check=False):
         api.database.set_values(name, value, [hashv])
 
 # Parallel Runner
-def run(api: GBD, resultset, func, args: dict):
+def run(api: GBD, df, func, args: dict):
     first = True
     if api.jobs == 1:
-        for (hash, local) in resultset:
-            result = func(hash, local, args)
+        for idx, row in df.iterrows():
+            result = func(row['hash'], row['local'], args)
             safe_run_results(api, result, check=first)
             first = False
     else:
         njobs=min(multiprocessing.cpu_count(), api.jobs)
         with pebble.ProcessPool(max_workers=njobs, max_tasks=1) as p:
-            futures = [ p.schedule(func, (hash, local, args)) for (hash, local) in resultset ]
+            futures = [ p.schedule(func, (row['hash'], row['local'], args)) for idx, row in df.iterrows() ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()

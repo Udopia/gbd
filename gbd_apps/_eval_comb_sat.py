@@ -16,7 +16,8 @@
 
 
 from gbd.api import GBD
-from gbd.util import eprint, is_number
+from gbd import util
+
 from pysat.formula import CNF
 from pysat.solvers import Lingeling
 from pysat.solvers import Cadical
@@ -28,8 +29,9 @@ from cscl.cardinality_constraint_encoders import encode_at_most_k_constraint_lts
 _BW = 32
 
 def optimal_comb(api: GBD, args):
-    result = api.query_search(args.query, [], args.runtimes)
-    result = [[int(float(val)) if is_number(val) and float(val) < float(args.tlim) else int(2*args.tlim) for val in row[1:]] for row in result]
+    df = api.query(args.query, [], args.runtimes)
+    df[args.runtimes] = df[args.runtimes][df.applymap(util.is_number)].applymap(float)
+    df.fillna(2*args.tlim, inplace=True)
 
     cnf = dimacs.DIMACSPrinter()
     _ACT = [cnf.create_literal() for _ in range(0, len(args.runtimes))]

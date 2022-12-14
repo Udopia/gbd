@@ -16,7 +16,7 @@
 
 import tatsu
 
-from gbd.db import Database, DatabaseException
+from gbd.database import Database, DatabaseException
 from gbd.util import eprint
 
 class GBDQuery:

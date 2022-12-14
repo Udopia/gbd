@@ -30,9 +30,9 @@ def init_networkit_features(api: GBD, query, hashes):
     except ImportError as e:
         raise GBDException("Module 'networkit' not found. Setup https://networkit.github.io/")
     nk.setNumberOfThreads(min(multiprocessing.cpu_count(), api.jobs))
-    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    for (hash, local) in resultset: 
-        result = networkit_features(hash, local, {})
+    df = api.query(query, hashes, ["local"], collapse="MIN")
+    for idx, row in df.iterrows(): 
+        result = networkit_features(row['hash'], row['local'], {})
         eprint(result['hashvalue'])
         for att in result['attributes']:
             eprint(att[1] + "=" + att["2"])

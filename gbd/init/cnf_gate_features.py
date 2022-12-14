@@ -23,8 +23,8 @@ from gbdc import extract_gate_features
 
 # Initialize gate feature tables for given instances
 def init_gate_features(api: GBD, query, hashes):
-    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, gate_features, api.get_limits())
+    df = api.query(query, hashes, ["local"], collapse="MIN")
+    run(api, df, gate_features, api.get_limits())
 
 def gate_features(hashvalue, filename, args):
     eprint('Extracting gate features from {} {}'.format(hashvalue, filename))

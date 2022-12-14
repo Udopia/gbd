@@ -25,8 +25,8 @@ from gbdc import extract_base_features
 
 # Initialize base feature tables for given instances
 def init_base_features(api: GBD, query, hashes):
-    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, base_features, api.get_limits())
+    df = api.query(query, hashes, ["local"], collapse="MIN")
+    run(api, df, base_features, api.get_limits())
 
 def base_features(hashvalue, filename, args):
     eprint('Extracting base features from {} {}'.format(hashvalue, filename))

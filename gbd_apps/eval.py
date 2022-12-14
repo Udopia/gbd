@@ -22,30 +22,25 @@ from gbd.util_argparse import *
 import traceback
 import sys
 
-def par2(api: GBD, query, runtimes, timeout, divisor):
-    for name in runtimes:
-        times = api.query_search(query, [], [name])
-        div = len(times) if divisor is None else divisor
-        par2 = sum(float(time[1]) if util.is_number(time[1]) and float(time[1]) < timeout else 2*timeout for time in times) / div
-        solved = sum(1 if util.is_number(time[1]) and float(time[1]) < timeout else 0 for time in times)
-        print(str(round(par2, 2)) + " " + str(solved) + "/" + str(div) + " " + name)
-    times = api.query_search(query, [], runtimes)
-    div = len(times) if divisor is None else divisor
-    vbs_par2 = sum([min(float(val) if util.is_number(val) and float(val) < timeout else 2*timeout for val in row[1:]) for row in times]) / div
-    solved = sum(1 if t < timeout else 0 for t in [min(float(val) if util.is_number(val) else 2*timeout for val in row[1:]) for row in times])
-    print(str(round(vbs_par2, 2)) + " " + str(solved) + "/" + str(div) + " VBS")
+from functools import reduce
 
-def vbs(api: GBD, query, runtimes, timeout, separator):
-    result = api.query_search(query, [], runtimes)
-    resultset = [(row[0], min(float(val) if util.is_number(val) else 2*timeout for val in row[1:])) for row in result]
-    for result in resultset:
-        print(separator.join([(str(item or '')) for item in result]))
+def par2(series, timeout, divisor):
+    return reduce(lambda x, y: x + (y if y < timeout else 2*timeout) / divisor, series, 0)
 
 def cli_eval_par2(api: GBD, args):
-    par2(api, args.query, args.runtimes, args.tlim, args.divisor)
+    df = api.query(args.query, [], args.runtimes)
+    df[args.runtimes] = df[args.runtimes][df.applymap(util.is_number)].applymap(float)
+    df['vbs'] = df[args.runtimes].min(axis=1)
+    div = len(df.index) if args.divisor is None else args.divisor
+    timeout = args.tlim
+    scores = df[args.runtimes].agg(par2, axis=0, timeout=timeout, divisor=div)
+    print(scores)
 
 def cli_eval_vbs(api: GBD, args):
-    vbs(api, args.query, args.runtimes, args.tlim, args.separator)
+    df = api.query(args.query, [], args.runtimes)
+    df['vbs'] = df[args.runtimes].min(axis=1)
+    for index, row in df.iterrows():
+        print(row['hash'], row['vbs'])
 
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
@@ -71,7 +66,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))

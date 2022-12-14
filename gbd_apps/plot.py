@@ -44,8 +44,7 @@ def scatter(api: GBD, query, runtimes, timeout, groups):
     if not groups:
         groups = []
 
-    result = api.query_search(query, [], runtimes)
-    dfall = pd.DataFrame(result, columns = ["hash"] + runtimes)
+    dfall = api.query(query, [], runtimes)
     for r in runtimes:
         dfall[r] = pd.to_numeric(dfall[r], errors='coerce')
         dfall.loc[(dfall[r] >= timeout) | pd.isna(dfall[r]), r] = timeout
@@ -56,8 +55,7 @@ def scatter(api: GBD, query, runtimes, timeout, groups):
     for g in groups:
         color=next(ax._get_lines.prop_cycler)['color']
         marker=next(markers)[0]
-        result = api.query_search(query + " and (" + g + ")", [], runtimes)
-        df = pd.DataFrame(result, columns = ["hash"] + runtimes)
+        df = api.query(query + " and (" + g + ")", [], runtimes)
         for r in runtimes:
             df[r] = pd.to_numeric(df[r], errors='coerce')
             df.loc[(df[r] >= timeout) | pd.isna(df[r]), r] = timeout
@@ -75,10 +73,12 @@ def scatter(api: GBD, query, runtimes, timeout, groups):
 
 def cdf(api: GBD, query, runtimes, timeout, title):
     plt.rcParams.update({'font.size': 8})
-    result = api.query_search(query, [], runtimes)
-    result = [[float(val) if util.is_number(val) and float(val) < float(timeout) else timeout for val in row[1:]] for row in result]
-    df = pd.DataFrame(result)
-    df.columns = runtimes
+    df = api.query(query, [], runtimes)
+    df[df == 'timeout'] = timeout
+    df[df == 'empty'] = timeout
+    df[runtimes] = df[runtimes].astype('float')
+    df.drop('hash', axis=1, inplace=True)
+    df[df >= timeout] = timeout
     df['vbs'] = df[runtimes].min(axis=1)
     print(df)
 
@@ -176,7 +176,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.separator, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))
