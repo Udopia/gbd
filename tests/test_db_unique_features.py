@@ -6,7 +6,7 @@ import unittest
 
 from gbd.util import eprint
 from gbd.query_builder import GBDQuery
-from gbd.db import Database
+from gbd.database import Database
 from gbd.schema import Schema
 
 class DatabaseTestCase(unittest.TestCase):

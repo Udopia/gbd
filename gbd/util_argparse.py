@@ -32,7 +32,6 @@ def get_gbd_argparser():
     parser.add_argument('-m', '--mlim', help="Memory limit (MB) per instance for 'init' sub-commands", default=2000, type=int)
     parser.add_argument('-f', '--flim', help="File size limit (MB) per instance for 'init' sub-commands which create files", default=1000, type=int)
 
-    parser.add_argument('-s', "--separator", help="Feature separator (delimiter used in import and output", choices=[" ", ",", ";"], default=" ")
     parser.add_argument("--join-type", help="Join Type: treatment of missing values in queries", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
     parser.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), 
                             help='Select context (affects selection of hash/identifier and available feature-extractors in init)')

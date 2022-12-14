@@ -35,7 +35,10 @@ def init_sani(api: GBD, query, hashes):
 
     resultset = []
 
-    for [hashv, local] in api.query_search(query, hashes, ["local"]):
+    df = api.query(query, hashes, ["local"])
+    for idx, row in df.iterrows():
+        hashv = row['hash']
+        local = row['local']
         if local:
             missing = []
             for path in local.split(","):

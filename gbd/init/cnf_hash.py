@@ -18,8 +18,8 @@
 import os
 import io
 import hashlib
-
 import glob
+import pandas as pd
 
 from gbd import contexts
 from gbd.api import GBD
@@ -71,18 +71,18 @@ except ImportError:
 def init_local(api: GBD, root):
     clocal = contexts.prepend_context("local", api.context)
     api.database.create_feature(clocal, permissive=True)
-    paths = set(res[0] for res in api.query_search(group_by=clocal))
+    df = api.query(group_by=clocal)
+    paths = set(row[clocal] for idx, row in df.iterrows())
     missing_files = [path for path in paths if not os.path.isfile(path)]
     if len(missing_files) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing_files))):
         for paths_chunk in slice_iterator(missing_files, 1000):
             api.database.delete_values(clocal, paths_chunk)
-    resultset = []
+    dfs = []
     for suffix in contexts.suffix_list(api.context):
-        for path in glob.iglob(root + "/**/*" + suffix, recursive=True):
-            #if not len(api.query_search("{}='{}'".format(clocal, path))):
-            if not path in paths:
-                resultset.append(("", path))
-    run(api, resultset, compute_hash, {'context': api.context, **api.get_limits()})
+        iter = glob.iglob(root + "/**/*" + suffix, recursive=True)
+        df = pd.DataFrame([('None', path) for path in iter if not path in paths], columns=['hash', clocal])
+        dfs.append(df)
+    run(api, pd.concat(dfs), compute_hash, {'context': api.context, **api.get_limits()})
 
 
 def compute_hash(hash, path, args):
@@ -95,8 +95,8 @@ def compute_hash(hash, path, args):
 def init_iso_hash(api: GBD, query, hashes):
     if not api.feature_exists("isohash"):
         api.create_feature("isohash", "empty")
-    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, compute_iso_hash, api.get_limits())
+    df = api.query(query, hashes, ["local"], collapse="MIN")
+    run(api, df, compute_iso_hash, api.get_limits())
 
 def compute_iso_hash(hashvalue, filename, args):
     eprint('Computing iso hash for {}'.format(filename))

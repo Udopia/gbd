@@ -37,8 +37,8 @@ def init_transform_cnf_to_kis(api: GBD, query, hashes, max_edges, max_nodes):
     api.database.create_feature('kis_k', "empty", permissive=True)
     api.database.create_feature('cnf_to_kis', permissive=True)
     api.database.create_feature('kis_to_cnf', permissive=True)
-    resultset = api.query_search(query, hashes, ["local"], collapse="MIN")
-    run(api, resultset, transform_cnf_to_kis, { **api.get_limits(), 'max_edges': max_edges, 'max_nodes': max_nodes })
+    df = api.query(query, hashes, ["local"], collapse="MIN")
+    run(api, df, transform_cnf_to_kis, { **api.get_limits(), 'max_edges': max_edges, 'max_nodes': max_nodes })
 
 def transform_cnf_to_kis(cnfhash, cnfpath, args):
     if not cnfhash or not cnfpath:
