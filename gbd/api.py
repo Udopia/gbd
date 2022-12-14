@@ -53,6 +53,30 @@ class GBD:
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
 
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
+        query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
+        try:
+            sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
+        except tatsu.exceptions.FailedParse as err:
+            raise GBDException("Parser Error: {}".format(str(err)))
+        try:
+            result = self.database.query(sql)
+        except sqlite3.OperationalError as err:
+            raise GBDException("Database Operational Error: {}".format(str(err)))
+        return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
+
+    # Get all features
+    def get_features(self, tables=True, views=True, dbname=None):
+        return self.database.get_features(tables=tables, views=views, db=dbname)
+
+    # Check for existence of given feature
+    def feature_exists(self, name):
+        return name in self.get_features()
+
+    # Retrieve information about a specific feature
+    def get_feature_info(self, name):
+        return self.database.feature_info(name)
+
     def get_limits(self) -> dict():
         return { 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
 
@@ -62,30 +86,14 @@ class GBD:
     def get_database_path(self, dbname):
         return self.database.dpath(dbname)
 
-    # Get all features
-    def get_features(self, dbname=None):
-        return self.database.get_features(tables=True, views=True, db=dbname)
-
-    # Get all material features
-    def get_material_features(self, dbname=None):
-        return self.database.get_features(tables=True, views=False, db=dbname)
-
-    # Get all virtual features
-    def get_virtual_features(self, dbname=None):
-        return self.database.get_features(tables=False, views=True, db=dbname)
-
-    # Check for existence of given feature
-    def feature_exists(self, name):
-        return name in self.get_features()
-
-    # Creates the given feature
+    # Creates feature of given name
     def create_feature(self, name, default_value=None):
         if not self.feature_exists(name):
             self.database.create_feature(name, default_value)
         else:
             raise GBDException("Feature '{}' does already exist".format(name))
 
-    # Removes the given feature
+    # Removes feature of given name
     def delete_feature(self, name):
         if self.feature_exists(name):
             self.database.delete_feature(name)
@@ -101,18 +109,11 @@ class GBD:
         else:
             self.database.rename_feature(old_name, new_name)
 
-    # Retrieve information about a specific feature
-    def get_feature_info(self, name):
-        return self.database.feature_info(name)
-
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, query, hashes=[], force=False):
-        if not feature in self.get_material_features():
+        if not feature in self.get_features(views=False):
             raise GBDException("Feature '{}' missing or virtual".format(feature))
-        hash_list = hashes
-        if query:
-            df = self.query(query, hash_list)
-            hash_list = df['hash'].tolist()
+        hash_list = hashes if not query else self.query(query, hashes)['hash'].tolist()
         try:
             self.database.set_values(feature, value, hash_list)
         except Exception as err:
@@ -120,20 +121,6 @@ class GBD:
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, values=[], hashes=[]):
-        if not feature in self.get_material_features():
+        if not feature in self.get_features(views=False):
             raise GBDException("Feature '{}' not found or virtual".format(feature))
         self.database.delete(feature, values, hashes)
-
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
-        query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
-        try:
-            sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
-            result = self.database.query(sql)
-        except sqlite3.OperationalError as err:
-            raise GBDException("Database Operational Error: {}".format(str(err)))
-        except tatsu.exceptions.FailedParse as err:
-            raise GBDException("Parser Error: {}".format(str(err)))
-        cols = [ group_by ] + (resolve or [])
-        df = pd.DataFrame(result, columns=cols)
-        #df.set_index(group_by, inplace=True)
-        return df

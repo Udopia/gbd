@@ -4,99 +4,53 @@
 <head>
     <title>GBD Benchmark Database</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='select2/css/select2.min.css') }}" />
     <script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
     <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
     <script src="{{ url_for('static', filename='w3.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('.features').select2({
-                placeholder: 'Select Features',
-                allowClear: true,
-                closeOnSelect: false,
-                width: 'element'
-            })
-        });
-    </script>
 </head>
 
 <body>
 <div class="main">
-    <div class="navigation">
-    <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
-    <br /><br />
-    <ul>
-        <li>Shortcuts: <br />
-            <ul>
-                <li>
-                <a href="{{ url_for('quick_search', track='main_2022') }}">Main 2022</a>
-                </li>
-                <li>
-                <a href="{{ url_for('quick_search', track='anni_2022') }}">Anniversary 2022</a>
-                </li>
-            </ul>
-        </li>
-        <li>Databases: <br />
-            <ul>
-            {% for dbname, features in features.items() %}
-                <li>
-                <a href="/getdatabase/{{ dbname }}">Download {{ dbname }}</a>
-                </li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>Literature: <br />
-            <ul>
-                <li>
-                <a href="https://arxiv.org/abs/2009.02995">Paper: CoRR 2020</a>
-                </li>
-                <li>
-                <a href="https://easychair.org/publications/paper/jQXv">Paper: POS@SAT 2018</a>
-                </li>
-            </ul>
-        </li>
-    </ul>
-    </div>
-
-    <div class="heading">
-        <h3>Find and Download CNF Benchmark Instances by Feature Values.</h3>
+    <header>
+        <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
         <form method="post">
-            <input type="text" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
-            <br />
-            <select multiple name="selected_features" class="features">
-            {% for dbname, features in features.items() %}
-                <optgroup label="{{ dbname }}">
-                {% for feat in features %}
-                    {% if feat in selected %}
-                    <option value="{{ feat }}" selected>{{ feat }}</option>
+            <fieldset>
+                <legend>Filter for specific instances:</legend>
+                <input type="text" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
+            </fieldset>
+            <fieldset>
+                <legend>Select feature database for display:</legend>
+                {% for dbname in databases %}
+                    {% if dbname == selected %}
+                    <input type="radio" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" checked>
                     {% else %}
-                    <option value="{{ feat }}">{{ feat }}</option>
+                    <input type="radio" id="{{ dbname }}" name="selected_db" value="{{ dbname }}">
                     {% endif %}
+                    <label for="{{ dbname }}"><a href="{{ url_for('get_database_file', database=dbname) }}">{{ dbname }}</a></label>
                 {% endfor %}
-                </optgroup>
-            {% endfor %}
-            </select>
-            <br />
+            </fieldset>
             <button onclick="w3.hide('.info'); w3.show('#query')" type="submit" class="submit" formaction="/">Show Instances and Features</button>
             <button onclick="w3.hide('.info'); w3.show('#download')" type="submit" class="submit" formaction="/getinstances">Download Instances (URIs)</button>
             <button onclick="w3.hide('.info')" type="submit" class="submit" formaction="/exportcsv">Download Features (CSVs)</button>
         </form>
-        <div class="info" id="query" style="display:block">
-            {{ result | length }} benchmarks
+        <div>
+        <div class="shortcuts">
+            Or use one of the following predefined query shortcuts: 
+            <ul>
+                <li><a href="{{ url_for('quick_search', track='main_2022') }}">Main 2022</a></li>
+                <li><a href="{{ url_for('quick_search', track='anni_2022') }}">Anniversary 2022</a></li>
+            </ul>
         </div>
-        <div class="info" id="download">
-            The downloaded file contains the benchmark URIs. Use for example <b>wget --content-disposition -i filename.uri</b> for downloading them. 
         </div>
-    </div>
+    </header>
     
     <div class="content">
         <table class="sortable">
             <tr>
                 <th>hash</th>
-            {% for feature in selected %}
+                {% for feature in features %}
                 <th>{{ feature }}</th>
-            {% endfor %}
+                {% endfor %}
             </tr>
             
             {% for row in result %}
@@ -108,6 +62,18 @@
             {% endfor %}
         </table>
     </div>
+
+    <footer>
+        <div class="info" id="query" style="display:block; float:left">
+            Status: Found {{ result | length }} Benchmarks
+        </div>
+        <div class="info" id="download">
+            Status: The downloaded file contains the benchmark URIs. Use for example <b>wget --content-disposition -i filename.uri</b> for downloading them. 
+        </div>
+        <div style="float: right;">
+            If you find this useful, please cite: <a href="https://easychair.org/publications/paper/jQXv">A Problem Meta-Data Library for Research in SAT</a>
+        </div>
+    </footer>
 </div>
 </body>
 </html>
