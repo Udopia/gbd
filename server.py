@@ -42,18 +42,18 @@ app = Flask(__name__)
 
 
 def request_query(request):
-    query = None
+    query = ""
     if "query" in request.form:
         query = request.form.get('query')
     elif len(request.args) > 0:
         query = " and ".join(["{}={}".format(key, value) for (key, value) in request.args.items()])
     return query
 
-def request_features(request):
-    selected_features = []
-    if "selected_features" in request.form:
-        selected_features = list(filter(lambda x: x != '', request.form.getlist('selected_features')))
-    return list(set(app.config['features_flat']) & set(selected_features))
+def request_database(request):
+    if "selected_db" in request.form and request.form.get('selected_db') in app.config['dbnames']:
+        return request.form.get('selected_db')
+    else:
+        return app.config['dbnames'][0]
 
 
 def query_to_name(query):
@@ -76,11 +76,16 @@ def json_response(json_blob, msg, addr):
     app.logger.info("{}: {}".format(addr, msg))
     return Response(json_blob, status=200, mimetype="application/json")
 
-def page_response(query, features):
+def page_response(query, database):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         try:
-            df = gbd.query(query, resolve=features, collapse="MIN")
-            return render_template('index.html', query=query, result=df.values.tolist(), selected=features, features=app.config["features"])
+            df = gbd.query(query, resolve=app.config["features"][database], collapse="MIN")
+            return render_template('index.html', 
+                query=query, 
+                result=df.values.tolist(), 
+                selected=database, 
+                features=app.config["features"][database],
+                databases=app.config["dbnames"])
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
 
@@ -88,9 +93,9 @@ def page_response(query, features):
 # Returns main index page
 @app.route("/", methods=['POST', 'GET'])
 def quick_search():
-    query = request_query(request) or ""
-    features = request_features(request) or ["filename"]
-    return page_response(query, features)
+    query = request_query(request)
+    database = request_database(request)
+    return page_response(query, database)
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -100,7 +105,8 @@ def quick_search():
 def get_csv_file(context='cnf'):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
-        features = request_features(request)
+        db = request_database(request)
+        features = app.config['features'][db]
         group = contexts.prepend_context("hash", context)
         try:
             df = gbd.query(query, [], features, group_by=group)
@@ -242,7 +248,7 @@ def main():
             app.config['features'] = dict()
             for db in app.config['dbnames']:
                 if db != 'main':
-                    app.config['features'][db] = gbd.get_features(dbname=db)
+                    app.config['features'][db] = list(set(gbd.get_features(dbname=db)))
                     for context in contexts.contexts():
                         local = contexts.prepend_context("local", context)
                         if local in app.config['features'][db]:
