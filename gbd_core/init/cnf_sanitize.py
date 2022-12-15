@@ -18,11 +18,11 @@
 import os
 import shutil
 
-from gbd import util
-from gbd.api import GBD
+from gbd_core import util
+from gbd_core.api import GBD
 
-from gbd.init.cnf_hash import gbd_hash
-from gbd.init.runner import run
+from gbd_core.init.cnf_hash import gbd_hash
+from gbd_core.init.runner import run
 
 from gbdc import sanitize
 

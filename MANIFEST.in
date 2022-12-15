@@ -3,9 +3,6 @@ include LICENSE
 include gbd_server/templates/*.html
 include gbd_server/static/img/*.png
 include gbd_server/static/img/*.jpg
-include gbd_server/static/select2/css/*.css
-include gbd_server/static/select2/js/*.js
-include gbd_server/static/select2/js/i18n/*.js
 include gbd_server/static/*.css
 include gbd_server/static/*.js
 

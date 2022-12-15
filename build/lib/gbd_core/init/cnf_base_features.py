@@ -16,9 +16,9 @@
 
 
 
-from gbd.api import GBD
-from gbd.util import eprint
-from gbd.init.runner import run
+from gbd_core.api import GBD
+from gbd_core.util import eprint
+from gbd_core.init.runner import run
 
 from gbdc import extract_base_features
 

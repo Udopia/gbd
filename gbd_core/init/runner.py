@@ -18,8 +18,8 @@ import multiprocessing
 import pebble
 from concurrent.futures import as_completed
 
-from gbd.api import GBD, GBDException
-from gbd.util import eprint
+from gbd_core.api import GBD, GBDException
+from gbd_core.util import eprint
 
 def safe_run_results(api: GBD, result, check=False):
     for attr in result:

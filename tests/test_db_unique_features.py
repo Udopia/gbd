@@ -4,10 +4,10 @@
 import os
 import unittest
 
-from gbd.util import eprint
-from gbd.query_builder import GBDQuery
-from gbd.database import Database
-from gbd.schema import Schema
+from gbd_core.util import eprint
+from gbd_core.query_builder import GBDQuery
+from gbd_core.database import Database
+from gbd_core.schema import Schema
 
 class DatabaseTestCase(unittest.TestCase):
 

@@ -22,9 +22,9 @@ import pandas as pd
 
 from contextlib import ExitStack
 
-from gbd.query_builder import GBDQuery
-from gbd.database import Database
-from gbd.util import eprint
+from gbd_core.query_builder import GBDQuery
+from gbd_core.database import Database
+from gbd_core.util import eprint
 
 
 class GBDException(Exception):

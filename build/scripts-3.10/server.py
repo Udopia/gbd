@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!python
 # -*- coding: utf-8 -*-
 
 # GBD Benchmark Database (GBD)

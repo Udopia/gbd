@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='4.1.8',
+  version='4.2.3',
   description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -9,7 +9,8 @@ setup(name='gbd_tools',
   author='Markus Iser, Karlsruhe Institute of Technology (KIT)',
   author_email='markus.iser@kit.edu',
   packages=[
-    "gbd", 
+    "gbd_core", 
+    "gbd_core.init",
     "gbd_apps",
     "gbd_server"
   ],

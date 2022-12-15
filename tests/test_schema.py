@@ -4,8 +4,8 @@
 import os
 import unittest
 
-from gbd.database import Database
-from gbd.schema import Schema
+from gbd_core.database import Database
+from gbd_core.schema import Schema
 
 class SchemaTestCase(unittest.TestCase):
 

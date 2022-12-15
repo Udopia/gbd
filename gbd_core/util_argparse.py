@@ -18,7 +18,7 @@ import argparse
 import os
 import multiprocessing
 
-from gbd import contexts
+from gbd_core import contexts
 
 def get_gbd_argparser():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')

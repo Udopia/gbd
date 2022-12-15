@@ -21,11 +21,11 @@ import hashlib
 import glob
 import pandas as pd
 
-from gbd import contexts
-from gbd.api import GBD
-from gbd.util import eprint, confirm, slice_iterator, open_cnf_file
+from gbd_core import contexts
+from gbd_core.api import GBD
+from gbd_core.util import eprint, confirm, slice_iterator, open_cnf_file
 
-from gbd.init.runner import run
+from gbd_core.init.runner import run
 
 from gbdc import isohash
 
