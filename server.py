@@ -21,7 +21,6 @@ import logging
 import os
 import re
 import argparse
-import operator
 
 import flask
 from flask import Flask, request, send_file, json, Response
@@ -31,7 +30,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd import contexts
+from gbd import contexts, util
 from gbd.database import DatabaseException
 from gbd.schema import Schema
 from gbd.api import GBD, GBDException
@@ -55,6 +54,12 @@ def request_database(request):
     else:
         return app.config['dbnames'][0]
 
+def request_page(request):
+    return int(request.form.get('page')) if "page" in request.form else 0
+
+def request_action(request):
+    return request.form.get('action') if "action" in request.form else "default"
+
 
 def query_to_name(query):
     return re.sub(r'[^\w]', '_', query)
@@ -76,18 +81,26 @@ def json_response(json_blob, msg, addr):
     app.logger.info("{}: {}".format(addr, msg))
     return Response(json_blob, status=200, mimetype="application/json")
 
-def page_response(query, database):
+def page_response(query, database, page=0):
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+        start = page * 1000
+        end = start + 1000
         try:
             df = gbd.query(query, resolve=app.config["features"][database], collapse="MIN")
-            return render_template('index.html', 
-                query=query, 
-                result=df.values.tolist(), 
-                selected=database, 
-                features=app.config["features"][database],
-                databases=app.config["dbnames"])
+            #for col in df.columns:
+            #    df[col] = df[col].apply(lambda x: round(float(x), 2) if util.is_number(x) and '.' in x else x)
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
+        return render_template('index.html', 
+            query=query, 
+            result=df.iloc[start:end, :].values.tolist(), 
+            total=len(df.index),
+            page=page,
+            pages=int(len(df.index) / 1000),
+            selected=database, 
+            features=app.config["features"][database],
+            databases=app.config["dbnames"],
+            action=request_action(request))
 
 
 # Returns main index page
@@ -95,7 +108,8 @@ def page_response(query, database):
 def quick_search():
     query = request_query(request)
     database = request_database(request)
-    return page_response(query, database)
+    page = request_page(request)
+    return page_response(query, database, page)
 
 
 # Expects POST form with a query as text input and selected features as checkbox inputs,
@@ -239,7 +253,7 @@ def main():
             app.config['dbnames'] = gbd.get_databases()
             if Schema.IN_MEMORY_DB_NAME in app.config['dbnames']:
                 app.config['dbnames'].remove(Schema.IN_MEMORY_DB_NAME)
-            app.config['features_flat'] = gbd.get_features()
+            app.config['features_flat'] = list(set(gbd.get_features()))
             for context in contexts.contexts():
                 local = contexts.prepend_context("local", context)
                 if local in app.config['features_flat']:
