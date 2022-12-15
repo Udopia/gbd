@@ -4,7 +4,7 @@ import os
 import tempfile
 import shutil
 
-from gbd.init.cnf_hash import gbd_hash
+from gbd_core.init.cnf_hash import gbd_hash
 
 class TestGBDHash(unittest.TestCase):
 

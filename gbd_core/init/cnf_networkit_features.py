@@ -17,11 +17,11 @@
 
 import multiprocessing
 
-from gbd.api import GBD, GBDException
-from gbd.util import eprint
+from gbd_core.api import GBD, GBDException
+from gbd_core.util import eprint
 
-from gbd.init.cnf_hash import gbd_hash
-from gbd.init.runner import run
+from gbd_core.init.cnf_hash import gbd_hash
+from gbd_core.init.runner import run
 
 # Initialize Graph Features known from Network Analysis
 def init_networkit_features(api: GBD, query, hashes):

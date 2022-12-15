@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from gbd.api import GBD
-from gbd import util
-from gbd.util_argparse import *
+from gbd_core.api import GBD
+from gbd_core import util
+from gbd_core.util_argparse import *
 
 from graph_tool.all import *
 from pysat.formula import CNF

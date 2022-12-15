@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gbd.api import GBD
-from gbd import util
-from gbd.util_argparse import *
+from gbd_core.api import GBD
+from gbd_core import util
+from gbd_core.util_argparse import *
 
 from itertools import combinations
 from operator import itemgetter

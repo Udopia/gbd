@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from gbd.api import GBD
-from gbd import util
+from gbd_core.api import GBD
+from gbd_core import util
 
 from pysat.formula import CNF
 from pysat.solvers import Lingeling

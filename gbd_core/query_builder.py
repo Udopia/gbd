@@ -16,8 +16,8 @@
 
 import tatsu
 
-from gbd.database import Database, DatabaseException
-from gbd.util import eprint
+from gbd_core.database import Database, DatabaseException
+from gbd_core.util import eprint
 
 class GBDQuery:
     GRAMMAR = r'''

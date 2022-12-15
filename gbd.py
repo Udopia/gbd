@@ -21,10 +21,10 @@ import os
 import sys
 import traceback
 
-from gbd.api import GBD, GBDException
-from gbd import contexts, util
-from gbd.util_argparse import *
-from gbd.init.cnf_hash import gbd_hash
+from gbd_core.api import GBD, GBDException
+from gbd_core import contexts, util
+from gbd_core.util_argparse import *
+from gbd_core.init.cnf_hash import gbd_hash
 
 
 ### Command-Line Interface Entry Points
@@ -33,27 +33,27 @@ def cli_hash(api: GBD, args):
 
 
 def cli_init_local(api: GBD, args):
-    from gbd.init.cnf_hash import init_local
+    from gbd_core.init.cnf_hash import init_local
     init_local(api, args.path)
 
 def cli_init_base_features(api: GBD, args):
-    from gbd.init.cnf_base_features import init_base_features
+    from gbd_core.init.cnf_base_features import init_base_features
     init_base_features(api, args.query, args.hashes)
 
 def cli_init_gate_features(api: GBD, args):
-    from gbd.init.cnf_gate_features import init_gate_features
+    from gbd_core.init.cnf_gate_features import init_gate_features
     init_gate_features(api, args.query, args.hashes)
 
 def cli_init_cnf2kis(api: GBD, args):
-    from gbd.init.cnf_to_kis import init_transform_cnf_to_kis
+    from gbd_core.init.cnf_to_kis import init_transform_cnf_to_kis
     init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
 
 def cli_init_iso(api: GBD, args):
-    from gbd.init.cnf_hash import init_iso_hash
+    from gbd_core.init.cnf_hash import init_iso_hash
     init_iso_hash(api, args.query, args.hashes)
 
 def cli_init_sani(api: GBD, args):
-    from gbd.init.cnf_sanitize import init_sani
+    from gbd_core.init.cnf_sanitize import init_sani
     init_sani(api, args.query, args.hashes)
 
 
@@ -85,10 +85,10 @@ def cli_info(api: GBD, args):
         for db_str in api.get_databases():
             if len(api.get_features(dbname=db_str)):
                 print("\nDatabase: {}".format(api.get_database_path(db_str)))
-                feat = api.get_material_features(dbname=db_str)
+                feat = api.get_features(dbname=db_str, views=False)
                 if len(feat):
                     print("Features: " + " ".join(feat))
-                feat = api.get_virtual_features(dbname=db_str)
+                feat = api.get_features(dbname=db_str, tables=False)
                 if len(feat):
                     print("Virtuals: " + " ".join(feat))
     else:

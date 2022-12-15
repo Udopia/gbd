@@ -14,19 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gbd.api import GBD
-from gbd.util import eprint
-from gbd.init.runner import run
-
-from gbdc import extract_gate_features
 
 
-# Initialize gate feature tables for given instances
-def init_gate_features(api: GBD, query, hashes):
+from gbd_core.api import GBD
+from gbd_core.util import eprint
+from gbd_core.init.runner import run
+
+from gbdc import extract_base_features
+
+
+# Initialize base feature tables for given instances
+def init_base_features(api: GBD, query, hashes):
     df = api.query(query, hashes, ["local"], collapse="MIN")
-    run(api, df, gate_features, api.get_limits())
+    run(api, df, base_features, api.get_limits())
 
-def gate_features(hashvalue, filename, args):
-    eprint('Extracting gate features from {} {}'.format(hashvalue, filename))
-    rec = extract_gate_features(filename, args['tlim'], args['mlim'])
+def base_features(hashvalue, filename, args):
+    eprint('Extracting base features from {} {}'.format(hashvalue, filename))
+    rec = extract_base_features(filename, args['tlim'], args['mlim'])
     return [ (key, hashvalue, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]

@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import gbd.util as util
+import gbd_core.util as util
 import piskle
 import argparse
 import os
@@ -13,9 +13,9 @@ from sklearn import tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-from gbd.api import GBD
-from gbd import util
-from gbd.util_argparse import *
+from gbd_core.api import GBD
+from gbd_core import util
+from gbd_core.util_argparse import *
 
 class GBDException(Exception):
     pass

@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gbd.api import GBD
-import gbd.util as util
-from gbd.util_argparse import *
+from gbd_core.api import GBD
+import gbd_core.util as util
+from gbd_core.util_argparse import *
 
 import traceback
 import sys

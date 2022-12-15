@@ -20,12 +20,12 @@ from os.path import isfile, basename, exists
 
 from functools import reduce
 
-from gbd import contexts
-from gbd.api import GBD, GBDException
-from gbd.util import eprint
+from gbd_core import contexts
+from gbd_core.api import GBD, GBDException
+from gbd_core.util import eprint
 
-from gbd.init.cnf_hash import gbd_hash
-from gbd.init.runner import run
+from gbd_core.init.cnf_hash import gbd_hash
+from gbd_core.init.runner import run
 
 from gbdc import cnf2kis
 
