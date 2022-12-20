@@ -15,7 +15,7 @@
         <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
         <form method="post" id="mainform">
             <fieldset>
-                <legend>Select feature database for display:</legend>
+                <legend>Select feature database for display</legend>
                 {% for dbname in databases %}
                     {% if dbname == selected %}
                     <input type="radio" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" checked>
@@ -27,7 +27,7 @@
             </fieldset>
             <br />
             <fieldset>
-                <legend>Filter for specific instances:</legend>
+                <legend>Filter for specific instances</legend>
                 <input type="text" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
                 <button type="submit" class="submit" formaction="/" name="action" value="show" title="Query for instances and selected features">Show</button>
                 <button type="submit" class="submit" formaction="/getinstances" form="mainform" name="action" value="download" title="Download $file. Download instances with 'wget --content-disposition -i $file'">Download</button>

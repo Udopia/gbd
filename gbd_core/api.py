@@ -21,10 +21,11 @@ import os
 import pandas as pd
 
 from contextlib import ExitStack
+import traceback
 
 from gbd_core.query_builder import GBDQuery
 from gbd_core.database import Database
-from gbd_core.util import eprint
+from gbd_core import util
 
 
 class GBDException(Exception):
@@ -58,10 +59,14 @@ class GBD:
         try:
             sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
         except tatsu.exceptions.FailedParse as err:
+            if self.verbose:
+                util.eprint(traceback.format_exc())
             raise GBDException("Parser Error: {}".format(str(err)))
         try:
             result = self.database.query(sql)
         except sqlite3.OperationalError as err:
+            if self.verbose:
+                util.eprint(traceback.format_exc())
             raise GBDException("Database Operational Error: {}".format(str(err)))
         return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
 
