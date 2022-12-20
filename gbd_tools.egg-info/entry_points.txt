@@ -1,4 +1,0 @@
-[console_scripts]
-gbd = gbd:main
-gbd-server = server:main
-
