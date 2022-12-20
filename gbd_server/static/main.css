@@ -1,10 +1,10 @@
 :root {
-  --background-color-1: #457B9D;
+  --background-color-1: #FFD046;
 	--background-color-2: #FCFCFF;
 	--text-color: #000000;
 	--link-color-1: #880e0e ;
-	--link-color-2: #CB8589;
-	--border-color: #065A82;
+	--link-color-2: #3A4454;
+	--border-color: #7E998A;
 }
 
 html, body {
@@ -25,12 +25,13 @@ html, body {
 
 header {
   flex-shrink: 0;
+  border-bottom: 3px solid var(--border-color);
 }
 
 header > img {
   float: left;
   margin: 1em;
-  filter: drop-shadow(-11px -7px 3px var(--border-color));
+  filter: drop-shadow(-11px -7px 3px var(--link-color-2));
 }
 
 header > form {
@@ -53,6 +54,7 @@ fieldset {
 footer {
   padding: 1em;
   flex-shrink: 0;
+  border-top: 3px solid var(--border-color);
 }
 
 a:link { color:var(--link-color-1); text-decoration:none; }
@@ -78,9 +80,9 @@ button.submit {
 }
 
 table, th, td {
-  border:2px solid var(--border-color);
+  border:1px solid var(--border-color);
   border-collapse: collapse;
-  padding: 4px 8px;
+  padding: 3px 7px;
 }
 
 td {
@@ -89,7 +91,7 @@ td {
 }
 
 table th {
-	background-color:var(--background-color-1);
+	background-color:var(--background-color-2);
 	font-weight: bold;
 	cursor: default;
 }

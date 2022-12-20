@@ -9,6 +9,8 @@ sed -i '/^\tprerotate.*/a \\t\t\/usr\/share\/awstats\/tools\/awstats_buildstatic
 ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 chown www-data:root /internal_proxy
 
+export GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db:/raid/gbd/sc2021.db:/raid/gbd/sc2020.db
+
 # start proxy, cron and gbd
 service cron start
 nginx
