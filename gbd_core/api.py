@@ -83,7 +83,7 @@ class GBD:
         return self.database.feature_info(name)
 
     def get_limits(self) -> dict():
-        return { 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
+        return { 'jobs': self.jobs, 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
 
     def get_databases(self):
         return list(self.database.get_databases())
@@ -92,9 +92,9 @@ class GBD:
         return self.database.dpath(dbname)
 
     # Creates feature of given name
-    def create_feature(self, name, default_value=None):
+    def create_feature(self, name, default_value=None, target_db=None):
         if not self.feature_exists(name):
-            self.database.create_feature(name, default_value)
+            self.database.create_feature(name, default_value, target_db, False)
         else:
             raise GBDException("Feature '{}' does already exist".format(name))
 
@@ -128,4 +128,6 @@ class GBD:
     def remove_attributes(self, feature, values=[], hashes=[]):
         if not feature in self.get_features(views=False):
             raise GBDException("Feature '{}' not found or virtual".format(feature))
-        self.database.delete(feature, values, hashes)
+        for values_slice in util.slice_iterator(values, 1000):
+            for hashes_slice in util.slice_iterator(hashes, 1000):
+                self.database.delete_values(feature, values_slice, hashes_slice)

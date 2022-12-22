@@ -20,12 +20,12 @@ import io
 import hashlib
 import glob
 import pandas as pd
+import itertools
 
 from gbd_core import contexts
-from gbd_core.api import GBD
-from gbd_core.util import eprint, confirm, slice_iterator, open_cnf_file
-
-from gbd_core.init.runner import run
+from gbd_core.api import GBD, GBDException
+from gbd_core.util import eprint, confirm, open_cnf_file
+from gbd_core.init.extractor import FeatureExtractor
 
 from gbdc import isohash
 
@@ -67,38 +67,35 @@ except ImportError:
             return hash_md5.hexdigest()
 
 
+class GBDHash(FeatureExtractor):
+
+    def __init__(self, api: GBD, target_db):
+        if not api.context in [ 'cnf', 'sancnf', 'cnf2' ]:
+            raise GBDException("Context '{}' not supported by GBDHash".format(api.context))
+        clocal = contexts.prepend_context("local", api.context)
+        self.features = [ (clocal, None) ]
+        super().__init__(api, self.features, self.compute_hash, target_db)
+
+    def compute_hash(self, hash, path, limits):
+        eprint('Hashing {}'.format(path))
+        hash = gbd_hash(path)
+        return [ (self.features[0][0], hash, path) ]
+
+
 # Initialize table 'local' with instances found under given path
-def init_local(api: GBD, root):
+def init_local(api: GBD, root, target_db):
+    extractor = GBDHash(api, target_db)
+    extractor.create_features()
     clocal = contexts.prepend_context("local", api.context)
-    api.database.create_feature(clocal, permissive=True)
+
     df = api.query(group_by=clocal)
-    paths = set(row[clocal] for idx, row in df.iterrows())
-    missing_files = [path for path in paths if not os.path.isfile(path)]
-    if len(missing_files) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing_files))):
-        for paths_chunk in slice_iterator(missing_files, 1000):
-            api.database.delete_values(clocal, paths_chunk)
-    dfs = []
-    for suffix in contexts.suffix_list(api.context):
-        iter = glob.iglob(root + "/**/*" + suffix, recursive=True)
-        df = pd.DataFrame([('None', path) for path in iter if not path in paths], columns=['hash', clocal])
-        dfs.append(df)
-    run(api, pd.concat(dfs), compute_hash, {'context': api.context, **api.get_limits()})
+    dfilter = df[clocal].apply(lambda x: not x or not os.path.isfile(x))
 
+    missing = df[dfilter]
+    if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
+        api.remove_attributes(clocal, values=missing[clocal].tolist())
 
-def compute_hash(hash, path, args):
-    eprint('Hashing {}'.format(path))
-    hashvalue = gbd_hash(path)
-    clocal = contexts.prepend_context("local", args["context"])
-    return [ (clocal, hashvalue, path) ]
-
-# Initialize degree_sequence_hash for given instances
-def init_iso_hash(api: GBD, query, hashes):
-    if not api.feature_exists("isohash"):
-        api.create_feature("isohash", "empty")
-    df = api.query(query, hashes, ["local"], collapse="MIN")
-    run(api, df, compute_iso_hash, api.get_limits())
-
-def compute_iso_hash(hashvalue, filename, args):
-    eprint('Computing iso hash for {}'.format(filename))
-    isoh = isohash(filename)
-    return [ ('isohash', hashvalue, isoh) ]
+    paths = [ path for suffix in contexts.suffix_list(api.context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    df2 = pd.DataFrame([(None, path) for path in paths if not path in df[clocal].to_list()], columns=['hash', clocal])
+    
+    extractor.extract(df2)

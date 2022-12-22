@@ -30,17 +30,18 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path_list, verbose=False):
+    def __init__(self, path_list, verbose=False, autocommit=True):
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
         self.features = self.init_features()
         self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True, timeout=10)
         self.cursor = self.connection.cursor()
         self.maindb = None
+        self.autocommit = autocommit
         schema: Schema
         for schema in self.schemas.values():
             if not schema.is_in_memory():
-                self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname), commit=False)
+                self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname))
             if not self.maindb:
                 self.maindb = schema.dbname  # target of inserts and updates
         
@@ -62,7 +63,6 @@ class Database:
         result = dict()
         for path in path_list:
             schema = Schema.create(path)
-            schema.validate()
             if not schema.dbname in result:
                 result[schema.dbname] = schema
             elif schema.is_in_memory():
@@ -80,7 +80,8 @@ class Database:
         schema: Schema
         for schema in self.schemas.values():
             feature: FeatureInfo
-            for feature in schema.features:
+            for feature in schema.features.values():
+                # first found feature is used: (=feature precedence by database position)
                 if not feature.name in result:
                     result[feature.name] = feature
                 elif feature.column == "hash" and self.is_features_table(feature): 
@@ -97,12 +98,19 @@ class Database:
             eprint(q)
         return self.cursor.execute(q).fetchall()
 
-    def execute(self, q, commit=True):
+    def execute(self, q):
         if self.verbose:
             eprint(q)
         self.cursor.execute(q)
-        if commit:
-            self.connection.commit()
+        if self.autocommit:
+            self.commit()
+
+    def commit(self):
+        self.connection.commit()
+
+    def set_auto_commit(self, autocommit):
+        self.autocommit = autocommit
+
 
     def dexists(self, dbname):
         return dbname in self.schemas.keys()
@@ -153,56 +161,30 @@ class Database:
         return self.schemas.keys()
   
     def get_features(self, tables=True, views=True, db=None):
-        return [ f for (f, i) in self.features.items() if (views and i.virtual) or (tables and not i.virtual) and (not db or db == i.database) ]
+        return [ f for (f, i) in self.features.items() if ((views and i.virtual) or (tables and not i.virtual)) and (not db or db == i.database) ]
 
     def get_tables(self, context = None, db = None):
         tables = [ i.table for i in self.features.values() if not i.virtual and (not context or context == i.context) and (not db or db == i.database) ]
         return list(set(tables))
 
 
-    def create_feature(self, name, default_value=None, permissive=False):
-        if not permissive:  # internal use can be unchecked, e.g., to create the reserved features during initialization
-            Schema.valid_feature_or_raise(name)
-        
-        if not self.fexists(name):
-            # ensure existence of main features-table for context:
-            context = contexts.context_from_name(name)
-            context_main_table = contexts.prepend_context("features", context)
-            context_hash = contexts.prepend_context("hash", context)
-            if not context_main_table in self.get_tables():
-                self.features[context_hash] = self.schemas[self.maindb].create_main_feature_table(context)
-
-            # create new feature:
-            self.execute('ALTER TABLE {}.{} ADD {} TEXT NOT NULL DEFAULT {}'.format(self.maindb, context_main_table, name, default_value or "None"))
-            if default_value is not None:
-                # feature is unique and resides in main features-table:
-                self.features[name] = FeatureInfo(name, self.maindb, context, context_main_table, name, default_value, False)
-            else:
-                # feature is not unique and resides in a separate table (column in main features-table is a foreign key):
-                self.execute("CREATE TABLE IF NOT EXISTS {}.{} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(self.maindb, name))
-                self.execute("INSERT INTO {}.{} (hash, value) VALUES ('None', 'None')".format(self.maindb, name))
-                self.execute("""CREATE TRIGGER IF NOT EXISTS {}.{}_hash AFTER INSERT ON {}
-                                    BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(self.maindb, name, name, context_main_table))
-                self.features[name] = FeatureInfo(name, self.maindb, context, name, "value", None, False)
-
-            # update schema:
-            self.schemas[self.maindb].features.append(self.features[name])
-
-            # create default filename-views for local path features:
-            if name == contexts.prepend_context("local", context):
-                self.create_filename_view(context)
-
-        elif not permissive:
-            raise DatabaseException("Feature {} already exists".format(name))
+    def create_feature(self, name, default_value=None, target_db=None, permissive=False):
+        db = target_db or self.maindb
+        created = self.schemas[db].create_feature(name, default_value, permissive)
+        for finfo in created:
+            # this code disregards feature precedence by database position:
+            if not finfo.name in self.features.keys():
+                self.features[finfo.name] = finfo
 
 
-    def create_filename_view(self, context):
-        local = contexts.prepend_context("local", context)
-        filename = contexts.prepend_context("filename", context)
-        self.execute("CREATE VIEW IF NOT EXISTS {}.{} (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM {}".format(self.maindb, filename, local))
+    def set_values(self, feature, value, hashes, target_db=None):
+        # select target_db or database by feature precedence:
+        database = target_db or self.features[feature].database
+        self.schemas[database].set_values(feature, value, hashes)
 
 
     def rename_feature(self, old_name, new_name):
+        # select database by feature precedence:
         Schema.valid_feature_or_raise(new_name)
         self.fexists_or_raise(old_name)
         table = self.features[old_name].table
@@ -213,6 +195,7 @@ class Database:
         self.features[new_name].name = new_name
 
     def delete_feature(self, name):
+        # select database by feature precedence:
         self.fexists_or_raise(name)
         if not self.features[name].default:
             self.execute('DROP TABLE IF EXISTS {}'.format(name))
@@ -228,20 +211,8 @@ class Database:
             raise DatabaseException("Cannot delete unique feature {} in SQLite version < 3.35".format(name))
         self.features.pop(name)
 
-    def set_values(self, feature, value, hashes):
-        self.fexists_or_raise(feature)
-        database = self.features[feature].database
-        table = self.features[feature].table
-        column = self.features[feature].column
-        if not self.features[feature].default:
-            values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
-            self.execute("INSERT OR IGNORE INTO {d}.{tab} (hash, {col}) VALUES {vals}".format(d=database, tab=table, col=column, vals=values))
-            self.execute("UPDATE {d}.{tab} SET {col}=hash WHERE hash in ('{h}')".format(d=database, tab="features", col=table, h="', '".join(hashes)))
-        else:
-            #self.execute("UPDATE {d}.{tab} SET {col}='{val}' WHERE hash IN ('{h}')".format(d=database, tab=table, col=column, val=value, h="', '".join(hashes)))
-            self.execute("INSERT INTO {d}.{tab} (hash, {col}) VALUES {vals} ON CONFLICT (hash) DO UPDATE SET {col}='{val}' WHERE hash in ('{h}')".format(d=database, tab=table, col=column, val=value, vals=', '.join(["('{}', '{}')".format(hash, value) for hash in hashes]), h="', '".join(hashes)))
-
     def delete(self, feature, values=[], hashes=[]):
+        # select database by feature precedence:
         self.fexists_or_raise(feature)
         database = self.features[feature].database
         table = self.features[feature].table

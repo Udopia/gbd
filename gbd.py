@@ -24,41 +24,42 @@ import traceback
 from gbd_core.api import GBD, GBDException
 from gbd_core import contexts, util
 from gbd_core.util_argparse import *
-from gbd_core.init.cnf_hash import gbd_hash
 
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    print(gbd_hash.gbd_hash(args.path))
+    from gbd_core.init.extractor_gbdhash import gbd_hash
+    print(gbd_hash(args.path))
 
 
 def cli_init_local(api: GBD, args):
-    from gbd_core.init.cnf_hash import init_local
-    init_local(api, args.path)
+    from gbd_core.init.extractor_gbdhash import init_local
+    init_local(api, args.path, target_db=args.target_db)
 
 def cli_init_base_features(api: GBD, args):
-    from gbd_core.init.cnf_base_features import init_base_features
-    init_base_features(api, args.query, args.hashes)
+    from gbd_core.init.extractor_cnfbase import init_base_features
+    init_base_features(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_gate_features(api: GBD, args):
-    from gbd_core.init.cnf_gate_features import init_gate_features
-    init_gate_features(api, args.query, args.hashes)
-
-def cli_init_cnf2kis(api: GBD, args):
-    from gbd_core.init.cnf_to_kis import init_transform_cnf_to_kis
-    init_transform_cnf_to_kis(api, args.query, args.hashes, args.max_edges, args.max_nodes)
+    from gbd_core.init.extractor_cnfgate import init_gate_features
+    init_gate_features(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_iso(api: GBD, args):
-    from gbd_core.init.cnf_hash import init_iso_hash
-    init_iso_hash(api, args.query, args.hashes)
+    from gbd_core.init.extractor_isohash import init_iso_hash
+    init_iso_hash(api, args.query, args.hashes, target_db=args.target_db)
+
+
+def cli_init_cnf2kis(api: GBD, args):
+    from gbd_core.init.transformer_cnf2kis import init_transform_cnf_to_kis
+    init_transform_cnf_to_kis(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_sani(api: GBD, args):
-    from gbd_core.init.cnf_sanitize import init_sani
-    init_sani(api, args.query, args.hashes)
+    from gbd_core.init.transformer_sancnf import init_sani
+    init_sani(api, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_create(api: GBD, args):
-    api.create_feature(args.name, args.unique)
+    api.create_feature(args.name, args.unique, args.target_db)
 
 def cli_delete(api: GBD, args):
     if args.hashes and len(args.hashes) > 0 or args.values and len(args.values):
@@ -105,7 +106,10 @@ def main():
 
     # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
+    parser_init.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+
     parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:', required=True, dest='init what?')
+
     # init local paths:
     parser_init_local = parser_init_subparsers.add_parser('local', help='Initialize Local Hash/Path Entries')
     parser_init_local.add_argument('path', type=directory_type, help="Path to benchmarks")
@@ -121,8 +125,6 @@ def main():
     # generate kis instances from cnf instances:
     parser_init_cnf2kis = parser_init_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
     add_query_and_hashes_arguments(parser_init_cnf2kis)
-    parser_init_cnf2kis.add_argument('-e', '--max_edges', default=0, type=int, help='Maximum Number of Edges (0 = unlimited)')
-    parser_init_cnf2kis.add_argument('-n', '--max_nodes', default=0, type=int, help='Maximum Number of Nodes (0 = unlimited)')
     parser_init_cnf2kis.set_defaults(func=cli_init_cnf2kis)
     # init iso-hash:
     parser_init_iso = parser_init_subparsers.add_parser('isohash', help='Initialize Isomorphic Hash (MD5 of sorted degree sequence)')
@@ -160,6 +162,7 @@ def main():
     parser_create = subparsers.add_parser('create', help='Create a new feature')
     parser_create.add_argument('name', type=column_type, help='Name of feature')
     parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
+    parser_create.add_argument('--target_db', help='Target database (default: first in list)', default=None)
     parser_create.set_defaults(func=cli_create)
 
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
