@@ -18,10 +18,9 @@
 import multiprocessing
 
 from gbd_core.api import GBD, GBDException
-from gbd_core.util import eprint
+from gbd_core import util
 
-from gbd_core.init.cnf_hash import gbd_hash
-from gbd_core.init.runner import run
+# TODO: refactor and complete this
 
 # Initialize Graph Features known from Network Analysis
 def init_networkit_features(api: GBD, query, hashes):
@@ -33,9 +32,9 @@ def init_networkit_features(api: GBD, query, hashes):
     df = api.query(query, hashes, ["local"], collapse="MIN")
     for idx, row in df.iterrows(): 
         result = networkit_features(row['hash'], row['local'], {})
-        eprint(result['hashvalue'])
+        util.eprint(result['hashvalue'])
         for att in result['attributes']:
-            eprint(att[1] + "=" + att["2"])
+            util.eprint(att[1] + "=" + att["2"])
 
 def networkit_features(hashvalue, filename, args):
     rec = dict()

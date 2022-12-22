@@ -40,3 +40,10 @@ def context_from_name(name):
         return pair[0]
     else:
         return 'cnf'
+
+def strip_context(name):
+    pair = name.split('_')
+    if len(pair) > 1 and pair[0] in contexts():
+        return '_'.join(pair[1:])
+    else:
+        return name
