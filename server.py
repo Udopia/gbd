@@ -223,9 +223,11 @@ def main():
     parser = argparse.ArgumentParser(description='Web- and Micro- Services to access global benchmark database.')
     parser.add_argument('-d', "--db", help='Specify database to work with', default=os.environ.get('GBD_DB'), nargs='?')
     parser.add_argument('-l', "--logdir", help='Specify logging dir', default=os.environ.get('GBD_LOGGING_DIR') or pwd, nargs='?')
-    parser.add_argument('-p', "--port", help='Specify port on which to listen', type=int)
+    parser.add_argument('-p', "--port", help='Specify port on which to listen', default=5000, type=int)
     parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
+    parser.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), help='Select context')
     args = parser.parse_args()
+
     formatter = logging.Formatter(fmt='[%(asctime)s, %(name)s, %(levelname)s] %(module)s.%(filename)s.%(funcName)s():%(lineno)d\n%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logging.getLogger().setLevel(logging.DEBUG)
     # Add sys.stdout to logging output
@@ -238,6 +240,7 @@ def main():
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
+
     global app
     if not args.db:
         app.logger.error("No Database Given")
@@ -245,37 +248,27 @@ def main():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
     app.config['database'] = args.db.split(os.pathsep)
     app.config['verbose'] = args.verbose
-    app.config["CACHE_TYPE"] = "null"
+    app.config['context'] = args.context
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
+
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
-            app.config['dbnames'] = gbd.get_databases()
-            if Schema.IN_MEMORY_DB_NAME in app.config['dbnames']:
-                app.config['dbnames'].remove(Schema.IN_MEMORY_DB_NAME)
-            app.config['features_flat'] = list(set(gbd.get_features()))
-            for context in contexts.contexts():
-                local = contexts.prepend_context("local", context)
-                if local in app.config['features_flat']:
-                    app.config['features_flat'].remove(local)
+            app.config['dbnames'] = [ db for db in gbd.get_databases() if db != Schema.IN_MEMORY_DB_NAME ]
+            app.config['features_flat'] = [ f for f in gbd.get_features() if f != contexts.prepend_context("local", app.config['context']) ]
             app.config['dbpaths'] = dict()
             app.config['features'] = dict()
             for db in app.config['dbnames']:
-                if db != 'main':
-                    app.config['features'][db] = list(set(gbd.get_features(dbname=db)))
-                    for context in contexts.contexts():
-                        local = contexts.prepend_context("local", context)
-                        if local in app.config['features'][db]:
-                            app.config['features'][db].remove(local)
-                    app.config['dbpaths'][db] = gbd.get_database_path(db)
+                app.config['features'][db] = [ f for f in gbd.get_features(dbname=db) if f != contexts.prepend_context("local", app.config['context']) ]
+                app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
         exit(1)
+
     app.static_folder = os.path.join(pwd, "static")
     app.template_folder = os.path.join(pwd, "templates")
-    #app.run(host='0.0.0.0', port=args.port)
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=5000)
+    from waitress import serve  
+    serve(app, host='0.0.0.0', port=args.port)
 
 
 if __name__ == '__main__':
