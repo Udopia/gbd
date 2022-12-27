@@ -244,11 +244,11 @@ def main():
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = [ db for db in gbd.get_databases() if db != Schema.IN_MEMORY_DB_NAME ]
-            app.config['features_flat'] = [ f for f in gbd.get_features() if f != contexts.prepend_context("local", app.config['context']) ]
+            app.config['features_flat'] = [ f for f in gbd.get_features() if not f in [ "hash", "local" ] ]
             app.config['dbpaths'] = dict()
             app.config['features'] = dict()
             for db in app.config['dbnames']:
-                app.config['features'][db] = [ f for f in gbd.get_features(dbname=db) if f != contexts.prepend_context("local", app.config['context']) ]
+                app.config['features'][db] = [ f for f in gbd.get_features(dbname=db) if not f in [ "hash", "local" ] ]
                 app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
