@@ -30,7 +30,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd_core import contexts, util
+from gbd_core import contexts
 from gbd_core.database import DatabaseException
 from gbd_core.schema import Schema
 from gbd_core.api import GBD, GBDException
@@ -82,7 +82,7 @@ def json_response(json_blob, msg, addr):
     return Response(json_blob, status=200, mimetype="application/json")
 
 def page_response(query, database, page=0):
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
         start = page * 1000
         end = start + 1000
         try:
@@ -115,15 +115,13 @@ def quick_search():
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # sends csv version of the result as a file
 @app.route("/exportcsv/", methods=['POST', 'GET'])
-@app.route("/exportcsv/<context>", methods=['POST', 'GET'])
-def get_csv_file(context='cnf'):
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+def get_csv_file():
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
         db = request_database(request)
         features = app.config['features'][db]
-        group = contexts.prepend_context("hash", context)
         try:
-            df = gbd.query(query, [], features, group_by=group)
+            df = gbd.query(query, [], features)
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         return file_response(df.to_csv(), query_to_name(query) + ".csv", "text/csv", request.remote_addr)
@@ -132,18 +130,14 @@ def get_csv_file(context='cnf'):
 # Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
 # against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
 @app.route("/getinstances/", methods=['POST', 'GET'])
-@app.route("/getinstances/<context>", methods=['POST', 'GET'])
-def get_url_file(context='cnf'):
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+def get_url_file():
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
         try:
-            df = gbd.query(query, group_by=contexts.prepend_context("hash", context))
+            df = gbd.query(query)
         except (GBDException, DatabaseException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
-        if context == 'cnf':
-            content = "\n".join([ flask.url_for("get_file", hashvalue=val, _external=True) for val in df['hash'].tolist() ])
-        else:
-            content = "\n".join([ flask.url_for("get_file", hashvalue=val, context=context, _external=True) for val in df['hash'].tolist() ])
+        content = "\n".join([ flask.url_for("get_file", hashvalue=val, _external=True) for val in df['hash'].tolist() ])
         return file_response(content, query_to_name(query) + ".uri", "text/uri-list", request.remote_addr)
 
 
@@ -172,26 +166,22 @@ def get_database_file(database=None):
 
 # Find the file corresponding to the hashvalue and send it to the client
 @app.route('/file/<hashvalue>/')
-@app.route('/file/<hashvalue>/<context>')
-def get_file(hashvalue, context='cnf'):
-    with GBD(app.config['database'], verbose=app.config['verbose'])as gbd:
-        hash = contexts.prepend_context("hash", context)
-        local = contexts.prepend_context("local", context)
-        file = contexts.prepend_context("filename", context)
-        df = gbd.query(hashes=[hashvalue], resolve=[local, file], collapse="MIN", group_by=hash)
+def get_file(hashvalue):
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose'])as gbd:
+        df = gbd.query(hashes=[hashvalue], resolve=['local', 'filename'], collapse="MIN")
         if not len(df.index):
             return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
-        row = df.head(1)
-        if not os.path.exists(row[local]):
+        row = df.iloc[0]
+        if not os.path.exists(row['local']):
             return error_response("Files temporarily not accessible", request.remote_addr)
-        return path_response(row[local], row[hash] + "-" + row[file], 'text/plain', request.remote_addr)
+        return path_response(row['local'], row['hash'] + "-" + row['filename'], 'text/plain', request.remote_addr)
         
 
 # Resolves a hashvalue against a attribute and returns the result values
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
     app.logger.info("Resolving '{}' with feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
         try:
             df = gbd.query(hashes=[hashvalue], resolve=[feature])
             if not len(df.index):
@@ -203,13 +193,12 @@ def get_attribute(feature, hashvalue):
 
 # Get all attributes associated with the hashvalue (resolving against all features)
 @app.route('/info/<hashvalue>/')
-@app.route('/info/<hashvalue>/<context>')
-def get_all_attributes(hashvalue, context='cnf'):
+def get_all_attributes(hashvalue):
     app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
-    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
         features = app.config['features_flat']
         try:
-            df = gbd.query(hashes=[hashvalue], resolve=features, group_by=contexts.prepend_context("hash", context))
+            df = gbd.query(hashes=[hashvalue], resolve=features)
             if not len(df.index):
                 return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
             return json_response(json.dumps(dict(zip(['hash'] + features, df.head(0)))), "Sending list of attributes", request.remote_addr)
