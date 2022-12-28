@@ -15,35 +15,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-contexts_ = {
-    "cnf" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
-    "cnf2" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
-    "sancnf" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
-    "kis" : [".kis", ".kis.gz", ".kis.lzma", ".kis.xz", ".kis.bz2"]
+context_data = {
+    "cnf" : {
+        "id" : 100,
+        "suffixes" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
+    },
+    "sancnf" : {
+        "id" : 101,
+        "suffixes" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
+    },
+    "kis" : {
+        "id" : 200,
+        "suffixes" : [".kis", ".kis.gz", ".kis.lzma", ".kis.xz", ".kis.bz2"],
+    }
 }
 
 def suffix_list(context):
-    return contexts_[context]
+    return context_data[context]['suffixes']
 
 def contexts():
-    return contexts_.keys()
-
-def is_valid_context(context):
-    return context in contexts()
-
-def prepend_context(feature, context):
-    return feature if context == 'cnf' else "{}_{}".format(context, feature)
-
-def context_from_name(name):
-    pair = name.split('_')
-    if len(pair) > 1 and pair[0] in contexts():
-        return pair[0]
-    else:
-        return 'cnf'
-
-def strip_context(name):
-    pair = name.split('_')
-    if len(pair) > 1 and pair[0] in contexts():
-        return '_'.join(pair[1:])
-    else:
-        return name
+    return context_data.keys()

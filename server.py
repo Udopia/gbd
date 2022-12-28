@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 import re
 import argparse
+import traceback
+import logging
 
 import flask
 from flask import Flask, request, send_file, json, Response
@@ -252,6 +253,7 @@ def main():
                 app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
+        print(traceback.format_exc())
         exit(1)
 
     app.static_folder = os.path.join(pwd, "static")

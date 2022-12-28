@@ -72,8 +72,9 @@ class GBDHash(FeatureExtractor):
     def __init__(self, api: GBD, target_db):
         if not api.context in [ 'cnf', 'sancnf', 'cnf2' ]:
             raise GBDException("Context '{}' not supported by GBDHash".format(api.context))
-        clocal = contexts.prepend_context("local", api.context)
-        self.features = [ (clocal, None) ]
+        if api.database.dcontext(target_db) != api.context:
+            raise GBDException("Target database '{}' has context '{}' but expected '{}'".format(target_db, api.database.dcontext(dbname=target_db), api.context))
+        self.features = [ ("local", None) ]
         super().__init__(api, self.features, self.compute_hash, target_db)
 
     def compute_hash(self, hash, path, limits):
@@ -86,16 +87,15 @@ class GBDHash(FeatureExtractor):
 def init_local(api: GBD, root, target_db):
     extractor = GBDHash(api, target_db)
     extractor.create_features()
-    clocal = contexts.prepend_context("local", api.context)
 
-    df = api.query(group_by=clocal)
-    dfilter = df[clocal].apply(lambda x: not x or not os.path.isfile(x))
+    df = api.query(group_by="local")
+    dfilter = df["local"].apply(lambda x: not x or not os.path.isfile(x))
 
     missing = df[dfilter]
     if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
-        api.remove_attributes(clocal, values=missing[clocal].tolist())
+        api.remove_attributes("local", values=missing["local"].tolist())
 
     paths = [ path for suffix in contexts.suffix_list(api.context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
-    df2 = pd.DataFrame([(None, path) for path in paths if not path in df[clocal].to_list()], columns=['hash', clocal])
+    df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
     
     extractor.extract(df2)

@@ -79,8 +79,18 @@ class GBD:
         return name in self.get_features()
 
     # Retrieve information about a specific feature
-    def get_feature_info(self, name):
-        return self.database.feature_info(name)
+    def get_feature_info(self, fname):
+        finfo = self.database.finfo(fname)
+        df = self.query(resolve=[ fname ], collapse=None)
+        numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors = 'ignore'))
+        return {
+            'feature_name': fname,
+            'feature_count': len(df.index),
+            'feature_default': finfo.default,
+            'feature_min': numcol.min(),
+            'feature_max': numcol.max(),
+            'feature_values': " ".join([ val for val in df[fname].unique() if val and not util.is_number(val) ])
+        }
 
     def get_limits(self) -> dict():
         return { 'jobs': self.jobs, 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
