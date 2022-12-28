@@ -42,8 +42,9 @@ class Database:
         for schema in self.schemas.values():
             if not schema.is_in_memory():
                 self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname))
+            # first database is the default database:
             if not self.maindb:
-                self.maindb = schema.dbname  # target of inserts and updates
+                self.maindb = schema.dbname
         
     def __enter__(self):
         return self
@@ -71,10 +72,8 @@ class Database:
                 raise DatabaseException("Database name collision on " + schema.dbname)
         return result
 
-    
-    def is_features_table(self, info: FeatureInfo):
-        return contexts.prepend_context("features", info.context) == info.table
 
+    # return a dictionary which maps feature names to feature infos
     def init_features(self) -> typing.Dict[str, FeatureInfo]:
         result = dict()
         schema: Schema
@@ -83,13 +82,13 @@ class Database:
             for feature in schema.features.values():
                 # first found feature is used: (=feature precedence by database position)
                 if not feature.name in result:
-                    result[feature.name] = feature
-                elif feature.column == "hash" and self.is_features_table(feature): 
+                    result[feature.name] = [ feature ]
+                elif feature.column == "hash" and feature.table == "features": 
                     # first found features table is the one that serves the hash
-                    if not self.is_features_table(result[feature.name]):
-                        result[feature.name] = feature
-                #else:
-                #    eprint("Warning: Feature name collision on {}. Using first occurence in {}.".format(feature.name, result[feature.name].database))
+                    if result[feature.name][0].table != "features":
+                        result[feature.name].insert(0, feature)
+                else:
+                    result[feature.name].append(feature)
         return result
 
 
@@ -121,8 +120,8 @@ class Database:
     def dpath(self, dbname):
         return self.schemas[dbname].path
         
-    def dcontexts(self, dbname):
-        return self.schemas[dbname].get_contexts()
+    def dcontext(self, dbname):
+        return self.schemas[dbname].context
         
     def dtables(self, dbname):
         return self.schemas[dbname].get_tables()
@@ -131,40 +130,29 @@ class Database:
         return self.schemas[dbname].get_views()
 
 
-    def fexists(self, feature):
-        return feature in self.features.keys()
+    def finfos(self, fname, db=None):
+        if not self.fexists(fname):
+            return [ ]
+        return [ info for info in self.features[fname] if (db is None or info.database == db) ]
 
-    def fexists_or_raise(self, feature):
-        if not self.fexists(feature):
-            raise DatabaseException("Feature {} does not exists".format(feature))
+    def finfo(self, fname, db=None):
+        infos = self.finfos(fname, db)
+        if len(infos) == 0:
+            raise DatabaseException("Feature {} does not exists in database {}".format(fname, db))
+        return infos[0]
 
-    def fdatabase(self, feature):
-        return self.features[feature].database
-
-    def fcontext(self, feature):
-        return self.features[feature].context
-
-    def ftable(self, feature, full=True):
-        return self.features[feature].table if not full else "{}.{}".format(self.fdatabase(feature), self.features[feature].table)
-
-    def fcolumn(self, feature):
-        return self.features[feature].column
-
-    def fdefault(self, feature):
-        return self.features[feature].default
-
-    def fvirtual(self, feature):
-        return self.features[feature].virtual
+    def fexists(self, fname):
+        return fname in self.features.keys() and len(self.features[fname]) > 0
 
 
     def get_databases(self):
         return self.schemas.keys()
   
     def get_features(self, tables=True, views=True, db=None):
-        return [ f for (f, i) in self.features.items() if ((views and i.virtual) or (tables and not i.virtual)) and (not db or db == i.database) ]
+        return [ name for (name, infos) in self.features.items() for info in infos if ((views and info.virtual) or (tables and not info.virtual)) and (not db or db == info.database) ]
 
-    def get_tables(self, context = None, db = None):
-        tables = [ i.table for i in self.features.values() if not i.virtual and (not context or context == i.context) and (not db or db == i.database) ]
+    def get_tables(self, db=None):
+        tables = [ info.table for infos in self.features.values() for info in infos if not info.virtual and (not db or db == info.database) ]
         return list(set(tables))
 
 
@@ -172,78 +160,57 @@ class Database:
         db = target_db or self.maindb
         created = self.schemas[db].create_feature(name, default_value, permissive)
         for finfo in created:
-            # this code disregards feature precedence by database position:
             if not finfo.name in self.features.keys():
-                self.features[finfo.name] = finfo
+                self.features[finfo.name] = [ finfo ]
+            else:
+                # this code disregards feature precedence by database position:
+                self.features[finfo.name].append(finfo)
 
 
-    def set_values(self, feature, value, hashes, target_db=None):
-        # select target_db or database by feature precedence:
-        database = target_db or self.features[feature].database
-        self.schemas[database].set_values(feature, value, hashes)
+    def set_values(self, fname, value, hashes, target_db=None):
+        finfo = self.finfo(fname)
+        self.schemas[finfo.database].set_values(fname, value, hashes)
 
 
-    def rename_feature(self, old_name, new_name):
-        # select database by feature precedence:
-        Schema.valid_feature_or_raise(new_name)
-        self.fexists_or_raise(old_name)
-        table = self.features[old_name].table
-        self.execute("ALTER TABLE {} RENAME COLUMN {} TO {}".format(table, old_name, new_name))
-        if not self.features[old_name].default:
-            self.execute("ALTER TABLE {} RENAME TO {}".format(old_name, new_name))
-        self.features[new_name] = self.features.pop(old_name)
-        self.features[new_name].name = new_name
-
-    def delete_feature(self, name):
-        # select database by feature precedence:
-        self.fexists_or_raise(name)
-        if not self.features[name].default:
-            self.execute('DROP TABLE IF EXISTS {}'.format(name))
-            self.execute('DROP TRIGGER IF EXISTS {}_dval'.format(name))
-            context = contexts.context_from_name(name)
-            if name == contexts.prepend_context("local", context):
-                filename = contexts.prepend_context("filename", context)
-                self.execute('DROP VIEW IF EXISTS {}'.format(filename))
-        elif Database.sqlite3_version() >= 3.35:
-            table = self.features[name].table
-            self.execute("ALTER TABLE {} DROP COLUMN {}".format(table, name))
+    def rename_feature(self, fname, new_fname, target_db=None):
+        Schema.valid_feature_or_raise(new_fname)
+        finfo = self.finfo(fname, target_db)
+        self.execute("ALTER TABLE {}.{} RENAME COLUMN {} TO {}".format(finfo.database, finfo.table, fname, new_fname))
+        if not finfo.default:
+            self.execute("ALTER TABLE {}.{} RENAME TO {}.{}".format(finfo.database, fname, finfo.database, new_fname))
+        self.features[fname].remove(finfo)
+        finfo.name = new_fname
+        if not new_fname in self.features.keys():
+            self.features[new_fname] = [ finfo ]
         else:
-            raise DatabaseException("Cannot delete unique feature {} in SQLite version < 3.35".format(name))
-        self.features.pop(name)
+            # this code disregards feature precedence by database position:
+            self.features[new_fname].append(finfo)
 
-    def delete(self, feature, values=[], hashes=[]):
-        # select database by feature precedence:
-        self.fexists_or_raise(feature)
-        database = self.features[feature].database
-        table = self.features[feature].table
-        column = self.features[feature].column
-        default = self.features[feature].default
-        w1 = "{col} IN ('{v}')".format(col=column, v="', '".join(values)) if len(values) else "1=1"
+
+    def delete_feature(self, fname, target_db=None):
+        finfo = self.finfo(fname, target_db)
+        if not finfo.default:
+            self.execute('DROP TABLE IF EXISTS {}.{}'.format(finfo.database, fname))
+            if fname == "local":
+                self.execute('DROP VIEW IF EXISTS {}.filename'.format(finfo.database))
+        elif Database.sqlite3_version() >= 3.35:
+            self.execute("ALTER TABLE {}.{} DROP COLUMN {}".format(finfo.database, finfo.table, fname))
+        else:
+            raise DatabaseException("Cannot delete unique feature {} with SQLite versions < 3.35".format(fname))
+        self.features[fname].remove(finfo)
+
+
+    def delete(self, fname, values=[], hashes=[], target_db=None):
+        finfo = self.finfo(fname, target_db)
+        w1 = "{col} IN ('{v}')".format(col=finfo.column, v="', '".join(values)) if len(values) else "1=1"
         w2 = "hash IN ('{h}')".format(h="', '".join(hashes)) if len(hashes) else "1=1"
         where = "{} AND {}".format(w1, w2)
-        if not default:
-            hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=database, tab=feature, w=where)) ]
-            self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=database, tab=feature, w=where))
-            remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=database, tab=feature, h="', '".join(hashlist))) ]
+        db = finfo.database
+        if not finfo.default:
+            hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where)) ]
+            self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))
+            remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist))) ]
             setnone = [ h for h in hashlist if not h in remaining ]
-            self.execute("UPDATE {d}.{tab} SET {col} = 'None' WHERE hash IN ('{h}')".format(d=database, tab="features", col=feature, h="', '".join(setnone)))
+            self.execute("UPDATE {d}.{tab} SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, tab="features", col=fname, h="', '".join(setnone)))
         else:
-            self.execute("UPDATE {d}.{tab} SET {col} = '{default}' WHERE {w}".format(d=database, tab=table, col=column, default=default, w=where))
-
-
-    def feature_info(self, feature):
-        self.fexists_or_raise(feature)
-        result = dict()
-        table = self.features[feature].table
-        column = self.features[feature].column
-        default = self.features[feature].default
-        result['feature_name'] = feature
-        result['feature_count'] = self.query('SELECT COUNT(*) FROM {}'.format(table))[0][0]
-        result['feature_default'] = default
-        minmax = self.query('SELECT MIN(CAST({col} AS NUMERIC)), MAX(CAST({col} AS NUMERIC)) FROM {tab} WHERE NOT {col} GLOB "*[^0-9.e\-]*" AND {col} LIKE "_%"'.format(col=column, tab=table))
-        if len(minmax):
-            result['feature_min'] = minmax[0][0]
-            result['feature_max'] = minmax[0][1]
-        values = self.query('SELECT DISTINCT {col} FROM {tab} WHERE {col} GLOB "*[^0-9.e\-]*" OR {col} NOT LIKE "_%"'.format(col=column, tab=table))
-        result['feature_values'] = " ".join([x[0] for x in values])
-        return result
+            self.execute("UPDATE {d}.{tab} SET {col} = '{default}' WHERE {w}".format(d=db, tab="features", col=fname, default=finfo.default, w=where))

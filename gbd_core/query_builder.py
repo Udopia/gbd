@@ -73,8 +73,14 @@ class GBDQuery:
             if not feature in self.db.get_features(tables=True, views=True):
                 raise DatabaseException("Unknown feature '{}'".format(feature))
 
+
     def addr(self, feature):
-        return "{}.{}".format(self.db.ftable(feature), self.db.fcolumn(feature))
+        finfo = self.db.finfo(feature)
+        return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
+
+    def table_addr(self, feature):
+        finfo = self.db.finfo(feature)
+        return "{}.{}".format(finfo.database, finfo.table)
 
 
     def build_select(self, group_by, resolve):
@@ -88,36 +94,38 @@ class GBDQuery:
 
 
     def build_from(self, group_by):
-        return self.db.ftable(group_by)
+        return self.table_addr(group_by)
 
 
     def build_join(self, group_by, features):
-        group_context = self.db.fcontext(group_by)
+        ginfo = self.db.finfo(group_by)
+        group_context = self.db.dcontext(ginfo.database)
         used_contexts = []
-        used_tables = [ self.db.ftable(group_by) ]
+        used_tables = [ self.table_addr(group_by) ]
         result = ""
         for feature in features:
-            ftab = self.db.ftable(feature)
+            ftab = self.table_addr(feature)
             if not ftab in used_tables:
                 used_tables.append(ftab)
-                gtab = self.db.ftable(group_by)
-                feature_context = self.db.fcontext(feature)
+                gtab = self.table_addr(group_by)
+                finfo = self.db.finfo(feature)
+                feature_context = self.db.dcontext(finfo.database)
                 if feature_context == group_context:
-                    if self.db.fdefault(feature) or self.db.fvirtual(feature):
+                    if finfo.default or finfo.virtual:
                         result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
                     else:
                         result = result + " {} JOIN {} ON {}.{} = {}.hash".format(self.join_type, ftab, gtab, feature, ftab)
                 else:
                     translator = "{}_to_{}".format(group_context, feature_context)
-                    dbtrans = self.db.ftable(translator)
+                    dbtrans = self.table_addr(translator)
                     if not translator in self.db.get_features():
                         raise DatabaseException("Context translator table not found: " + translator)
                     if not feature_context in used_contexts and not dbtrans in used_tables:
                         used_contexts.append(feature_context)
                         used_tables.append(dbtrans)
                         translator2 = "{}_to_{}".format(feature_context, group_context)
-                        dbtrans2 = self.db.ftable(translator2)
-                        result = result + " INNER JOIN {} ON {}.hash = {}.value".format(self.db.ftable(translator2), gtab, dbtrans2)
+                        dbtrans2 = self.table_addr(translator2)
+                        result = result + " INNER JOIN {} ON {}.hash = {}.value".format(self.table_addr(translator2), gtab, dbtrans2)
                     result = result + " INNER JOIN {} ON {}.hash = {}.hash".format(ftab, dbtrans2, ftab)
         return result
 
@@ -142,17 +150,17 @@ class GBDQuery:
 
 
     def build_where(self, ast, hashes, group_by):
-        result = "{}.{} != 'None'".format(self.db.ftable(group_by), self.db.fcolumn(group_by))
+        result = "{} != 'None'".format(self.addr(group_by))
         if ast:
             if self.subselect:
                 fro = self.build_from(group_by)
                 joi = self.build_join(group_by, self.collect_features_recursive(ast))
                 whe = self.build_where_recursive(ast)
-                result = result + " AND {}.hash in (SELECT {}.hash FROM {} {} WHERE {})".format(self.db.ftable(group_by), self.db.ftable(group_by), fro, joi, whe)
+                result = result + " AND {}.hash in (SELECT {}.hash FROM {} {} WHERE {})".format(self.table_addr(group_by), self.table_addr(group_by), fro, joi, whe)
             else:
                 result = result + " AND " + self.build_where_recursive(ast)
         if len(hashes):
-            result = result + " AND {}.hash in ('{}')".format(self.db.ftable(group_by), "', '".join(hashes))
+            result = result + " AND {}.hash in ('{}')".format(self.table_addr(group_by), "', '".join(hashes))
         return result
 
     def build_where_recursive(self, ast):
@@ -176,14 +184,12 @@ class GBDQuery:
         elif ast["sop"]:
             operator = "not like" if ast["sop"] == "unlike" else ast["sop"]
             feature = ast["left"]
-            ftab = self.db.ftable(feature)
-            fcol = self.db.fcolumn(feature)
+            feat = self.addr(feature)
             right = ast["right"]
-            return "{}.{} {} \"{}\"".format(ftab, fcol, operator, right)
+            return "{} {} \"{}\"".format(feat, operator, right)
         elif ast["value"]:
             feature = ast["value"]
-            ftab = self.db.ftable(feature)
-            fcol = self.db.fcolumn(feature)
-            return "CAST({}.{} AS FLOAT)".format(ftab, fcol)
+            feat = self.addr(feature)
+            return "CAST({} AS FLOAT)".format(feat)
         elif ast["constant"]:
             return ast["constant"]

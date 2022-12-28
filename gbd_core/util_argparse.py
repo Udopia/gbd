@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import multiprocessing
 import argparse
 import os
-import multiprocessing
+import re
 
 from gbd_core import contexts
 

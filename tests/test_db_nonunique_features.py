@@ -83,6 +83,6 @@ class DatabaseTestCase(unittest.TestCase):
         self.assertSetEqual(set(res), set([ "a", "b", "c" ]))
 
     # Delete feature
-    def test_unique_feature_delete(self):
+    def test_nonunique_feature_delete(self):
         self.db.delete_feature(self.feat)
         self.assertFalse(self.db.fexists(self.feat))
