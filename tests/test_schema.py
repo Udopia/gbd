@@ -36,7 +36,6 @@ class SchemaTestCase(unittest.TestCase):
         self.assertEqual(finfo.table, "features")
         self.assertEqual(finfo.column, FEAT)
         self.assertEqual(finfo.default, "empty")
-        self.assertFalse(finfo.virtual)
         self.assertEqual(finfo.database, self.name)
         
     def test_create_nonunique_feature(self):
@@ -48,6 +47,5 @@ class SchemaTestCase(unittest.TestCase):
         self.assertEqual(finfo.table, FEAT)
         self.assertEqual(finfo.column, "value")
         self.assertEqual(finfo.default, None)
-        self.assertFalse(finfo.virtual)
         self.assertEqual(finfo.database, self.name)
 

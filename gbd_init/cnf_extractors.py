@@ -30,11 +30,11 @@ from gbdc import extract_base_features, extract_gate_features, isohash
 def compute_hash(self, hash, path, limits):
     eprint('Hashing {}'.format(path))
     hash = gbd_hash(path)
-    return [ ("local", hash, path) ]
+    return [ ("local", hash, path), ("filename", hash, os.path.basename(path)) ]
 
 def init_local(api: GBD, root, target_db):
     contexts = [ 'cnf', 'sancnf' ]
-    features = [ ("local", None) ]
+    features = [ ("local", None), ("filename", None) ]
     extractor = Initializer(contexts, contexts, api, target_db, features, compute_hash)
     extractor.create_features()
 

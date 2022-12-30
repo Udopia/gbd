@@ -86,12 +86,8 @@ def cli_info(api: GBD, args):
         for db_str in api.get_databases():
             if len(api.get_features(dbname=db_str)):
                 print("\nDatabase: {}".format(api.get_database_path(db_str)))
-                feat = api.get_features(dbname=db_str, views=False)
-                if len(feat):
-                    print("Features: " + " ".join(feat))
-                feat = api.get_features(dbname=db_str, tables=False)
-                if len(feat):
-                    print("Virtuals: " + " ".join(feat))
+                feat = api.get_features(dbname=db_str)
+                print("Features: " + " ".join(feat))
     else:
         info = api.get_feature_info(args.name)
         for key in info:

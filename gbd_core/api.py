@@ -71,8 +71,8 @@ class GBD:
         return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
 
     # Get all features
-    def get_features(self, tables=True, views=True, dbname=None):
-        return self.database.get_features(tables=tables, views=views, db=dbname)
+    def get_features(self, dbname=None):
+        return self.database.get_features(db=dbname)
 
     # Check for existence of given feature
     def feature_exists(self, name):
@@ -113,12 +113,12 @@ class GBD:
         if self.feature_exists(name):
             self.database.delete_feature(name)
         else:
-            raise GBDException("Feature '{}' does not exist or is virtual".format(name))
+            raise GBDException("Feature '{}' does not exist".format(name))
 
     # Rename the given feature
     def rename_feature(self, old_name, new_name):
         if not self.feature_exists(old_name):
-            raise GBDException("Feature '{}' does not exist or is virtual".format(old_name))
+            raise GBDException("Feature '{}' does not exist".format(old_name))
         elif self.feature_exists(new_name):
             raise GBDException("Feature '{}' does already exist".format(new_name))
         else:
@@ -126,8 +126,8 @@ class GBD:
 
     # Set the attribute value for the given hashes
     def set_attribute(self, feature, value, query, hashes=[], force=False):
-        if not feature in self.get_features(views=False):
-            raise GBDException("Feature '{}' missing or virtual".format(feature))
+        if not self.feature_exists(feature):
+            raise GBDException("Feature '{}' does not exist".format(feature))
         hash_list = hashes if not query else self.query(query, hashes)['hash'].tolist()
         try:
             self.database.set_values(feature, value, hash_list)
@@ -136,8 +136,8 @@ class GBD:
 
     # Remove the attribute value for the given hashes
     def remove_attributes(self, feature, values=[], hashes=[]):
-        if not feature in self.get_features(views=False):
-            raise GBDException("Feature '{}' not found or virtual".format(feature))
+        if not self.feature_exists(feature):
+            raise GBDException("Feature '{}' does not exist".format(feature))
         for values_slice in util.slice_iterator(values, 1000):
             for hashes_slice in util.slice_iterator(hashes, 1000):
                 self.database.delete_values(feature, values_slice, hashes_slice)

@@ -70,7 +70,7 @@ class GBDQuery:
 
     def features_exist_or_throw(self, features):
         for feature in features:
-            if not feature in self.db.get_features(tables=True, views=True):
+            if not feature in self.db.get_features():
                 raise DatabaseException("Unknown feature '{}'".format(feature))
 
 
@@ -111,7 +111,7 @@ class GBDQuery:
                 finfo = self.db.finfo(feature)
                 feature_context = self.db.dcontext(finfo.database)
                 if feature_context == group_context:
-                    if finfo.default or finfo.virtual:
+                    if finfo.default is not None:
                         result = result + " {} JOIN {} ON {}.hash = {}.hash".format(self.join_type, ftab, gtab, ftab)
                     else:
                         result = result + " {} JOIN {} ON {}.{} = {}.hash".format(self.join_type, ftab, gtab, feature, ftab)

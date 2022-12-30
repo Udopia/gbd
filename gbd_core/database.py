@@ -125,9 +125,6 @@ class Database:
         
     def dtables(self, dbname):
         return self.schemas[dbname].get_tables()
-        
-    def dviews(self, dbname):
-        return self.schemas[dbname].get_views()
 
 
     def finfos(self, fname, db=None):
@@ -148,11 +145,11 @@ class Database:
     def get_databases(self):
         return self.schemas.keys()
   
-    def get_features(self, tables=True, views=True, db=None):
-        return [ name for (name, infos) in self.features.items() for info in infos if ((views and info.virtual) or (tables and not info.virtual)) and (not db or db == info.database) ]
+    def get_features(self, db=None):
+        return [ name for (name, infos) in self.features.items() for info in infos if not db or db == info.database ]
 
     def get_tables(self, db=None):
-        tables = [ info.table for infos in self.features.values() for info in infos if not info.virtual and (not db or db == info.database) ]
+        tables = [ info.table for infos in self.features.values() for info in infos if not db or db == info.database ]
         return list(set(tables))
 
 
@@ -176,7 +173,7 @@ class Database:
         Schema.valid_feature_or_raise(new_fname)
         finfo = self.finfo(fname, target_db)
         self.execute("ALTER TABLE {}.{} RENAME COLUMN {} TO {}".format(finfo.database, finfo.table, fname, new_fname))
-        if not finfo.default:
+        if finfo.default is None:
             self.execute("ALTER TABLE {}.{} RENAME TO {}.{}".format(finfo.database, fname, finfo.database, new_fname))
         self.features[fname].remove(finfo)
         finfo.name = new_fname
@@ -189,10 +186,8 @@ class Database:
 
     def delete_feature(self, fname, target_db=None):
         finfo = self.finfo(fname, target_db)
-        if not finfo.default:
+        if finfo.default is None:
             self.execute('DROP TABLE IF EXISTS {}.{}'.format(finfo.database, fname))
-            if fname == "local":
-                self.execute('DROP VIEW IF EXISTS {}.filename'.format(finfo.database))
         elif Database.sqlite3_version() >= 3.35:
             self.execute("ALTER TABLE {}.{} DROP COLUMN {}".format(finfo.database, finfo.table, fname))
         else:
@@ -206,7 +201,7 @@ class Database:
         w2 = "hash IN ('{h}')".format(h="', '".join(hashes)) if len(hashes) else "1=1"
         where = "{} AND {}".format(w1, w2)
         db = finfo.database
-        if not finfo.default:
+        if finfo.default is None:
             hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where)) ]
             self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))
             remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist))) ]
