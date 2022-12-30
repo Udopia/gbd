@@ -37,7 +37,6 @@ class FeatureInfo:
     table: str = None
     column: str = None
     default: str = None
-    virtual: bool = False
 
 
 class Schema:
@@ -101,7 +100,7 @@ class Schema:
                 cols = [ re.sub('[^0-9a-zA-Z]+', '_', n) for n in csvreader.fieldnames ]
                 for colname in cols:
                     cls.valid_feature_or_raise(colname)
-                    features[colname] = FeatureInfo(colname, dbname, vtable_name, colname, None, True)
+                    features[colname] = FeatureInfo(colname, dbname, vtable_name, colname, None)
                 con.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(vtable_name, ", ".join(cols)))
                 for row in csvreader:
                     con.execute("INSERT INTO {} VALUES ('{}')".format(vtable_name, "', '".join(row.values())))
@@ -114,19 +113,19 @@ class Schema:
     @classmethod
     def features_from_database(cls, dbname, path, con) -> typing.Dict[str, FeatureInfo]:
         features = dict()
-        sql_tables="""SELECT tbl_name, type FROM sqlite_master WHERE type IN ('table', 'view') 
-                        AND NOT tbl_name LIKE 'sqlite$_%' AND NOT tbl_name LIKE '$_$_%' ESCAPE '$'"""
-        tables = con.execute(sql_tables).fetchall()
+        sql_tables="SELECT tbl_name FROM sqlite_master WHERE type = 'table'" 
+                        # AND NOT tbl_name LIKE 'sqlite$_%' AND NOT tbl_name LIKE '$_$_%' ESCAPE '$'"
+        tables = [ tab for (tab, ) in con.execute(sql_tables).fetchall() ]
         # process features-table last to give precedence to features in other tables
-        if ("features", "table") in tables:
-            tables.insert(len(tables)-1, tables.pop(tables.index(("features", "table")))) 
-        for (table, type) in tables:
+        if "features" in tables:
+            tables.insert(len(tables)-1, tables.pop(tables.index("features"))) 
+        for table in tables:
             columns = con.execute("PRAGMA table_info({})".format(table)).fetchall()
             for (index, colname, coltype, notnull, default_value, pk) in columns:
-                if not colname in [ tabname for (tabname, _) in tables ]:
+                if not colname in tables:
                     fname = "hash" if colname == "hash" else table if colname == "value" else colname
                     dval = default_value.strip('"') if default_value else None
-                    features[fname] = FeatureInfo(fname, dbname, table, colname, dval, type == "view")
+                    features[fname] = FeatureInfo(fname, dbname, table, colname, dval)
         return features
 
     @classmethod
@@ -193,9 +192,6 @@ class Schema:
     def get_tables(self):
         return list(set([ f.table for f in self.get_features() ]))
 
-    def get_views(self):
-        return list(set([ f.table for f in self.get_features() if f.virtual ]))
-
     def get_features(self):
         return self.features.values()
 
@@ -218,7 +214,7 @@ class Schema:
                 self.execute("INSERT OR IGNORE INTO {} (hash) SELECT DISTINCT(hash) FROM {}".format(main_table, table))
                 self.execute("""CREATE TRIGGER IF NOT EXISTS {}_dval AFTER INSERT ON {} 
                                             BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(table, table, main_table))
-            self.features["hash"] = FeatureInfo("hash", self.dbname, main_table, "hash", None, False)
+            self.features["hash"] = FeatureInfo("hash", self.dbname, main_table, "hash", None)
             return [ self.features["hash"] ]
         else:
             return [ ]
@@ -239,32 +235,22 @@ class Schema:
             self.execute('ALTER TABLE {} ADD {} TEXT NOT NULL DEFAULT {}'.format(main_table, name, default_value or "None"))
             if default_value is not None:
                 # feature is unique and resides in main features-table:
-                self.features[name] = FeatureInfo(name, self.dbname, main_table, name, default_value, False)
+                self.features[name] = FeatureInfo(name, self.dbname, main_table, name, default_value)
             else:
                 # feature is not unique and resides in a separate table (column in main features-table is a foreign key):
                 self.execute("CREATE TABLE IF NOT EXISTS {} (hash TEXT NOT NULL, value TEXT NOT NULL, CONSTRAINT all_unique UNIQUE(hash, value))".format(name))
                 self.execute("INSERT INTO {} (hash, value) VALUES ('None', 'None')".format(name))
                 self.execute("""CREATE TRIGGER IF NOT EXISTS {}_hash AFTER INSERT ON {}
                                     BEGIN INSERT OR IGNORE INTO {} (hash) VALUES (NEW.hash); END""".format(name, name, main_table))
-                self.features[name] = FeatureInfo(name, self.dbname, name, "value", None, False)
+                self.features[name] = FeatureInfo(name, self.dbname, name, "value", None)
 
             # update schema:
             created.append(self.features[name])
-
-            # create default filename-views for local path features:
-            if name == "local":
-                created.extend(self.create_filename_view())
 
         elif not permissive:
             raise SchemaException("Feature {} already exists".format(name))
 
         return created
-
-
-    def create_filename_view(self):
-        self.execute("CREATE VIEW IF NOT EXISTS filename (hash, value) AS SELECT hash, REPLACE(value, RTRIM(value, REPLACE(value, '/', '')), '') FROM local")
-        self.features["filename"] = FeatureInfo("filename", self.dbname, "filename", "value", None, False)
-        return [ self.features["filename"] ]
 
 
     def set_values(self, feature, value, hashes):
