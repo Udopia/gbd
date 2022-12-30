@@ -2,18 +2,14 @@ import unittest
 import random
 import os
 
-from gbd_core.init.extractor_gbdhash import gbd_hash
+from gbd_init.gbdhash import gbd_hash
+from tests import util
+
 
 class TestGBDHash(unittest.TestCase):
 
-    def get_random_clause(self, max_len=30):
-        return ' '.join([str(random.randint(-2**31, 2**31-1)) for _ in range(random.randint(0, max_len))]) + ' 0'
-
-    def get_random_formula(self, max_num=100):
-        return '\n'.join([self.get_random_clause() for _ in range(random.randint(0, max_num))]) + '\n'
-
     def setUp(self):
-        self.reference = self.get_random_formula()
+        self.reference = util.get_random_formula()
         self.ref_file = "reference.cnf"
         with open(self.ref_file, 'w') as ref:
             ref.write(self.reference)

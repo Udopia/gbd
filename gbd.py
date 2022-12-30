@@ -28,33 +28,33 @@ from gbd_core.util_argparse import *
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    from gbd_core.init.extractor_gbdhash import gbd_hash
+    from gbd_init.gbdhash import gbd_hash
     print(gbd_hash(args.path))
 
 
 def cli_init_local(api: GBD, args):
-    from gbd_core.init.extractor_gbdhash import init_local
+    from gbd_init.cnf_extractors import init_local
     init_local(api, args.path, target_db=args.target_db)
 
 def cli_init_base_features(api: GBD, args):
-    from gbd_core.init.extractor_cnfbase import init_base_features
+    from gbd_init.cnf_extractors import init_base_features
     init_base_features(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_gate_features(api: GBD, args):
-    from gbd_core.init.extractor_cnfgate import init_gate_features
+    from gbd_init.cnf_extractors import init_gate_features
     init_gate_features(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_iso(api: GBD, args):
-    from gbd_core.init.extractor_isohash import init_iso_hash
+    from gbd_init.cnf_extractors import init_iso_hash
     init_iso_hash(api, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_init_cnf2kis(api: GBD, args):
-    from gbd_core.init.transformer_cnf2kis import init_transform_cnf_to_kis
+    from gbd_init.cnf_transformers import init_transform_cnf_to_kis
     init_transform_cnf_to_kis(api, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_sani(api: GBD, args):
-    from gbd_core.init.transformer_sancnf import init_sani
+    from gbd_init.cnf_transformers import init_sani
     init_sani(api, args.query, args.hashes, target_db=args.target_db)
 
 

@@ -7,12 +7,13 @@ import unittest
 from gbd_core.database import Database
 from gbd_core.schema import Schema
 
+from tests import util
+
 class SchemaTestCase(unittest.TestCase):
 
-    file = "test.db"
-    name = Schema.dbname_from_path(file)
-
     def setUp(self) -> None:
+        self.file = util.get_random_unique_filename('test', '.db')
+        self.name = Schema.dbname_from_path(self.file)
         self.db = Database([self.file], verbose=False)
         return super().setUp()
 

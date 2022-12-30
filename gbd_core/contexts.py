@@ -15,18 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
+
 context_data = {
     "cnf" : {
         "id" : 100,
-        "suffixes" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
+        "suffixes" : [ ".cnf" + p for p in packed ],
     },
     "sancnf" : {
         "id" : 101,
-        "suffixes" : [".cnf", ".cnf.gz", ".cnf.lzma", ".cnf.xz", ".cnf.bz2"],
+        "suffixes" : [ ".sanitized.cnf" + p for p in packed ],
     },
     "kis" : {
         "id" : 200,
-        "suffixes" : [".kis", ".kis.gz", ".kis.lzma", ".kis.xz", ".kis.bz2"],
+        "suffixes" : [ ".kis" + p for p in packed ],
     }
 }
 

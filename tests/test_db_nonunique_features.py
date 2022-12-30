@@ -4,20 +4,20 @@
 import os
 import unittest
 
-from gbd_core.util import eprint
 from gbd_core.query_builder import GBDQuery
 from gbd_core.database import Database
 from gbd_core.schema import Schema
+from tests import util
 
 class DatabaseTestCase(unittest.TestCase):
 
-    file = "test.db"
-    name = Schema.dbname_from_path(file)
     feat = "nonunique_feature"
     val1 = "value1"
     val2 = "value2"
 
     def setUp(self) -> None:
+        self.file = util.get_random_unique_filename('test', '.db')
+        self.name = Schema.dbname_from_path(self.file)
         self.db = Database([self.file], verbose=False)
         self.db.create_feature(self.feat, default_value=None)
         self.db.set_values(self.feat, self.val1, ["a", "b", "c"])
