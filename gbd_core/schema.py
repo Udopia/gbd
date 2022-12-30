@@ -274,7 +274,7 @@ class Schema:
         table = self.features[feature].table
         column = self.features[feature].column
         values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
-        if not self.features[feature].default:
+        if self.features[feature].default is None:
             self.execute("INSERT OR IGNORE INTO {tab} (hash, {col}) VALUES {vals}".format(tab=table, col=column, vals=values))
             self.execute("UPDATE features SET {col}=hash WHERE hash in ('{h}')".format(col=table, h="', '".join(hashes)))
         else:

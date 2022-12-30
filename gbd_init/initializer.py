@@ -14,24 +14,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import multiprocessing
 import pebble
 from concurrent.futures import as_completed
-
 import pandas as pd
 
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
 
 
-class InstanceTransformer:
+class Initializer:
 
-    def __init__(self, api: GBD, features, transformer, target_context, target_db=None):
+    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
-        self.features = features
-        self.transformer = transformer
-        self.target_context = target_context
         self.target_db = target_db
+        self.features = features
+        self.initfunc = initfunc
+        if not api.context in source_contexts:
+            raise GBDException("Context '{}' not supported by '{}'".format(api.context, self.__class__.__name__))
+        if not api.database.dcontext(target_db) in target_contexts:
+            raise GBDException("Target database '{}' has incompatible context '{}'".format(target_db, api.database.dcontext(target_db)))
 
 
     def create_features(self):
@@ -47,22 +50,22 @@ class InstanceTransformer:
         self.api.database.commit()
 
 
-    def transform(self, instances: pd.DataFrame):
+    def run(self, instances: pd.DataFrame):
         if self.api.jobs == 1:
-            self.transform_sequential(instances)
+            self.init_sequential(instances)
         else:
-            self.transform_parallel(instances)
+            self.init_parallel(instances)
 
 
-    def transform_sequential(self, instances: pd.DataFrame):
+    def init_sequential(self, instances: pd.DataFrame):
         for idx, row in instances.iterrows():
-            result = self.transformer(row['hash'], row['local'], self.api.get_limits())
+            result = self.initfunc(row['hash'], row['local'], self.api.get_limits())
             self.save_features(result)
 
 
-    def transform_parallel(self, instances: pd.DataFrame):
-        with pebble.ProcessPool(max_workers=self.api.jobs, max_tasks=1) as p:
-            futures = [ p.schedule(self.extractor, (row['hash'], row['local'], self.api.getlimits())) for idx, row in instances.iterrows() ]
+    def init_parallel(self, instances: pd.DataFrame):
+        with pebble.ProcessPool(max_workers=self.api.jobs, max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
+            futures = [ p.schedule(self.initfunc, (row['hash'], row['local'], self.api.get_limits())) for idx, row in instances.iterrows() ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
@@ -73,5 +76,7 @@ class InstanceTransformer:
                 except GBDException as e:  # might receive special handling in the future
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
                 except Exception as e:
+                    import traceback
+                    traceback.print_exc()
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
 
