@@ -41,7 +41,7 @@ def cnf2kis(self, hash, path, limits):
         result = cnf2kis(path, kispath, limits['max_edges'], limits['max_nodes'], limits['tlim'], limits['mlim'], limits['flim'])
         if "local" in result:
             kishash = result['hash']
-            return [ ('local', kishash, result['local']), ('cnf_hash', kishash, hash),
+            return [ ('local', kishash, result['local']), ('to_cnf', kishash, hash),
                         ('nodes', kishash, result['nodes']), ('edges', kishash, result['edges']), ('k', kishash, result['k']) ]
         else:
             raise GBDException("CNF2KIS failed for {}".format(path))
@@ -54,7 +54,7 @@ def cnf2kis(self, hash, path, limits):
 def init_transform_cnf_to_kis(api: GBD, query, hashes, target_db=None):
     source_contexts = [ 'cnf', 'sancnf' ]
     target_contexts = [ 'kis' ]
-    features = [ ('local', None), ('cnf_hash', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ]
+    features = [ ('local', None), ('to_cnf', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ]
     transformer = Initializer(source_contexts, target_contexts, api, target_db, features, cnf2kis)
     transformer.create_features()
 
@@ -77,7 +77,7 @@ def sanitize_cnf(self, hash, path, limits):
         with open(sanname, 'w') as f, util.stdout_redirected(f):
             if sanitize(path): 
                 sanhash = gbd_hash(sanname)
-                return [ ('local', sanhash, sanname), ('cnf_hash', sanhash, hash) ]
+                return [ ('local', sanhash, sanname), ('to_cnf', sanhash, hash) ]
             else:
                 raise GBDException("Sanitization failed for {}".format(path))
     except Exception as e:
@@ -89,7 +89,7 @@ def sanitize_cnf(self, hash, path, limits):
 def init_sani(api: GBD, query, hashes, target_db=None):
     source_contexts = [ 'cnf', 'sancnf' ]
     target_contexts = [ 'sancnf' ]
-    features = [ ('local', None) , ('cnf_hash', None) ]
+    features = [ ('local', None) , ('to_cnf', None) ]
     transformer = Initializer(source_contexts, target_contexts, api, target_db, features, sanitize_cnf)
     transformer.create_features()
 

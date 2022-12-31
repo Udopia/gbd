@@ -73,7 +73,7 @@ def cli_rename(api: GBD, args):
 
 
 def cli_get(api: GBD, args):
-    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.subselect)
+    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type, args.subselect)
     for index, row in df.iterrows():
         print(" ".join([ item or "[None]" for item in row.to_list() ]))
 
@@ -83,10 +83,10 @@ def cli_set(api: GBD, args):
 
 def cli_info(api: GBD, args):
     if args.name is None:
-        for db_str in api.get_databases():
-            if len(api.get_features(dbname=db_str)):
-                print("\nDatabase: {}".format(api.get_database_path(db_str)))
-                feat = api.get_features(dbname=db_str)
+        for dbname in api.get_databases():
+            if len(api.get_features([dbname])):
+                print("\nDatabase: {}".format(api.get_database_path(dbname)))
+                feat = api.get_features([dbname])
                 print("Features: " + " ".join(feat))
     else:
         info = api.get_feature_info(args.name)
@@ -146,6 +146,8 @@ def main():
                             choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'], 
                             help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_get.add_argument('--subselect', help='Move where to subselect', action='store_true')
+    parser_get.add_argument('--join-type', help='Join Type: treatment of missing values in queries', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
     parser_get.set_defaults(func=cli_get)
 
     # GBD SET
@@ -184,7 +186,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))

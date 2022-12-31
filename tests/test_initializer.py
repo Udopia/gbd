@@ -28,7 +28,7 @@ class SchemaTestCase(unittest.TestCase):
         return [ ('random', hash, random.randint(1, 1000)) ]
 
     def test_init_random(self):
-        api = GBD(self.file, jobs=1)
+        api = GBD(self.file, jobs=1, verbose=False)
         init = Initializer(['cnf'], ['cnf'], api, self.name, [('random', 0)], self.init_random)
         init.create_features()
         self.assertTrue(api.feature_exists('random'))

@@ -113,17 +113,15 @@ class Schema:
     @classmethod
     def features_from_database(cls, dbname, path, con) -> typing.Dict[str, FeatureInfo]:
         features = dict()
-        sql_tables="SELECT tbl_name FROM sqlite_master WHERE type = 'table'" 
-                        # AND NOT tbl_name LIKE 'sqlite$_%' AND NOT tbl_name LIKE '$_$_%' ESCAPE '$'"
+        sql_tables="SELECT tbl_name FROM sqlite_master WHERE type = 'table'"
         tables = [ tab for (tab, ) in con.execute(sql_tables).fetchall() ]
-        # process features-table last to give precedence to features in other tables
-        if "features" in tables:
-            tables.insert(len(tables)-1, tables.pop(tables.index("features"))) 
         for table in tables:
             columns = con.execute("PRAGMA table_info({})".format(table)).fetchall()
             for (index, colname, coltype, notnull, default_value, pk) in columns:
-                if not colname in tables:
-                    fname = "hash" if colname == "hash" else table if colname == "value" else colname
+                is_fk_column = table == "features" and colname in tables
+                is_fk_hash = table != "features" and colname == "hash"
+                if not is_fk_column and not is_fk_hash:
+                    fname = colname if table == "features" else table
                     dval = default_value.strip('"') if default_value else None
                     features[fname] = FeatureInfo(fname, dbname, table, colname, dval)
         return features

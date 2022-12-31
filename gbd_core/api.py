@@ -23,7 +23,7 @@ import pandas as pd
 from contextlib import ExitStack
 import traceback
 
-from gbd_core.query_builder import GBDQuery
+from gbd_core.query import GBDQuery
 from gbd_core.database import Database
 from gbd_core import util
 
@@ -34,14 +34,13 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, join_type="LEFT", verbose=False):
+    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, verbose=False):
         self.databases = dbs if isinstance(dbs, list) else dbs.split(os.pathsep)
         self.context = context
         self.jobs = jobs
         self.tlim = tlim  # time limit (seconds)
         self.mlim = mlim  # memory limit (mega bytes)
         self.flim = flim  # file size limit (mega bytes)
-        self.join_type = join_type
         self.verbose = verbose
         self.database = Database(self.databases, self.verbose)
 
@@ -54,14 +53,14 @@ class GBD:
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
 
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", subselect=False):
-        query_builder = GBDQuery(self.database, self.join_type, collapse, subselect)
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT", subselect=False):
+        query_builder = GBDQuery(self.database, gbd_query)
         try:
-            sql = query_builder.build_query(gbd_query, hashes, resolve or [], group_by or "hash")
+            sql = query_builder.build_query(hashes, resolve or [], group_by or "hash", join_type, collapse, subselect)
         except tatsu.exceptions.FailedParse as err:
             if self.verbose:
                 util.eprint(traceback.format_exc())
-            raise GBDException("Parser Error: {}".format(str(err)))
+            raise GBDException("Parser Error with Query '{}': {}".format(gbd_query, str(err)))
         try:
             result = self.database.query(sql)
         except sqlite3.OperationalError as err:
@@ -72,7 +71,7 @@ class GBD:
 
     # Get all features
     def get_features(self, dbname=None):
-        return self.database.get_features(db=dbname)
+        return self.database.get_features([] if not dbname else [dbname])
 
     # Check for existence of given feature
     def feature_exists(self, name):
