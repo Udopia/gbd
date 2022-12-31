@@ -16,75 +16,49 @@
 
 import tatsu
 
+
+class ParserException(Exception):
+    pass
+
 class Parser:
-    GRAMMAR = '''
+    GRAMMAR = r'''
         @@grammar::GBDQuery
         @@ignorecase::True
 
         start 
             = 
-            q:query 
-            $ 
+            q:query $ 
             ;
 
         query 
             = 
-            | left:query qop:('and' | 'or') right:query 
-            | '(' q:query ')' 
+            | left:query ~ qop:('and' | 'or') ~ right:query 
             | sconstraint 
-            | aconstraint
+            | aconstraint 
+            | '(' q:query ')' 
             ;
 
         sconstraint 
             = 
-            | left:colname sop:('=' | '!=') right:alnum 
-            | left:colname sop:('=' | '!=') "'" right:alnumplus "'" 
-            | left:colname sop:('unlike' | 'like') right:likean 
+            | left:column sop:('=' | '!=') right:string
+            | left:column sop:('unlike' | 'like') ~ ["%"] right:string ["%"]
             ;
             
         aconstraint 
             = 
-            | left:term aop:('=' | '!=' | '<=' | '>=' | '<' | '>' ) right:term 
+            left:term aop:('=' | '!=' | '<=' | '>=' | '<' | '>' ) right:term 
             ;
 
         term 
             = 
-            | value:colname 
-            | constant:num 
-            | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' 
+            | value:column 
+            | constant:number 
+            #| '(' left:term top:('+'|'-'|'*'|'/') right:term ')' 
             ;
 
-        num = /[0-9\.\-]+/ ;
-        alnum = /[a-zA-Z0-9_\.\-\/]+/ ;
-        alnumplus =   /[a-zA-Z0-9_\.\-\/\?\#\+\=\:\^\ ]+/ ;
-        likean = /[\%]?[a-zA-Z0-9_\.\-\/\?\#\+\=\:\^\ ]+[\%]?/;
-        colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
-    '''
-
-    GRAMMAR = r'''
-        @@grammar::EXP
-        @@ignorecase::True
-
-        start = q:query $ ;
-
-        query = left:query qop:('and' | 'or') right:query | 
-                '(' q:query ')' | 
-                sconstraint | 
-                aconstraint;
-
-        sconstraint = left:colname sop:('=' | '!=') right:alnum | 
-                    left:colname sop:('=' | '!=') "'" right:alnumplus "'" | 
-                    left:colname sop:('unlike' | 'like') right:likean ;
-            
-        aconstraint = left:term aop:('=' | '!=' | '<=' | '>=' | '<' | '>' ) right:term ;
-
-        term = value:colname | constant:num | '(' left:term top:('+'|'-'|'*'|'/') right:term ')' ;
-
-        num = /[0-9\.\-]+/ ;
-        alnum = /[a-zA-Z0-9_\.\-\/]+/ ;
-        alnumplus =   /[a-zA-Z0-9_\.\-\/\?\#\+\=\:\^\ ]+/ ;
-        likean = /[\%]?[a-zA-Z0-9_\.\-\/\?\#\+\=\:\^\ ]+[\%]?/;
-        colname = /[a-zA-Z][a-zA-Z0-9_]+/ ;
+        number = /[0-9\.\-]+/ ;
+        string = /[a-zA-Z0-9_\.\-\/\,\:]+/ ;
+        column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
     '''
 
 
@@ -92,7 +66,12 @@ class Parser:
 
 
     def __init__(self, query):
-        self.ast = Parser.model.parse(query)
+        try:            
+            self.ast = Parser.model.parse(query)
+        except tatsu.exceptions.FailedParse as e:
+            raise ParserException("Failed to parse query: {}".format(e))
+        except tatsu.exceptions.FailedLeftRecursion as e:
+            raise ParserException("Failed to parse query: {}".format(e))
 
 
     def get_features(self, ast=None):
