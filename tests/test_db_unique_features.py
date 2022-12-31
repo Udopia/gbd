@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from gbd_core.query_builder import GBDQuery
+from gbd_core.query import GBDQuery
 from gbd_core.database import Database
 from gbd_core.schema import Schema
 
@@ -31,8 +31,8 @@ class DatabaseTestCase(unittest.TestCase):
         return super().tearDown()
 
     def query(self, feat, val):
-        qb = GBDQuery(self.db)
-        q = qb.build_query("{}={}".format(feat, val))
+        qb = GBDQuery(self.db, "{}={}".format(feat, val))
+        q = qb.build_query()
         return [ hash for (hash, ) in self.db.query(q) ]
 
     def dump(self):

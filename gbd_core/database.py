@@ -139,17 +139,28 @@ class Database:
         return infos[0]
 
     def fexists(self, fname):
-        return fname in self.features.keys() and len(self.features[fname]) > 0
+        return fname in self.features
+
+    def faddr_column(self, feature, db=None):
+        finfo = self.finfo(feature, db)
+        return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
+
+    def faddr_table(self, feature, db=None):
+        finfo = self.finfo(feature, db)
+        return "{}.{}".format(finfo.database, finfo.table)
 
 
-    def get_databases(self):
-        return self.schemas.keys()
+    def get_databases(self, context=None):
+        return [ dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context ]
+
+    def get_contexts(self, dbs=[]):
+        return [ s.context for s in self.schemas.values() if not dbs or s.dbname in dbs ]
   
-    def get_features(self, db=None):
-        return [ name for (name, infos) in self.features.items() for info in infos if not db or db == info.database ]
+    def get_features(self, dbs=[]):
+        return [ name for (name, infos) in self.features.items() for info in infos if not dbs or info.database in dbs ]
 
-    def get_tables(self, db=None):
-        tables = [ info.table for infos in self.features.values() for info in infos if not db or db == info.database ]
+    def get_tables(self, dbs=[]):
+        tables = [ info.table for infos in self.features.values() for info in infos if not dbs or info.database in dbs ]
         return list(set(tables))
 
 
@@ -176,6 +187,8 @@ class Database:
         if finfo.default is None:
             self.execute("ALTER TABLE {}.{} RENAME TO {}.{}".format(finfo.database, fname, finfo.database, new_fname))
         self.features[fname].remove(finfo)
+        if not len(self.features[fname]):
+            del self.features[fname]
         finfo.name = new_fname
         if not new_fname in self.features.keys():
             self.features[new_fname] = [ finfo ]
@@ -193,6 +206,8 @@ class Database:
         else:
             raise DatabaseException("Cannot delete unique feature {} with SQLite versions < 3.35".format(fname))
         self.features[fname].remove(finfo)
+        if not len(self.features[fname]):
+            del self.features[fname]
 
 
     def delete(self, fname, values=[], hashes=[], target_db=None):

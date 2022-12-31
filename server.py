@@ -249,7 +249,7 @@ def main():
             app.config['dbpaths'] = dict()
             app.config['features'] = dict()
             for db in app.config['dbnames']:
-                app.config['features'][db] = [ f for f in gbd.get_features(dbname=db) if not f in [ "hash", "local" ] ]
+                app.config['features'][db] = [ f for f in gbd.get_features([db]) if not f in [ "hash", "local" ] ]
                 app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))
