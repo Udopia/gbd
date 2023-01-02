@@ -113,7 +113,7 @@ class Schema:
     def features_from_database(cls, dbname, path, con) -> typing.Dict[str, FeatureInfo]:
         features = dict()
         sql_tables="SELECT tbl_name FROM sqlite_master WHERE type = 'table'"
-        tables = [ tab for (tab, ) in con.execute(sql_tables).fetchall() ]
+        tables = [ tab for (tab, ) in con.execute(sql_tables).fetchall() if not tab.startswith("_") ]
         for table in tables:
             columns = con.execute("PRAGMA table_info({})".format(table)).fetchall()
             for (index, colname, coltype, notnull, default_value, pk) in columns:

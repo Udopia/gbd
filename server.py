@@ -32,6 +32,7 @@ from gbd_core import contexts
 from gbd_core.database import DatabaseException
 from gbd_core.schema import Schema
 from gbd_core.api import GBD, GBDException
+from gbd_core.grammar import ParserException
 
 import gbd_server
 
@@ -87,7 +88,7 @@ def page_response(query, database, page=0):
             df = gbd.query(query, resolve=app.config["features"][database], collapse="MIN")
             #for col in df.columns:
             #    df[col] = df[col].apply(lambda x: round(float(x), 2) if util.is_number(x) and '.' in x else x)
-        except (GBDException, DatabaseException) as err:
+        except (GBDException, DatabaseException, ParserException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         return render_template('index.html', 
             query=query, 
@@ -120,7 +121,7 @@ def get_csv_file():
         features = app.config['features'][db]
         try:
             df = gbd.query(query, [], features)
-        except (GBDException, DatabaseException) as err:
+        except (GBDException, DatabaseException, ParserException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         return file_response(df.to_csv(), query_to_name(query) + ".csv", "text/csv", request.remote_addr)
 
@@ -133,7 +134,7 @@ def get_url_file():
         query = request_query(request)
         try:
             df = gbd.query(query)
-        except (GBDException, DatabaseException) as err:
+        except (GBDException, DatabaseException, ParserException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
         content = "\n".join([ flask.url_for("get_file", hashvalue=val, _external=True) for val in df['hash'].tolist() ])
         return file_response(content, query_to_name(query) + ".uri", "text/uri-list", request.remote_addr)
@@ -246,7 +247,7 @@ def main():
             app.config['dbpaths'] = dict()
             app.config['features'] = dict()
             for db in app.config['dbnames']:
-                app.config['features'][db] = [ f for f in gbd.get_features([db]) if not f in [ "hash", "local" ] ]
+                app.config['features'][db] = [ f for f in gbd.get_features(db) if not f in [ "hash", "local" ] ]
                 app.config['dbpaths'][db] = gbd.get_database_path(db)
     except Exception as e:
         app.logger.error(str(e))

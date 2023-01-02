@@ -106,10 +106,10 @@ class GBDQuery:
         result = "{} != 'None'".format(self.db.faddr_column(group_by))
         if subselect:
             fro = self.build_from(group_by, self.features)
-            whe = self.parser.build_where_recursive(self.db)
+            whe = self.parser.get_sql(self.db)
             result = result + " AND {}.hash in (SELECT {}.hash FROM {} WHERE {})".format(self.db.faddr_table(group_by), self.db.faddr_table(group_by), fro, whe)
         else:
-            result = result + " AND " + self.parser.build_where_recursive(self.db)
+            result = result + " AND " + self.parser.get_sql(self.db)
         if len(hashes):
             result = result + " AND {}.hash in ('{}')".format(self.db.faddr_table(group_by), "', '".join(hashes))
         return result
