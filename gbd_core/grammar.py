@@ -14,6 +14,7 @@
 # copies or substantial portions of the Software.
 
 import tatsu
+import json
 
 from gbd_core.database import DatabaseException
 
@@ -40,8 +41,7 @@ class Parser:
         constraint 
             = 
             | col:column cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
-            | col:column cop:("=" | "!=") str:string
-            | col:column cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) num:number
+            | col:column cop:("=" | "!=") str:string 
             | col:column cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
 
@@ -52,14 +52,14 @@ class Parser:
 
         term 
             = 
-            | left:(term | termend) top:("+" | "-" | "*" | "/") ~ right:(term | termend)
-            | "(" t:(term | termend) ")"
+            | left:(term | termend) top:("+" | "-" | "*" | "/") right:(term | termend)
+            | ("(") t:(term | termend) (")")
+            | constant:number
             ;
 
         termend
             =
-            | col:column
-            | constant:number 
+            col:column
             ;
 
         number = /[-]?[0-9]+[.]?[0-9]*/ ;
@@ -71,68 +71,68 @@ class Parser:
     model = tatsu.compile(GRAMMAR)
 
 
-    def __init__(self, query):
-        try:            
-            self.ast = Parser.model.parse(query)
+    def __init__(self, query, verbose=False):
+        try:
+            self.ast = Parser.model.parse(query) if query else dict()
+            if verbose:
+                print("Parsed: " + query)
+                print(json.dumps(tatsu.util.asjson(self.ast), indent=2))
         except tatsu.exceptions.FailedParse as e:
-            raise ParserException("Failed to parse query: {}".format(e))
+            raise ParserException("Failed to parse query: {}".format(str(e)))
         except tatsu.exceptions.FailedLeftRecursion as e:
-            raise ParserException("Failed to parse query: {}".format(e))
+            raise ParserException("Failed to parse query: {}".format(str(e)))
 
 
     def get_features(self, ast=None):
         try:
             ast = ast if ast else self.ast
-            if ast["q"]:
+            if "q" in ast:
                 return self.get_features(ast["q"])
-            elif ast["t"]:
+            elif "t" in ast:
                 return self.get_features(ast["t"])
-            elif ast["qop"] or ast["top"]:
+            elif "qop" in ast or "top" in ast:
                 return self.get_features(ast["left"]) | self.get_features(ast["right"])
-            elif ast["cop"] and ast["ter"]:
+            elif "cop" in ast and "ter" in ast:
                 return { ast["col"] } | self.get_features(ast["ter"])
-            elif ast["col"]:
+            elif "col" in ast:
                 return { ast["col"] }
             else: 
                 return set()
         except TypeError as e:
-            print(ast)
-            raise ParserException("Failed to parse query: {}".format(e))
+            raise ParserException("Failed to parse query: {}".format(str(e)))
 
 
-    def build_where_recursive(self, db, ast=None):
+    def get_sql(self, db, ast=None):
         try:
             ast = ast if ast else self.ast
-            if ast["q"]:
-                return "({})".format(self.build_where_recursive(db, ast["q"]))
-            elif ast["t"]:
-                return "({})".format(self.build_where_recursive(db, ast["t"]))
-            elif ast["qop"] or ast["top"]:
+            if "q" in ast:
+                return "(" + self.get_sql(db, ast["q"]) + ")"
+            elif "t" in ast:
+                return "(" + self.get_sql(db, ast["t"]) + ")"
+            elif "qop" in ast or "top" in ast:
                 operator = ast["qop"] if ast["qop"] else ast["top"]
-                left = self.build_where_recursive(db, ast["left"])
-                right = self.build_where_recursive(db, ast["right"])
+                left = self.get_sql(db, ast["left"])
+                right = self.get_sql(db, ast["right"])
                 return "{} {} {}".format(left, operator, right)
-            elif ast["cop"]:
+            elif "cop" in ast:
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
                 feat = db.faddr_column(ast["col"])
-                if ast["num"]:
-                    return "{} {} {}".format(feat, operator, ast["num"])
-                elif ast["str"]:
+                if "str" in ast:
                     return "{} {} '{}'".format(feat, operator, ast["str"])
-                elif ast["lik"]:
-                    return "{} {} {}".format(feat, operator, ast["lik"])
-                elif ast["ter"]:
-                    return "{} {} {}".format(feat, operator, self.build_where_recursive(db, ast["ter"]))
-            elif ast["col"]:
+                elif "lik" in ast:
+                    return "{} {} {}".format(feat, operator, "".join(ast["lik"]))
+                elif "ter" in ast:
+                    return "{} {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
+                raise ParserException("Missing right-hand side of constraint")
+            elif "col" in ast:
                 feature = db.faddr_column(ast["col"])
                 return "CAST({} AS FLOAT)".format(feature)
-            elif ast["constant"]:
+            elif "constant" in ast:
                 return ast["constant"]
+            else:
+                return "1=1"
         except TypeError as e:
-            print(self.ast)
-            print(ast)
-            raise ParserException("Failed to parse query: {}".format(e))
+            raise ParserException("Failed to parse query: {}".format(str(e)))
         except DatabaseException as e:
-            print(self.ast)
-            print(ast)
-            raise ParserException("Failed to parse query: {}".format(e))
+            raise ParserException("Failed to parse query: {}".format(str(e)))
+

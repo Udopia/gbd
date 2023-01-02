@@ -19,6 +19,7 @@ import sys
 import traceback
 
 from gbd_core.api import GBD, GBDException
+from gbd_core.grammar import ParserException
 from gbd_core import contexts, util
 from gbd_core.util_argparse import *
 
@@ -81,9 +82,9 @@ def cli_set(api: GBD, args):
 def cli_info(api: GBD, args):
     if args.name is None:
         for dbname in api.get_databases():
-            if len(api.get_features([dbname])):
+            if len(api.get_features(dbname)):
                 print("\nDatabase: {}".format(api.get_database_path(dbname)))
-                feat = api.get_features([dbname])
+                feat = api.get_features(dbname)
                 print("Features: " + " ".join(feat))
     else:
         info = api.get_feature_info(args.name)
@@ -189,6 +190,11 @@ def main():
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
         if e.name == 'gdbc':
             util.eprint("You can install 'gdbc' from source: https://github.com/sat-clique/cnftools")
+        sys.exit(1)
+    except ParserException as e:
+        util.eprint("Failed to parse query: " + args.query)
+        if args.verbose:
+            util.eprint(traceback.format_exc())
         sys.exit(1)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))
