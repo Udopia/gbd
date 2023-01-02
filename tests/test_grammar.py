@@ -21,7 +21,7 @@ class SchemaTestCase(unittest.TestCase):
         parser = Parser("(b = 2 or c = 3) and a = 1")
         self.assertEqual(parser.get_features(), set(["a", "b", "c"]))
 
-    def test_query_string_constraints1(self):
+    def test_query_string_constraints(self):
         parser = Parser("a = val1")
         self.assertEqual(parser.get_features(), set(["a"]))
         parser = Parser("a = val1 and b != val2")
@@ -38,3 +38,15 @@ class SchemaTestCase(unittest.TestCase):
         self.assertEqual(parser.get_features(), set(["a", "b"]))        
         with self.assertRaises(ParserException):
             parser = Parser("a = %val%")
+
+    def test_query_arithmetic_constraints(self):
+        parser = Parser("a = (1 + 2)")
+        self.assertEqual(parser.get_features(), set(["a"]))
+        parser = Parser("a = 1 - 2")
+        self.assertEqual(parser.get_features(), set(["a"]))
+        parser = Parser("a = (1 + 2) / b")
+        self.assertEqual(parser.get_features(), set(["a", "b"]))
+        parser = Parser("a = (b)")
+        self.assertEqual(parser.get_features(), set(["a", "b"]))
+        parser = Parser("a = b")
+        self.assertEqual(parser.get_features(), set(["a"]))
