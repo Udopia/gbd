@@ -15,6 +15,7 @@
 
 import tatsu
 
+from gbd_core.database import DatabaseException
 
 class ParserException(Exception):
     pass
@@ -31,31 +32,37 @@ class Parser:
 
         query 
             = 
-            | left:query ~ qop:('and' | 'or') ~ right:query 
-            | sconstraint 
-            | aconstraint 
-            | '(' q:query ')' 
+            | left:query qop:("and" | "or") ~ right:query 
+            | constraint 
+            | "(" q:query ")" 
             ;
 
-        sconstraint 
+        constraint 
             = 
-            | left:column sop:('=' | '!=') right:string
-            | left:column sop:('unlike' | 'like') ~ ["%"] right:string ["%"]
+            | col:column cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
+            | col:column cop:("=" | "!=") str:string
+            | col:column cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) num:number
+            | col:column cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
-            
-        aconstraint 
+
+        termstart 
             = 
-            left:term aop:('=' | '!=' | '<=' | '>=' | '<' | '>' ) right:term 
+            t:term
             ;
 
         term 
             = 
-            | value:column 
-            | constant:number 
-            #| '(' left:term top:('+'|'-'|'*'|'/') right:term ')' 
+            | left:(term | termend) top:("+" | "-" | "*" | "/") ~ right:(term | termend)
+            | "(" t:(term | termend) ")"
             ;
 
-        number = /[0-9\.\-]+/ ;
+        termend
+            =
+            | col:column
+            | constant:number 
+            ;
+
+        number = /[-]?[0-9]+[.]?[0-9]*/ ;
         string = /[a-zA-Z0-9_\.\-\/\,\:]+/ ;
         column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
     '''
@@ -74,47 +81,58 @@ class Parser:
 
 
     def get_features(self, ast=None):
-        ast = ast if ast else self.ast
-        if ast["q"]:
-            return self.get_features(ast["q"])
-        elif ast["qop"] or ast["aop"] or ast["top"]:
-            return self.get_features(ast["left"]) | self.get_features(ast["right"])
-        elif ast["sop"]:
-            return { ast["left"] }
-        elif ast["value"]:
-            return { ast["value"] }
-        else: 
-            return set()
+        try:
+            ast = ast if ast else self.ast
+            if ast["q"]:
+                return self.get_features(ast["q"])
+            elif ast["t"]:
+                return self.get_features(ast["t"])
+            elif ast["qop"] or ast["top"]:
+                return self.get_features(ast["left"]) | self.get_features(ast["right"])
+            elif ast["cop"] and ast["ter"]:
+                return { ast["col"] } | self.get_features(ast["ter"])
+            elif ast["col"]:
+                return { ast["col"] }
+            else: 
+                return set()
+        except TypeError as e:
+            print(ast)
+            raise ParserException("Failed to parse query: {}".format(e))
 
 
     def build_where_recursive(self, db, ast=None):
-        ast = ast if ast else self.ast
-        if ast["q"]:
-            return self.build_where_recursive(db, ast["q"])
-        elif ast["qop"]:
-            operator = ast["qop"]
-            left = self.build_where_recursive(db, ast["left"])
-            right = self.build_where_recursive(db, ast["right"])
-            return "({} {} {})".format(left, operator, right)
-        elif ast["aop"]:
-            operator = ast["aop"]
-            left = self.build_where_recursive(db, ast["left"])
-            right = self.build_where_recursive(db, ast["right"])
-            return "{} {} {}".format(left, operator, right)
-        elif ast["top"]:
-            operator = ast["top"]
-            left = self.build_where_recursive(db, ast["left"])
-            right = self.build_where_recursive(db, ast["right"])
-            return "{} {} {}".format(left, operator, right)
-        elif ast["sop"]:
-            operator = "not like" if ast["sop"] == "unlike" else ast["sop"]
-            feature = ast["left"]
-            feat = db.faddr_column(feature)
-            right = ast["right"]
-            return "{} {} \"{}\"".format(feat, operator, right)
-        elif ast["value"]:
-            feature = ast["value"]
-            feat = db.faddr_column(feature)
-            return "CAST({} AS FLOAT)".format(feat)
-        elif ast["constant"]:
-            return ast["constant"]
+        try:
+            ast = ast if ast else self.ast
+            if ast["q"]:
+                return "({})".format(self.build_where_recursive(db, ast["q"]))
+            elif ast["t"]:
+                return "({})".format(self.build_where_recursive(db, ast["t"]))
+            elif ast["qop"] or ast["top"]:
+                operator = ast["qop"] if ast["qop"] else ast["top"]
+                left = self.build_where_recursive(db, ast["left"])
+                right = self.build_where_recursive(db, ast["right"])
+                return "{} {} {}".format(left, operator, right)
+            elif ast["cop"]:
+                operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
+                feat = db.faddr_column(ast["col"])
+                if ast["num"]:
+                    return "{} {} {}".format(feat, operator, ast["num"])
+                elif ast["str"]:
+                    return "{} {} '{}'".format(feat, operator, ast["str"])
+                elif ast["lik"]:
+                    return "{} {} {}".format(feat, operator, ast["lik"])
+                elif ast["ter"]:
+                    return "{} {} {}".format(feat, operator, self.build_where_recursive(db, ast["ter"]))
+            elif ast["col"]:
+                feature = db.faddr_column(ast["col"])
+                return "CAST({} AS FLOAT)".format(feature)
+            elif ast["constant"]:
+                return ast["constant"]
+        except TypeError as e:
+            print(self.ast)
+            print(ast)
+            raise ParserException("Failed to parse query: {}".format(e))
+        except DatabaseException as e:
+            print(self.ast)
+            print(ast)
+            raise ParserException("Failed to parse query: {}".format(e))
