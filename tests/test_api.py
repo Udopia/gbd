@@ -61,3 +61,50 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(self.api.feature_exists("B", self.name1))
         with self.assertRaises(GBDException):
             self.api.rename_feature("A", "B", self.name1)
+
+    def test_set_values(self):
+        self.api.create_feature("A", None, self.name1) # feature is multi-valued
+        self.api.create_feature("B", "empty", self.name1) # feature has default value
+        self.api.create_feature("A", "empty", self.name2) # shadowed feature
+        # value1 (set values, default values emerge)
+        self.api.set_values("A", "value1", [ str(i) for i in range(100) ], self.name1)
+        df = self.api.query("A = value1", resolve=["A", "B"])
+        self.assertCountEqual(df['hash'].tolist(), [ str(i) for i in range(100) ])
+        self.assertCountEqual(df['A'].tolist(), [ "value1" for _ in range(100) ])
+        self.assertCountEqual(df['B'].tolist(), [ "empty" for _ in range(100) ])
+        # value2 (set values, feature is multi-valued)
+        self.api.set_values("A", "value2", [ str(i) for i in range(50) ], self.name1)
+        df = self.api.query("A = value1 or A = value2", resolve=["A"], collapse=None)
+        self.assertCountEqual(df['A'].tolist(), [ "value2" for _ in range(50) ] + [ "value1" for _ in range(100) ])
+        # value3 (set values of shadowed feature by specifying target-database)
+        self.api.set_values("A", "value3", [ str(i) for i in range(50) ], self.name2)
+        df = self.api.query("A = value1 or A = value2", resolve=["A"], collapse=None)
+        self.assertCountEqual(df['A'].tolist(), [ "value2" for _ in range(50) ] + [ "value1" for _ in range(100) ])
+        self.api.database.commit()
+        api2 = GBD([self.file2])
+        df = api2.query("A = value3", resolve=["A"])
+        self.assertCountEqual(df["A"].tolist(), [ "value3" for _ in range(50) ])
+
+    def test_reset_values(self):
+        self.api.create_feature("A", None, self.name1)
+        self.api.create_feature("B", "empty", self.name1)
+        self.api.create_feature("A", "empty", self.name2)
+        self.api.set_values("A", "value1", [ str(i) for i in range(100) ], self.name1)
+        self.api.set_values("A", "value2", [ str(i) for i in range(100) ], self.name1)
+        self.api.set_values("B", "value3", [ str(i) for i in range(100) ], self.name1)
+        self.api.set_values("A", "value1", [ str(i) for i in range(100) ], self.name2)
+        # reset values in A
+        self.api.reset_values("A", [ "value1" ], [ str(i) for i in range(50) ], self.name1)
+        df = self.api.query(None, hashes=[ str(i) for i in range(100) ], resolve=["A"], collapse=None)
+        self.assertCountEqual(df['A'].tolist(), [ "value1" for _ in range(50) ] + [ "value2" for _ in range(100) ])
+        # reset values in B
+        self.api.reset_values("B", [ "value3" ], [ str(i) for i in range(50) ], self.name1)
+        df = self.api.query(None, hashes=[ str(i) for i in range(100) ], resolve=["B"])
+        self.assertCountEqual(df['B'].tolist(), [ "value3" for _ in range(50) ] + [ "empty" for _ in range(50) ])
+        # reset values in shadowed A
+        self.api.database.verbose = True
+        self.api.reset_values("A", [ "value1" ], [ str(i) for i in range(50) ], self.name2)
+        self.api.database.commit()
+        api2 = GBD([self.file2])
+        df = api2.query("A = value1", resolve=["A"])
+        self.assertCountEqual(df["A"].tolist(), [ "value1" for _ in range(50) ])
