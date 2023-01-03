@@ -176,7 +176,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.join_type, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, args.verbose) as api:
             args.func(api, args)
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))

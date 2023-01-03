@@ -20,7 +20,7 @@ import traceback
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
-from gbd_core import contexts, util
+from gbd_core import util
 from gbd_core.util_argparse import *
 
 
@@ -32,28 +32,34 @@ def cli_hash(api: GBD, args):
 
 def cli_init_local(api: GBD, args):
     from gbd_init.cnf_extractors import init_local
-    init_local(api, args.path, target_db=args.target_db)
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_local(api, rlimits, args.path, target_db=args.target_db)
 
 def cli_init_base_features(api: GBD, args):
     from gbd_init.cnf_extractors import init_base_features
-    init_base_features(api, args.query, args.hashes, target_db=args.target_db)
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_base_features(api, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_gate_features(api: GBD, args):
     from gbd_init.cnf_extractors import init_gate_features
-    init_gate_features(api, args.query, args.hashes, target_db=args.target_db)
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_gate_features(api, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_iso(api: GBD, args):
-    from gbd_init.cnf_extractors import init_iso_hash
-    init_iso_hash(api, args.query, args.hashes, target_db=args.target_db)
+    from gbd_init.cnf_extractors import init_isohash
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_isohash(api, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_init_cnf2kis(api: GBD, args):
     from gbd_init.cnf_transformers import init_transform_cnf_to_kis
-    init_transform_cnf_to_kis(api, args.query, args.hashes, target_db=args.target_db)
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_sani(api: GBD, args):
     from gbd_init.cnf_transformers import init_sani
-    init_sani(api, args.query, args.hashes, target_db=args.target_db)
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_sani(api, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_create(api: GBD, args):
@@ -62,7 +68,7 @@ def cli_create(api: GBD, args):
 def cli_delete(api: GBD, args):
     if args.hashes and len(args.hashes) > 0 or args.values and len(args.values):
         if args.force or util.confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
-            api.remove_attributes(args.name, args.values, args.hashes)
+            api.reset_values(args.name, args.values, args.hashes)
     elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.delete_feature(args.name)
 
@@ -76,7 +82,8 @@ def cli_get(api: GBD, args):
         print(" ".join([ item or "[None]" for item in row.to_list() ]))
 
 def cli_set(api: GBD, args):
-    api.set_attribute(args.assign[0], args.assign[1], None, args.hashes)
+    hashes = api.query(args.query, args.hashes)['hash'].tolist()
+    api.set_values(args.assign[0], args.assign[1], hashes)
 
 
 def cli_info(api: GBD, args):
@@ -131,8 +138,6 @@ def main():
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')
-    parser_hash.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), 
-                            help='Select context (affects hashes and features)')
     parser_hash.add_argument('path', type=file_type, help="Path to one benchmark")
     parser_hash.set_defaults(func=cli_hash)
 
@@ -184,7 +189,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, int(args.jobs), args.tlim, args.mlim, args.flim, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.context, args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))

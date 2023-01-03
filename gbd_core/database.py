@@ -29,7 +29,7 @@ class DatabaseException(Exception):
 
 class Database:
 
-    def __init__(self, path_list, verbose=False, autocommit=True):
+    def __init__(self, path_list: list, verbose=False, autocommit=True):
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
         self.features = self.init_features()
@@ -182,9 +182,12 @@ class Database:
     def rename_feature(self, fname, new_fname, target_db=None):
         Schema.valid_feature_or_raise(new_fname)
         finfo = self.finfo(fname, target_db)
-        self.execute("ALTER TABLE {}.{} RENAME COLUMN {} TO {}".format(finfo.database, finfo.table, fname, new_fname))
+        self.execute("ALTER TABLE {}.features RENAME COLUMN {} TO {}".format(finfo.database, fname, new_fname))
         if finfo.default is None:
-            self.execute("ALTER TABLE {}.{} RENAME TO {}.{}".format(finfo.database, fname, finfo.database, new_fname))
+            con = sqlite3.connect(self.schemas[finfo.database].path)
+            with con as cursor:
+                cursor.execute("ALTER TABLE {} RENAME TO {}".format(fname, new_fname))
+            con.close()
         self.features[fname].remove(finfo)
         if not len(self.features[fname]):
             del self.features[fname]

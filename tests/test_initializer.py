@@ -28,8 +28,9 @@ class SchemaTestCase(unittest.TestCase):
         return [ ('random', hash, random.randint(1, 1000)) ]
 
     def test_init_random(self):
-        api = GBD(self.file, jobs=1, verbose=False)
-        init = Initializer(['cnf'], ['cnf'], api, self.name, [('random', 0)], self.init_random)
+        api = GBD([self.file], context='cnf', verbose=False)
+        rlimits = { 'jobs': 1, 'tlim': 5000, 'mlim': 2000, 'flim': 1000 }
+        init = Initializer(['cnf'], ['cnf'], api, rlimits, self.name, [('random', 0)], self.init_random)
         init.create_features()
         self.assertTrue(api.feature_exists('random'))
         df = pd.DataFrame([(str(n), None) for n in range(100)], columns=["hash", "local"])

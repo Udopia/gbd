@@ -24,12 +24,13 @@ from gbd_core import util
 
 class Initializer:
 
-    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, target_db: str, features: list, initfunc):
+    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, rlimits, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
         self.features = features
         self.initfunc = initfunc
+        self.rlimits = rlimits
         if not api.context in source_contexts:
             raise GBDException("Context '{}' not supported by '{}'".format(api.context, self.__class__.__name__))
         if not api.database.dcontext(target_db) in target_contexts:
@@ -50,7 +51,7 @@ class Initializer:
 
 
     def run(self, instances: pd.DataFrame):
-        if self.api.jobs == 1:
+        if self.rlimits['jobs'] == 1:
             self.init_sequential(instances)
         else:
             self.init_parallel(instances)
@@ -58,13 +59,13 @@ class Initializer:
 
     def init_sequential(self, instances: pd.DataFrame):
         for idx, row in instances.iterrows():
-            result = self.initfunc(row['hash'], row['local'], self.api.get_limits())
+            result = self.initfunc(row['hash'], row['local'], self.rlimits)
             self.save_features(result)
 
 
     def init_parallel(self, instances: pd.DataFrame):
         with pebble.ProcessPool(max_workers=self.api.jobs, max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
-            futures = [ p.schedule(self.initfunc, (row['hash'], row['local'], self.api.get_limits())) for idx, row in instances.iterrows() ]
+            futures = [ p.schedule(self.initfunc, (row['hash'], row['local'], self.rlimits)) for idx, row in instances.iterrows() ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
