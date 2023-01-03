@@ -150,10 +150,10 @@ class Schema:
 
     @classmethod
     def valid_feature_or_raise(cls, name):
-        if len(name) < 2:
-            raise SchemaException("Feature name '{}' is to short.".format(name))
+        if not re.match("[a-zA-Z][a-zA-Z0-9_]*", name):
+            raise SchemaException("Feature name '{}' must be alphanumeric (incl. underline) and start with a letter.".format(name))
         gbd_keywords = [ 'hash', 'value', 'local', 'filename', 'features' ]
-        if name.lower() in gbd_keywords or name.startswith("__"):
+        if name.lower() in gbd_keywords:
             raise SchemaException("Feature name '{}' is reserved.".format(name))
         sqlite_keywords = ['abort', 'action', 'add', 'after', 'all', 'alter', 'always', 'analyze', 'and', 'as', 'asc', 'attach', 'autoincrement', 
             'before', 'begin', 'between', 'by', 'cascade', 'case', 'cast', 'check', 'collate', 'column', 'commit', 'conflict', 'constraint', 

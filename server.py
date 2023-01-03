@@ -241,7 +241,7 @@ def main():
     app.jinja_env.lstrip_blocks = True
 
     try:
-        with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
+        with GBD(app.config['database'], context=args.context, verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = [ db for db in gbd.get_databases() if db != Schema.IN_MEMORY_DB_NAME ]
             app.config['features_flat'] = [ f for f in gbd.get_features() if not f in [ "hash", "local" ] ]
             app.config['dbpaths'] = dict()

@@ -33,15 +33,11 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, dbs, context='cnf', jobs=1, tlim=5000, mlim=2000, flim=1000, verbose=False):
-        self.databases = dbs if isinstance(dbs, list) else dbs.split(os.pathsep)
+    def __init__(self, dbs: list, context: str='cnf', verbose: bool=False):
+        assert(isinstance(dbs, list) and isinstance(context, str) and isinstance(verbose, bool))
+        self.database = Database(dbs, verbose)
         self.context = context
-        self.jobs = jobs
-        self.tlim = tlim  # time limit (seconds)
-        self.mlim = mlim  # memory limit (mega bytes)
-        self.flim = flim  # file size limit (mega bytes)
         self.verbose = verbose
-        self.database = Database(self.databases, self.verbose)
 
     def __enter__(self):
         with ExitStack() as stack:
@@ -51,6 +47,7 @@ class GBD:
 
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
+
 
     def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT", subselect=False):
         query_builder = GBDQuery(self.database, gbd_query)
@@ -68,13 +65,43 @@ class GBD:
             raise GBDException("Database Operational Error: {}".format(str(err)))
         return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
 
-    # Get all features
-    def get_features(self, dbname=None):
-        return self.database.get_features([] if not dbname else [dbname])
 
-    # Check for existence of given feature
-    def feature_exists(self, name):
-        return name in self.get_features()
+    def set_values(self, feature, value, hashes):
+        if not self.feature_exists(feature):
+            raise GBDException("Feature '{}' does not exist".format(feature))
+        try:
+            self.database.set_values(feature, value, hashes)
+        except Exception as err:
+            raise GBDException(str(err))
+
+
+    # Remove the attribute value for the given hashes
+    def reset_values(self, feature, values=[], hashes=[]):
+        if not self.feature_exists(feature):
+            raise GBDException("Feature '{}' does not exist".format(feature))
+        for values_slice in util.slice_iterator(values, 1000):
+            for hashes_slice in util.slice_iterator(hashes, 1000):
+                self.database.delete_values(feature, values_slice, hashes_slice)
+
+
+    def get_databases(self):
+        """ Get list of database names
+
+            Returns: list of database names
+        """
+        return list(self.database.get_databases())
+
+
+    def get_database_path(self, dbname):
+        """ Get path for given database name
+
+            Args:
+                dbname (str): name of database
+
+            Returns: path to database
+        """
+        return self.database.dpath(dbname)
+
 
     # Retrieve information about a specific feature
     def get_feature_info(self, fname):
@@ -90,52 +117,91 @@ class GBD:
             'feature_values': " ".join([ val for val in df[fname].unique() if val and not util.is_number(val) ])
         }
 
-    def get_limits(self) -> dict():
-        return { 'jobs': self.jobs, 'tlim': self.tlim, 'mlim': self.mlim, 'flim': self.flim }
+    
+    def get_features(self, dbname: str=None):
+        """ Get features from the database.
 
-    def get_databases(self):
-        return list(self.database.get_databases())
+            Args:
+                dbname (str): name of feature database
+                    if None, feature list is accumulated over all databases
 
-    def get_database_path(self, dbname):
-        return self.database.dpath(dbname)
+            Returns: list of features names
+        """
+        return self.database.get_features([] if not dbname else [dbname])
 
-    # Creates feature of given name
-    def create_feature(self, name, default_value=None, target_db=None):
-        if not self.feature_exists(name):
+    
+    def feature_exists(self, name, dbname=None):
+        """ Check if feature exists in the database.
+
+            Args:
+                name (str): name of feature
+                dbname (str): name of feature database
+                    if None, feature existence is checked for in all databases
+
+            Returns: True if feature exists in dbname or any database, False otherwise
+        """
+        return name in self.get_features(dbname)
+
+
+    def create_feature(self, name: str, default_value: str=None, target_db: str=None):
+        """ Creates feature with given name
+
+            Args:
+                name (str): feature name
+                default_value (str): default value for 1:1 features
+                    if None, a multi-valued (1:n) feature is created
+                target_db (str): database name 
+                    if None, default database (fist in list) is used
+
+            Returns: None
+
+            Raises: 
+                GBDException, if feature already exists in target_db
+        """
+        if not self.feature_exists(name, target_db):
             self.database.create_feature(name, default_value, target_db, False)
         else:
             raise GBDException("Feature '{}' does already exist".format(name))
 
-    # Removes feature of given name
-    def delete_feature(self, name):
-        if self.feature_exists(name):
-            self.database.delete_feature(name)
+    
+    def delete_feature(self, name, target_db=None):
+        """ Deletes feature with given name
+
+            Args:
+                name (str): feature name
+                target_db (str): database name 
+                    if None, default database (fist in list) is used
+
+            Returns: None
+
+            Raises: 
+                GBDException, if feature does not exist in target_db
+        """
+        if self.feature_exists(name, target_db):
+            self.database.delete_feature(name, target_db)
         else:
             raise GBDException("Feature '{}' does not exist".format(name))
 
-    # Rename the given feature
-    def rename_feature(self, old_name, new_name):
-        if not self.feature_exists(old_name):
+    
+    def rename_feature(self, old_name, new_name, target_db=None):
+        """ Renames feature with given name
+
+            Args:
+                old_name (str): old feature name
+                new_name (str): new feature name
+                target_db (str): database name 
+                    if None, default database (fist in list) is used
+
+            Returns: None
+
+            Raises: 
+                GBDException, 
+                    - if feature 'old_name' does not exist in target_db
+                    - if feature 'new_name' already exists in target_db
+        """
+        if not self.feature_exists(old_name, target_db):
             raise GBDException("Feature '{}' does not exist".format(old_name))
-        elif self.feature_exists(new_name):
+        elif self.feature_exists(new_name, target_db):
             raise GBDException("Feature '{}' does already exist".format(new_name))
         else:
-            self.database.rename_feature(old_name, new_name)
-
-    # Set the attribute value for the given hashes
-    def set_attribute(self, feature, value, query, hashes=[], force=False):
-        if not self.feature_exists(feature):
-            raise GBDException("Feature '{}' does not exist".format(feature))
-        hash_list = hashes if not query else self.query(query, hashes)['hash'].tolist()
-        try:
-            self.database.set_values(feature, value, hash_list)
-        except Exception as err:
-            raise GBDException(str(err))
-
-    # Remove the attribute value for the given hashes
-    def remove_attributes(self, feature, values=[], hashes=[]):
-        if not self.feature_exists(feature):
-            raise GBDException("Feature '{}' does not exist".format(feature))
-        for values_slice in util.slice_iterator(values, 1000):
-            for hashes_slice in util.slice_iterator(hashes, 1000):
-                self.database.delete_values(feature, values_slice, hashes_slice)
+            self.database.rename_feature(old_name, new_name, target_db)
