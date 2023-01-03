@@ -66,22 +66,42 @@ class GBD:
         return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
 
 
-    def set_values(self, feature, value, hashes):
-        if not self.feature_exists(feature):
-            raise GBDException("Feature '{}' does not exist".format(feature))
-        try:
-            self.database.set_values(feature, value, hashes)
-        except Exception as err:
-            raise GBDException(str(err))
+    def set_values(self, name, value, hashes, target_db=None):
+        """ Set feature value for given hashes 
+            
+            Args:
+                name (str): feature name
+                value (str): value to be set
+                hashes (list): list of hashes (=benchmark ids)
+                target_db (str, optional): name of target database
+                    if None, default database (first in list) is used
+
+            Raises:
+                GBDException, if feature does not exist
+        """
+        if not self.feature_exists(name, target_db):
+            raise GBDException("Feature '{}' does not exist".format(name))
+        self.database.set_values(name, value, hashes, target_db)
 
 
-    # Remove the attribute value for the given hashes
-    def reset_values(self, feature, values=[], hashes=[]):
-        if not self.feature_exists(feature):
+    def reset_values(self, feature, values=[], hashes=[], target_db=None):
+        """ Reset feature value for given hashes 
+            
+            Args:
+                feature (str): feature name
+                values (list, optional): list of values to be reset
+                hashes (list, optional): list of hashes (=benchmark ids) to be reset
+                target_db (str, optional): name of target database
+                    if None, default database (first in list) is used
+
+            Raises:
+                GBDException, if feature does not exist
+        """
+        if not self.feature_exists(feature, target_db):
             raise GBDException("Feature '{}' does not exist".format(feature))
-        for values_slice in util.slice_iterator(values, 1000):
-            for hashes_slice in util.slice_iterator(hashes, 1000):
-                self.database.delete_values(feature, values_slice, hashes_slice)
+        for values_slice in util.slice_iterator(values, 10):
+            for hashes_slice in util.slice_iterator(hashes, 10):
+                self.database.delete(feature, values_slice, hashes_slice, target_db)
 
 
     def get_databases(self):

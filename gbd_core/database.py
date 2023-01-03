@@ -175,7 +175,7 @@ class Database:
 
 
     def set_values(self, fname, value, hashes, target_db=None):
-        finfo = self.finfo(fname)
+        finfo = self.finfo(fname, target_db)
         self.schemas[finfo.database].set_values(fname, value, hashes)
 
 
@@ -214,15 +214,15 @@ class Database:
 
     def delete(self, fname, values=[], hashes=[], target_db=None):
         finfo = self.finfo(fname, target_db)
-        w1 = "{col} IN ('{v}')".format(col=finfo.column, v="', '".join(values)) if len(values) else "1=1"
-        w2 = "hash IN ('{h}')".format(h="', '".join(hashes)) if len(hashes) else "1=1"
-        where = "{} AND {}".format(w1, w2)
+        w1 = "{cl} IN ('{v}')".format(cl=finfo.column, v="', '".join(values))
+        w2 = "hash IN ('{h}')".format(h="', '".join(hashes))
+        where = "{} AND {}".format(w1 if len(values) else "1=1", w2 if len(hashes) else "1=1")
         db = finfo.database
         if finfo.default is None:
             hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where)) ]
             self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))
             remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist))) ]
             setnone = [ h for h in hashlist if not h in remaining ]
-            self.execute("UPDATE {d}.{tab} SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, tab="features", col=fname, h="', '".join(setnone)))
+            self.execute("UPDATE {d}.features SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, col=fname, h="', '".join(setnone)))
         else:
-            self.execute("UPDATE {d}.{tab} SET {col} = '{default}' WHERE {w}".format(d=db, tab="features", col=fname, default=finfo.default, w=where))
+            self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
