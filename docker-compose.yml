@@ -3,11 +3,12 @@ services:
   gbd:
     image: udopia/gbd:latest
     environment:
+    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db
     - VIRTUAL_HOST=localhost
     cpu_count: 4
     mem_limit: 6g
     volumes:
-    - /raid/gbd:/raid/gbd:ro
-    restart: unless-stopped
+            - /home/iser/gbd/databases:/raid/gbd:ro
+    restart: always
     ports:
-    - 8642:5000
+    - 80:5000
