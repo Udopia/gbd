@@ -9,9 +9,9 @@ setup(name='gbd_tools',
   author='Markus Iser, Karlsruhe Institute of Technology (KIT)',
   author_email='markus.iser@kit.edu',
   packages=[
-    "gbd_core", 
-    "gbd_core.init",
     "gbd_apps",
+    "gbd_core", 
+    "gbd_init",
     "gbd_server"
   ],
   scripts=[
