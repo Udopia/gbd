@@ -33,10 +33,9 @@ class GBDException(Exception):
 
 class GBD:
     # Create a new GBD object which operates on the given databases
-    def __init__(self, dbs: list, context: str='cnf', verbose: bool=False):
-        assert(isinstance(dbs, list) and isinstance(context, str) and isinstance(verbose, bool))
+    def __init__(self, dbs: list, verbose: bool=False):
+        assert(isinstance(dbs, list))
         self.database = Database(dbs, verbose)
-        self.context = context
         self.verbose = verbose
 
     def __enter__(self):

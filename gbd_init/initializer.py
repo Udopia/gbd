@@ -24,15 +24,15 @@ from gbd_core import util
 
 class Initializer:
 
-    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, rlimits, target_db: str, features: list, initfunc):
+    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, context: str, rlimits: dict, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
         self.features = features
         self.initfunc = initfunc
         self.rlimits = rlimits
-        if not api.context in source_contexts:
-            raise GBDException("Context '{}' not supported by '{}'".format(api.context, self.__class__.__name__))
+        if not context in source_contexts:
+            raise GBDException("Context '{}' not supported by '{}'".format(context, self.__class__.__name__))
         if not api.database.dcontext(target_db) in target_contexts:
             raise GBDException("Target database '{}' has incompatible context '{}'".format(target_db, api.database.dcontext(target_db)))
 

@@ -31,10 +31,10 @@ def compute_hash(self, hash, path, limits):
     hash = gbd_hash(path)
     return [ ("local", hash, path), ("filename", hash, os.path.basename(path)) ]
 
-def init_local(api: GBD, rlimits, root, target_db):
+def init_local(api: GBD, context, rlimits, root, target_db):
     contexts = [ 'cnf', 'sancnf' ]
     features = [ ("local", None), ("filename", None) ]
-    extractor = Initializer(contexts, contexts, api, rlimits, target_db, features, compute_hash)
+    extractor = Initializer(contexts, contexts, api, context, rlimits, target_db, features, compute_hash)
     extractor.create_features()
 
     df = api.query(group_by="local")
@@ -44,7 +44,7 @@ def init_local(api: GBD, rlimits, root, target_db):
     if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
         api.reset_values("local", values=missing["local"].tolist())
 
-    paths = [ path for suffix in contexts.suffix_list(api.context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    paths = [ path for suffix in contexts.suffix_list(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
     df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
     
     extractor.run(df2)
@@ -57,10 +57,10 @@ def compute_isohash(self, hash, path, limits):
     return [ ('isohash', hash, ihash) ]
 
 # Initialize degree_sequence_hash for given instances
-def init_isohash(api: GBD, rlimits, query, hashes, target_db):
+def init_isohash(api: GBD, context, rlimits, query, hashes, target_db):
     contexts = [ 'cnf', 'sancnf' ]
     features = [ ('isohash', 'empty') ]
-    extractor = Initializer(contexts, contexts, api, rlimits, target_db, features, compute_isohash)
+    extractor = Initializer(contexts, contexts, api, context, rlimits, target_db, features, compute_isohash)
     extractor.create_features()
     df = api.query(query, hashes, ["local"], collapse="MIN")
     extractor.run(df)
@@ -72,7 +72,7 @@ def compute_base_features(self, hash, path, limits):
     rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
-def init_base_features(api: GBD, rlimits, query, hashes, target_db):
+def init_base_features(api: GBD, context, rlimits, query, hashes, target_db):
     contexts = [ 'cnf', 'sancnf' ]
     features = [ ("base_features_runtime", "empty"), ("clauses", "empty"), ("variables", "empty"), ("clause_size_1", "empty"), ("clause_size_2", "empty"), ("clause_size_3", "empty"), 
         ("clause_size_4", "empty"), ("clause_size_5", "empty"), ("clause_size_6", "empty"), ("clause_size_7", "empty"), ("clause_size_8", "empty"), ("clause_size_9", "empty"), 
@@ -85,7 +85,7 @@ def init_base_features(api: GBD, rlimits, query, hashes, target_db):
         ("vcg_vdegrees_mean", "empty"), ("vcg_vdegrees_variance", "empty"), ("vcg_vdegrees_min", "empty"), ("vcg_vdegrees_max", "empty"), ("vcg_vdegrees_entropy", "empty"),
         ("vcg_cdegrees_mean", "empty"), ("vcg_cdegrees_variance", "empty"), ("vcg_cdegrees_min", "empty"), ("vcg_cdegrees_max", "empty"), ("vcg_cdegrees_entropy", "empty"),
         ("cg_degrees_mean", "empty"), ("cg_degrees_variance", "empty"), ("cg_degrees_min", "empty"), ("cg_degrees_max", "empty"), ("cg_degrees_entropy", "empty") ]
-    extractor = Initializer(contexts, contexts, api, rlimits, target_db, features, compute_base_features)
+    extractor = Initializer(contexts, contexts, api, context, rlimits, target_db, features, compute_base_features)
     extractor.create_features()
     df = api.query(query, hashes, ["local"], collapse="MIN")
     extractor.run(df)
@@ -97,7 +97,7 @@ def compute_gate_features(self, hash, path, limits):
     rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
-def init_gate_features(api: GBD, rlimits, query, hashes, target_db):
+def init_gate_features(api: GBD, context, rlimits, query, hashes, target_db):
     contexts = [ 'cnf', 'sancnf' ]
     features = [ ("gate_features_runtime", "empty"), ("n_vars", "empty"), ("n_gates", "empty"), ("n_roots", "empty"),
         ("n_none", "empty"), ("n_generic", "empty"), ("n_mono", "empty"), ("n_and", "empty"), ("n_or", "empty"), ("n_triv", "empty"), ("n_equiv", "empty"), ("n_full", "empty"),
@@ -110,7 +110,7 @@ def init_gate_features(api: GBD, rlimits, query, hashes, target_db):
         ("levels_triv_mean", "empty"), ("levels_triv_variance", "empty"), ("levels_triv_min", "empty"), ("levels_triv_max", "empty"), ("levels_triv_entropy", "empty"),
         ("levels_equiv_mean", "empty"), ("levels_equiv_variance", "empty"), ("levels_equiv_min", "empty"), ("levels_equiv_max", "empty"), ("levels_equiv_entropy", "empty"),
         ("levels_full_mean", "empty"), ("levels_full_variance", "empty"), ("levels_full_min", "empty"), ("levels_full_max", "empty"), ("levels_full_entropy", "empty") ]
-    extractor = Initializer(contexts, contexts, api, rlimits, target_db, features, compute_gate_features)
+    extractor = Initializer(contexts, contexts, api, context, rlimits, target_db, features, compute_gate_features)
     extractor.create_features()
     df = api.query(query, hashes, ["local"], collapse="MIN")
     extractor.run(df)
