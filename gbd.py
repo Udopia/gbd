@@ -20,7 +20,7 @@ import traceback
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
-from gbd_core import util
+from gbd_core import util, contexts
 from gbd_core.util_argparse import *
 
 
@@ -107,7 +107,9 @@ def main():
 
     # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
+    add_resource_limits_arguments(parser_init)
     parser_init.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_init.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), help='Select context (affects selection of hash selection and initializers)')
 
     parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:', required=True, dest='init what?')
 
@@ -189,7 +191,7 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        with GBD(args.db.split(os.pathsep), args.context, args.verbose) as api:
+        with GBD(args.db.split(os.pathsep), args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))

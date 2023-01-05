@@ -81,7 +81,7 @@ def json_response(json_blob, msg, addr):
     return Response(json_blob, status=200, mimetype="application/json")
 
 def page_response(query, database, page=0):
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         start = page * 1000
         end = start + 1000
         try:
@@ -115,7 +115,7 @@ def quick_search():
 # sends csv version of the result as a file
 @app.route("/exportcsv/", methods=['POST', 'GET'])
 def get_csv_file():
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
         db = request_database(request)
         features = app.config['features'][db]
@@ -130,7 +130,7 @@ def get_csv_file():
 # against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
 @app.route("/getinstances/", methods=['POST', 'GET'])
 def get_url_file():
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
         try:
             df = gbd.query(query)
@@ -166,7 +166,7 @@ def get_database_file(database=None):
 # Find the file corresponding to the hashvalue and send it to the client
 @app.route('/file/<hashvalue>/')
 def get_file(hashvalue):
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose'])as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose'])as gbd:
         df = gbd.query(hashes=[hashvalue], resolve=['local', 'filename'], collapse="MIN")
         if not len(df.index):
             return error_response("Hash '{}' not found".format(hashvalue), request.remote_addr)
@@ -180,7 +180,7 @@ def get_file(hashvalue):
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
     app.logger.info("Resolving '{}' with feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         try:
             df = gbd.query(hashes=[hashvalue], resolve=[feature])
             if not len(df.index):
@@ -194,7 +194,7 @@ def get_attribute(feature, hashvalue):
 @app.route('/info/<hashvalue>/')
 def get_all_attributes(hashvalue):
     app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
-    with GBD(app.config['database'], context=app.config['context'], verbose=app.config['verbose']) as gbd:
+    with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         features = app.config['features_flat']
         try:
             df = gbd.query(hashes=[hashvalue], resolve=features)
@@ -241,7 +241,7 @@ def main():
     app.jinja_env.lstrip_blocks = True
 
     try:
-        with GBD(app.config['database'], context=args.context, verbose=app.config['verbose']) as gbd:
+        with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
             app.config['dbnames'] = [ db for db in gbd.get_databases() if db != Schema.IN_MEMORY_DB_NAME ]
             app.config['features_flat'] = [ f for f in gbd.get_features() if not f in [ "hash", "local" ] ]
             app.config['dbpaths'] = dict()

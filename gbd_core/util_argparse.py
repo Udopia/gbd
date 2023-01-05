@@ -13,19 +13,14 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-
-import multiprocessing
 import argparse
 import os
 import re
-
-from gbd_core import contexts
 
 def get_gbd_argparser():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
     parser.add_argument('-d', "--db", type=gbd_db_type, nargs='?', default=os.environ.get('GBD_DB'), help='Specify database to work with')
-    parser.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), help='Select context (affects selection of hash selection and initializers)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Print additional (or diagnostic) information to stderr')
 
     return parser
@@ -34,7 +29,7 @@ def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('query', help='GBD Query', nargs='?')
     parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
 
-def add_resource_limits(parser: argparse.ArgumentParser):
+def add_resource_limits_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('-j', "--jobs", default=1, type=int, nargs='?', help='Specify number of parallel jobs')
     parser.add_argument('-t', '--tlim', default=5000, type=int, help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')")
     parser.add_argument('-m', '--mlim', default=2000, type=int, help="Memory limit (MB) per instance for 'init' sub-commands")
