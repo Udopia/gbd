@@ -24,7 +24,7 @@ from gbd_core import util
 from gbd_init.gbdhash import gbd_hash
 from gbd_init.initializer import Initializer
 
-from gbdc import cnf2kis, sanitize
+import gbdc
 
 
 # Transform SAT Problem to k-Independent Set Problem
@@ -33,20 +33,20 @@ def kis_filename(path):
     return kispath + '.kis'
 
 def cnf2kis(hash, path, limits):
-    util.eprint('Transforming {} to k-ISP {}'.format(path, kispath))
-    
     kispath = kis_filename(path)
+    util.eprint('Transforming {} to k-ISP {}'.format(path, kispath))
     try:
-        result = cnf2kis(path, kispath, limits['max_edges'], limits['max_nodes'], limits['tlim'], limits['mlim'], limits['flim'])
+        result = gbdc.cnf2kis(path, kispath, 2**32, 2**32, limits['tlim'], limits['mlim'], limits['flim'])
         if "local" in result:
             kishash = result['hash']
             return [ ('local', kishash, result['local']), ('to_cnf', kishash, hash),
                         ('nodes', kishash, result['nodes']), ('edges', kishash, result['edges']), ('k', kishash, result['k']) ]
         else:
-            raise GBDException("CNF2KIS failed for {}".format(path))
+            raise GBDException("CNF2KIS failed for {} due to {}".format(path, result['hash']))
     except Exception as e:
         util.eprint(str(e))
-        os.remove(kispath)
+        if os.path.exists(kispath):
+            os.remove(kispath)
 
     return [ ]
 
@@ -74,7 +74,7 @@ def sanitize_cnf(hash, path, limits):
     sanname = sanitized_filename(path)
     try:
         with open(sanname, 'w') as f, util.stdout_redirected(f):
-            if sanitize(path): 
+            if gbdc.sanitize(path): 
                 sanhash = gbd_hash(sanname)
                 return [ ('local', sanhash, sanname), ('to_cnf', sanhash, hash) ]
             else:

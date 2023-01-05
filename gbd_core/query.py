@@ -55,16 +55,16 @@ class GBDQuery:
         return "SELECT " + ", ".join(result)
 
 
-    def find_translator(self, source, target):
-        for dbname in self.db.get_databases([ source ]):
-            if "to"+target in self.db.get_tables([ dbname ]):
-                return (source, dbname, "to"+target)
+    def find_translator(self, source_context, target_context):
+        for dbname in self.db.get_databases(source_context):
+            if "to_"+target_context in self.db.get_tables([ dbname ]):
+                return (source_context, dbname, "to_" + target_context)
         
-        for dbname in self.db.get_databases([ target ]):
-            if "to"+source in self.db.get_tables([ dbname ]):
-                return (target, dbname, "to"+source)
+        for dbname in self.db.get_databases(target_context):
+            if "to_"+source_context in self.db.get_tables([ dbname ]):
+                return (target_context, dbname, "to_" + source_context)
         
-        raise DatabaseException("No translator table found for contexts {} and {}".format(source, target))
+        raise DatabaseException("No translator table found for contexts {} and {}".format(source_context, target_context))
 
 
     def build_from(self, group, features, join_type="LEFT"):
@@ -90,7 +90,7 @@ class GBDQuery:
                             result[address] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, address, gaddress, address)
                         result[faddress] = "{} JOIN {} ON {}.{} = {}.hash".format(join_type, faddress, address, ftable, faddress)
                 else:
-                    (tcontext, tdatabase, ttable) = self.find_translator(self.db, gcontext, fcontext)
+                    (tcontext, tdatabase, ttable) = self.find_translator(gcontext, fcontext)
                     direction = ("hash", "value") if tcontext == gcontext else ("value", "hash")
                     
                     taddress = tdatabase + "." + ttable

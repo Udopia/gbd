@@ -117,12 +117,18 @@ class Database:
         return dbname == self.maindb
 
     def dpath(self, dbname):
+        if not dbname in self.schemas:
+            raise DatabaseException("Database {} not found".format(dbname))
         return self.schemas[dbname].path
         
     def dcontext(self, dbname):
+        if not dbname in self.schemas:
+            raise DatabaseException("Database {} not found".format(dbname))
         return self.schemas[dbname].context
         
     def dtables(self, dbname):
+        if not dbname in self.schemas:
+            raise DatabaseException("Database {} not found".format(dbname))
         return self.schemas[dbname].get_tables()
 
 
@@ -149,7 +155,7 @@ class Database:
         return "{}.{}".format(finfo.database, finfo.table)
 
 
-    def get_databases(self, context=None):
+    def get_databases(self, context: str=None):
         return [ dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context ]
 
     def get_contexts(self, dbs=[]):

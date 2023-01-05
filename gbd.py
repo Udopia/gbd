@@ -197,8 +197,8 @@ def main():
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
-        if e.name == 'gdbc':
-            util.eprint("You can install 'gdbc' from source: https://github.com/sat-clique/cnftools")
+        if e.name == 'gbdc':
+            util.eprint("You can install 'gbdc' from source: https://github.com/sat-clique/cnftools")
         sys.exit(1)
     except ParserException as e:
         util.eprint("Failed to parse query: " + args.query)
