@@ -20,7 +20,7 @@ import traceback
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
-from gbd_core import util, contexts
+from gbd_core import util, contexts, schema
 from gbd_core.util_argparse import *
 
 
@@ -191,6 +191,8 @@ def main():
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
+        if hasattr(args, 'target_db') and args.target_db is None:
+            args.target_db = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
         with GBD(args.db.split(os.pathsep), args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:

@@ -17,6 +17,7 @@ import pandas as pd
 import os
 import glob
 
+from gbd_core.contexts import suffix_list
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer
@@ -26,7 +27,7 @@ from gbdc import extract_base_features, extract_gate_features, isohash
 
 
 ## GBDHash
-def compute_hash(self, hash, path, limits):
+def compute_hash(hash, path, limits):
     eprint('Hashing {}'.format(path))
     hash = gbd_hash(path)
     return [ ("local", hash, path), ("filename", hash, os.path.basename(path)) ]
@@ -44,14 +45,14 @@ def init_local(api: GBD, context, rlimits, root, target_db):
     if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
         api.reset_values("local", values=missing["local"].tolist())
 
-    paths = [ path for suffix in contexts.suffix_list(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    paths = [ path for suffix in suffix_list(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
     df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
     
     extractor.run(df2)
 
 
 ## ISOHash
-def compute_isohash(self, hash, path, limits):
+def compute_isohash(hash, path, limits):
     eprint('Computing ISOHash for {}'.format(path))
     ihash = isohash(path)
     return [ ('isohash', hash, ihash) ]
@@ -67,7 +68,7 @@ def init_isohash(api: GBD, context, rlimits, query, hashes, target_db):
 
 
 ## Base Features
-def compute_base_features(self, hash, path, limits):
+def compute_base_features(hash, path, limits):
     eprint('Extracting base features from {} {}'.format(hash, path))
     rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
@@ -92,7 +93,7 @@ def init_base_features(api: GBD, context, rlimits, query, hashes, target_db):
 
 
 ## Gate Features
-def compute_gate_features(self, hash, path, limits):
+def compute_gate_features(hash, path, limits):
     eprint('Extracting gate features from {} {}'.format(hash, path))
     rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]

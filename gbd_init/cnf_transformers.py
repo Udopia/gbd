@@ -28,11 +28,11 @@ from gbdc import cnf2kis, sanitize
 
 
 # Transform SAT Problem to k-Independent Set Problem
-def kis_filename(cls, path):
+def kis_filename(path):
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
     return kispath + '.kis'
 
-def cnf2kis(self, hash, path, limits):
+def cnf2kis(hash, path, limits):
     util.eprint('Transforming {} to k-ISP {}'.format(path, kispath))
     
     kispath = kis_filename(path)
@@ -64,11 +64,11 @@ def init_transform_cnf_to_kis(api: GBD, context, rlimits, query, hashes, target_
 
 
 # Sanitize CNF
-def sanitized_filename(cls, path):
+def sanitized_filename(path):
     sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
     return sanpath + '.sanitized.cnf'
 
-def sanitize_cnf(self, hash, path, limits):
+def sanitize_cnf(hash, path, limits):
     util.eprint('Sanitizing {}'.format(path))
 
     sanname = sanitized_filename(path)
