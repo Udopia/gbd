@@ -50,11 +50,11 @@ def cnf2kis(self, hash, path, limits):
 
     return [ ]
 
-def init_transform_cnf_to_kis(api: GBD, rlimits, query, hashes, target_db=None):
+def init_transform_cnf_to_kis(api: GBD, context, rlimits, query, hashes, target_db=None):
     source_contexts = [ 'cnf', 'sancnf' ]
     target_contexts = [ 'kis' ]
     features = [ ('local', None), ('to_cnf', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ]
-    transformer = Initializer(source_contexts, target_contexts, api, rlimits, target_db, features, cnf2kis)
+    transformer = Initializer(source_contexts, target_contexts, api, context, rlimits, target_db, features, cnf2kis)
     transformer.create_features()
 
     df = api.query(query, hashes, ["local"], collapse=None)
@@ -85,11 +85,11 @@ def sanitize_cnf(self, hash, path, limits):
 
     return [ ]
 
-def init_sani(api: GBD, rlimits, query, hashes, target_db=None):
+def init_sani(api: GBD, context, rlimits, query, hashes, target_db=None):
     source_contexts = [ 'cnf', 'sancnf' ]
     target_contexts = [ 'sancnf' ]
     features = [ ('local', None) , ('to_cnf', None) ]
-    transformer = Initializer(source_contexts, target_contexts, api, rlimits, target_db, features, sanitize_cnf)
+    transformer = Initializer(source_contexts, target_contexts, api, context, rlimits, target_db, features, sanitize_cnf)
     transformer.create_features()
 
     df = api.query(query, hashes, ["local"], collapse=None)

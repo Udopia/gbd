@@ -33,33 +33,33 @@ def cli_hash(api: GBD, args):
 def cli_init_local(api: GBD, args):
     from gbd_init.cnf_extractors import init_local
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_local(api, rlimits, args.path, target_db=args.target_db)
+    init_local(api, args.context, rlimits, args.path, target_db=args.target_db)
 
 def cli_init_base_features(api: GBD, args):
     from gbd_init.cnf_extractors import init_base_features
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_base_features(api, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_base_features(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_gate_features(api: GBD, args):
     from gbd_init.cnf_extractors import init_gate_features
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_gate_features(api, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_gate_features(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_iso(api: GBD, args):
     from gbd_init.cnf_extractors import init_isohash
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_isohash(api, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_isohash(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_init_cnf2kis(api: GBD, args):
     from gbd_init.cnf_transformers import init_transform_cnf_to_kis
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_transform_cnf_to_kis(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 def cli_init_sani(api: GBD, args):
     from gbd_init.cnf_transformers import init_sani
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_sani(api, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_sani(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
 
 
 def cli_create(api: GBD, args):
