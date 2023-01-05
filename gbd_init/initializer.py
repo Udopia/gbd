@@ -64,7 +64,7 @@ class Initializer:
 
 
     def init_parallel(self, instances: pd.DataFrame):
-        with pebble.ProcessPool(max_workers=self.api.jobs, max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
+        with pebble.ProcessPool(max_workers=self.rlimits['jobs'], max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
             futures = [ p.schedule(self.initfunc, (row['hash'], row['local'], self.rlimits)) for idx, row in instances.iterrows() ]
             for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
                 try:

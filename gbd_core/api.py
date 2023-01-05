@@ -126,7 +126,7 @@ class GBD:
     def get_feature_info(self, fname):
         finfo = self.database.finfo(fname)
         df = self.query(resolve=[ fname ], collapse=None)
-        numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors = 'ignore'))
+        numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors = 'coerce'))
         return {
             'feature_name': fname,
             'feature_count': len(df.index),
