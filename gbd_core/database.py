@@ -154,6 +154,26 @@ class Database:
         finfo = self.finfo(feature, db)
         return "{}.{}".format(finfo.database, finfo.table)
 
+    def find(self, fid: str):
+        parts = fid.split(":")
+        if len(parts) == 1:
+            return self.finfo(fid)
+        elif parts[0] in self.get_databases():
+            return self.finfo(parts[1], parts[0])
+        elif parts[0] in self.get_contexts():
+            db = self.get_databases(parts[0])[0]
+            return self.finfo(parts[1], db)
+        else:
+            raise DatabaseException("Feature '{}' not found".format(fid))
+
+    def faddr(self, fid: str, with_column=True):
+        finfo = self.find(fid)
+
+        if with_column:
+            return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
+        else:
+            return "{}.{}".format(finfo.database, finfo.table)
+
 
     def get_databases(self, context: str=None):
         return [ dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context ]
