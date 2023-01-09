@@ -42,14 +42,14 @@ class GBDQuery:
         
         sql_where = self.build_where(hashes, group_by, where_in_subselect)
 
-        sql_groupby = "GROUP BY {}".format(self.db.faddr_column(group_by)) if collapse else ""
-        sql_orderby = "ORDER BY {}".format(self.db.faddr_column(group_by))
+        sql_groupby = "GROUP BY {}".format(self.db.faddr(group_by)) if collapse else ""
+        sql_orderby = "ORDER BY {}".format(self.db.faddr(group_by))
         
         return "{} {} WHERE {} {} {}".format(sql_select, sql_from, sql_where, sql_groupby, sql_orderby)
 
 
     def build_select(self, group_by, resolve, collapse=None):
-        result = [ self.db.faddr_column(f) for f in [group_by] + resolve ]
+        result = [ self.db.faddr(f) for f in [group_by] + resolve ]
         if collapse and collapse != "none":
             result = [ "{}(DISTINCT({}))".format(collapse, r) for r in result ]
         return "SELECT " + ", ".join(result)
@@ -103,7 +103,7 @@ class GBDQuery:
 
 
     def build_where(self, hashes, group_by, subselect=False):
-        result = "{} != 'None'".format(self.db.faddr_column(group_by))
+        result = "{} != 'None'".format(self.db.faddr(group_by))
         if subselect:
             fro = self.build_from(group_by, self.features)
             whe = self.parser.get_sql(self.db)
