@@ -16,7 +16,7 @@
 import tatsu
 import json
 
-from gbd_core.database import DatabaseException
+from gbd_core.database import Database, DatabaseException
 
 class ParserException(Exception):
     pass
@@ -40,9 +40,9 @@ class Parser:
 
         constraint 
             = 
-            | col:column cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
-            | col:column cop:("=" | "!=") str:string 
-            | col:column cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
+            | col:(column | dbname ":" column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
+            | col:(column | dbname ":" column) cop:("=" | "!=") str:string 
+            | col:(column | dbname ":" column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
 
         termstart 
@@ -59,12 +59,13 @@ class Parser:
 
         termend
             =
-            col:column
+            col:(column | dbname ":" column)
             ;
 
         number = /[-]?[0-9]+[.]?[0-9]*/ ;
         string = /[a-zA-Z0-9_\.\-\/\,\:]+/ ;
         column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
+        dbname = /[a-zA-Z][a-zA-Z0-9_]*/ ;
     '''
 
 
@@ -102,7 +103,7 @@ class Parser:
             raise ParserException("Failed to parse query: {}".format(str(e)))
 
 
-    def get_sql(self, db, ast=None):
+    def get_sql(self, db: Database, ast=None):
         try:
             ast = ast if ast else self.ast
             if "q" in ast:
@@ -116,7 +117,7 @@ class Parser:
                 return "{} {} {}".format(left, operator, right)
             elif "cop" in ast:
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
-                feat = db.faddr_column(ast["col"])
+                feat = db.faddr(ast["col"])
                 if "str" in ast:
                     return "{} {} '{}'".format(feat, operator, ast["str"])
                 elif "lik" in ast:
@@ -125,7 +126,7 @@ class Parser:
                     return "{} {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")
             elif "col" in ast:
-                feature = db.faddr_column(ast["col"])
+                feature = db.faddr(ast["col"])
                 return "CAST({} AS FLOAT)".format(feature)
             elif "constant" in ast:
                 return ast["constant"]

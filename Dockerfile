@@ -14,7 +14,7 @@ RUN apt-get update -y \
   && sed -i 's/.*invoke-rc\.d\ nginx.*$/\t\tnginx -s reload/' /etc/logrotate.d/nginx \
   && sed -i 's/.*create.*$/\tcreate 0644 root root/' /etc/logrotate.d/nginx \
   && cp configs/aliases /etc/aliases 
-RUN pip install setuptools flask flask_limiter tatsu waitress pandas numpy
+RUN pip install setuptools flask tatsu waitress pandas
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 EXPOSE 80
 WORKDIR .

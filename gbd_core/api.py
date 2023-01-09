@@ -16,7 +16,6 @@
 
 import sqlite3
 import tatsu
-import os
 import pandas as pd
 
 from contextlib import ExitStack
