@@ -1,0 +1,36 @@
+services:    
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+    - ./certbot/www/:/var/www/certbot/:rw
+    - ./certbot/conf/:/etc/letsencrypt/:rw
+
+  reverseproxy:
+    depends_on:
+    - certbot
+    image: mynginx
+    environment:
+    - VIRTUAL_HOST=localhost
+    - AWSTATS_USER=statsuser
+    - AWSTATS_PASS=stats1234
+    ports:
+    - 80:80
+    - 443:443
+    restart: always
+    volumes:
+    - ./certbot/www:/var/www/certbot/:ro
+    - ./certbot/conf/:/etc/nginx/ssl/:ro
+
+  gbd:
+    depends_on:
+    - reverseproxy
+    image: mygbd
+    #environment:
+    #- GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db
+    cpu_count: 4
+    mem_limit: 6g
+    ports:
+    - 44071:44071
+    volumes:
+    - /home/iser/gbd/databases:/raid/gbd:ro
+    restart: always
