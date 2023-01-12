@@ -1,3 +1,4 @@
+version: '3'
 services:    
   certbot:
     image: certbot/certbot:latest
@@ -10,7 +11,7 @@ services:
     - certbot
     image: udopia/nginx
     environment:
-    - VIRTUAL_HOST=localhost
+    - VIRTUAL_HOST=benchmark-database.de
     - AWSTATS_USER=statsuser
     - AWSTATS_PASS=stats1234
     ports:
@@ -25,10 +26,13 @@ services:
     depends_on:
     - reverseproxy
     image: udopia/gbd
-    #environment:
-    #- GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db
-    cpu_count: 4
-    mem_limit: 6g
+    environment:
+    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 4gb
     ports:
     - 44071:44071
     volumes:
