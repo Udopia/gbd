@@ -21,12 +21,20 @@ jobs:
 #        - name: Get the version
 #          id: vars
 #          run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
-        - name: Build the tagged Docker image
-          run: docker build . --file Dockerfile --tag udopia/gbd:${{ github.sha }}
-        - name: Push the tagged Docker image
+        - name: Build the tagged Docker GBD image
+          run: docker build ./docker --file Dockerfile.gbd --tag udopia/gbd:${{ github.sha }}
+        - name: Push the tagged Docker GBD image
           run: docker push udopia/gbd:${{ github.sha }}
-        - name: Build the latest Docker image
-          run: docker build . --file Dockerfile --tag udopia/gbd:latest
-        - name: Push the latest Docker image
+        - name: Build the latest Docker GBD image
+          run: docker build ./docker --file Dockerfile.gbd --tag udopia/gbd:latest
+        - name: Push the latest Docker GBD image
           run: docker push udopia/gbd:latest
+        - name: Build the tagged Docker NGINX image
+          run: docker build ./docker --file Dockerfile.nginx --tag udopia/nginx:${{ github.sha }}
+        - name: Push the tagged Docker NGINX image
+          run: docker push udopia/nginx:${{ github.sha }}
+        - name: Build the latest Docker NGINX image
+          run: docker build ./docker --file Dockerfile.nginx --tag udopia/nginx:latest
+        - name: Push the latest Docker NGINX image
+          run: docker push udopia/nginx:latest
 

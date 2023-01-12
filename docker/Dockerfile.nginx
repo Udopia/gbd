@@ -1,0 +1,18 @@
+FROM nginx:alpine
+
+ENV VIRTUAL_HOST=localhost
+ENV AWSTATS_USER=statsuser
+ENV AWSTATS_PASS=stats1234
+
+RUN apk add --no-cache bash awstats apache2-utils
+
+WORKDIR /awstats
+RUN mkdir -p /awstats/www
+
+COPY configs/nginx.https.conf /etc/nginx/nginx.conf
+COPY entrypoint.nginx.sh /entrypoint.nginx.sh
+COPY configs/awstats.conf /etc/awstats/awstats.conf
+
+EXPOSE 80
+
+CMD [ "/entrypoint.nginx.sh" ]
