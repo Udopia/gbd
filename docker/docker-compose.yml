@@ -1,15 +1,8 @@
 version: '3'
-services:    
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-    - ./certbot/www/:/var/www/certbot/:rw
-    - ./certbot/conf/:/etc/letsencrypt/:rw
-
-  reverseproxy:
-    depends_on:
-    - certbot
+services:
+  nginx:
     image: udopia/nginx
+    #image: mynginx
     environment:
     - VIRTUAL_HOST=benchmark-database.de
     - AWSTATS_USER=statsuser
@@ -19,22 +12,18 @@ services:
     - 443:443
     restart: always
     volumes:
-    - ./certbot/www:/var/www/certbot/:ro
-    - ./certbot/conf/:/etc/nginx/ssl/:ro
+    - /home/iser/nginx/ssl:/etc/nginx/ssl
+    - /home/iser/nginx/ssl/bot:/etc/nginx/ssl/bot
 
   gbd:
     depends_on:
-    - reverseproxy
+    - nginx
     image: udopia/gbd
-    environment:
-    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/gate.db
-    deploy:
-      resources:
-        limits:
-          cpus: "4"
-          memory: 4gb
+    #image: mygbd
+    #environment:
+    #- GBD_DB=/gbd/meta.db:/gbd/base.db:/gbd/gate.db
     ports:
     - 44071:44071
     volumes:
-    - /home/iser/gbd/databases:/raid/gbd:ro
+    - /home/iser/gbd:/raid/gbd:ro
     restart: always
