@@ -33,9 +33,11 @@ GBD Benchmark Database (GBD) is about bridging the gap between research on SAT a
 - test server with command ```gbd-server```
 
 ## GBD Python Interface
-> ```from gbd_core.api import GBD```
-> ```with GBD(['path/to/database1', 'path/to/database2', ..] as gbd:```
-> ```    df = gbd.query("family = hardware-bmc", resolve=['verified-result', 'runtime-kissat'])```
+```
+from gbd_core.api import GBD
+with GBD(['path/to/database1', 'path/to/database2', ..] as gbd:
+    df = gbd.query("family = hardware-bmc", resolve=['verified-result', 'runtime-kissat'])
+```
 
 
 ## GBD Server
@@ -70,6 +72,7 @@ See ```gbd init --help``` for more info.
 
 To initialize a database with local paths to your own benchmarks:
 > ```gbd -d my.db init local [path/to/benchmarks]```
+
 After that in my.db, the features local and filename exist and are associated with their corresponding gbd-hash:
 > ```gbd -d my.db get -r local filename```
 
@@ -77,10 +80,13 @@ After that in my.db, the features local and filename exist and are associated wi
 
 To identify isomorphic instances (approximately by the hash of the sorted degree-sequence of their graph representation):
 > ```gbd -d my.db init isohash```
+
 After that in my.db, instances can be grouped by their isohash:
 > ```gbd -d my.db get -r local filename -g isohash```
 
 #### gbd init base, gbd init gate
 
 > ```gbd -d my.db:base.db init --target_db base_db base```
+
+
 > ```gbd -d my.db:gate.db init --target_db gate_db gate```

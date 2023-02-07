@@ -42,7 +42,7 @@ class SchemaTestCase(unittest.TestCase):
     def test_query_arithmetic_constraints(self):
         parser = Parser("a = (1 + 2)")
         self.assertEqual(parser.get_features(), set(["a"]))
-        parser = Parser("a = 1 - 2")
+        parser = Parser("a = (1 - 2)")
         self.assertEqual(parser.get_features(), set(["a"]))
         parser = Parser("a = (1 + 2) / b")
         self.assertEqual(parser.get_features(), set(["a", "b"]))
