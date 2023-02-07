@@ -40,8 +40,8 @@ class Parser:
 
         constraint 
             = 
-            | col:(column | dbname ":" column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
             | col:(column | dbname ":" column) cop:("=" | "!=") str:string 
+            | col:(column | dbname ":" column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
             | col:(column | dbname ":" column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
 
@@ -85,6 +85,9 @@ class Parser:
 
 
     def get_features(self, ast=None):
+        import pprint
+        pp = pprint.PrettyPrinter(depth=6)
+        pp.pprint(ast)
         try:
             ast = ast if ast else self.ast
             if "q" in ast:
