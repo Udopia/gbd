@@ -23,21 +23,7 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
-# IntelliJ Files
-.idea/
-*.iml
-
-FETCH_HEAD
-
-main/build/*
-
-*/dist/*
-
-*/global_benchmark_database_tool.egg-info/*
-
+# individual files and folders
 gbd_server/gbd-server-log*
 cli_config/*
 server/server_config/*
@@ -46,3 +32,6 @@ server/cache/*
 .vscode/
 gbd-server-logs/*
 .eggs/*
+build/
+dist/
+*.egg-info/

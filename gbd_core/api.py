@@ -79,6 +79,8 @@ class GBD:
         """
         if not self.feature_exists(name, target_db):
             raise GBDException("Feature '{}' does not exist".format(name))
+        if not len(hashes):
+            raise GBDException("No hashes given")
         self.database.set_values(name, value, hashes, target_db)
 
 
