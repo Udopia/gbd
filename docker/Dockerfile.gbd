@@ -13,9 +13,9 @@ RUN pip install gbd-tools
 
 WORKDIR /gbd
 
-RUN wget --content-disposition http://gbd.iti.kit.edu/getdatabase/meta_db
-RUN wget --content-disposition http://gbd.iti.kit.edu/getdatabase/base_db
-RUN wget --content-disposition http://gbd.iti.kit.edu/getdatabase/gate_db
+RUN wget https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/meta.db
+RUN wget https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/base.db
+RUN wget https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/gate.db
 
 EXPOSE 44071
 

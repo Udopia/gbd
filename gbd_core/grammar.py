@@ -85,9 +85,9 @@ class Parser:
 
 
     def get_features(self, ast=None):
-        import pprint
-        pp = pprint.PrettyPrinter(depth=6)
-        pp.pprint(ast)
+        #import pprint
+        #pp = pprint.PrettyPrinter(depth=6)
+        #pp.pprint(ast)
         try:
             ast = ast if ast else self.ast
             if "q" in ast:
@@ -124,7 +124,7 @@ class Parser:
                 if "str" in ast:
                     return "{} {} '{}'".format(feat, operator, ast["str"])
                 elif "lik" in ast:
-                    return "{} {} {}".format(feat, operator, "".join(ast["lik"]))
+                    return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
                 elif "ter" in ast:
                     return "{} {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")

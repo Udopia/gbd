@@ -83,7 +83,8 @@ def cli_get(api: GBD, args):
 
 def cli_set(api: GBD, args):
     hashes = api.query(args.query, args.hashes)['hash'].tolist()
-    api.set_values(args.assign[0], args.assign[1], hashes)
+    if len(hashes) > 0:
+        api.set_values(args.assign[0], args.assign[1], hashes)
 
 
 def cli_info(api: GBD, args):

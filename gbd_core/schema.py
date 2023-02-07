@@ -253,7 +253,8 @@ class Schema:
     def set_values(self, feature, value, hashes):
         if not self.has_feature(feature):
             raise SchemaException("Feature {} does not exist".format(feature))
-
+        if not len(hashes):
+            raise SchemaException("No hashes given")
         table = self.features[feature].table
         column = self.features[feature].column
         values = ', '.join(["('{}', '{}')".format(hash, value) for hash in hashes])
