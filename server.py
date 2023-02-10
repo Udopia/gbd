@@ -224,7 +224,7 @@ def main():
     console_handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
     # Add handler to write in rotating logging files
-    file_handler = TimedRotatingFileHandler(args.logdir, when="midnight", backupCount=10)
+    file_handler = TimedRotatingFileHandler(args.logdir + "/trfile.log", when="midnight", backupCount=10)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
@@ -239,6 +239,11 @@ def main():
     app.config['context'] = args.context
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
+
+    def is_link_field(field):
+        return field.startswith("http")
+
+    app.jinja_env.tests['link_field'] = is_link_field
 
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:

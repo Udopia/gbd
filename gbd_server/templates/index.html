@@ -53,7 +53,13 @@
             {% for row in result %}
             <tr>
                 {% for item in row %}
-                <td>{{ item }}</td>
+                    {% if loop.index == 1 %}
+                        <td><a href="{{ url_for('get_file', hashvalue=item) }}">{{ item }}</a></td>
+                    {% elif item is link_field %}
+                        <td><a href="{{ item }}">{{ item }}</a></td>
+                    {% else %}
+                        <td>{{ item }}</td>
+                    {% endif %}
                 {% endfor %}
             </tr>
             {% endfor %}
