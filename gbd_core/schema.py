@@ -98,7 +98,8 @@ class Schema:
                 vtable_name = Schema.dbname_from_path(path)
                 cols = [ re.sub('[^0-9a-zA-Z]+', '_', n) for n in csvreader.fieldnames ]
                 for colname in cols:
-                    cls.valid_feature_or_raise(colname)
+                    # TODO: implement more permissive check if column name is valid
+                    # cls.valid_feature_or_raise(colname) 
                     features[colname] = FeatureInfo(colname, dbname, vtable_name, colname, None)
                 con.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(vtable_name, ", ".join(cols)))
                 for row in csvreader:
