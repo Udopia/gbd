@@ -39,6 +39,10 @@ header > form {
   margin: 1em;
 }
 
+header > .help {
+  padding: 1em;
+}
+
 fieldset {
   border: 2px solid var(--border-color);
 }
