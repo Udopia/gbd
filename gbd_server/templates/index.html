@@ -30,13 +30,15 @@
                 <legend>Filter for specific instances</legend>
                 <input type="text" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
                 <button type="submit" class="submit" formaction="/" name="action" value="show" title="Query for instances and selected features">Show</button>
-                <button type="submit" class="submit" formaction="/getinstances" name="action" value="download" title="Download $file. Download instances with 'wget --content-disposition -i $file'">Download</button>
+                <button type="submit" class="submit" formaction="/getinstances" name="action" value="download" title="Download $file">Download</button>
                 <br />
                 Query Shortcuts: <a href="{{ url_for('quick_search', track='main_2022') }}">Main 2022</a>, <a href="{{ url_for('quick_search', track='anni_2022') }}">Anniversary 2022</a>
             </fieldset>
             <br />
             <div class="info">
-                Found {{ total }} Benchmark Instances.
+                Found {{ total }} Benchmark Instances. 
+                Click on "Download" to get a text file with the selected instances URLs. 
+                Use this file to fetch the instances, e.g., using <b>wget --content-disposition -i $file</b>.
             </div>
         </form>
     </header>
