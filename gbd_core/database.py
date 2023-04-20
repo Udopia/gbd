@@ -41,6 +41,8 @@ class Database:
         for schema in self.schemas.values():
             if not schema.is_in_memory():
                 self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname))
+            else:
+                self.execute("ATTACH DATABASE 'file:{}?mode=memory&cache=shared' AS {}".format(schema.dbname, schema.dbname))
             # first database is the default database:
             if not self.maindb:
                 self.maindb = schema.dbname

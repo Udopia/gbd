@@ -40,15 +40,13 @@ class FeatureInfo:
 
 class Schema:
 
-    # in-memory database name for CSV files is always "main"
-    IN_MEMORY_DB_NAME = "main"
-
-    def __init__(self, dbcon, dbname, path, features, context):
+    def __init__(self, dbcon, dbname, path, features, context, csv=False):
         self.dbname = dbname
         self.path = path
         self.features = features
         self.context = context
         self.dbcon = dbcon
+        self.csv = csv
 
     @classmethod
     def is_database(cls, path):
@@ -82,11 +80,11 @@ class Schema:
 
     @classmethod
     def from_csv(cls, path):
-        dbname = cls.IN_MEMORY_DB_NAME
-        con = sqlite3.connect("file::memory:?cache=shared", uri=True)
+        dbname = cls.dbname_from_path(path)
+        con = sqlite3.connect("file:{}?mode=memory&cache=shared".format(dbname), uri=True)
         features = cls.features_from_csv(dbname, path, con)
         context = cls.context_from_csv(dbname)
-        return cls(con, dbname, path, features, context)
+        return cls(con, dbname, path, features, context, True)
 
     # Import CSV to in-memory db, create according schema info
     @classmethod
@@ -95,15 +93,12 @@ class Schema:
         with open(path) as csvfile:
             csvreader = csv.DictReader(csvfile)
             if "hash" in csvreader.fieldnames:
-                vtable_name = Schema.dbname_from_path(path)
                 cols = [ re.sub('[^0-9a-zA-Z]+', '_', n) for n in csvreader.fieldnames ]
                 for colname in cols:
-                    # TODO: implement more permissive check if column name is valid
-                    # cls.valid_feature_or_raise(colname) 
-                    features[colname] = FeatureInfo(colname, dbname, vtable_name, colname, None)
-                con.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(vtable_name, ", ".join(cols)))
+                    features[colname] = FeatureInfo(colname, dbname, "features", colname, None)
+                con.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format("features", ", ".join(cols)))
                 for row in csvreader:
-                    con.execute("INSERT INTO {} VALUES ('{}')".format(vtable_name, "', '".join(row.values())))
+                    con.execute("INSERT INTO {} VALUES ('{}')".format("features", "', '".join(row.values())))
                 con.commit()
             else:
                 raise SchemaException("Column 'hash' not found in {}".format(csvfile))
@@ -171,7 +166,7 @@ class Schema:
             raise SchemaException("Feature name '{}' is reserved by sqlite.".format(name))
 
     def is_in_memory(self):
-        return self.dbname == self.IN_MEMORY_DB_NAME
+        return self.csv
 
     def get_connection(self):
         if self.is_in_memory():
