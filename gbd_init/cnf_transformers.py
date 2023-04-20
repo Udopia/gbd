@@ -21,7 +21,7 @@ from gbd_core import contexts
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
 
-from gbd_init.gbdhash import gbd_hash
+from gbd_init.gbdhash import identify
 from gbd_init.initializer import Initializer
 
 import gbdc
@@ -75,7 +75,7 @@ def sanitize_cnf(hash, path, limits):
     try:
         with open(sanname, 'w') as f, util.stdout_redirected(f):
             if gbdc.sanitize(path): 
-                sanhash = gbd_hash(sanname)
+                sanhash = identify(sanname)
                 return [ ('local', sanhash, sanname), ('to_cnf', sanhash, hash) ]
             else:
                 raise GBDException("Sanitization failed for {}".format(path))

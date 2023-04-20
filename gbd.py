@@ -26,8 +26,8 @@ from gbd_core.util_argparse import *
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    from gbd_init.gbdhash import gbd_hash
-    print(gbd_hash(args.path))
+    from gbd_init.gbdhash import identify
+    print(identify(args.path))
 
 
 def cli_init_local(api: GBD, args):

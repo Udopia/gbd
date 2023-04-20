@@ -40,13 +40,15 @@ class FeatureInfo:
 
 class Schema:
 
-    IN_MEMORY_DB_NAME = "in_memory"
+    # in-memory database name for CSV files is always "main"
+    IN_MEMORY_DB_NAME = "main"
 
-    def __init__(self, dbname, path, features, context):
+    def __init__(self, dbcon, dbname, path, features, context):
         self.dbname = dbname
         self.path = path
         self.features = features
         self.context = context
+        self.dbcon = dbcon
 
     @classmethod
     def is_database(cls, path):
@@ -75,18 +77,16 @@ class Schema:
         dbname = cls.dbname_from_path(path)
         con = sqlite3.connect(path)
         features = cls.features_from_database(dbname, path, con)
-        con.close()
         context = cls.context_from_database(dbname)
-        return cls(dbname, path, features, context)
+        return cls(con, dbname, path, features, context)
 
     @classmethod
     def from_csv(cls, path):
         dbname = cls.IN_MEMORY_DB_NAME
         con = sqlite3.connect("file::memory:?cache=shared", uri=True)
         features = cls.features_from_csv(dbname, path, con)
-        con.close()
         context = cls.context_from_csv(dbname)
-        return cls(dbname, path, features, context)
+        return cls(con, dbname, path, features, context)
 
     # Import CSV to in-memory db, create according schema info
     @classmethod

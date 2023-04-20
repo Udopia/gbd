@@ -2,7 +2,7 @@ import unittest
 import random
 import os
 
-from gbd_init.gbdhash import gbd_hash
+from gbd_init.gbdhash import identify
 from tests import util
 
 
@@ -13,7 +13,7 @@ class TestGBDHash(unittest.TestCase):
         self.ref_file = "reference.cnf"
         with open(self.ref_file, 'w') as ref:
             ref.write(self.reference)
-        self.reference_hash = gbd_hash(self.ref_file)
+        self.reference_hash = identify(self.ref_file)
 
     def tearDown(self):
         if self.currentResult.wasSuccessful():
@@ -60,7 +60,7 @@ class TestGBDHash(unittest.TestCase):
             var_file = "variant.cnf"
             with open(var_file, 'w') as f:
                 f.write(variant)
-            variant_hash = gbd_hash(var_file)
+            variant_hash = identify(var_file)
             if self.reference_hash == variant_hash:
                 os.remove(var_file)
 
