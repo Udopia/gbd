@@ -94,6 +94,10 @@ def cli_info(api: GBD, args):
                 print("\nDatabase: {}".format(api.get_database_path(dbname)))
                 feat = api.get_features(dbname)
                 print("Features: " + " ".join(feat))
+                if args.verbose:
+                    for f in feat:
+                        info = api.database.finfo(f, dbname)
+                        print(info)
     else:
         info = api.get_feature_info(args.name)
         for key in info:

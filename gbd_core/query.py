@@ -56,16 +56,18 @@ class GBDQuery:
         return "SELECT " + ", ".join(result)
 
 
-    def find_translator(self, source_context, target_context):
+    def find_translator_feature(self, source_context, target_context):
         for dbname in self.db.get_databases(source_context):
-            if "to_"+target_context in self.db.get_tables([ dbname ]):
-                return (source_context, dbname, "to_" + target_context)
+            print("Checking database {} for translator".format(dbname))
+            if "to_"+target_context in self.db.get_features([ dbname ]):
+                return self.db.finfo("to_"+target_context, dbname)
         
         for dbname in self.db.get_databases(target_context):
-            if "to_"+source_context in self.db.get_tables([ dbname ]):
-                return (target_context, dbname, "to_" + source_context)
+            print("Checking database {} for translator".format(dbname))
+            if "to_"+source_context in self.db.get_features([ dbname ]):
+                return self.db.finfo("to_"+source_context, dbname)
         
-        raise DatabaseException("No translator table found for contexts {} and {}".format(source_context, target_context))
+        raise DatabaseException("No translator feature found for contexts {} and {}".format(source_context, target_context))
 
 
     def build_from(self, group, features, join_type="LEFT"):
@@ -83,7 +85,7 @@ class GBDQuery:
             if not faddress in result: # join only once
                 fcontext = self.db.dcontext(fdatabase)
                 if fcontext == gcontext:
-                    if ftable == "features" or fdatabase == Schema.IN_MEMORY_DB_NAME: # join features table directly
+                    if ftable == "features": # join features table directly
                         result[faddress] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, faddress, gaddress, faddress)
                     else: # join non-unique features table via features table
                         address = fdatabase + ".features"
@@ -91,10 +93,10 @@ class GBDQuery:
                             result[address] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, address, gaddress, address)
                         result[faddress] = "{} JOIN {} ON {}.{} = {}.hash".format(join_type, faddress, address, ftable, faddress)
                 else:
-                    (tcontext, tdatabase, ttable) = self.find_translator(gcontext, fcontext)
-                    direction = ("hash", "value") if tcontext == gcontext else ("value", "hash")
+                    tfeat = self.find_translator_feature(gcontext, fcontext)
+                    direction = ("hash", tfeat.name) if self.db.dcontext(tfeat.database) == gcontext else (tfeat.name, "hash")
                     
-                    taddress = tdatabase + "." + ttable
+                    taddress = tfeat.database + "." + tfeat.table
                     if not taddress in result:                           
                         result[taddress] = "INNER JOIN {trans} ON {group}.hash = {trans}.{dir0}".format(trans=taddress, group=gaddress, dir0=direction[0])
                         

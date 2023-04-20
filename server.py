@@ -247,7 +247,7 @@ def main():
 
     try:
         with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
-            app.config['dbnames'] = [ db for db in gbd.get_databases() if db != Schema.IN_MEMORY_DB_NAME ]
+            app.config['dbnames'] = gbd.get_databases()
             app.config['features_flat'] = [ f for f in gbd.get_features() if not f in [ "hash", "local" ] ]
             app.config['dbpaths'] = dict()
             app.config['features'] = dict()
