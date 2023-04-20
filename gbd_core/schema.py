@@ -91,7 +91,10 @@ class Schema:
     def features_from_csv(cls, dbname, path, con) -> typing.Dict[str, FeatureInfo]:
         features = dict()
         with open(path) as csvfile:
-            csvreader = csv.DictReader(csvfile)
+            temp_lines = csvfile.readline() + '\n' + csvfile.readline()
+            dialect = csv.Sniffer().sniff(temp_lines, delimiters=";, \t")
+            csvfile.seek(0)
+            csvreader = csv.DictReader(csvfile, dialect=dialect)
             if "hash" in csvreader.fieldnames:
                 cols = [ re.sub('[^0-9a-zA-Z]+', '_', n) for n in csvreader.fieldnames ]
                 for colname in cols:
