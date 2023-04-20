@@ -34,7 +34,7 @@ class Initializer:
         if not context in source_contexts:
             raise GBDException("Context '{}' not supported by '{}'".format(context, self.__class__.__name__))
         if not api.database.dcontext(target_db) in target_contexts:
-            raise GBDException("Target database '{}' has incompatible context '{}'".format(target_db, api.database.dcontext(target_db)))
+            raise GBDException("Target database '{}' has incompatible context '{}'. Database context can be specified by filename prefix.".format(target_db, api.database.dcontext(target_db)))
 
 
     def create_features(self):

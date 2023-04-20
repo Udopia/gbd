@@ -21,7 +21,7 @@ from gbd_core.contexts import suffix_list
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer
-from gbd_init.gbdhash import gbd_hash
+from gbd_init.gbdhash import identify
 
 from gbdc import extract_base_features, extract_gate_features, isohash
 
@@ -29,13 +29,12 @@ from gbdc import extract_base_features, extract_gate_features, isohash
 ## GBDHash
 def compute_hash(hash, path, limits):
     eprint('Hashing {}'.format(path))
-    hash = gbd_hash(path)
+    hash = identify(path)
     return [ ("local", hash, path), ("filename", hash, os.path.basename(path)) ]
 
 def init_local(api: GBD, context, rlimits, root, target_db):
-    contexts = [ 'cnf', 'sancnf' ]
     features = [ ("local", None), ("filename", None) ]
-    extractor = Initializer(contexts, contexts, api, context, rlimits, target_db, features, compute_hash)
+    extractor = Initializer([ context ], [ context ], api, context, rlimits, target_db, features, compute_hash)
     extractor.create_features()
 
     df = api.query(group_by="local")

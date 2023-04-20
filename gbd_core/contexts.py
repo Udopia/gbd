@@ -20,15 +20,28 @@ context_data = {
     "cnf" : {
         "id" : 100,
         "suffixes" : [ ".cnf" + p for p in packed ],
+        "description" : "Conjunctive Normal Form (CNF) in DIMACS format",
     },
     "sancnf" : {
         "id" : 101,
         "suffixes" : [ ".sanitized.cnf" + p for p in packed ],
+        "description" : "Sanitized Conjunctive Normal Form (CNF) in DIMACS format",
     },
     "kis" : {
         "id" : 200,
         "suffixes" : [ ".kis" + p for p in packed ],
-    }
+        "description" : "k-Independent Set (KIS) in DIMACS-like graph format",
+    },
+    "opb" : {
+        "id" : 300,
+        "suffixes" : [ ".opb" + p for p in packed ],
+        "description" : "Pseudo-Boolean Optimization Problem in OPB format",
+    },
+    "wecnf" : {
+        "id" : 400,
+        "suffixes" : [ ".wecnf" + p for p in packed ],
+        "description" : "Weighted Extended Conjunctive Normal Form (WECNF)",
+    },
 }
 
 def suffix_list(context):
@@ -36,3 +49,10 @@ def suffix_list(context):
 
 def contexts():
     return context_data.keys()
+
+def get_context_by_suffix(filename):
+    for context in contexts():
+        for suffix in suffix_list(context):
+            if filename.endswith(suffix):
+                return context
+    return None
