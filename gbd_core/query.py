@@ -17,6 +17,7 @@
 from gbd_core.database import Database, DatabaseException
 from gbd_core.grammar import Parser
 from gbd_core import contexts
+from gbd_core.schema import Schema
 
 class GBDQuery:
 
@@ -79,12 +80,12 @@ class GBDQuery:
         tables = set([ (finfo.database, finfo.table) for finfo in [ self.db.finfo(f) for f in features ] ])
         for (fdatabase, ftable) in tables:
             faddress = fdatabase + "." + ftable
-            if not faddress in result:
+            if not faddress in result: # join only once
                 fcontext = self.db.dcontext(fdatabase)
                 if fcontext == gcontext:
-                    if ftable == "features":
+                    if ftable == "features" or fdatabase == Schema.IN_MEMORY_DB_NAME: # join features table directly
                         result[faddress] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, faddress, gaddress, faddress)
-                    else:
+                    else: # join non-unique features table via features table
                         address = fdatabase + ".features"
                         if not address in result:
                             result[address] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, address, gaddress, address)
