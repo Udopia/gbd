@@ -198,6 +198,8 @@ def main():
                 args.hashes = util.read_hashes()  # read hashes from stdin
         if hasattr(args, 'target_db') and args.target_db is None:
             args.target_db = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
+        if not args.db:
+            raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Get databases: http://gbd.iti.kit.edu/)")
         with GBD(args.db.split(os.pathsep), args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
