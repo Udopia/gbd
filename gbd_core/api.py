@@ -24,6 +24,7 @@ import traceback
 from gbd_core.query import GBDQuery
 from gbd_core.database import Database
 from gbd_core import util
+from gbd_init.gbdhash import identify
 
 
 class GBDException(Exception):
@@ -45,6 +46,19 @@ class GBD:
 
     def __exit__(self, exc_type, exc, traceback):
         self._stack.__exit__(exc_type, exc, traceback)
+
+
+    @classmethod
+    def identify(cls, path):
+        """ Identify the given benchmark by its GBD hash 
+
+            Args:
+                path (str): path to benchmark
+
+            Returns:
+                str: GBD hash
+        """
+        return identify(path)
 
 
     def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT", subselect=False):
