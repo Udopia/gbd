@@ -58,12 +58,12 @@ class GBDQuery:
 
     def find_translator_feature(self, source_context, target_context):
         for dbname in self.db.get_databases(source_context):
-            print("Checking database {} for translator".format(dbname))
+            #eprint("Checking database {} for translator".format(dbname))
             if "to_"+target_context in self.db.get_features([ dbname ]):
                 return self.db.finfo("to_"+target_context, dbname)
         
         for dbname in self.db.get_databases(target_context):
-            print("Checking database {} for translator".format(dbname))
+            #eprint("Checking database {} for translator".format(dbname))
             if "to_"+source_context in self.db.get_features([ dbname ]):
                 return self.db.finfo("to_"+source_context, dbname)
         
