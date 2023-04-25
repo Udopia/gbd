@@ -144,7 +144,7 @@ class Schema:
 
     @classmethod
     def dbname_from_path(cls, path):
-        filename = os.path.basename(path)
+        filename = "_" + os.path.basename(path)
         return re.sub("[^a-zA-Z0-9]", "_", filename)
 
     @classmethod
