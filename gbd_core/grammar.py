@@ -126,7 +126,7 @@ class Parser:
                 elif "lik" in ast:
                     return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
                 elif "ter" in ast:
-                    return "{} {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
+                    return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")
             elif "col" in ast:
                 feature = db.faddr(ast["col"])
