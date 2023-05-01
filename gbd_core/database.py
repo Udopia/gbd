@@ -254,3 +254,11 @@ class Database:
             self.execute("UPDATE {d}.features SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, col=fname, h="', '".join(setnone)))
         else:
             self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
+
+
+    def copy_feature(self, old_name, new_name, target_db):
+        old_finfo = self.finfo(old_name)
+        data = self.query("SELECT hash, {col} FROM {d}.{tab}".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table))
+        for (hash, value) in data:
+            self.set_values(new_name, value, [hash], target_db)
+

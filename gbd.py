@@ -75,6 +75,9 @@ def cli_delete(api: GBD, args):
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
+def cli_copy(api: GBD, args):
+    api.copy_feature(args.old_name, args.new_name, args.target_db)
+
 
 def cli_get(api: GBD, args):
     df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type, args.subselect)
@@ -83,6 +86,8 @@ def cli_get(api: GBD, args):
 
 def cli_set(api: GBD, args):
     hashes = api.query(args.query, args.hashes)['hash'].tolist()
+    if args.create:
+        hashes = list(set(hashes + args.hashes))
     if len(hashes) > 0:
         api.set_values(args.assign[0], args.assign[1], hashes)
 
@@ -163,6 +168,7 @@ def main():
     # GBD SET
     parser_set = subparsers.add_parser('set', help='Set specified attribute-value for query result')
     parser_set.add_argument('assign', type=key_value_type, help='key=value')
+    parser_set.add_argument('-c', '--create', help='Create given hashes if they do not exist yet (otherwise intersect with existing hashes)', action='store_true')
     add_query_and_hashes_arguments(parser_set)
     parser_set.set_defaults(func=cli_set)
 
@@ -184,6 +190,12 @@ def main():
     parser_rename.add_argument('old_name', type=column_type, help='Old name of feature')
     parser_rename.add_argument('new_name', type=column_type, help='New name of feature')
     parser_rename.set_defaults(func=cli_rename)
+
+    parser_copy = subparsers.add_parser('copy', help='Copy feature')
+    parser_copy.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_copy.add_argument('old_name', type=column_type, help='Old name of feature')
+    parser_copy.add_argument('new_name', type=column_type, help='New name of feature')
+    parser_copy.set_defaults(func=cli_copy)
 
     # GET META INFO
     parser_info = subparsers.add_parser('info', help='Print info about available features')

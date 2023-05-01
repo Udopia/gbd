@@ -239,3 +239,24 @@ class GBD:
             raise GBDException("Feature '{}' does already exist".format(new_name))
         else:
             self.database.rename_feature(old_name, new_name, target_db)
+
+
+    def copy_feature(self, old_name, new_name, target_db=None):
+        """ Copies feature with given name
+
+            Args:
+                old_name (str): old feature name
+                new_name (str): new feature name
+                target_db (str): name of database to copy feature to
+                    if None, default database (fist in list) is used
+
+            Returns: None
+        """
+        if not self.feature_exists(old_name):
+            raise GBDException("Feature '{}' does not exist".format(old_name))
+        
+        if not self.feature_exists(new_name, target_db):
+            self.create_feature(new_name, target_db=target_db)
+
+        self.database.copy_feature(old_name, new_name, target_db)
+
