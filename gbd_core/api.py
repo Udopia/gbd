@@ -24,7 +24,6 @@ import traceback
 from gbd_core.query import GBDQuery
 from gbd_core.database import Database
 from gbd_core import util
-from gbd_init.gbdhash import identify
 
 
 class GBDException(Exception):
@@ -58,6 +57,7 @@ class GBD:
             Returns:
                 str: GBD hash
         """
+        from gbd_init.gbdhash import identify
         return identify(path)
 
 

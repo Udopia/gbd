@@ -21,6 +21,7 @@ def get_gbd_argparser():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
 
     parser.add_argument('-d', "--db", type=gbd_db_type, default=os.environ.get('GBD_DB'), help='Specify database to work with')
+    #parser.add_argument('-d', "--db", type=gbd_db_type, default=os.environ.get('GBD_DB'), help='Specify database to work with', nargs='*')
     parser.add_argument('-v', '--verbose', action='store_true', help='Print additional (or diagnostic) information to stderr')
 
     return parser
@@ -70,7 +71,7 @@ def gbd_db_type(dbstr):
         default=os.environ.get('GBD_DB')
         if not default:
             raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Get databases: http://gbd.iti.kit.edu/)")
-        return default
+        return default #.split(':')
     return dbstr
 
 
