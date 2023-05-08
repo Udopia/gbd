@@ -241,7 +241,7 @@ class GBD:
             self.database.rename_feature(old_name, new_name, target_db)
 
 
-    def copy_feature(self, old_name, new_name, target_db=None):
+    def copy_feature(self, old_name, new_name, target_db=None, gbd_query=None, hashes=[]):
         """ Copies feature with given name
 
             Args:
@@ -258,5 +258,7 @@ class GBD:
         if not self.feature_exists(new_name, target_db):
             self.create_feature(new_name, target_db=target_db)
 
-        self.database.copy_feature(old_name, new_name, target_db)
+        hashes = list(self.query(gbd_query=gbd_query, hashes=hashes)["hash"])
+
+        self.database.copy_feature(old_name, new_name, target_db, hashes)
 

@@ -76,7 +76,7 @@ def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
 def cli_copy(api: GBD, args):
-    api.copy_feature(args.old_name, args.new_name, args.target_db)
+    api.copy_feature(args.old_name, args.new_name, args.target_db, args.query, args.hashes)
 
 
 def cli_get(api: GBD, args):
@@ -193,6 +193,7 @@ def main():
     parser_rename.set_defaults(func=cli_rename)
 
     parser_copy = subparsers.add_parser('copy', help='Copy feature')
+    add_query_and_hashes_arguments(parser_copy)
     parser_copy.add_argument('--target_db', help='Target database (default: first in list)', default=None)
     parser_copy.add_argument('old_name', type=column_type, help='Old name of feature')
     parser_copy.add_argument('new_name', type=column_type, help='New name of feature')
