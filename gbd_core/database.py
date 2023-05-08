@@ -256,9 +256,9 @@ class Database:
             self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
 
 
-    def copy_feature(self, old_name, new_name, target_db):
+    def copy_feature(self, old_name, new_name, target_db, hashlist=[]):
         old_finfo = self.finfo(old_name)
-        data = self.query("SELECT hash, {col} FROM {d}.{tab}".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table))
+        data = self.query("SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)))
         for (hash, value) in data:
             self.set_values(new_name, value, [hash], target_db)
 
