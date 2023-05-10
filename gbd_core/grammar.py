@@ -122,22 +122,26 @@ class Parser:
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
                 feat = db.faddr(ast["col"])
                 feat_is_1_n = db.finfo(ast["col"]).default is None
-                if "str" in ast:
-                    if feat_is_1_n and ast["cop"] == "!=":
+                if "str" in ast: # cop:("=" | "!=")
+                    if feat_is_1_n:
                         table = db.faddr_table(ast["col"])
-                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(t=table, f=feat, s=ast["str"])
+                        setop = "IN" if ast["cop"] == "=" else "NOT IN"
+                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(o=setop, t=table, f=feat, s=ast["str"])
                     else:
                         return "{} {} '{}'".format(feat, operator, ast["str"])
-                elif "lik" in ast:
-                    if feat_is_1_n and ast["cop"] == "unlike":
+                elif "lik" in ast: # cop:("like" | "unlike")
+                    if feat_is_1_n:
                         table = db.faddr_table(ast["col"])
-                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(t=table, f=feat, s="".join([ t for t in ast["lik"] if t ]))
+                        setop = "IN" if ast["cop"] == "like" else "NOT IN"
+                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(o=setop, t=table, f=feat, s="".join([ t for t in ast["lik"] if t ]))
                     else:
                         return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
-                elif "ter" in ast:
+                elif "ter" in ast: # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n and ast["cop"] == "!=":
                         table = db.faddr_table(ast["col"])
-                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) = {s})".format(t=table, f=feat, s=self.get_sql(db, ast["ter"]))
+                        setop = "NOT IN" if ast["cop"] == "!=" else "IN"
+                        cop = "=" if ast["cop"] == "!=" else ast["cop"]
+                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {c} {s})".format(o=setop, c=cop, t=table, f=feat, s=self.get_sql(db, ast["ter"]))
                     else:
                         return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")
