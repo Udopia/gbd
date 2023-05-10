@@ -52,7 +52,7 @@ class GBDQuery:
     def build_select(self, group_by, resolve, collapse=None):
         result = [ self.db.faddr(f) for f in [group_by] + resolve ]
         if collapse and collapse != "none":
-            result = [ "{}({})".format(collapse, r) for r in result ]
+            result = [ "{}(DISTINCT {})".format(collapse, r) for r in result ]
         return "SELECT DISTINCT " + ", ".join(result)
 
 
