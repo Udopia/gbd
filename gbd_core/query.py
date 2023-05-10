@@ -52,8 +52,8 @@ class GBDQuery:
     def build_select(self, group_by, resolve, collapse=None):
         result = [ self.db.faddr(f) for f in [group_by] + resolve ]
         if collapse and collapse != "none":
-            result = [ "{}(DISTINCT({}))".format(collapse, r) for r in result ]
-        return "SELECT " + ", ".join(result)
+            result = [ "{}({})".format(collapse, r) for r in result ]
+        return "SELECT DISTINCT " + ", ".join(result)
 
 
     def find_translator_feature(self, source_context, target_context):
