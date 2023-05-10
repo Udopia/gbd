@@ -41,6 +41,9 @@ def init_local(api: GBD, context, rlimits, root, target_db):
     
     dfilter = df["local"].apply(lambda x: not x or not os.path.isfile(x))
     missing = df[dfilter]
+    if len(missing) and api.verbose:
+        for path in missing["local"].tolist():
+            eprint(path)
     if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
         api.reset_values("local", values=missing["local"].tolist())
 

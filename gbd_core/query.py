@@ -34,14 +34,14 @@ class GBDQuery:
 
 
     # Generate SQL Query from given GBD Query 
-    def build_query(self, hashes=[], resolve=[], group_by="hash", join_type="LEFT", collapse=None, where_in_subselect=False):
+    def build_query(self, hashes=[], resolve=[], group_by="hash", join_type="LEFT", collapse=None):
         self.features_exist_or_throw(resolve + [group_by] + list(self.features))
 
         sql_select = self.build_select(group_by, resolve, collapse)
 
         sql_from = self.build_from(group_by, set(resolve) | self.features, join_type)
         
-        sql_where = self.build_where(hashes, group_by, where_in_subselect)
+        sql_where = self.build_where(hashes, group_by)
 
         sql_groupby = "GROUP BY {}".format(self.db.faddr(group_by)) if collapse else ""
         sql_orderby = "ORDER BY {}".format(self.db.faddr(group_by))
@@ -105,14 +105,10 @@ class GBDQuery:
         return " ".join(result.values())
 
 
-    def build_where(self, hashes, group_by, subselect=False):
-        result = "{} != 'None'".format(self.db.faddr(group_by))
-        if subselect:
-            fro = self.build_from(group_by, self.features)
-            whe = self.parser.get_sql(self.db)
-            result = result + " AND {}.hash in (SELECT {}.hash FROM {} WHERE {})".format(self.db.faddr_table(group_by), self.db.faddr_table(group_by), fro, whe)
-        else:
-            result = result + " AND " + self.parser.get_sql(self.db)
+    def build_where(self, hashes, group_by):
+        group_column = self.db.faddr(group_by)
+        group_table = self.db.faddr_table(group_by)
+        result = group_column + " != 'None' AND " + self.parser.get_sql(self.db)
         if len(hashes):
-            result = result + " AND {}.hash in ('{}')".format(self.db.faddr_table(group_by), "', '".join(hashes))
+            result = result + " AND {}.hash in ('{}')".format(group_table, "', '".join(hashes))
         return result

@@ -61,10 +61,10 @@ class GBD:
         return identify(path)
 
 
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT", subselect=False):
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT"):
         query_builder = GBDQuery(self.database, gbd_query)
         try:
-            sql = query_builder.build_query(hashes, resolve or [], group_by or "hash", join_type, collapse, subselect)
+            sql = query_builder.build_query(hashes, resolve or [], group_by or "hash", join_type, collapse)
         except tatsu.exceptions.FailedParse as err:
             if self.verbose:
                 util.eprint(traceback.format_exc())
