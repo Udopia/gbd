@@ -80,7 +80,7 @@ def cli_copy(api: GBD, args):
 
 
 def cli_get(api: GBD, args):
-    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type, args.subselect)
+    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type)
     for index, row in df.iterrows():
         print(" ".join([ item or "[None]" for item in row.to_list() ]))
 
@@ -162,7 +162,6 @@ def main():
                             choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'], 
                             help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
-    parser_get.add_argument('--subselect', help='Move where to subselect', action='store_true')
     parser_get.add_argument('--join-type', help='Join Type: treatment of missing values in queries', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
     parser_get.set_defaults(func=cli_get)
 

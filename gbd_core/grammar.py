@@ -113,20 +113,33 @@ class Parser:
                 return "(" + self.get_sql(db, ast["q"]) + ")"
             elif "t" in ast:
                 return "(" + self.get_sql(db, ast["t"]) + ")"
-            elif "qop" in ast or "top" in ast:
+            elif "qop" in ast or "top" in ast: # query operator or term operator
                 operator = ast["qop"] if ast["qop"] else ast["top"]
                 left = self.get_sql(db, ast["left"])
                 right = self.get_sql(db, ast["right"])
                 return "{} {} {}".format(left, operator, right)
-            elif "cop" in ast:
+            elif "cop" in ast: # constraint operator
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
                 feat = db.faddr(ast["col"])
+                feat_is_1_n = db.finfo(ast["col"]).default is None
                 if "str" in ast:
-                    return "{} {} '{}'".format(feat, operator, ast["str"])
+                    if feat_is_1_n and ast["cop"] == "!=":
+                        table = db.faddr_table(ast["col"])
+                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(t=table, f=feat, s=ast["str"])
+                    else:
+                        return "{} {} '{}'".format(feat, operator, ast["str"])
                 elif "lik" in ast:
-                    return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
+                    if feat_is_1_n and ast["cop"] == "unlike":
+                        table = db.faddr_table(ast["col"])
+                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(t=table, f=feat, s="".join([ t for t in ast["lik"] if t ]))
+                    else:
+                        return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
                 elif "ter" in ast:
-                    return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
+                    if feat_is_1_n and ast["cop"] == "!=":
+                        table = db.faddr_table(ast["col"])
+                        return "{t}.hash NOT IN (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) = {s})".format(t=table, f=feat, s=self.get_sql(db, ast["ter"]))
+                    else:
+                        return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")
             elif "col" in ast:
                 feature = db.faddr(ast["col"])
