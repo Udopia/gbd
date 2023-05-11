@@ -113,9 +113,16 @@ class GBD:
         """
         if not self.feature_exists(feature, target_db):
             raise GBDException("Feature '{}' does not exist".format(feature))
-        for values_slice in util.slice_iterator(values, 10):
+        if len(values) and len(hashes):
+            for values_slice in util.slice_iterator(values, 10):
+                for hashes_slice in util.slice_iterator(hashes, 10):
+                    self.database.delete(feature, values_slice, hashes_slice, target_db)
+        elif len(values):
+            for values_slice in util.slice_iterator(values, 10):
+                self.database.delete(feature, values_slice, [], target_db)
+        elif len(hashes):
             for hashes_slice in util.slice_iterator(hashes, 10):
-                self.database.delete(feature, values_slice, hashes_slice, target_db)
+                self.database.delete(feature, [], hashes_slice, target_db)
 
 
     def get_databases(self):
