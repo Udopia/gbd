@@ -256,6 +256,12 @@ class Database:
             self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
 
 
+    def delete_hashes_entirely(self, hashes, target_db=None):
+        tables = self.get_tables([ target_db ])
+        for table in tables:
+            self.execute("DELETE FROM {}.{} WHERE hash IN ('{h}')".format(target_db, table, h="', '".join(hashes)))
+
+
     def copy_feature(self, old_name, new_name, target_db, hashlist=[]):
         old_finfo = self.finfo(old_name)
         data = self.query("SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)))

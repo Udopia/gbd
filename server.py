@@ -85,7 +85,7 @@ def page_response(query, database, page=0):
         start = page * 1000
         end = start + 1000
         try:
-            df = gbd.query(query, resolve=app.config["features"][database], collapse="MIN")
+            df = gbd.query(query, resolve=app.config["features"][database], collapse="GROUP_CONCAT")
             #for col in df.columns:
             #    df[col] = df[col].apply(lambda x: round(float(x), 2) if util.is_number(x) and '.' in x else x)
         except (GBDException, DatabaseException, ParserException) as err:

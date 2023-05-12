@@ -125,6 +125,22 @@ class GBD:
                 self.database.delete(feature, [], hashes_slice, target_db)
 
 
+    def delete_hashes(self, hashes, target_db=None):
+        """ Delete all values for given hashes
+            
+            Args:
+                hashes (list): list of hashes (=benchmark ids) to be deleted
+                target_db (str, optional): name of target database
+                    if None, default database (first in list) is used
+
+            Raises:
+                GBDException, if feature does not exist
+        """
+        if not len(hashes):
+            raise GBDException("No hashes given")
+        self.database.delete_hashes_entirely(hashes, target_db)
+
+
     def get_databases(self):
         """ Get list of database names
 
