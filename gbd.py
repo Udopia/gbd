@@ -66,11 +66,16 @@ def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique, args.target_db)
 
 def cli_delete(api: GBD, args):
-    if args.hashes and len(args.hashes) > 0 or args.values and len(args.values):
+    if args.hashes and len(args.hashes) or args.values and len(args.values):
         if args.force or util.confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
             api.reset_values(args.name, args.values, args.hashes)
     elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.delete_feature(args.name)
+
+def cli_cleanup(api: GBD, args):
+    if args.hashes and len(args.hashes):
+        if args.force or util.confirm("Delete attributes of given hashes from all features?"):
+            api.delete_hashes(args.hashes, args.target_db)
 
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
@@ -185,6 +190,12 @@ def main():
     parser_delete.add_argument('name', type=column_type, help='Name of feature')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
+
+    parser_cleanup = subparsers.add_parser('cleanup', help='Delete given hashes from all features')
+    parser_cleanup.add_argument('--hashes', help='Hashes for which to delete values', nargs='*', default=[])
+    parser_cleanup.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
+    parser_cleanup.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_cleanup.set_defaults(func=cli_cleanup)
 
     parser_rename = subparsers.add_parser('rename', help='Rename feature')
     parser_rename.add_argument('old_name', type=column_type, help='Old name of feature')
