@@ -13,34 +13,41 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
+from gbd_init.gbdhash import cnf_hash, opb_hash
+
 
 packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
 # EDACC by Balint
 context_data = {
     "cnf" : {
         "id" : 100,
-        "suffixes" : [ ".cnf" + p for p in packed ],
         "description" : "Conjunctive Normal Form (CNF) in DIMACS format",
+        "suffixes" : [ ".cnf" + p for p in packed ],
+        "hash": cnf_hash,
     },
     "sancnf" : {
         "id" : 101,
-        "suffixes" : [ ".sanitized.cnf" + p for p in packed ],
         "description" : "Sanitized Conjunctive Normal Form (CNF) in DIMACS format",
+        "suffixes" : [ ".sanitized.cnf" + p for p in packed ],
+        "hash": cnf_hash,
     },
     "kis" : {
         "id" : 200,
-        "suffixes" : [ ".kis" + p for p in packed ],
         "description" : "k-Independent Set (KIS) in DIMACS-like graph format",
+        "suffixes" : [ ".kis" + p for p in packed ],
+        "hash": cnf_hash,
     },
     "opb" : {
         "id" : 300,
-        "suffixes" : [ ".opb" + p for p in packed ],
         "description" : "Pseudo-Boolean Optimization Problem in OPB format",
+        "suffixes" : [ ".opb" + p for p in packed ],
+        "hash": opb_hash,
     },
     "wecnf" : {
         "id" : 400,
-        "suffixes" : [ ".wecnf" + p for p in packed ],
         "description" : "Weighted Extended Conjunctive Normal Form (WECNF)",
+        "suffixes" : [ ".wecnf" + p for p in packed ],
+        "hash": cnf_hash,
     },
 }
 
@@ -56,3 +63,12 @@ def get_context_by_suffix(benchmark):
             if benchmark.endswith(suffix):
                 return context
     return None
+    
+
+def identify(path, ct=None):
+    context = ct or get_context_by_suffix(path)    
+    if context is None:
+        raise Exception("Unable to associate context: " + path)
+    else:
+        idfunc = context_data[context]['hash']
+        return idfunc(path)

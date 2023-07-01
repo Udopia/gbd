@@ -9,7 +9,7 @@ from gbd_core.database import Database
 from gbd_core.schema import Schema
 from gbd_core.api import GBD, GBDException
 from gbd_init.initializer import Initializer
-from gbd_init.gbdhash import identify
+from gbd_core.contexts import identify
 from gbd_init.feature_extractors import init_local, init_features_generic, generic_extractors
 
 from tests import util

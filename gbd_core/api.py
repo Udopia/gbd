@@ -57,7 +57,7 @@ class GBD:
             Returns:
                 str: GBD hash
         """
-        from gbd_init.gbdhash import identify
+        from gbd_core.contexts import identify
         return identify(path)
 
 

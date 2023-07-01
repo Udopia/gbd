@@ -17,11 +17,10 @@ import pandas as pd
 import os
 import glob
 
-from gbd_core.contexts import suffix_list
+from gbd_core.contexts import suffix_list, identify
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
-from gbd_init.gbdhash import identify
 
 try:
     from gbdc import extract_base_features, extract_gate_features, isohash
