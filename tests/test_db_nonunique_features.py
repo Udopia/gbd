@@ -3,9 +3,10 @@
 
 import os
 import unittest
+import sqlite3
 
 from gbd_core.query import GBDQuery
-from gbd_core.database import Database
+from gbd_core.database import Database, DatabaseException
 from gbd_core.schema import Schema
 from tests import util
 
@@ -17,6 +18,7 @@ class DatabaseTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         self.file = util.get_random_unique_filename('test', '.db')
+        sqlite3.connect(self.file).close()
         self.name = Schema.dbname_from_path(self.file)
         self.db = Database([self.file], verbose=False)
         self.db.create_feature(self.feat, default_value=None)
@@ -85,4 +87,4 @@ class DatabaseTestCase(unittest.TestCase):
     # Delete feature
     def test_nonunique_feature_delete(self):
         self.db.delete_feature(self.feat)
-        self.assertFalse(self.db.fexists(self.feat))
+        self.assertRaises(DatabaseException, self.db.find, self.feat)

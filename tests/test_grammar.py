@@ -50,3 +50,9 @@ class SchemaTestCase(unittest.TestCase):
         self.assertEqual(parser.get_features(), set(["a", "b"]))
         parser = Parser("a = b")
         self.assertEqual(parser.get_features(), set(["a"]))
+
+    def test_explicit_context(self):
+        parser = Parser("c:a = 1")
+        self.assertEqual(parser.get_features(), set(["c:a"]))
+        parser = Parser("c:a = 1 and d:b = 2")
+        self.assertEqual(parser.get_features(), set(["c:a", "d:b"]))

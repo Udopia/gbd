@@ -82,7 +82,7 @@ def identify(path, ct=None):
     context = ct or get_context_by_suffix(path)
     if context is None:
         raise Exception("Unable to associate context: " + path)
-    elif context in ['cnf', 'sancnf', 'kis', 'wecnf']:
+    elif context in ['cnf', 'kis', 'wecnf']:
         return cnf_hash(path)
     elif context in ['opb']:
         return opb_hash(path)

@@ -134,31 +134,55 @@ class Database:
         return self.schemas[dbname].get_tables()
 
 
-    def finfos(self, fname, db=None):
-        if not self.fexists(fname):
-            return [ ]
-        return [ info for info in self.features[fname] if (db is None or info.database == db) ]
-
     def finfo(self, fname, db=None):
-        infos = self.finfos(fname, db)
-        if len(infos) == 0:
-            raise DatabaseException("Feature {} does not exists in database {}".format(fname, db))
-        return infos[0]
+        if fname in self.features and len(self.features[fname]) > 0:
+            if db is None:
+                return self.features[fname][0]
+            else:
+                infos = [ info for info in self.features[fname] if info.database == db ]
+                if len(infos) == 0:
+                    raise DatabaseException("Feature {} does not exists in database {}".format(fname, db))
+                return infos[0]
+        else:
+            raise DatabaseException("Feature {} does not exists".format(fname))
+        
 
-    def fexists(self, fname):
-        return fname in self.features
-
-    def faddr_column(self, feature, db=None):
-        finfo = self.finfo(feature, db)
+    def faddr_column(self, feature):
+        finfo = self.find(feature)
         return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
 
-    def faddr_table(self, feature, db=None):
-        finfo = self.finfo(feature, db)
+    def faddr_table(self, feature):
+        finfo = self.find(feature)
         return "{}.{}".format(finfo.database, finfo.table)
+    
 
-    def find(self, fid: str):
+    def find(self, fid: str, db: str=None):
+        """ Find feature by name or feature identifier
+        
+            Args:
+                fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
+                db: database name (optional), if given fid is unique without database: or context: prefix
+
+            Returns:
+                FeatureInfo object: the info object for the first found feature
+                    feature precedence is according to the order of databases in the path list
+                    ambiguity can be resolved by using one of the following methods:
+                        - by giving a database name as the second argument or
+                        - by using the fid syntax "database:feature"
+                        - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
+
+            Raises:
+                DatabaseException: if feature is not found or given database info is ambiguous
+        """
         parts = fid.split(":")
-        if len(parts) == 1:
+        if db is not None:
+            if len(parts) > 1:
+                if parts[0] != db:
+                    raise DatabaseException("Ambiguous database identifiers: '{}' and '{}'".format(parts[0], db))
+                else:
+                    return self.finfo(parts[1], parts[0])
+            return self.finfo(fid, db)
+        elif len(parts) == 1:
             return self.finfo(fid)
         elif parts[0] in self.get_databases():
             return self.finfo(parts[1], parts[0])
@@ -167,6 +191,7 @@ class Database:
             return self.finfo(parts[1], db)
         else:
             raise DatabaseException("Feature '{}' not found".format(fid))
+        
 
     def faddr(self, fid: str, with_column=True):
         finfo = self.find(fid)
@@ -263,7 +288,7 @@ class Database:
 
 
     def copy_feature(self, old_name, new_name, target_db, hashlist=[]):
-        old_finfo = self.finfo(old_name)
+        old_finfo = self.find(old_name)
         data = self.query("SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)))
         for (hash, value) in data:
             self.set_values(new_name, value, [hash], target_db)

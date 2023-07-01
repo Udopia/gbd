@@ -1,6 +1,7 @@
 
 import os
 import unittest
+import sqlite3
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.schema import Schema
@@ -12,6 +13,8 @@ class APITestCase(unittest.TestCase):
     def setUp(self) -> None:
         self.file1 = util.get_random_unique_filename('test1', '.db')
         self.file2 = util.get_random_unique_filename('test2', '.db')
+        sqlite3.connect(self.file1).close()
+        sqlite3.connect(self.file2).close()
         self.name1 = Schema.dbname_from_path(self.file1)
         self.name2 = Schema.dbname_from_path(self.file2)
         self.api = GBD([self.file1, self.file2])
