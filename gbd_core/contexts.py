@@ -15,7 +15,7 @@
 
 
 packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
-
+# EDACC by Balint
 context_data = {
     "cnf" : {
         "id" : 100,
@@ -50,9 +50,9 @@ def suffix_list(context):
 def contexts():
     return context_data.keys()
 
-def get_context_by_suffix(filename):
+def get_context_by_suffix(benchmark):
     for context in contexts():
         for suffix in suffix_list(context):
-            if filename.endswith(suffix):
+            if benchmark.endswith(suffix):
                 return context
     return None

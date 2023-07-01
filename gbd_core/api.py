@@ -75,7 +75,9 @@ class GBD:
             if self.verbose:
                 util.eprint(traceback.format_exc())
             raise GBDException("Database Operational Error: {}".format(str(err)))
-        return pd.DataFrame(result, columns=[ group_by ] + (resolve or []))
+        cols = [ p.split(':') for p in [ group_by ] + (resolve or []) ]
+        cols = [ c[0] if len(c) == 1 else c[1] for c in cols ]
+        return pd.DataFrame(result, columns=cols)
 
 
     def set_values(self, name, value, hashes, target_db=None):
@@ -162,7 +164,7 @@ class GBD:
 
     # Retrieve information about a specific feature
     def get_feature_info(self, fname):
-        finfo = self.database.finfo(fname)
+        finfo = self.database.find(fname)
         df = self.query(resolve=[ fname ], collapse=None)
         numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors = 'coerce'))
         return {

@@ -21,20 +21,18 @@ import pandas as pd
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
 
+class InitializerException(Exception):
+    pass
 
 class Initializer:
 
-    def __init__(self, source_contexts: list, target_contexts: list, api: GBD, context: str, rlimits: dict, target_db: str, features: list, initfunc):
+    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
         self.features = features
         self.initfunc = initfunc
         self.rlimits = rlimits
-        if not context in source_contexts:
-            raise GBDException("Context '{}' not supported by '{}'".format(context, self.__class__.__name__))
-        if not api.database.dcontext(target_db) in target_contexts:
-            raise GBDException("Target database '{}' has incompatible context '{}'. Database context can be specified by filename prefix.".format(target_db, api.database.dcontext(target_db)))
 
 
     def create_features(self):

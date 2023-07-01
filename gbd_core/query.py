@@ -29,8 +29,7 @@ class GBDQuery:
 
     def features_exist_or_throw(self, features):
         for feature in features:
-            if not feature in self.db.get_features():
-                raise DatabaseException("Unknown feature '{}'".format(feature))
+            self.db.find(feature)
 
 
     # Generate SQL Query from given GBD Query 
@@ -60,12 +59,12 @@ class GBDQuery:
         for dbname in self.db.get_databases(source_context):
             #eprint("Checking database {} for translator".format(dbname))
             if "to_"+target_context in self.db.get_features([ dbname ]):
-                return self.db.finfo("to_"+target_context, dbname)
+                return self.db.find("to_"+target_context, dbname)
         
         for dbname in self.db.get_databases(target_context):
             #eprint("Checking database {} for translator".format(dbname))
             if "to_"+source_context in self.db.get_features([ dbname ]):
-                return self.db.finfo("to_"+source_context, dbname)
+                return self.db.find("to_"+source_context, dbname)
         
         raise DatabaseException("No translator feature found for contexts {} and {}".format(source_context, target_context))
 
@@ -73,13 +72,13 @@ class GBDQuery:
     def build_from(self, group, features, join_type="LEFT"):
         result = dict()
 
-        gdatabase = self.db.finfo(group).database
-        gtable = self.db.finfo(group).table
+        gdatabase = self.db.find(group).database
+        gtable = self.db.find(group).table
         gcontext = self.db.dcontext(gdatabase)
         gaddress = gdatabase + "." + gtable
         result[gaddress] = "FROM {}".format(gaddress)
 
-        tables = set([ (finfo.database, finfo.table) for finfo in [ self.db.finfo(f) for f in features ] ])
+        tables = set([ (finfo.database, finfo.table) for finfo in [ self.db.find(f) for f in features ] ])
         for (fdatabase, ftable) in tables:
             faddress = fdatabase + "." + ftable
             if not faddress in result: # join only once

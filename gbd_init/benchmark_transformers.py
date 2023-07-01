@@ -22,7 +22,7 @@ from gbd_core.api import GBD, GBDException
 from gbd_core import util
 
 from gbd_init.gbdhash import identify
-from gbd_init.initializer import Initializer
+from gbd_init.initializer import Initializer, InitializerException
 
 import gbdc
 
@@ -50,14 +50,16 @@ def cnf2kis(hash, path, limits):
 
     return [ ]
 
-def init_transform_cnf_to_kis(api: GBD, context, rlimits, query, hashes, target_db=None):
-    source_contexts = [ 'cnf', 'sancnf' ]
-    target_contexts = [ 'kis' ]
+def init_transform_cnf_to_kis(api: GBD, rlimits, query, hashes, target_db, source):
+    if source != 'cnf':
+        raise InitializerException("Source database must be in context 'cnf'")
+    if api.database.dcontext(target_db) != 'kis':
+        raise InitializerException("Target database must be in context 'kis'")
     features = [ ('local', None), ('to_cnf', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ]
-    transformer = Initializer(source_contexts, target_contexts, api, context, rlimits, target_db, features, cnf2kis)
+    transformer = Initializer(api, rlimits, target_db, features, cnf2kis)
     transformer.create_features()
 
-    df = api.query(query, hashes, ["local"], collapse=None)
+    df = api.query(query, hashes, [source+":local"], collapse=None)
     dfilter = df['local'].apply(lambda x: x and not os.path.isfile(kis_filename(x)))
 
     transformer.run(df[dfilter])
@@ -85,14 +87,16 @@ def sanitize_cnf(hash, path, limits):
 
     return [ ]
 
-def init_sani(api: GBD, context, rlimits, query, hashes, target_db=None):
-    source_contexts = [ 'cnf', 'sancnf' ]
-    target_contexts = [ 'sancnf' ]
+def init_sani(api: GBD, rlimits, query, hashes, target_db, source):
+    if source != 'cnf':
+        raise InitializerException("Source database must be in context 'cnf'")
+    if api.database.dcontext(target_db) != 'sancnf':
+        raise InitializerException("Target database must be in context 'sancnf'")
     features = [ ('local', None) , ('to_cnf', None) ]
-    transformer = Initializer(source_contexts, target_contexts, api, context, rlimits, target_db, features, sanitize_cnf)
+    transformer = Initializer(api, rlimits, target_db, features, sanitize_cnf)
     transformer.create_features()
 
-    df = api.query(query, hashes, ["local"], collapse=None)
+    df = api.query(query, hashes, [source+":local"], collapse=None)
     dfilter = df['local'].apply(lambda x: x and not os.path.isfile(sanitized_filename(x)))
 
     transformer.run(df[dfilter])

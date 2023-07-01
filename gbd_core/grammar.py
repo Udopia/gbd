@@ -40,9 +40,9 @@ class Parser:
 
         constraint 
             = 
-            | col:(column | dbname ":" column) cop:("=" | "!=") str:string 
-            | col:(column | dbname ":" column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
-            | col:(column | dbname ":" column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
+            | col:(dbname ":" column | column) cop:("=" | "!=") str:string 
+            | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
+            | col:(dbname ":" column | column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
 
         termstart 
@@ -59,7 +59,7 @@ class Parser:
 
         termend
             =
-            col:(column | dbname ":" column)
+            col:(dbname ":" column | column)
             ;
 
         number = /[-]?[0-9]+[.]?[0-9]*/ ;
@@ -97,9 +97,9 @@ class Parser:
             elif "qop" in ast or "top" in ast:
                 return self.get_features(ast["left"]) | self.get_features(ast["right"])
             elif "cop" in ast and "ter" in ast:
-                return { ast["col"] } | self.get_features(ast["ter"])
+                return { "".join(ast["col"]) } | self.get_features(ast["ter"])
             elif "col" in ast:
-                return { ast["col"] }
+                return { "".join(ast["col"]) }
             else: 
                 return set()
         except TypeError as e:
@@ -120,25 +120,25 @@ class Parser:
                 return "{} {} {}".format(left, operator, right)
             elif "cop" in ast: # constraint operator
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
-                feat = db.faddr(ast["col"])
-                feat_is_1_n = db.finfo(ast["col"]).default is None
+                feat = db.faddr("".join(ast["col"]))
+                feat_is_1_n = db.find("".join(ast["col"])).default is None
                 if "str" in ast: # cop:("=" | "!=")
                     if feat_is_1_n:
-                        table = db.faddr_table(ast["col"])
+                        table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "=" else "NOT IN"
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(o=setop, t=table, f=feat, s=ast["str"])
                     else:
                         return "{} {} '{}'".format(feat, operator, ast["str"])
                 elif "lik" in ast: # cop:("like" | "unlike")
                     if feat_is_1_n:
-                        table = db.faddr_table(ast["col"])
+                        table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "like" else "NOT IN"
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(o=setop, t=table, f=feat, s="".join([ t for t in ast["lik"] if t ]))
                     else:
                         return "{} {} '{}'".format(feat, operator, "".join([ t for t in ast["lik"] if t ]))
                 elif "ter" in ast: # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n and ast["cop"] == "!=":
-                        table = db.faddr_table(ast["col"])
+                        table = db.faddr_table("".join(ast["col"]))
                         setop = "NOT IN" if ast["cop"] == "!=" else "IN"
                         cop = "=" if ast["cop"] == "!=" else ast["cop"]
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {c} {s})".format(o=setop, c=cop, t=table, f=feat, s=self.get_sql(db, ast["ter"]))
@@ -146,7 +146,7 @@ class Parser:
                         return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
                 raise ParserException("Missing right-hand side of constraint")
             elif "col" in ast:
-                feature = db.faddr(ast["col"])
+                feature = db.faddr("".join(ast["col"]))
                 return "CAST({} AS FLOAT)".format(feature)
             elif "constant" in ast:
                 return ast["constant"]

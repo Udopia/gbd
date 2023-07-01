@@ -22,6 +22,7 @@ from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
 from gbd_core import util, contexts, schema
 from gbd_core.util_argparse import *
+from gbd_init.feature_extractors import generic_extractors
 
 
 ### Command-Line Interface Entry Points
@@ -31,35 +32,28 @@ def cli_hash(api: GBD, args):
 
 
 def cli_init_local(api: GBD, args):
-    from gbd_init.cnf_extractors import init_local
+    from gbd_init.feature_extractors import init_local
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_local(api, args.context, rlimits, args.path, target_db=args.target_db)
-
-def cli_init_base_features(api: GBD, args):
-    from gbd_init.cnf_extractors import init_base_features
-    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_base_features(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
-
-def cli_init_gate_features(api: GBD, args):
-    from gbd_init.cnf_extractors import init_gate_features
-    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_gate_features(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
-
-def cli_init_iso(api: GBD, args):
-    from gbd_init.cnf_extractors import init_isohash
-    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_isohash(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_local(api, rlimits, args.path, args.target_db)
 
 
-def cli_init_cnf2kis(api: GBD, args):
-    from gbd_init.cnf_transformers import init_transform_cnf_to_kis
+def cli_init_generic(api: GBD, args):
+    from gbd_init.feature_extractors import init_features_generic
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_transform_cnf_to_kis(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
+    context = api.database.dcontext(args.target_db)
+    df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN")
+    init_features_generic(args.initfuncname, api, rlimits, df, args.target_db)
 
-def cli_init_sani(api: GBD, args):
-    from gbd_init.cnf_transformers import init_sani
+
+def cli_trans_cnf2kis(api: GBD, args):
+    from gbd_init.benchmark_transformers import init_transform_cnf_to_kis
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_sani(api, args.context, rlimits, args.query, args.hashes, target_db=args.target_db)
+    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, args.target_db, args.source)
+
+def cli_trans_sani(api: GBD, args):
+    from gbd_init.benchmark_transformers import init_sani
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    init_sani(api, rlimits, args.query, args.hashes, args.target_db, args.source)
 
 
 def cli_create(api: GBD, args):
@@ -107,7 +101,7 @@ def cli_info(api: GBD, args):
                 print("Features: " + " ".join(feat))
                 if args.verbose:
                     for f in feat:
-                        info = api.database.finfo(f, dbname)
+                        info = api.database.find(":".join([ dbname, f ]))
                         print(info)
     else:
         info = api.get_feature_info(args.name)
@@ -124,8 +118,7 @@ def main():
     # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
     add_resource_limits_arguments(parser_init)
-    parser_init.add_argument('--target_db', help='Target database (default: first in list)', default=None)
-    parser_init.add_argument('-c', '--context', default='cnf', choices=contexts.contexts(), help='Select context (affects selection of hash selection and initializers)')
+    parser_init.add_argument('--target_db', help='Target database; determines target context (default: first db in list)', default=None)
 
     parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:', required=True, dest='init what?')
 
@@ -133,26 +126,29 @@ def main():
     parser_init_local = parser_init_subparsers.add_parser('local', help='Initialize Local Hash/Path Entries')
     parser_init_local.add_argument('path', type=directory_type, help="Path to benchmarks")
     parser_init_local.set_defaults(func=cli_init_local)
-    # init base features:
-    parser_init_base_features = parser_init_subparsers.add_parser('base_features', help='Initialize Base Features')
-    add_query_and_hashes_arguments(parser_init_base_features)
-    parser_init_base_features.set_defaults(func=cli_init_base_features)
-    # init gate features:
-    parser_init_gate_features = parser_init_subparsers.add_parser('gate_features', help='Initialize Gate Features')
-    add_query_and_hashes_arguments(parser_init_gate_features)
-    parser_init_gate_features.set_defaults(func=cli_init_gate_features)
+
+    # hooks for generic feature extractors:
+    for key in generic_extractors.keys():
+        parser_init_generic = parser_init_subparsers.add_parser(key, help='Initialize Featureset {}, valid contexts are: {}'.format(key, ", ".join(generic_extractors[key]["contexts"])))
+        add_query_and_hashes_arguments(parser_init_generic)
+        parser_init_generic.set_defaults(func=cli_init_generic, initfuncname=key)
+
+    # TRANSFORMATION
+    parser_trans = subparsers.add_parser('transform', help='Transform Benchmarks')
+    add_resource_limits_arguments(parser_trans)
+    parser_trans.add_argument('--source', help='Source context', default='cnf')
+    parser_trans.add_argument('--target_db', help='Target database; determines target context (default: first db in list)', default=None)
+
+    parser_trans_subparsers = parser_trans.add_subparsers(help='Select Transformation Procedure:', required=True, dest='transform how?')
+    
     # generate kis instances from cnf instances:
-    parser_init_cnf2kis = parser_init_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
-    add_query_and_hashes_arguments(parser_init_cnf2kis)
-    parser_init_cnf2kis.set_defaults(func=cli_init_cnf2kis)
-    # init iso-hash:
-    parser_init_iso = parser_init_subparsers.add_parser('isohash', help='Initialize Isomorphic Hash (MD5 of sorted degree sequence)')
-    add_query_and_hashes_arguments(parser_init_iso)
-    parser_init_iso.set_defaults(func=cli_init_iso)
+    parser_trans_cnf2kis = parser_trans_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
+    add_query_and_hashes_arguments(parser_trans_cnf2kis)
+    parser_trans_cnf2kis.set_defaults(func=cli_trans_cnf2kis)
     # init sanitized:
-    parser_init_sani = parser_init_subparsers.add_parser('sanitize', help='Initialize sanitized benchmarks')
-    add_query_and_hashes_arguments(parser_init_sani)
-    parser_init_sani.set_defaults(func=cli_init_sani)
+    parser_trans_sani = parser_trans_subparsers.add_parser('sanitize', help='Initialize sanitized benchmarks')
+    add_query_and_hashes_arguments(parser_trans_sani)
+    parser_trans_sani.set_defaults(func=cli_trans_sani)
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')

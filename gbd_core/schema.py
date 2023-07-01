@@ -22,7 +22,7 @@ import re
 from dataclasses import dataclass
 
 from gbd_core import contexts
-from gbd_core.util import eprint
+from gbd_core.util import eprint, confirm
 
 
 class SchemaException(Exception):
@@ -50,15 +50,17 @@ class Schema:
 
     @classmethod
     def is_database(cls, path):
-        if not os.path.isfile(path): 
-            eprint("Creating Database {}".format(path))
+        if os.path.isfile(path):
+            sz = os.path.getsize(path)
+            if sz == 0: return True  # new sqlite3 files can be empty
+            if sz < 100: return False  # sqlite header is 100 bytes
+            with open(path, 'rb') as fd: header = fd.read(100)  # validate header
+            return (header[:16] == b'SQLite format 3\x00')
+        elif confirm("Database '{}' does not exist. Create new database?".format(path)): 
             sqlite3.connect(path).close()
             return True
-        sz = os.path.getsize(path)
-        if sz == 0: return True  # new sqlite3 files can be empty
-        if sz < 100: return False  # sqlite header is 100 bytes
-        with open(path, 'rb') as fd: header = fd.read(100)  # validate header
-        return (header[:16] == b'SQLite format 3\x00')
+        else:
+            raise SchemaException("Database '{}' does not exist".format(path))
 
     @classmethod
     def create(cls, path):
