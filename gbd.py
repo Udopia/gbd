@@ -27,7 +27,7 @@ from gbd_init.feature_extractors import generic_extractors
 
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
-    from gbd_init.gbdhash import identify
+    from gbd_core.contexts import identify
     print(identify(args.path))
 
 

@@ -20,8 +20,6 @@ import gzip
 import bz2
 import lzma
 
-from gbd_core.contexts import get_context_by_suffix
-
 
 def open_file(filename, mode):
     if filename.endswith('.gz'):
@@ -33,6 +31,13 @@ def open_file(filename, mode):
     else:
         return open(filename, mode)
 
+
+try:
+    from gbdc import opbhash as opb_hash
+except ImportError:
+    def opb_hash(filename):
+        raise Exception("Unable to import opbhash. Please install or update gbdc: https://github.com/Udopia/gbdc")
+    
 
 try:
     from gbdc import gbdhash as cnf_hash
@@ -70,21 +75,3 @@ except ImportError:
             file.close()
 
             return hash_md5.hexdigest()
-
-
-try:
-    from gbdc import opbhash as opb_hash
-except ImportError:
-    raise Exception("Unable to import opbhash. Please install or update gbdc.")
-    
-
-def identify(path, ct=None):
-    context = ct or get_context_by_suffix(path)
-    if context is None:
-        raise Exception("Unable to associate context: " + path)
-    elif context in ['cnf', 'kis', 'wecnf']:
-        return cnf_hash(path)
-    elif context in ['opb']:
-        return opb_hash(path)
-    else:
-        raise Exception("Unable to identify: " + path)

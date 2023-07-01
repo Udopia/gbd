@@ -21,7 +21,7 @@ from gbd_core import contexts
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
 
-from gbd_init.gbdhash import identify
+from gbd_core.contexts import identify
 from gbd_init.initializer import Initializer, InitializerException
 
 import gbdc

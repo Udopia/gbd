@@ -2,7 +2,7 @@ import unittest
 import random
 import os
 
-from gbd_init.gbdhash import identify
+from gbd_core.contexts import identify
 from tests import util
 
 
