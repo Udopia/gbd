@@ -33,20 +33,29 @@ class GBDQuery:
 
 
     # Generate SQL Query from given GBD Query 
-    def build_query(self, hashes=[], resolve=[], group_by="hash", join_type="LEFT", collapse=None):
-        self.features_exist_or_throw(resolve + [group_by] + list(self.features))
+    def build_query(self, hashes=[], resolve=[], group_by=None, join_type="LEFT", collapse=None):
+        group = group_by or self.determine_group_by(resolve)
 
-        sql_select = self.build_select(group_by, resolve, collapse)
+        self.features_exist_or_throw(resolve + [group] + list(self.features))
 
-        sql_from = self.build_from(group_by, set(resolve) | self.features, join_type)
+        sql_select = self.build_select(group, resolve, collapse)
+
+        sql_from = self.build_from(group, set(resolve) | self.features, join_type)
         
-        sql_where = self.build_where(hashes, group_by)
+        sql_where = self.build_where(hashes, group)
 
-        sql_groupby = "GROUP BY {}".format(self.db.faddr(group_by)) if collapse else ""
-        sql_orderby = "ORDER BY {}".format(self.db.faddr(group_by))
+        sql_groupby = "GROUP BY {}".format(self.db.faddr(group)) if collapse else ""
+        sql_orderby = "ORDER BY {}".format(self.db.faddr(group))
         
         return "{} {} WHERE {} {} {}".format(sql_select, sql_from, sql_where, sql_groupby, sql_orderby)
+    
 
+    def determine_group_by(self, resolve):
+        if len(resolve) == 0:
+            return self.db.dcontext(self.db.find("hash").database) + ":hash"
+        else:
+            return self.db.dcontext(self.db.find(resolve[0]).database) + ":hash"
+        
 
     def build_select(self, group_by, resolve, collapse=None):
         result = [ self.db.faddr(f) for f in [group_by] + resolve ]

@@ -61,10 +61,10 @@ class GBD:
         return identify(path)
 
 
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by="hash", join_type="LEFT"):
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by=None, join_type="LEFT"):
         query_builder = GBDQuery(self.database, gbd_query)
         try:
-            sql = query_builder.build_query(hashes, resolve or [], group_by or "hash", join_type, collapse)
+            sql = query_builder.build_query(hashes, resolve, group_by, join_type, collapse)
         except tatsu.exceptions.FailedParse as err:
             if self.verbose:
                 util.eprint(traceback.format_exc())
@@ -75,7 +75,9 @@ class GBD:
             if self.verbose:
                 util.eprint(traceback.format_exc())
             raise GBDException("Database Operational Error: {}".format(str(err)))
-        cols = [ p.split(':') for p in [ group_by ] + (resolve or []) ]
+        f = "hash" if not len(resolve) else resolve[0]
+        group = query_builder.determine_group_by(resolve)
+        cols = [ p.split(':') for p in [ group ] + (resolve or []) ]
         cols = [ c[0] if len(c) == 1 else c[1] for c in cols ]
         return pd.DataFrame(result, columns=cols)
 

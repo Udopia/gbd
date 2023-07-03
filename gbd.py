@@ -158,11 +158,11 @@ def main():
     # GBD GET $QUERY
     parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
     add_query_and_hashes_arguments(parser_get)
-    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+')
+    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+', default=[])
     parser_get.add_argument('-c', '--collapse', default='group_concat', 
                             choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'], 
                             help='Treatment of multiple values per hash (or grouping value resp.)')
-    parser_get.add_argument('-g', '--group_by', default='hash', help='Group by specified attribute value')
+    parser_get.add_argument('-g', '--group_by', default=None, help='Group by specified attribute value')
     parser_get.add_argument('--join-type', help='Join Type: treatment of missing values in queries', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
     parser_get.set_defaults(func=cli_get)
 
