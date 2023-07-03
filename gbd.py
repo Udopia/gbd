@@ -41,7 +41,7 @@ def cli_init_generic(api: GBD, args):
     from gbd_init.feature_extractors import init_features_generic
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
     context = api.database.dcontext(args.target_db)
-    df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN")
+    df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN", group_by=context + ":hash")
     init_features_generic(args.initfuncname, api, rlimits, df, args.target_db)
 
 
