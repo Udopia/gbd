@@ -75,9 +75,8 @@ class GBD:
             if self.verbose:
                 util.eprint(traceback.format_exc())
             raise GBDException("Database Operational Error: {}".format(str(err)))
-        f = "hash" if not len(resolve) else resolve[0]
-        group = query_builder.determine_group_by(resolve)
-        cols = [ p.split(':') for p in [ group ] + (resolve or []) ]
+        group = group_by or query_builder.determine_group_by(resolve)
+        cols = [ p.split(':') for p in [ group ] + resolve ]
         cols = [ c[0] if len(c) == 1 else c[1] for c in cols ]
         return pd.DataFrame(result, columns=cols)
 
