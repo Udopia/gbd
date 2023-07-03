@@ -23,7 +23,7 @@ from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import extract_base_features, extract_gate_features, isohash
+    from gbdc import extract_base_features, extract_gate_features, isohash, extract_red_base_features
 except ImportError:
     def extract_base_features(path, tlim, mlim):
         return [ ]
@@ -53,6 +53,12 @@ def compute_base_features(hash, path, limits):
     rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
+## Base Features
+def compute_reduced_base_features(hash, path, limits):
+    eprint('Extracting reduced base features from {} {}'.format(hash, path))
+    rec = extract_red_base_features(path, limits['tlim'], limits['mlim'])
+    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+
 ## Gate Features
 def compute_gate_features(hash, path, limits):
     eprint('Extracting gate features from {} {}'.format(hash, path))
@@ -75,6 +81,13 @@ generic_extractors = {
             ("vcg_cdegrees_mean", "empty"), ("vcg_cdegrees_variance", "empty"), ("vcg_cdegrees_min", "empty"), ("vcg_cdegrees_max", "empty"), ("vcg_cdegrees_entropy", "empty"),
             ("cg_degrees_mean", "empty"), ("cg_degrees_variance", "empty"), ("cg_degrees_min", "empty"), ("cg_degrees_max", "empty"), ("cg_degrees_entropy", "empty") ],
         "compute" : compute_base_features,
+    },
+    "base_reduced" : {
+        "contexts" : [ "cnf" ],
+        "features" : [ ("clauses", "empty"), ("variables", "empty"), ("clause_size_1", "empty"), ("clause_size_2", "empty"), ("clause_size_3", "empty"), 
+            ("clause_size_4", "empty"), ("clause_size_5", "empty"), ("clause_size_6", "empty"), ("clause_size_7", "empty"), 
+            ("clause_size_8", "empty"), ("clause_size_9", "empty") ],
+        "compute" : compute_reduced_base_features,
     },
     "gate" : {
         "contexts" : [ "cnf" ],
