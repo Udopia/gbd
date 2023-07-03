@@ -88,6 +88,8 @@ class Database:
                     # first found features table is the one that serves the hash
                     if result[feature.name][0].table != "features":
                         result[feature.name].insert(0, feature)
+                    else:
+                        result[feature.name].append(feature)
                 else:
                     result[feature.name].append(feature)
         return result
