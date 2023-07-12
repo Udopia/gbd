@@ -1,0 +1,1912 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>gbd_core.database.Database</title>
+    <meta name="generator" content="pydoctor 23.4.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a> <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="search-help-button" title="Help" onclick="toggleSearchHelpText()"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div class="hint" id="search-help-box">
+          <p class="rst-last">
+      
+            Search bar offers the following options:
+            <ul>   
+                <li>
+                  <strong>Term presence.</strong> The below example searches for documents that 
+                    must contain “foo”, might contain “bar” and must not contain “baz”: <code>+foo bar -baz</code>
+                </li> 
+
+                <li>
+                  <strong>Wildcards.</strong> The below example searches for documents with words beginning with “foo”: <code>foo*</code>
+                </li> 
+
+                <li>
+                  <strong>Search in specific fields.</strong> The following search matches all objects 
+                  in "twisted.mail" that matches “search”: <code>+qname:twisted.mail.* +search</code>
+
+                  <p>
+                    Possible fields: 'name', 'qname' (fully qualified name), 'docstring', and 'kind'.
+                    Last two fields are only applicable if "search in docstrings" is enabled.
+                  </p>
+                </li>
+
+                <li>
+                  <strong>Fuzzy matches.</strong> The following search matches all documents 
+                  that have a word within 1 edit distance of “foo”: <code>foo~1</code>
+                </li>
+            </ul>
+
+          </p>
+        </div>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 8px;">
+          <p>Results provided by <a href="https://lunrjs.com">Lunr.js</a></p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</nav>
+    
+    <div class="container-fluid">
+
+      <!-- Side navigation -->
+      <div class="sidebarcontainer" style="display: none;">
+        
+        <div class="sidebar"><nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="gbd_core.database.Database.html" class="internal-link" title="This class"><wbr></wbr>Database</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#sqlite3_version" class="internal-link" title="gbd_core.database.Database.sqlite3_version">sqlite3<wbr></wbr>_version</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__enter__" class="internal-link" title="gbd_core.database.Database.__enter__">__enter__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__exit__" class="internal-link" title="gbd_core.database.Database.__exit__">__exit__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#commit" class="internal-link" title="gbd_core.database.Database.commit">commit</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#copy_feature" class="internal-link" title="gbd_core.database.Database.copy_feature">copy<wbr></wbr>_feature</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#create_feature" class="internal-link" title="gbd_core.database.Database.create_feature">create<wbr></wbr>_feature</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#dcontext" class="internal-link" title="gbd_core.database.Database.dcontext">dcontext</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#delete" class="internal-link" title="gbd_core.database.Database.delete">delete</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#delete_feature" class="internal-link" title="gbd_core.database.Database.delete_feature">delete<wbr></wbr>_feature</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#delete_hashes_entirely" class="internal-link" title="gbd_core.database.Database.delete_hashes_entirely">delete<wbr></wbr>_hashes<wbr></wbr>_entirely</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#dexists" class="internal-link" title="gbd_core.database.Database.dexists">dexists</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#dmain" class="internal-link" title="gbd_core.database.Database.dmain">dmain</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#dpath" class="internal-link" title="gbd_core.database.Database.dpath">dpath</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#dtables" class="internal-link" title="gbd_core.database.Database.dtables">dtables</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#execute" class="internal-link" title="gbd_core.database.Database.execute">execute</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#faddr" class="internal-link" title="gbd_core.database.Database.faddr">faddr</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#faddr_column" class="internal-link" title="gbd_core.database.Database.faddr_column">faddr<wbr></wbr>_column</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#faddr_table" class="internal-link" title="gbd_core.database.Database.faddr_table">faddr<wbr></wbr>_table</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#find" class="internal-link" title="gbd_core.database.Database.find">find</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#finfo" class="internal-link" title="gbd_core.database.Database.finfo">finfo</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_contexts" class="internal-link" title="gbd_core.database.Database.get_contexts">get<wbr></wbr>_contexts</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_databases" class="internal-link" title="gbd_core.database.Database.get_databases">get<wbr></wbr>_databases</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_features" class="internal-link" title="gbd_core.database.Database.get_features">get<wbr></wbr>_features</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_tables" class="internal-link" title="gbd_core.database.Database.get_tables">get<wbr></wbr>_tables</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#init_features" class="internal-link" title="gbd_core.database.Database.init_features">init<wbr></wbr>_features</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#init_schemas" class="internal-link" title="gbd_core.database.Database.init_schemas">init<wbr></wbr>_schemas</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#query" class="internal-link" title="gbd_core.database.Database.query">query</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#rename_feature" class="internal-link" title="gbd_core.database.Database.rename_feature">rename<wbr></wbr>_feature</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#set_auto_commit" class="internal-link" title="gbd_core.database.Database.set_auto_commit">set<wbr></wbr>_auto<wbr></wbr>_commit</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#set_values" class="internal-link" title="gbd_core.database.Database.set_values">set<wbr></wbr>_values</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#autocommit" class="internal-link" title="gbd_core.database.Database.autocommit">autocommit</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#connection" class="internal-link" title="gbd_core.database.Database.connection">connection</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#cursor" class="internal-link" title="gbd_core.database.Database.cursor">cursor</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#features" class="internal-link" title="gbd_core.database.Database.features">features</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#maindb" class="internal-link" title="gbd_core.database.Database.maindb">maindb</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#schemas" class="internal-link" title="gbd_core.database.Database.schemas">schemas</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#verbose" class="internal-link" title="gbd_core.database.Database.verbose">verbose</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="gbd_core.database.html" class="internal-link" title="The parent of this class">database</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database"><wbr></wbr>Database</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException"><wbr></wbr>Database<wbr></wbr>Exception</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        
+         
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        </div>
+        <div id="collapseSideBar">
+          <a class="btn btn-link" onclick="toggleSideBarCollapse()" title="Toggle Sidebar Collapse">
+          </a>
+        </div> 
+        <script src="sidebartoggle.js" type="text/javascript"></script>
+       
+      </div>
+
+      <div id="main" class="">
+        
+
+        
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">gbd_core</a></code><wbr></wbr>.<code><a href="gbd_core.database.html" class="internal-link" title="gbd_core.database">database</a></code><wbr></wbr>.<code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Database</span>: <a href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L30" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">Database(path_list, verbose, autocommit)</a></code></p>
+          <p><a href="classIndex.html#gbd_core.database.Database">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p class="undocumented">Undocumented</p></div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id6">
+  
+  
+  <tr class="classmethod">
+    
+    <td>Class Method</td>
+    <td><code><a href="#sqlite3_version" class="internal-link" title="gbd_core.database.Database.sqlite3_version">sqlite3<wbr></wbr>_version</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__enter__" class="internal-link" title="gbd_core.database.Database.__enter__">__enter__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__exit__" class="internal-link" title="gbd_core.database.Database.__exit__">__exit__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">__init__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#commit" class="internal-link" title="gbd_core.database.Database.commit">commit</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#copy_feature" class="internal-link" title="gbd_core.database.Database.copy_feature">copy<wbr></wbr>_feature</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#create_feature" class="internal-link" title="gbd_core.database.Database.create_feature">create<wbr></wbr>_feature</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#dcontext" class="internal-link" title="gbd_core.database.Database.dcontext">dcontext</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#delete" class="internal-link" title="gbd_core.database.Database.delete">delete</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#delete_feature" class="internal-link" title="gbd_core.database.Database.delete_feature">delete<wbr></wbr>_feature</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#delete_hashes_entirely" class="internal-link" title="gbd_core.database.Database.delete_hashes_entirely">delete<wbr></wbr>_hashes<wbr></wbr>_entirely</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#dexists" class="internal-link" title="gbd_core.database.Database.dexists">dexists</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#dmain" class="internal-link" title="gbd_core.database.Database.dmain">dmain</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#dpath" class="internal-link" title="gbd_core.database.Database.dpath">dpath</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#dtables" class="internal-link" title="gbd_core.database.Database.dtables">dtables</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#execute" class="internal-link" title="gbd_core.database.Database.execute">execute</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#faddr" class="internal-link" title="gbd_core.database.Database.faddr">faddr</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#faddr_column" class="internal-link" title="gbd_core.database.Database.faddr_column">faddr<wbr></wbr>_column</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#faddr_table" class="internal-link" title="gbd_core.database.Database.faddr_table">faddr<wbr></wbr>_table</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#find" class="internal-link" title="gbd_core.database.Database.find">find</a></code></td>
+    <td>Find feature by name or feature identifier</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#finfo" class="internal-link" title="gbd_core.database.Database.finfo">finfo</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_contexts" class="internal-link" title="gbd_core.database.Database.get_contexts">get<wbr></wbr>_contexts</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_databases" class="internal-link" title="gbd_core.database.Database.get_databases">get<wbr></wbr>_databases</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_features" class="internal-link" title="gbd_core.database.Database.get_features">get<wbr></wbr>_features</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_tables" class="internal-link" title="gbd_core.database.Database.get_tables">get<wbr></wbr>_tables</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#init_features" class="internal-link" title="gbd_core.database.Database.init_features">init<wbr></wbr>_features</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#init_schemas" class="internal-link" title="gbd_core.database.Database.init_schemas">init<wbr></wbr>_schemas</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#query" class="internal-link" title="gbd_core.database.Database.query">query</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#rename_feature" class="internal-link" title="gbd_core.database.Database.rename_feature">rename<wbr></wbr>_feature</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#set_auto_commit" class="internal-link" title="gbd_core.database.Database.set_auto_commit">set<wbr></wbr>_auto<wbr></wbr>_commit</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#set_values" class="internal-link" title="gbd_core.database.Database.set_values">set<wbr></wbr>_values</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#autocommit" class="internal-link" title="gbd_core.database.Database.autocommit">autocommit</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#connection" class="internal-link" title="gbd_core.database.Database.connection">connection</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#cursor" class="internal-link" title="gbd_core.database.Database.cursor">cursor</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#features" class="internal-link" title="gbd_core.database.Database.features">features</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#maindb" class="internal-link" title="gbd_core.database.Database.maindb">maindb</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#schemas" class="internal-link" title="gbd_core.database.Database.schemas">schemas</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#verbose" class="internal-link" title="gbd_core.database.Database.verbose">verbose</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="baseclassmethod">
+  
+  
+  <a name="gbd_core.database.Database.sqlite3_version">
+    
+  </a>
+  <a name="sqlite3_version">
+    
+  </a>
+  <div class="functionHeader">
+    
+    @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
+    <span class="py-keyword">def</span> <span class="py-defname">sqlite3_version</span><span class="function-signature">(cls)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L59">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#sqlite3_version" title="gbd_core.database.Database.sqlite3_version">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.__enter__">
+    
+  </a>
+  <a name="__enter__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__enter__</span><span class="function-signature">(self)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L50">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#__enter__" title="gbd_core.database.Database.__enter__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.__exit__">
+    
+  </a>
+  <a name="__exit__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__exit__</span><span class="function-signature">(self, exception_type, exception_value, traceback)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L53">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#__exit__" title="gbd_core.database.Database.__exit__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, path_list: <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code>, verbose=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>, autocommit=<a href="https://docs.python.org/3/library/constants.html#True" class="intersphinx-link">True</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L32">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#__init__" title="gbd_core.database.Database.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.commit">
+    
+  </a>
+  <a name="commit">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">commit</span><span class="function-signature">(self)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L110">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#commit" title="gbd_core.database.Database.commit">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.copy_feature">
+    
+  </a>
+  <a name="copy_feature">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">copy_feature</span><span class="function-signature">(self, old_name, new_name, target_db, hashlist=[])</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L292">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#copy_feature" title="gbd_core.database.Database.copy_feature">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.create_feature">
+    
+  </a>
+  <a name="create_feature">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">create_feature</span><span class="function-signature">(self, name, default_value=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, permissive=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L221">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#create_feature" title="gbd_core.database.Database.create_feature">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.dcontext">
+    
+  </a>
+  <a name="dcontext">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">dcontext</span><span class="function-signature">(self, dbname)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L128">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#dcontext" title="gbd_core.database.Database.dcontext">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.delete">
+    
+  </a>
+  <a name="delete">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">delete</span><span class="function-signature">(self, fname, values=[], hashes=[], target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L270">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#delete" title="gbd_core.database.Database.delete">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.delete_feature">
+    
+  </a>
+  <a name="delete_feature">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">delete_feature</span><span class="function-signature">(self, fname, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L257">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#delete_feature" title="gbd_core.database.Database.delete_feature">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.delete_hashes_entirely">
+    
+  </a>
+  <a name="delete_hashes_entirely">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">delete_hashes_entirely</span><span class="function-signature">(self, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L286">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#delete_hashes_entirely" title="gbd_core.database.Database.delete_hashes_entirely">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.dexists">
+    
+  </a>
+  <a name="dexists">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">dexists</span><span class="function-signature">(self, dbname)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L117">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#dexists" title="gbd_core.database.Database.dexists">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.dmain">
+    
+  </a>
+  <a name="dmain">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">dmain</span><span class="function-signature">(self, dbname)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L120">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#dmain" title="gbd_core.database.Database.dmain">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.dpath">
+    
+  </a>
+  <a name="dpath">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">dpath</span><span class="function-signature">(self, dbname)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L123">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#dpath" title="gbd_core.database.Database.dpath">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.dtables">
+    
+  </a>
+  <a name="dtables">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">dtables</span><span class="function-signature">(self, dbname)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L133">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#dtables" title="gbd_core.database.Database.dtables">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.execute">
+    
+  </a>
+  <a name="execute">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">execute</span><span class="function-signature">(self, q)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L103">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#execute" title="gbd_core.database.Database.execute">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.faddr">
+    
+  </a>
+  <a name="faddr">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">faddr</span><span class="function-signature">(self, fid: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, with_column=<a href="https://docs.python.org/3/library/constants.html#True" class="intersphinx-link">True</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L198">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#faddr" title="gbd_core.database.Database.faddr">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.faddr_column">
+    
+  </a>
+  <a name="faddr_column">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">faddr_column</span><span class="function-signature">(self, feature)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L152">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#faddr_column" title="gbd_core.database.Database.faddr_column">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.faddr_table">
+    
+  </a>
+  <a name="faddr_table">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">faddr_table</span><span class="function-signature">(self, feature)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L156">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#faddr_table" title="gbd_core.database.Database.faddr_table">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.find">
+    
+  </a>
+  <a name="find">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">find</span><span class="function-signature">(self, fid: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, db: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L161">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#find" title="gbd_core.database.Database.find">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Find feature by name or feature identifier</p>
+<p>Args:
+fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
+db: database name (optional), if given fid is unique without database: or context: prefix</p>
+<p>Returns:
+FeatureInfo object: the info object for the first found feature
+feature precedence is according to the order of databases in the path list
+ambiguity can be resolved by using one of the following methods.
+- by giving a database name as the second argument or
+- by using the fid syntax "database:feature"
+- by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)</p>
+<p>Raises:
+DatabaseException: if feature is not found or given database info is ambiguous</p>
+</div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.finfo">
+    
+  </a>
+  <a name="finfo">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">finfo</span><span class="function-signature">(self, fname, db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L139">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#finfo" title="gbd_core.database.Database.finfo">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.get_contexts">
+    
+  </a>
+  <a name="get_contexts">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_contexts</span><span class="function-signature">(self, dbs=[])</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L210">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#get_contexts" title="gbd_core.database.Database.get_contexts">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.get_databases">
+    
+  </a>
+  <a name="get_databases">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_databases</span><span class="function-signature">(self, context: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L207">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#get_databases" title="gbd_core.database.Database.get_databases">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.get_features">
+    
+  </a>
+  <a name="get_features">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, dbs=[])</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L213">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#get_features" title="gbd_core.database.Database.get_features">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.get_tables">
+    
+  </a>
+  <a name="get_tables">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_tables</span><span class="function-signature">(self, dbs=[])</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L216">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#get_tables" title="gbd_core.database.Database.get_tables">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.init_features">
+    
+  </a>
+  <a name="init_features">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">init_features</span><span class="function-signature">(self) -&gt; <code><a href="https://docs.python.org/3/library/typing.html#typing.Dict" class="intersphinx-link">typing.Dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L78">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#init_features" title="gbd_core.database.Database.init_features">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.init_schemas">
+    
+  </a>
+  <a name="init_schemas">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">init_schemas</span><span class="function-signature">(self, path_list) -&gt; <code><a href="https://docs.python.org/3/library/typing.html#typing.Dict" class="intersphinx-link">typing.Dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a>]</code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L64">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#init_schemas" title="gbd_core.database.Database.init_schemas">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.query">
+    
+  </a>
+  <a name="query">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">query</span><span class="function-signature">(self, q)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L98">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#query" title="gbd_core.database.Database.query">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.rename_feature">
+    
+  </a>
+  <a name="rename_feature">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">rename_feature</span><span class="function-signature">(self, fname, new_fname, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L237">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#rename_feature" title="gbd_core.database.Database.rename_feature">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.set_auto_commit">
+    
+  </a>
+  <a name="set_auto_commit">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">set_auto_commit</span><span class="function-signature">(self, autocommit)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L113">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#set_auto_commit" title="gbd_core.database.Database.set_auto_commit">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="gbd_core.database.Database.set_values">
+    
+  </a>
+  <a name="set_values">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">set_values</span><span class="function-signature">(self, fname, value, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L232">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#set_values" title="gbd_core.database.Database.set_values">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.autocommit">
+    
+  </a>
+  <a name="autocommit">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">autocommit</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L39">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#autocommit" title="gbd_core.database.Database.autocommit">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.connection">
+    
+  </a>
+  <a name="connection">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">connection</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L36">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#connection" title="gbd_core.database.Database.connection">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.cursor">
+    
+  </a>
+  <a name="cursor">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">cursor</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L37">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#cursor" title="gbd_core.database.Database.cursor">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.features">
+    
+  </a>
+  <a name="features">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">features</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L35">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#features" title="gbd_core.database.Database.features">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.maindb">
+    
+  </a>
+  <a name="maindb">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">maindb</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L38">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#maindb" title="gbd_core.database.Database.maindb">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.schemas">
+    
+  </a>
+  <a name="schemas">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">schemas</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L34">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#schemas" title="gbd_core.database.Database.schemas">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.database.Database.verbose">
+    
+  </a>
+  <a name="verbose">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">verbose</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/c080719969e5ca6b79feae1628b989ada857e3df/gbd_core/database.py#L33">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#verbose" title="gbd_core.database.Database.verbose">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+
+  
+  <div class="container">
+    <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
+  generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+    23.4.1 at 2023-07-12 13:28:14.
+  </div>
+
+  <!-- Search related scripts needs to be loaded at the end of HTML 
+    parsing not to introduce overhead and display HTML data asap -->
+  <script src="ajax.js" type="text/javascript"></script>
+  <script src="searchlib.js" type="text/javascript"></script>
+  <script src="search.js" type="text/javascript"></script>
+
+</footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>
