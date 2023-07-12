@@ -62,6 +62,19 @@ class GBD:
 
 
     def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by=None, join_type="LEFT"):
+        """ Query the database
+
+            Args:
+                gbd_query (str): GBD query string
+                hashes (list): list of hashes (=benchmark ids), the query is restricted to
+                resolve (list): list of features to be resolved
+                collapse (str): collapse function: min, max, avg, count, sum, group_concat, or none
+                group_by (str): group results by that feature instead of hash (default)
+                join_type (str): join type: left or inner
+
+            Returns:
+                pandas.DataFrame: query result
+        """
         query_builder = GBDQuery(self.database, gbd_query)
         try:
             sql = query_builder.build_query(hashes, resolve, group_by, join_type, collapse)
