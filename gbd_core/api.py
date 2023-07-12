@@ -52,10 +52,10 @@ class GBD:
         """ Identify the given benchmark by its GBD hash 
 
             Args:
-                path (str): path to benchmark
+            path (str): path to benchmark
 
             Returns:
-                str: GBD hash
+            str: GBD hash
         """
         from gbd_core.contexts import identify
         return identify(path)
@@ -65,15 +65,15 @@ class GBD:
         """ Query the database
 
             Args:
-                gbd_query (str): GBD query string
-                hashes (list): list of hashes (=benchmark ids), the query is restricted to
-                resolve (list): list of features to be resolved
-                collapse (str): collapse function: min, max, avg, count, sum, group_concat, or none
-                group_by (str): group results by that feature instead of hash (default)
-                join_type (str): join type: left or inner
+            gbd_query (str): GBD query string
+            hashes (list): list of hashes (=benchmark ids), the query is restricted to
+            resolve (list): list of features to be resolved
+            collapse (str): collapse function: min, max, avg, count, sum, group_concat, or none
+            group_by (str): group results by that feature instead of hash (default)
+            join_type (str): join type: left or inner
 
             Returns:
-                pandas.DataFrame: query result
+            pandas.DataFrame: query result
         """
         query_builder = GBDQuery(self.database, gbd_query)
         try:
@@ -98,14 +98,13 @@ class GBD:
         """ Set feature value for given hashes 
             
             Args:
-                name (str): feature name
-                value (str): value to be set
-                hashes (list): list of hashes (=benchmark ids)
-                target_db (str, optional): name of target database
-                    if None, default database (first in list) is used
-
+            name (str): feature name
+            value (str): value to be set
+            hashes (list): list of hashes (=benchmark ids)
+            target_db (str, optional): name of target database
+            if None, default database (first in list) is used
             Raises:
-                GBDException, if feature does not exist
+            GBDException, if feature does not exist
         """
         if not self.feature_exists(name, target_db):
             raise GBDException("Feature '{}' does not exist".format(name))
@@ -118,14 +117,14 @@ class GBD:
         """ Reset feature value for given hashes 
             
             Args:
-                feature (str): feature name
-                values (list, optional): list of values to be reset
-                hashes (list, optional): list of hashes (=benchmark ids) to be reset
-                target_db (str, optional): name of target database
-                    if None, default database (first in list) is used
+            feature (str): feature name
+            values (list, optional): list of values to be reset
+            hashes (list, optional): list of hashes (=benchmark ids) to be reset
+            target_db (str, optional): name of target database
+            if None, default database (first in list) is used
 
             Raises:
-                GBDException, if feature does not exist
+            GBDException, if feature does not exist
         """
         if not self.feature_exists(feature, target_db):
             raise GBDException("Feature '{}' does not exist".format(feature))
@@ -145,12 +144,12 @@ class GBD:
         """ Delete all values for given hashes
             
             Args:
-                hashes (list): list of hashes (=benchmark ids) to be deleted
-                target_db (str, optional): name of target database
-                    if None, default database (first in list) is used
+            hashes (list): list of hashes (=benchmark ids) to be deleted
+            target_db (str, optional): name of target database
+            if None, default database (first in list) is used
 
             Raises:
-                GBDException, if feature does not exist
+            GBDException, if feature does not exist
         """
         if not len(hashes):
             raise GBDException("No hashes given")
@@ -169,15 +168,14 @@ class GBD:
         """ Get path for given database name
 
             Args:
-                dbname (str): name of database
+            dbname (str): name of database
 
             Returns: path to database
         """
         return self.database.dpath(dbname)
 
-
-    # Retrieve information about a specific feature
     def get_feature_info(self, fname):
+        """ Retrieve information about a specific feature"""
         finfo = self.database.find(fname)
         df = self.query(resolve=[ fname ], collapse=None)
         numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors = 'coerce'))
@@ -195,8 +193,8 @@ class GBD:
         """ Get features from the database.
 
             Args:
-                dbname (str): name of feature database
-                    if None, feature list is accumulated over all databases
+            dbname (str): name of feature database
+            if None, feature list is accumulated over all databases
 
             Returns: list of features names
         """
@@ -207,9 +205,9 @@ class GBD:
         """ Check if feature exists in the database.
 
             Args:
-                name (str): name of feature
-                dbname (str): name of feature database
-                    if None, feature existence is checked for in all databases
+            name (str): name of feature
+            dbname (str): name of feature database
+            if None, feature existence is checked for in all databases
 
             Returns: True if feature exists in dbname or any database, False otherwise
         """
@@ -220,16 +218,16 @@ class GBD:
         """ Creates feature with given name
 
             Args:
-                name (str): feature name
-                default_value (str): default value for 1:1 features
-                    if None, a multi-valued (1:n) feature is created
-                target_db (str): database name 
-                    if None, default database (fist in list) is used
+            name (str): feature name
+            default_value (str): default value for 1:1 features
+            if None, a multi-valued (1:n) feature is created
+            target_db (str): database name 
+            if None, default database (fist in list) is used
 
             Returns: None
 
             Raises: 
-                GBDException, if feature already exists in target_db
+            GBDException, if feature already exists in target_db
         """
         if not self.feature_exists(name, target_db):
             self.database.create_feature(name, default_value, target_db, False)
@@ -241,14 +239,14 @@ class GBD:
         """ Deletes feature with given name
 
             Args:
-                name (str): feature name
-                target_db (str): database name 
-                    if None, default database (fist in list) is used
+            name (str): feature name
+            target_db (str): database name 
+            if None, default database (fist in list) is used
 
             Returns: None
 
             Raises: 
-                GBDException, if feature does not exist in target_db
+            GBDException, if feature does not exist in target_db
         """
         if self.feature_exists(name, target_db):
             self.database.delete_feature(name, target_db)
@@ -260,17 +258,17 @@ class GBD:
         """ Renames feature with given name
 
             Args:
-                old_name (str): old feature name
-                new_name (str): new feature name
-                target_db (str): database name 
-                    if None, default database (fist in list) is used
+            old_name (str): old feature name
+            new_name (str): new feature name
+            target_db (str): database name 
+            if None, default database (fist in list) is used
             
             Returns: None
 
             Raises: 
-                GBDException, 
-                    - if feature 'old_name' does not exist in target_db
-                    - if feature 'new_name' already exists in target_db
+            GBDException, 
+                - if feature 'old_name' does not exist in target_db
+                - if feature 'new_name' already exists in target_db
         """
         if not self.feature_exists(old_name, target_db):
             raise GBDException("Feature '{}' does not exist".format(old_name))
@@ -284,11 +282,11 @@ class GBD:
         """ Copies feature with given name
 
             Args:
-                old_name (str): old feature name
-                new_name (str): new feature name
-                target_db (str): name of database to copy feature to
-                    if None, default database (fist in list) is used
-            
+            old_name (str): old feature name
+            new_name (str): new feature name
+            target_db (str): name of database to copy feature to
+            if None, default database (fist in list) is used
+
             Returns: None
         """
         if not self.feature_exists(old_name):

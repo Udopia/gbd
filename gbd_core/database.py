@@ -162,19 +162,19 @@ class Database:
         """ Find feature by name or feature identifier
         
             Args:
-                fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
-                db: database name (optional), if given fid is unique without database: or context: prefix
+            fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
+            db: database name (optional), if given fid is unique without database: or context: prefix
 
             Returns:
-                FeatureInfo object: the info object for the first found feature
-                    feature precedence is according to the order of databases in the path list
-                    ambiguity can be resolved by using one of the following methods:
-                    - by giving a database name as the second argument or
-                    - by using the fid syntax "database:feature"
-                    - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
+            FeatureInfo object: the info object for the first found feature
+            feature precedence is according to the order of databases in the path list
+            ambiguity can be resolved by using one of the following methods.
+                - by giving a database name as the second argument or
+                - by using the fid syntax "database:feature"
+                - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
 
             Raises:
-                DatabaseException: if feature is not found or given database info is ambiguous
+            DatabaseException: if feature is not found or given database info is ambiguous
         """
         parts = fid.split(":")
         if db is not None:
