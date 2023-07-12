@@ -169,9 +169,9 @@ class Database:
             FeatureInfo object: the info object for the first found feature
             feature precedence is according to the order of databases in the path list
             ambiguity can be resolved by using one of the following methods.
-                - by giving a database name as the second argument or
-                - by using the fid syntax "database:feature"
-                - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
+            - by giving a database name as the second argument or
+            - by using the fid syntax "database:feature"
+            - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
 
             Raises:
             DatabaseException: if feature is not found or given database info is ambiguous
