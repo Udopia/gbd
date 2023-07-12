@@ -267,8 +267,8 @@ class GBD:
 
             Raises: 
             GBDException, 
-                - if feature 'old_name' does not exist in target_db
-                - if feature 'new_name' already exists in target_db
+            - if feature 'old_name' does not exist in target_db
+            - if feature 'new_name' already exists in target_db
         """
         if not self.feature_exists(old_name, target_db):
             raise GBDException("Feature '{}' does not exist".format(old_name))
