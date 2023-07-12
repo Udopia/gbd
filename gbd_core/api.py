@@ -264,7 +264,7 @@ class GBD:
                 new_name (str): new feature name
                 target_db (str): database name 
                     if None, default database (fist in list) is used
-
+            
             Returns: None
 
             Raises: 
@@ -288,7 +288,7 @@ class GBD:
                 new_name (str): new feature name
                 target_db (str): name of database to copy feature to
                     if None, default database (fist in list) is used
-
+            
             Returns: None
         """
         if not self.feature_exists(old_name):
