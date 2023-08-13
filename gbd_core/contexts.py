@@ -17,7 +17,7 @@ from gbd_init.gbdhash import cnf_hash, opb_hash
 
 
 packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
-# EDACC by Balint
+
 context_data = {
     "cnf" : {
         "id" : 100,
