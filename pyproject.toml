@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gbd-tools"
+version = "4.6.5"
+description = "Global Benchmark Database Tools"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Markus Iser", email = "2.markus.iser@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies=[
+    "pandas",
+    "tatsu",
+    "pebble",
+    "flask",
+    "waitress",
+]
+
+
+[project.urls]
+"Homepage" = "https://github.com/Udopia/gbd"
