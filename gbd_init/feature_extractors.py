@@ -17,13 +17,13 @@ import pandas as pd
 import os
 import glob
 
-from gbd_core.contexts import suffix_list, identify
+from gbd_core.contexts import suffix_list, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash
+    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features
 except ImportError:
     def extract_base_features(path, tlim, mlim):
         return [ ]
@@ -50,7 +50,11 @@ def compute_hash(hash, path, limits):
 ## ISOHash
 def compute_isohash(hash, path, limits):
     eprint('Computing ISOHash for {}'.format(path))
-    ihash = isohash(path)
+    context = get_context_by_suffix(path)
+    if context == 'wcnf':
+        ihash = wcnfisohash(path)
+    else:
+        ihash = isohash(path)
     return [ ('isohash', hash, ihash) ]
 
 ## Base Features
@@ -65,6 +69,12 @@ def compute_gate_features(hash, path, limits):
     rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]   
 
+## WCNF Base Features
+def compute_wcnf_base_features(hash, path, limits):
+    eprint('Extracting WCNF base features from {} {}'.format(hash, path))
+    rec = extract_wcnf_base_features(path, limits['tlim'], limits['mlim'])
+    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+
 
 generic_extractors = {
     "base" : {
@@ -78,10 +88,15 @@ generic_extractors = {
         "compute" : compute_gate_features,
     },
     "isohash" : {
-        "contexts" : [ "cnf" ],
+        "contexts" : [ "cnf", "wcnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
     },
+    "wcnfbase" : {
+        "contexts" : [ "wcnf" ],
+        "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
+        "compute" : compute_wcnf_base_features,
+    }
 }
 
 

@@ -75,3 +75,10 @@ except ImportError:
             file.close()
 
             return hash_md5.hexdigest()
+
+
+try:
+    from gbdc import wcnfhash as wcnf_hash
+except ImportError:
+    def wcnf_hash(filename):
+        raise Exception("Unable to import wcnfhash. Please install or update gbdc: https://github.com/Udopia/gbdc")
