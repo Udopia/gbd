@@ -23,7 +23,7 @@ from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features
+    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features
 except ImportError:
     def extract_base_features(path, tlim, mlim):
         return [ ]
@@ -44,6 +44,12 @@ except ImportError:
         return [ ]
     
     def wcnf_base_feature_names():
+        return [ ]
+
+    def extract_opb_base_features(path, tlim, mlim):
+        return [ ]
+
+    def opb_base_feature_names():
         return [ ]
 
 
@@ -81,6 +87,12 @@ def compute_wcnf_base_features(hash, path, limits):
     rec = extract_wcnf_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
+## OPB Base Features
+def compute_opb_base_features(hash, path, limits):
+    eprint('Extracting OPB base features from {} {}'.format(hash, path))
+    rec = extract_opb_base_features(path, limits['tlim'], limits['mlim'])
+    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+
 
 generic_extractors = {
     "base" : {
@@ -102,6 +114,11 @@ generic_extractors = {
         "contexts" : [ "wcnf" ],
         "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
         "compute" : compute_wcnf_base_features,
+    },
+    "opbbase" : {
+        "contexts" : [ "opb" ],
+        "features" : [ (name, "empty") for name in opb_base_feature_names() ],
+        "compute" : compute_opb_base_features,
     }
 }
 
