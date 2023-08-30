@@ -28,16 +28,22 @@ except ImportError:
     def extract_base_features(path, tlim, mlim):
         return [ ]
     
-    def base_feature_names(path, tlim, mlim):
+    def base_feature_names():
         return [ ]
 
     def extract_gate_features(path, tlim, mlim):
         return [ ]
 
-    def gate_feature_names(path, tlim, mlim):
+    def gate_feature_names():
         return [ ]
     
     def isohash(path):
+        return [ ]
+
+    def extract_wcnf_base_features(path, tlim, mlim):
+        return [ ]
+    
+    def wcnf_base_feature_names():
         return [ ]
 
 
