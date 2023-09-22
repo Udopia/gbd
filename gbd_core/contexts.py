@@ -13,11 +13,11 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-from gbd_init.gbdhash import cnf_hash, opb_hash
+from gbd_init.gbdhash import cnf_hash, opb_hash, wcnf_hash
 
 
 packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
-# EDACC by Balint
+
 context_data = {
     "cnf" : {
         "id" : 100,
@@ -49,6 +49,12 @@ context_data = {
         "suffixes" : [ ".wecnf" + p for p in packed ],
         "hash": cnf_hash,
     },
+    "wcnf"  : {
+        "id" : 500,
+        "description" : "MaxSAT instances in WCNF format",
+        "suffixes" : [ ".wcnf" + p for p in packed ],
+        "hash": wcnf_hash,
+    }
 }
 
 def suffix_list(context):
