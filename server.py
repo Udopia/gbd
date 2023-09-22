@@ -114,6 +114,7 @@ def quick_search():
 # Expects POST form with a query as text input and selected features as checkbox inputs,
 # sends csv version of the result as a file
 @app.route("/exportcsv/", methods=['POST', 'GET'])
+@app.route("/exportcsv", methods=['POST', 'GET'])
 def get_csv_file():
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
@@ -129,6 +130,7 @@ def get_csv_file():
 # Generates a list of URLs. Given query (text field of POST form) is executed and the hashes of the result are resolved
 # against the filename feature. Every filename is associated with a URL to enable flexible downloading of these files
 @app.route("/getinstances/", methods=['POST', 'GET'])
+@app.route("/getinstances", methods=['POST', 'GET'])
 def get_url_file():
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
@@ -141,6 +143,7 @@ def get_url_file():
 
 
 # Return list of databases
+@app.route("/listdatabases/", methods=["GET"])
 @app.route("/listdatabases", methods=["GET"])
 def list_databases():
     return json_response(json.dumps(app.config['dbnames']), "Sending list of databases", request.remote_addr)
@@ -148,6 +151,8 @@ def list_databases():
 
 # Get all features or features in a specified database
 @app.route('/listfeatures/')
+@app.route('/listfeatures')
+@app.route('/listfeatures/<database>/')
 @app.route('/listfeatures/<database>')
 def list_features(database=None):
     dbname=database if database and database in app.config['dbnames'] else 'all'
@@ -156,6 +161,8 @@ def list_features(database=None):
 
 # Send database file
 @app.route('/getdatabase/')
+@app.route('/getdatabase')
+@app.route('/getdatabase/<database>/')
 @app.route('/getdatabase/<database>')
 def get_database_file(database=None):
     dbname=database if database and database in app.config['dbnames'] else app.config['dbnames'][0]
@@ -165,6 +172,7 @@ def get_database_file(database=None):
 
 # Find the file corresponding to the hashvalue and send it to the client
 @app.route('/file/<hashvalue>/')
+@app.route('/file/<hashvalue>')
 def get_file(hashvalue):
     with GBD(app.config['database'], verbose=app.config['verbose'])as gbd:
         df = gbd.query(hashes=[hashvalue], resolve=['local', 'filename'], collapse="MIN")
@@ -177,6 +185,7 @@ def get_file(hashvalue):
         
 
 # Resolves a hashvalue against a attribute and returns the result values
+@app.route('/attribute/<feature>/<hashvalue>/')
 @app.route('/attribute/<feature>/<hashvalue>')
 def get_attribute(feature, hashvalue):
     app.logger.info("Resolving '{}' with feature '{}' for IP {}".format(hashvalue, feature, request.remote_addr))
@@ -192,6 +201,7 @@ def get_attribute(feature, hashvalue):
 
 # Get all attributes associated with the hashvalue (resolving against all features)
 @app.route('/info/<hashvalue>/')
+@app.route('/info/<hashvalue>')
 def get_all_attributes(hashvalue):
     app.logger.info("Listing all attributes of hashvalue {} for IP {}".format(hashvalue, request.remote_addr))
     with GBD(app.config['database'], verbose=app.config['verbose']) as gbd:
