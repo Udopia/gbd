@@ -63,7 +63,7 @@ class Parser:
             ;
 
         number = /[-]?[0-9]+[.]?[0-9]*/ ;
-        string = /[a-zA-Z0-9_\.\-\/\,\:]+/ ;
+        string = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@]+/ ;
         column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
         dbname = /[a-zA-Z][a-zA-Z0-9_]*/ ;
     '''
