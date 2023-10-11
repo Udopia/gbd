@@ -211,7 +211,9 @@ class GBD:
 
             Returns: list of features names
         """
-        return self.database.get_features([] if not dbname else [dbname])
+        lst = self.database.get_features([] if not dbname else [dbname])
+        lst.remove("hash")
+        return lst
 
     
     def feature_exists(self, name, dbname=None):
