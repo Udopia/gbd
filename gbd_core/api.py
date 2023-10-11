@@ -23,6 +23,7 @@ import traceback
 
 from gbd_core.query import GBDQuery
 from gbd_core.database import Database
+from gbd_core.database import Schema
 from gbd_core import util
 
 
@@ -173,6 +174,18 @@ class GBD:
             Returns: path to database
         """
         return self.database.dpath(dbname)
+    
+
+    def get_database_name(self, path):
+        """ Get database name for given path
+
+            Args:
+            path (str): path to database
+
+            Returns: name of database
+        """
+        return Schema.dbname_from_path(path)
+
 
     def get_feature_info(self, fname):
         """ Retrieve information about a specific feature"""
