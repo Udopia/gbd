@@ -248,14 +248,14 @@ class Schema:
             created.append(self.features[name])
 
         elif not permissive:
-            raise SchemaException("Feature {} already exists".format(name))
+            raise SchemaException("Feature '{}' already exists".format(name))
 
         return created
 
 
     def set_values(self, feature, value, hashes):
         if not self.has_feature(feature):
-            raise SchemaException("Feature {} does not exist".format(feature))
+            raise SchemaException("Feature '{}' does not exist".format(feature))
         if not len(hashes):
             raise SchemaException("No hashes given")
         table = self.features[feature].table
