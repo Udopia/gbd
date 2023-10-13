@@ -122,17 +122,17 @@ class Database:
 
     def dpath(self, dbname):
         if not dbname in self.schemas:
-            raise DatabaseException("Database {} not found".format(dbname))
+            raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].path
         
     def dcontext(self, dbname):
         if not dbname in self.schemas:
-            raise DatabaseException("Database {} not found".format(dbname))
+            raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].context
         
     def dtables(self, dbname):
         if not dbname in self.schemas:
-            raise DatabaseException("Database {} not found".format(dbname))
+            raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].get_tables()
 
 
@@ -143,10 +143,10 @@ class Database:
             else:
                 infos = [ info for info in self.features[fname] if info.database == db ]
                 if len(infos) == 0:
-                    raise DatabaseException("Feature {} does not exists in database {}".format(fname, db))
+                    raise DatabaseException("Feature '{}' does not exists in database {}".format(fname, db))
                 return infos[0]
         else:
-            raise DatabaseException("Feature {} does not exists".format(fname))
+            raise DatabaseException("Feature '{}' does not exists".format(fname))
         
 
     def faddr_column(self, feature):
