@@ -23,7 +23,7 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         sqlite3.connect(self.file2).close()
         self.dbname1 = Schema.dbname_from_path(self.file1)
         self.dbname2 = Schema.dbname_from_path(self.file2)
-        self.db = Database([self.file1,self.file2], verbose=True)
+        self.db = Database([self.file1,self.file2], verbose=False)
 
         self.db.create_feature(self.feat, default_value=None, target_db=self.dbname1)
         self.db.set_values(self.feat, self.val1, self.hashes)

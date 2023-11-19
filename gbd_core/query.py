@@ -94,8 +94,8 @@ class GBDQuery:
             if not faddress in result: # join only once
                 fcontext = self.db.dcontext(fdatabase)
                 if fcontext == gcontext:
-                    if ftable == "features": # join features table directly
-                        result[faddress] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, faddress, gaddress, faddress)
+                    if faddress == ffeatures_address: # join features table directly
+                        result[faddress] = "{j} JOIN {t} ON {t}.hash = {g}.hash".format(j=join_type, t=ffeatures_address, g=gaddress)
                     else: # join non-unique features table via features table
                         fname = ftable
                         if not ffeatures_address in result:
@@ -112,8 +112,8 @@ class GBDQuery:
                             #           WHERE opb_meta_db.setid.value = "fami2") 
                             # GROUP BY opb_local_db.features.hash 
                             # ORDER BY opb_local_db.features.hash
-                            result[ffeatures_address] = "{} JOIN {} ON {}.hash = {}.hash".format(join_type, ffeatures_address, gaddress, ffeatures_address)
-                        result[faddress] = "{} JOIN {} ON {}.{} = {}.hash".format(join_type, faddress, ffeatures_address, fname, faddress)
+                            result[ffeatures_address] = "{j} JOIN {t} ON {t}.hash = {g}.hash".format(j=join_type, t=ffeatures_address, g=gaddress)
+                        result[faddress] = "{j} JOIN {t} ON {ft}.{n} = {t}.hash".format(j=join_type, t=faddress, ft=ffeatures_address, n=fname)
                         #           LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash
                 else:
                     tfeat = self.find_translator_feature(gcontext, fcontext)
