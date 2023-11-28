@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/141396410.svg)](https://zenodo.org/doi/10.5281/zenodo.10213943)
+
 # GBD Benchmark Database
 
 GBD Benchmark Database (GBD) is about bridging the gap between research on SAT algorithms and data science. 
