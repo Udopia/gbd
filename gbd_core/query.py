@@ -99,34 +99,8 @@ class GBDQuery:
                     else: # join non-unique features table via features table
                         fname = ftable
                         if not ffeatures_address in result:
-                            # if fdatabase != gdatabase and not addr_feature_table in result:
-                            # ...
-                            ## Debug Query
-                            # SELECT opb_local_db.features.hash, min(DISTINCT(opb_local_db.local.value)) 
-                            # FROM opb_local_db.features  
-                            #   LEFT JOIN opb_local_db.local ON opb_local_db.features.local = opb_local_db.local.hash 
-                            #   LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash 
-                            # WHERE opb_local_db.features.hash != 'None'  
-                            #   AND opb_local_db.features.hash in (SELECT opb_local_db.features.hash FROM opb_local_db.features  
-                            #           LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash 
-                            #           WHERE opb_meta_db.setid.value = "fami2") 
-                            # GROUP BY opb_local_db.features.hash 
-                            # ORDER BY opb_local_db.features.hash
-
-                            # SELECT opb_local_db.features.hash, min(DISTINCT(opb_local_db.local.value))
-                            # FROM opb_local_db.features 
-                            # LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash 
-                            # LEFT JOIN opb_local_db.local ON opb_local_db.features.local = opb_local_db.local.hash 
-                            # WHERE opb_local_db.features.hash != 'None' 
-                            # AND opb_local_db.features.hash in (SELECT opb_local_db.features.hash FROM opb_local_db.features  
-                            #   LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash 
-                            #   WHERE opb_meta_db.setid.value = "fami2") 
-                            # GROUP BY opb_local_db.features.hash 
-                            # ORDER BY opb_local_db.features.hash
-
                             result[ffeatures_address] = "{j} JOIN {t} ON {t}.hash = {g}.hash".format(j=join_type, t=ffeatures_address, g=gaddress)
                         result[faddress] = "{j} JOIN {t} ON {t}.hash = {ft}.{n}".format(j=join_type, t=faddress, ft=ffeatures_address, n=fname)
-                        #           LEFT JOIN opb_meta_db.setid ON opb_local_db.features.setid = opb_meta_db.setid.hash
                 else:
                     tfeat = self.find_translator_feature(gcontext, fcontext)
                     direction = ("hash", tfeat.name) if self.db.dcontext(tfeat.database) == gcontext else (tfeat.name, "hash")
