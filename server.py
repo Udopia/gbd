@@ -59,6 +59,9 @@ def request_page(request):
 def request_action(request):
     return request.form.get('action') if "action" in request.form else "default"
 
+def request_context(request):
+    return request.form.get('context') if "context" in request.form else "cnf"
+
 
 def query_to_name(query):
     return re.sub(r'[^\w]', '_', query)
@@ -181,7 +184,7 @@ def get_file(hashvalue):
         row = df.iloc[0]
         if not os.path.exists(row['local']):
             return error_response("Files temporarily not accessible", request.remote_addr)
-        return path_response(row['local'], row['hash'] + "-" + row['filename'], 'text/plain', request.remote_addr)
+        return path_response(row['local'], row['hash'] + "-" + row['filename'], 'application/x-xz', request.remote_addr)
         
 
 # Resolves a hashvalue against a attribute and returns the result values
