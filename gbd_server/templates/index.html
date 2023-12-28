@@ -14,45 +14,62 @@
     <header>
         <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
         <form method="post" id="mainform">
-            <fieldset>
-                <legend>Select feature database for display</legend>
-                {% for dbname in databases %}
-                    {% if dbname == selected %}
-                    <input type="radio" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" checked>
+            <fieldset style="float:left">
+                <legend>Select Context</legend>
+                {% for c in contexts %}
+                <button type="submit" id="context" name="context" value="{{ c }}" formaction="{{ url_for('quick_search') }}" form="mainform">
+                    {% if c == context %}
+                        <span style="color:var(--link-color-1)">{{ c }}</span>
                     {% else %}
-                    <input type="radio" id="{{ dbname }}" name="selected_db" value="{{ dbname }}">
+                        {{ c }}
                     {% endif %}
-                    <label for="{{ dbname }}"><a href="{{ url_for('get_database_file', database=dbname) }}" title="Download Database">{{ dbname }}</a></label>
+                </button>
                 {% endfor %}
+            </fieldset>
+            <fieldset>
+                <legend>Select and Download '{{ context }}' - Databases</legend>
+                {% for dbname in databases %}
+                    <button type="submit" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" form="mainform">
+                    {% if dbname == selected %}
+                        <span style="color:var(--link-color-1)">{{ dbname }}</span>
+                    {% else %}
+                        {{ dbname }}
+                    {% endif %}
+                    </button>
+                {% endfor %}
+                <span style="width: max-content;"></span>
+                <a href="{{ url_for('get_database_file', database=selected) }}" title="Download Database">Download {{ selected }}</a>
             </fieldset>
             <br />
             <fieldset>
-                <legend>Filter for specific instances</legend>
+                <legend>Query for Instances</legend>
+                <input type="hidden" id="context" name="context" value="{{ context }}">
                 <input type="text" id="query" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
                 <button type="submit" class="submit" formaction="{{ url_for('quick_search') }}" form="mainform" id="action1" name="action1" value="show" title="Query for instances and selected features">Show</button>
-                <button type="submit" class="submit" formaction="{{ url_for('get_url_file') }}" form="mainform" id="action2" name="action2" value="download" title="Download Instance URLs">Download</button>
-                <br />
-                Query Shortcuts: <a href="{{ url_for('quick_search', track='main_2022') }}">Main 2022</a>, <a href="{{ url_for('quick_search', track='anni_2022') }}">Anniversary 2022</a>
             </fieldset>
             <br />
             <div class="info">
-                Found {{ total }} Benchmark Instances.
+                {% if error is not none %}
+                <span style="color:var(--link-color-1)">{{ error }}</span>
+                {% else %}
+                    Found {{ total }} Benchmark Instances
+                {% endif %} 
             </div>
         </form>
         <div class="help">
             <fieldset>
                 <legend>Quickstart</legend>
-                <b>Feature Databases:</b>
-                    Use the radiobuttons to select a feature database to display its features.
-                    Click on the database name to download it.
-                    <br /><br />
-                <b>Query for Instances:</b>
-                    Queries are of the form: "featurename ( '&lt;' | '&gt;' | '=' ) value".
-                    Multiple queries can be combined using the logical operators "and" and "or". 
-                    <br /><br />
-                <b>Download Instances:</b>
-                    The download button generates a text file with the selected instance's URLs. 
-                    Use this file to fetch the instances, e.g., with <i>wget --content-disposition -i /path/to/file</i>.
+                <ul>
+                    <li><b>Query: </b>
+                        Queries are of the form "featurename ( '<' | '>' | '=' ) value" and can be combined with logical operators "and" and "or". 
+                        Example: <a href="{{ url_for('quick_search', track='main_2023') }}">track=main_2023</a>
+                    </li>
+                    <li><b>Download: </b>
+                        The file <a href="{{ url_for('get_url_file') }}">{{ query_name }}.uri</a> contains the download links for the selected instances. 
+                        Download and use this file to fetch the actual instances. 
+                        Example: <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>
+                    </li>
+                </ul>
             </fieldset>
         </div>
     </header>
@@ -70,9 +87,13 @@
             <tr>
                 {% for item in row %}
                     {% if loop.index == 1 %}
-                        <td><a href="{{ url_for('get_file', hashvalue=item) }}">{{ item }}</a></td>
-                    {% elif item and item is link_field %}
+                        <td><a href="{{ url_for('get_file', hashvalue=item, context=context) }}">{{ item }}</a></td>
+                    {% elif item is link_field %}
                         <td><a href="{{ item }}">{{ item }}</a></td>
+                    {% elif item is int_field %}
+                        <td style="text-align: right;">{{ item }}</td>
+                    {% elif item is num_field %}
+                        <td style="text-align: right;">{{ '%0.2f'| format(item|float) }}</td>
                     {% else %}
                         <td>{{ item }}</td>
                     {% endif %}
