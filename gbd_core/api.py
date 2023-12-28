@@ -157,12 +157,15 @@ class GBD:
         self.database.delete_hashes_entirely(hashes, target_db)
 
 
-    def get_databases(self):
+    def get_databases(self, context=None):
         """ Get list of database names
 
             Returns: list of database names
         """
-        return list(self.database.get_databases())
+        if context is None:
+            return list(self.database.get_databases())
+        else:
+            return [ db for db in self.database.get_databases() if self.database.dcontext(db) == context ]
 
 
     def get_database_path(self, dbname):
@@ -176,6 +179,7 @@ class GBD:
         return self.database.dpath(dbname)
     
 
+    @classmethod
     def get_database_name(self, path):
         """ Get database name for given path
 
@@ -185,6 +189,17 @@ class GBD:
             Returns: name of database
         """
         return Schema.dbname_from_path(path)
+    
+
+    def get_contexts(self, dbs=[]):
+        """ Get list of contexts
+
+            Returns: list of contexts
+        """
+        if not len(dbs):
+            return list(self.database.get_contexts())
+        else:
+            return list(set([ self.database.dcontext(db) for db in dbs ]))
 
 
     def get_feature_info(self, fname):
