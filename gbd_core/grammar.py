@@ -62,8 +62,16 @@ class Parser:
             col:(dbname ":" column | column)
             ;
 
+        string
+            =
+            | "'" @:singlequotedstring "'"
+            | '"' @:doublequotedstring '"'
+            | /[a-zA-Z0-9_\.\-\/\,\:\+\=\@]+/
+            ;
+
         number = /[-]?[0-9]+[.]?[0-9]*/ ;
-        string = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@]+/ ;
+        singlequotedstring = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@\s"\*\\]+/ ;
+        doublequotedstring = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@\s'\*\\]+/ ;
         column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
         dbname = /[a-zA-Z][a-zA-Z0-9_]*/ ;
     '''
