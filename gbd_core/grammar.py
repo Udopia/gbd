@@ -34,6 +34,7 @@ class Parser:
         query 
             = 
             | left:query qop:("and" | "or") ~ right:query 
+            | qop:("not") ~ q:query
             | constraint 
             | "(" q:query ")" 
             ;
@@ -117,7 +118,9 @@ class Parser:
     def get_sql(self, db: Database, ast=None):
         try:
             ast = ast if ast else self.ast
-            if "q" in ast:
+            if "qop" in ast and ast["qop"] == "not":
+                return "NOT (" + self.get_sql(db, ast["q"]) + ")"
+            elif "q" in ast:
                 return "(" + self.get_sql(db, ast["q"]) + ")"
             elif "t" in ast:
                 return "(" + self.get_sql(db, ast["t"]) + ")"
