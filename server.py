@@ -95,7 +95,7 @@ def page_response(context, query, database, page=0):
         end = start + 1000
         error = None
         try:
-            df = gbd.query(query, resolve=app.config["features"][database], collapse="GROUP_CONCAT")
+            df = gbd.query(query, resolve=['{}:{}'.format(database, f) for f in app.config["features"][database]], collapse="GROUP_CONCAT")
             #for col in df.columns:
             #    df[col] = df[col].apply(lambda x: round(float(x), 2) if util.is_number(x) and '.' in x else x)
         except GBDException as err:
@@ -144,7 +144,7 @@ def get_csv_file():
     with GBD(app.config['contextdbs'][context], verbose=app.config['verbose']) as gbd:
         query = request_query(request)
         db = request_database(request)
-        features = app.config['features'][db]
+        features = ['{}:{}'.format(db, f) for f in app.config['features'][db]]
         try:
             df = gbd.query(query, [], features)
         except (GBDException, DatabaseException, ParserException) as err:
