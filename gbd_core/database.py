@@ -208,7 +208,7 @@ class Database:
         return [ dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context ]
 
     def get_contexts(self, dbs=[]):
-        return [ s.context for s in self.schemas.values() if not dbs or s.dbname in dbs ]
+        return list(set([ s.context for s in self.schemas.values() if not dbs or s.dbname in dbs ]))
   
     def get_features(self, dbs=[]):
         return [ name for (name, infos) in self.features.items() for info in infos if not dbs or info.database in dbs ]
