@@ -163,6 +163,16 @@
         
 
         
+            <div class="itemName"><code><a href="#get_database_name" class="internal-link" title="gbd_core.api.GBD.get_database_name">get<wbr></wbr>_database<wbr></wbr>_name</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="#identify" class="internal-link" title="gbd_core.api.GBD.identify">identify</a></code>
             </div>
         
@@ -253,7 +263,7 @@
         
 
         
-            <div class="itemName"><code><a href="#get_database_name" class="internal-link" title="gbd_core.api.GBD.get_database_name">get<wbr></wbr>_database<wbr></wbr>_name</a></code>
+            <div class="itemName"><code><a href="#get_contexts" class="internal-link" title="gbd_core.api.GBD.get_contexts">get<wbr></wbr>_contexts</a></code>
             </div>
         
 
@@ -464,7 +474,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">GBD</span>: <a href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L34" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.api.GBD.__init__">GBD(dbs, verbose)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">GBD</span>: <a href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L34" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.api.GBD.__init__">GBD(dbs, verbose)</a></code></p>
           <p><a href="classIndex.html#gbd_core.api.GBD">View In Hierarchy</a></p>
         </div>
 
@@ -477,6 +487,11 @@
   
   
   <tr class="classmethod">
+    
+    <td>Class Method</td>
+    <td><code><a href="#get_database_name" class="internal-link" title="gbd_core.api.GBD.get_database_name">get<wbr></wbr>_database<wbr></wbr>_name</a></code></td>
+    <td>Get database name for given path</td>
+  </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#identify" class="internal-link" title="gbd_core.api.GBD.identify">identify</a></code></td>
@@ -524,8 +539,8 @@
   </tr><tr class="method">
     
     <td>Method</td>
-    <td><code><a href="#get_database_name" class="internal-link" title="gbd_core.api.GBD.get_database_name">get<wbr></wbr>_database<wbr></wbr>_name</a></code></td>
-    <td>Get database name for given path</td>
+    <td><code><a href="#get_contexts" class="internal-link" title="gbd_core.api.GBD.get_contexts">get<wbr></wbr>_contexts</a></code></td>
+    <td>Get list of contexts</td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -592,6 +607,37 @@
           <div class="baseclassmethod">
   
   
+  <a name="gbd_core.api.GBD.get_database_name">
+    
+  </a>
+  <a name="get_database_name">
+    
+  </a>
+  <div class="functionHeader">
+    
+    @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
+    <span class="py-keyword">def</span> <span class="py-defname">get_database_name</span><span class="function-signature">(self, path)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L182">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#get_database_name" title="gbd_core.api.GBD.get_database_name">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Get database name for given path</p>
+<p>Args:
+path (str): path to database</p>
+<p>Returns: name of database</p>
+</div>
+  </div>
+</div><div class="baseclassmethod">
+  
+  
   <a name="gbd_core.api.GBD.identify">
     
   </a>
@@ -602,7 +648,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">identify</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L51">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L51">
       
       (source)
     </a>
@@ -634,7 +680,7 @@ str: GBD hash</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__enter__</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L41">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L41">
       
       (source)
     </a>
@@ -661,7 +707,7 @@ str: GBD hash</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__exit__</span><span class="function-signature">(self, exc_type, exc, traceback)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L47">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L47">
       
       (source)
     </a>
@@ -688,7 +734,7 @@ str: GBD hash</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, dbs: <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code>, verbose: <code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code> = <a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L36">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L36">
       
       (source)
     </a>
@@ -715,7 +761,7 @@ str: GBD hash</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">copy_feature</span><span class="function-signature">(self, old_name, new_name, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, gbd_query=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, hashes=[])</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L297">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L312">
       
       (source)
     </a>
@@ -749,7 +795,7 @@ if None, default database (fist in list) is used</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_feature</span><span class="function-signature">(self, name: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, default_value: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, target_db: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L233">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L248">
       
       (source)
     </a>
@@ -786,7 +832,7 @@ GBDException, if feature already exists in target_db</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">delete_feature</span><span class="function-signature">(self, name, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L254">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L269">
       
       (source)
     </a>
@@ -821,7 +867,7 @@ GBDException, if feature does not exist in target_db</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">delete_hashes</span><span class="function-signature">(self, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L144">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L144">
       
       (source)
     </a>
@@ -855,7 +901,7 @@ GBDException, if feature does not exist</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">feature_exists</span><span class="function-signature">(self, name, dbname=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L220">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L235">
       
       (source)
     </a>
@@ -878,21 +924,21 @@ if None, feature existence is checked for in all databases</p>
 </div><div class="basemethod">
   
   
-  <a name="gbd_core.api.GBD.get_database_name">
+  <a name="gbd_core.api.GBD.get_contexts">
     
   </a>
-  <a name="get_database_name">
+  <a name="get_contexts">
     
   </a>
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">get_database_name</span><span class="function-signature">(self, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L179">
+    <span class="py-keyword">def</span> <span class="py-defname">get_contexts</span><span class="function-signature">(self, dbs=[])</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L194">
       
       (source)
     </a>
-    <a class="headerLink" href="#get_database_name" title="gbd_core.api.GBD.get_database_name">
+    <a class="headerLink" href="#get_contexts" title="gbd_core.api.GBD.get_contexts">
       
       
       ¶
@@ -900,10 +946,8 @@ if None, feature existence is checked for in all databases</p>
   </div>
   <div class="docstring functionBody">
     
-    <div><p>Get database name for given path</p>
-<p>Args:
-path (str): path to database</p>
-<p>Returns: name of database</p>
+    <div><p>Get list of contexts</p>
+<p>Returns: list of contexts</p>
 </div>
   </div>
 </div><div class="basemethod">
@@ -919,7 +963,7 @@ path (str): path to database</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_database_path</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L168">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L171">
       
       (source)
     </a>
@@ -949,8 +993,8 @@ dbname (str): name of database</p>
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">get_databases</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L160">
+    <span class="py-keyword">def</span> <span class="py-defname">get_databases</span><span class="function-signature">(self, context=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L160">
       
       (source)
     </a>
@@ -979,7 +1023,7 @@ dbname (str): name of database</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_feature_info</span><span class="function-signature">(self, fname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L190">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L205">
       
       (source)
     </a>
@@ -1006,7 +1050,7 @@ dbname (str): name of database</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, dbname: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L205">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L220">
       
       (source)
     </a>
@@ -1038,7 +1082,7 @@ if None, feature list is accumulated over all databases</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">query</span><span class="function-signature">(self, gbd_query=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, hashes=[], resolve=[], collapse=<span class="rst-variable-quote">'</span><span class="rst-variable-string">group_concat</span><span class="rst-variable-quote">'</span>, group_by=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, join_type=<span class="rst-variable-quote">'</span><span class="rst-variable-string">LEFT</span><span class="rst-variable-quote">'</span>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L65">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L65">
       
       (source)
     </a>
@@ -1075,7 +1119,7 @@ pandas.DataFrame: query result</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">rename_feature</span><span class="function-signature">(self, old_name, new_name, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L273">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L288">
       
       (source)
     </a>
@@ -1113,7 +1157,7 @@ GBDException,
     
     
     <span class="py-keyword">def</span> <span class="py-defname">reset_values</span><span class="function-signature">(self, feature, values=[], hashes=[], target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L117">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L117">
       
       (source)
     </a>
@@ -1149,7 +1193,7 @@ GBDException, if feature does not exist</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">set_values</span><span class="function-signature">(self, name, value, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L98">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L98">
       
       (source)
     </a>
@@ -1184,7 +1228,7 @@ GBDException, if feature does not exist</p>
   <div class="functionHeader">
     
     <span class="py-defname">database</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L38">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L38">
       
       (source)
     </a>
@@ -1211,7 +1255,7 @@ GBDException, if feature does not exist</p>
   <div class="functionHeader">
     
     <span class="py-defname">verbose</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L39">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L39">
       
       (source)
     </a>
@@ -1238,7 +1282,7 @@ GBDException, if feature does not exist</p>
   <div class="functionHeader">
     
     <span class="py-defname">_stack</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/35a2201e73fede0f9fa6bd6dae6ff5951329dfe2/gbd_core/api.py#L44">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/143da4eb1e93eeb9a44c773f340b148a2c5f2b35/gbd_core/api.py#L44">
       
       (source)
     </a>
@@ -1265,7 +1309,7 @@ GBDException, if feature does not exist</p>
   <div class="container">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    23.9.1 at 2024-02-26 09:37:02.
+    23.9.1 at 2024-02-26 13:11:01.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
