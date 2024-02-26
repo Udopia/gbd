@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='4.7.1',
-  description='GBD Benchmark Database Tools: Maintenance of Benchmark Instances and their Attributes',
+  version='4.7.2',
+  description='GBD Tools: Maintenance and Distribution of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
   url='https://github.com/Udopia/gbd',
-  author='Markus Iser, Karlsruhe Institute of Technology (KIT)',
+  author='Markus Iser',
   author_email='markus.iser@kit.edu',
   packages=[
     "gbd_core", 
@@ -27,7 +27,7 @@ setup(name='gbd_tools',
     'tatsu',
     'pandas',
     'waitress',
-    'pebble',
+    'pebble'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
