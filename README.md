@@ -65,7 +65,7 @@ Filter for specific benchmark instances with gbd-query
 
 ### gbd init
 
-We assume you installed the python extension module ```gdbc``` which is part of [https://github.com/sat-clique/cnftools](cnftools). 
+We assume you installed the python extension module [`gdbc`](https://github.com/Udopia/gbdc). 
 
 All initialization routines can run in parallel and per-process ressource limits can be set. 
 See ```gbd init --help``` for more info.
