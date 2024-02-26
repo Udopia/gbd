@@ -59,14 +59,15 @@ class InitTestCase(unittest.TestCase):
         self.assertEqual(df.iloc[0]['local'], os.path.realpath(self.benchmark))
         self.assertEqual(df.iloc[0]['hash'], self.reference_hash)
 
-    def test_init_features_generic(self):
+    def test_init_cnf_features_generic(self):
         api = GBD([self.file], verbose=False)
         rlimits = { 'jobs': 1, 'tlim': 5000, 'mlim': 2000, 'flim': 1000 }
         init_local(api, rlimits, self.dir, self.name)
         df = api.query("local like %benchmark.cnf", [], ["local"])
         for key in generic_extractors.keys():
-            init_features_generic(key, api, rlimits, df, self.name)
-            for feature in generic_extractors[key]['features']:
-                self.assertTrue(api.feature_exists(feature[0]))
+            if 'cnf' in generic_extractors[key]['contexts']:
+                init_features_generic(key, api, rlimits, df, self.name)
+                for feature in generic_extractors[key]['features']:
+                    self.assertTrue(api.feature_exists(feature[0]))
 
     
