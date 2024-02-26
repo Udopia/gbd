@@ -80,8 +80,10 @@ def cli_copy(api: GBD, args):
 
 def cli_get(api: GBD, args):
     df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type)
+    if args.header:
+        print(args.delimiter.join(df.columns))
     for index, row in df.iterrows():
-        print(" ".join([ item or "[None]" for item in row.to_list() ]))
+        print(args.delimiter.join([ item or "[None]" for item in row.to_list() ]))
 
 def cli_set(api: GBD, args):
     hashes = api.query(args.query, args.hashes)['hash'].tolist()
@@ -164,6 +166,8 @@ def main():
                             help='Treatment of multiple values per hash (or grouping value resp.)')
     parser_get.add_argument('-g', '--group_by', default=None, help='Group by specified attribute value')
     parser_get.add_argument('--join-type', help='Join Type: treatment of missing values in queries', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
+    parser_get.add_argument('-d', '--delimiter', default=' ', help='CSV delimiter to use in output')
+    parser_get.add_argument('-H', '--header', action='store_true', help='Include header information in output')
     parser_get.set_defaults(func=cli_get)
 
     # GBD SET
@@ -225,7 +229,7 @@ def main():
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
         if e.name == 'gbdc':
-            util.eprint("You can install 'gbdc' from source: https://github.com/sat-clique/cnftools")
+            util.eprint("You can install 'gbdc' from source: https://github.com/Udopia/gbdc")
         sys.exit(1)
     except ParserException as e:
         util.eprint("Failed to parse query: " + args.query)
