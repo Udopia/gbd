@@ -164,7 +164,10 @@ def get_url_file():
             df = gbd.query(query)
         except (GBDException, DatabaseException, ParserException) as err:
             return error_response("{}, {}".format(type(err), str(err)), request.remote_addr, errno=500)
-        content = "\n".join([ flask.url_for("get_file", hashvalue=val, _external=True) for val in df['hash'].tolist() ])
+        if context == "cnf":
+            content = "\n".join([ flask.url_for("get_file", hashvalue=val, _external=True) for val in df['hash'].tolist() ])
+        else:
+            content = "\n".join([ flask.url_for("get_file", hashvalue=val, context=context, _external=True) for val in df['hash'].tolist() ])
         return file_response(content, query_to_name(query) + ".uri", "text/uri-list", request.remote_addr)
 
 
