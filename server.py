@@ -253,7 +253,7 @@ def main():
     parser.add_argument('-l', "--logdir", help='Specify logging dir', default=os.environ.get('GBD_LOGS') or pwd, nargs='?')
     parser.add_argument('-p', "--port", help='Specify port on which to listen', default=os.environ.get('GBD_PORT') or 5000, type=int)
     parser.add_argument('-v', "--verbose", help='Verbose Mode', action='store_true')
-    parser.add_argument('-c', '--contexts', default=['cnf'], choices=contexts.contexts(), help='Select contexts to be made available', nargs='*')
+    parser.add_argument('-c', '--contexts', choices=contexts.contexts(), default=os.environ.get('GBD_CXT').split(':'), help='Select contexts to be made available', nargs='*')
     args = parser.parse_args()
 
     formatter = logging.Formatter(fmt='[%(asctime)s, %(name)s, %(levelname)s] %(module)s.%(filename)s.%(funcName)s():%(lineno)d\n%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
