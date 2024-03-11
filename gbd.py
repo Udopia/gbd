@@ -120,7 +120,7 @@ def main():
     # INITIALIZATION 
     parser_init = subparsers.add_parser('init', help='Initialize Database')
     add_resource_limits_arguments(parser_init)
-    parser_init.add_argument('--target_db', help='Target database; determines target context (default: first db in list)', default=None)
+    parser_init.add_argument('--target', help='Target database for new features (default: first db in list); also determines target context', default=None)
 
     parser_init_subparsers = parser_init.add_subparsers(help='Select Initialization Procedure:', required=True, dest='init what?')
 
