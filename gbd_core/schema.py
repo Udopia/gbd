@@ -146,7 +146,7 @@ class Schema:
 
     @classmethod
     def dbname_from_path(cls, path):
-        filename = os.path.basename(path)
+        filename = os.path.splitext(os.path.basename(path))[0]
         if filename[0].isdigit():
             filename = "cnf_" + filename
         return re.sub("[^a-zA-Z0-9]", "_", filename)
