@@ -1,7 +1,7 @@
 FROM python:slim
 
 #ENV GBD_DB=/gbd/meta.db:/gbd/base.db:/gbd/gate.db
-ENV GBD_LOGS=/raid/gbd/logs
+ENV GBD_LOGS=/logs
 ENV GBD_PORT=44071
 
 RUN apt-get update -y \
@@ -19,4 +19,4 @@ WORKDIR /gbd
 
 EXPOSE 44071
 
-ENTRYPOINT [ "gbd-server" ]
+ENTRYPOINT [ "gbd", "serve" ]
