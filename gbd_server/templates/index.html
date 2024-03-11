@@ -27,7 +27,7 @@
                 {% endfor %}
             </fieldset>
             <fieldset>
-                <legend>Select and Download '{{ context }}' - Databases</legend>
+                <legend>Select '{{ context }}' Database</legend>
                 {% for dbname in databases %}
                     <button type="submit" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" form="mainform">
                     {% if dbname == selected %}
@@ -37,8 +37,6 @@
                     {% endif %}
                     </button>
                 {% endfor %}
-                <span style="width: max-content;"></span>
-                <a href="{{ url_for('get_database_file', database=selected) }}" title="Download Database">Download {{ selected }}</a>
             </fieldset>
             <br />
             <fieldset>
@@ -60,14 +58,16 @@
             <fieldset>
                 <legend>Quickstart</legend>
                 <ul>
-                    <li><b>Query: </b>
-                        Queries are of the form "featurename ( '<' | '>' | '=' ) value" and can be combined with logical operators "and" and "or". 
-                        Example: <a href="{{ url_for('quick_search', track='main_2023') }}">track=main_2023</a>
+                    <li><b>Query for Instances:</b><br />
+                        Constraints are of the form "featurename operator value" and can be combined with "and" and "or".<br />
+                        Query Example: <a href="{{ url_for('quick_search', track='main_2023') }}">track=main_2023</a>
                     </li>
-                    <li><b>Download: </b>
-                        The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances. 
-                        Download and use this file to fetch the actual instances. 
-                        Example: <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>
+                    <li><b>Download Instances:</b><br />
+                        The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances.<br />
+                        Usage Example: <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>
+                    </li>
+                    <li><b>Download Selected Database:</b><br />
+                        <a href="{{ url_for('get_database_file', database=selected) }}" title="Download Database">Download {{ selected }}</a>
                     </li>
                 </ul>
             </fieldset>
@@ -109,10 +109,14 @@
             {% if pages > 0 %}
                 Showing 1000 of {{ total }} instances. Select page: 
                 {% for i in range(0, pages) %}
-                    {% if i == page %}
-                    <button type="submit" formaction="/" form="mainform" name="page" value="{{ i }}" style="color:var(--link-color-1);">{{ i + 1 }}</button>
-                    {% else %}
-                    <button type="submit" formaction="/" form="mainform" name="page" value="{{ i }}">{{ i + 1 }}</button>
+                    {% if i < 2 or i > pages - 3 or (i > page - 3 and i < page + 3) %}
+                        {% if i == page %}
+                        <button type="submit" formaction="/" form="mainform" name="page" value="{{ i }}" style="color:var(--link-color-1);">{{ i + 1 }}</button>
+                        {% else %}
+                        <button type="submit" formaction="/" form="mainform" name="page" value="{{ i }}">{{ i + 1 }}</button>
+                        {% endif %}
+                    {% elif i == 3 or i == pages - 3 %}
+                        ...
                     {% endif %}
                 {% endfor %}
             {% else %}

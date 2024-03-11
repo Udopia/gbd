@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='4.8.0',
+  version='4.8.1',
   description='GBD Tools: Maintenance and Distribution of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -14,8 +14,7 @@ setup(name='gbd_tools',
     "gbd_server"
   ],
   scripts=[
-    "gbd.py", 
-    "server.py"
+    "gbd.py"
   ],
   include_package_data=True,
   setup_requires=[
@@ -36,8 +35,7 @@ setup(name='gbd_tools',
   ],
   entry_points={
     "console_scripts": [
-        "gbd = gbd:main",
-        "gbd-server = server:main"
+        "gbd = gbd:main"
     ]
   }
 )

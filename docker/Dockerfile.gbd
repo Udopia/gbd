@@ -19,4 +19,4 @@ WORKDIR /gbd
 
 EXPOSE 44071
 
-ENTRYPOINT [ "gbd-server" ]
+ENTRYPOINT [ "gbd", "serve" ]
