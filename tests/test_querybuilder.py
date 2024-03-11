@@ -43,12 +43,14 @@ class QueryNonUniqueTestCase(unittest.TestCase):
             os.remove(self.file2)
         return super().tearDown()
     
-    def query(self, feat, val, dbname=None):
+    def simple_query(self, feat, val, dbname=None):
         if dbname is None:
-            qb = GBDQuery(self.db, "{}={}".format(feat, val))
+            return self.query("{}={}".format(feat, val))
         else:
-            qb = GBDQuery(self.db, "{}:{}={}".format(dbname, feat, val))
-        q = qb.build_query()
+            return self.query("{}:{}={}".format(dbname, feat, val))
+    
+    def query(self, query):
+        q = GBDQuery(self.db, query).build_query()
         return [ hash for (hash, ) in self.db.query(q) ]
 
     def dump(self):
@@ -60,15 +62,21 @@ class QueryNonUniqueTestCase(unittest.TestCase):
 
 
     def test_feature_precedence_rules(self):
-        res = self.query(self.feat, self.val1)
+        res = self.simple_query(self.feat, self.val1)
         self.assertEqual(len(res), 3)
-        res = self.query(self.feat, self.val2)
+        res = self.simple_query(self.feat, self.val2)
         self.assertEqual(len(res), 0)
-        res = self.query(self.feat, self.val1, self.dbname1)
+        res = self.simple_query(self.feat, self.val1, self.dbname1)
         self.assertEqual(len(res), 3)
-        res = self.query(self.feat, self.val2, self.dbname2)
+        res = self.simple_query(self.feat, self.val2, self.dbname2)
         self.assertEqual(len(res), 3)
 
+    def test_string_inequality(self):
+        res = self.query("{} < {}".format(self.feat, self.val2))
+        self.assertEqual(len(res), 3)
+        res = self.query("{} > {}".format(self.feat, self.val1))
+        self.assertEqual(len(res), 0)
+
     def test_feature_accessible(self):
-        res = self.query(self.feat2, self.val2)
+        res = self.simple_query(self.feat2, self.val2)
         self.assertEqual(len(res), 3)
