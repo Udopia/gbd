@@ -41,7 +41,7 @@ class Parser:
 
         constraint 
             = 
-            | col:(dbname ":" column | column) cop:("=" | "!=") str:string 
+            | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) str:string 
             | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
             | col:(dbname ":" column | column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
