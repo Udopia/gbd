@@ -34,30 +34,30 @@ def cli_hash(api: GBD, args):
 def cli_init_local(api: GBD, args):
     from gbd_init.feature_extractors import init_local
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_local(api, rlimits, args.path, args.target_db)
+    init_local(api, rlimits, args.path, args.target)
 
 
 def cli_init_generic(api: GBD, args):
     from gbd_init.feature_extractors import init_features_generic
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    context = api.database.dcontext(args.target_db)
+    context = api.database.dcontext(args.target)
     df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN", group_by=context + ":hash")
-    init_features_generic(args.initfuncname, api, rlimits, df, args.target_db)
+    init_features_generic(args.initfuncname, api, rlimits, df, args.target)
 
 
 def cli_trans_cnf2kis(api: GBD, args):
     from gbd_init.benchmark_transformers import init_transform_cnf_to_kis
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, args.target_db, args.source)
+    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, args.target, args.source)
 
 def cli_trans_sani(api: GBD, args):
     from gbd_init.benchmark_transformers import init_sani
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_sani(api, rlimits, args.query, args.hashes, args.target_db, args.source)
+    init_sani(api, rlimits, args.query, args.hashes, args.target, args.source)
 
 
 def cli_create(api: GBD, args):
-    api.create_feature(args.name, args.unique, args.target_db)
+    api.create_feature(args.name, args.unique, args.target)
 
 def cli_delete(api: GBD, args):
     if args.hashes and len(args.hashes) or args.values and len(args.values):
@@ -69,13 +69,13 @@ def cli_delete(api: GBD, args):
 def cli_cleanup(api: GBD, args):
     if args.hashes and len(args.hashes):
         if args.force or util.confirm("Delete attributes of given hashes from all features?"):
-            api.delete_hashes(args.hashes, args.target_db)
+            api.delete_hashes(args.hashes, args.target)
 
 def cli_rename(api: GBD, args):
     api.rename_feature(args.old_name, args.new_name)
 
 def cli_copy(api: GBD, args):
-    api.copy_feature(args.old_name, args.new_name, args.target_db, args.query, args.hashes)
+    api.copy_feature(args.old_name, args.new_name, args.target, args.query, args.hashes)
 
 
 def cli_get(api: GBD, args):
@@ -111,6 +111,16 @@ def cli_info(api: GBD, args):
             print("{}: {}".format(key, info[key]))
 
 
+def cli_server(api: GBD, args):
+    from gbd_server import server
+    util.eprint("Starting GBD Server on port {}...".format(args.port))
+    util.eprint(r'''
+Warning: All files referenced in the configured databases are now accessible on the specified port.
+If you do not trust the source of the databases, do not run the server.
+''')
+    server.serve(api, args.port, args.logdir)
+
+
 ### Define Command-Line Interface and Map Sub-Commands to Methods
 def main():
     parser = get_gbd_argparser()
@@ -139,7 +149,7 @@ def main():
     parser_trans = subparsers.add_parser('transform', help='Transform Benchmarks')
     add_resource_limits_arguments(parser_trans)
     parser_trans.add_argument('--source', help='Source context', default='cnf')
-    parser_trans.add_argument('--target_db', help='Target database; determines target context (default: first db in list)', default=None)
+    parser_trans.add_argument('--target', help='Target database; determines target context (default: first db in list)', default=None)
 
     parser_trans_subparsers = parser_trans.add_subparsers(help='Select Transformation Procedure:', required=True, dest='transform how?')
     
@@ -181,7 +191,7 @@ def main():
     parser_create = subparsers.add_parser('create', help='Create a new feature')
     parser_create.add_argument('name', type=column_type, help='Name of feature')
     parser_create.add_argument('-u', '--unique', help='Unique constraint: specify default-value of feature')
-    parser_create.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_create.add_argument('--target', help='Target database (default: first in list)', default=None)
     parser_create.set_defaults(func=cli_create)
 
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
@@ -194,7 +204,7 @@ def main():
     parser_cleanup = subparsers.add_parser('cleanup', help='Delete given hashes from all features')
     parser_cleanup.add_argument('--hashes', help='Hashes for which to delete values', nargs='*', default=[])
     parser_cleanup.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
-    parser_cleanup.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_cleanup.add_argument('--target', help='Target database (default: first in list)', default=None)
     parser_cleanup.set_defaults(func=cli_cleanup)
 
     parser_rename = subparsers.add_parser('rename', help='Rename feature')
@@ -204,7 +214,7 @@ def main():
 
     parser_copy = subparsers.add_parser('copy', help='Copy feature')
     add_query_and_hashes_arguments(parser_copy)
-    parser_copy.add_argument('--target_db', help='Target database (default: first in list)', default=None)
+    parser_copy.add_argument('--target', help='Target database (default: first in list)', default=None)
     parser_copy.add_argument('old_name', type=column_type, help='Old name of feature')
     parser_copy.add_argument('new_name', type=column_type, help='New name of feature')
     parser_copy.set_defaults(func=cli_copy)
@@ -214,16 +224,20 @@ def main():
     parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_info.set_defaults(func=cli_info)
 
+    # RUN SERVER
+    parser_server = subparsers.add_parser('serve', help='Run GBD Server')
+    parser_server.add_argument('-p', "--port", help='Specify port on which to listen', default=os.environ.get('GBD_PORT') or 5000, type=int)
+    parser_server.add_argument('-l', "--logdir", help='Specify directory for logfiles', default=os.environ.get('GBD_LOGS') or "./")
+    parser_server.set_defaults(func=cli_server)
+
     # PARSE ARGUMENTS
     args = parser.parse_args()
     try:
         if hasattr(args, 'hashes') and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        if hasattr(args, 'target_db') and args.target_db is None:
-            args.target_db = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
-        if not args.db:
-            raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Get databases: http://gbd.iti.kit.edu/)")
+        if hasattr(args, 'target') and args.target is None:
+            args.target = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
         with GBD(args.db.split(os.pathsep), args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
