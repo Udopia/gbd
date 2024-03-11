@@ -65,7 +65,7 @@
                         Example: <a href="{{ url_for('quick_search', track='main_2023') }}">track=main_2023</a>
                     </li>
                     <li><b>Download: </b>
-                        The file <a href="{{ url_for('get_url_file', context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances. 
+                        The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances. 
                         Download and use this file to fetch the actual instances. 
                         Example: <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>
                     </li>
