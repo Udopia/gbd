@@ -94,13 +94,22 @@ def cli_set(api: GBD, args):
 
 
 def cli_info(api: GBD, args):
-    if args.name is None:
+    if args.contexts:
+        print("# Available Contexts: " + ", ".join(contexts.contexts()))
+        for context in contexts.contexts():
+            print()
+            print("## " + contexts.context_data[context]['description'])
+            print(" - Context Prefix: " + context)
+            print(" - File Extensions: " + ",".join(contexts.suffix_list(context)))
+    elif args.name is None:
+        print("# Available Data Sources: " + ", ".join(api.get_databases()))
         for dbname in api.get_databases():
             if len(api.get_features(dbname)):
-                print("\nDatabase: {}".format(api.get_database_path(dbname)))
-                print("Name: " + dbname)
+                print()
+                print("## " + api.get_database_path(dbname))
+                print(" - Name: " + dbname)
                 feat = api.get_features(dbname)
-                print("Features: " + " ".join(feat))
+                print(" - Features: " + " ".join(feat))
                 if args.verbose:
                     for f in feat:
                         info = api.database.find(":".join([ dbname, f ]))
@@ -221,6 +230,7 @@ def main():
 
     # GET META INFO
     parser_info = subparsers.add_parser('info', help='Print info about available features')
+    parser_info.add_argument('-c', '--contexts', action='store_true', help='Print available contexts')
     parser_info.add_argument('name', type=column_type, help='Print info about specified feature', nargs='?')
     parser_info.set_defaults(func=cli_info)
 
