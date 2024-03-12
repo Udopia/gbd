@@ -38,7 +38,7 @@ header > img {
   filter: drop-shadow(-11px -7px 3px var(--border-color));
 }
 
-header > form {
+header > .form {
   float: left;
   margin: 1em;
 }
