@@ -13,54 +13,65 @@
 <div class="main">
     <header>
         <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
-        <form method="post" id="mainform">
+        <div class="form">
+            <form method="post" id="contextform">
             <fieldset style="float:left">
                 <legend>Select Context</legend>
+                <input type="hidden" id="selected_db" name="selected_db" value="">
+                <input type="hidden" id="query" name="query" value="">
                 {% for c in contexts %}
-                <button type="submit" id="context" name="context" value="{{ c }}" formaction="{{ url_for('quick_search') }}" form="mainform">
+                <button type="submit" id="context" name="context" value="{{ c }}" formaction="{{ url_for('quick_search') }}" title="Select problem domain">
                     {% if c == context %}
-                        <span style="color:var(--link-color-1)">{{ c }}</span>
+                    <span style="color:var(--link-color-1)">{{ c }}</span>
                     {% else %}
-                        {{ c }}
+                    {{ c }}
                     {% endif %}
                 </button>
                 {% endfor %}
             </fieldset>
+            </form>
+            <form method="post" id="dbform">
             <fieldset>
                 <legend>Select '{{ context }}' Database</legend>
+                <input type="hidden" id="context" name="context" value="{{ context }}">
+                <input type="hidden" id="query" name="query" value="{{ query }}">
                 {% for dbname in databases %}
-                    <button type="submit" id="{{ dbname }}" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" form="mainform">
+                <button type="submit" id="selected_db" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" title="Select database to display">
                     {% if dbname == selected %}
-                        <span style="color:var(--link-color-1)">{{ dbname }}</span>
+                    <span style="color:var(--link-color-1)">{{ dbname }}</span>
                     {% else %}
-                        {{ dbname }}
+                    {{ dbname }}
                     {% endif %}
-                    </button>
+                </button>
                 {% endfor %}
             </fieldset>
+            </form>
             <br />
-            <fieldset>
-                <legend>Query for Instances</legend>
-                <input type="hidden" id="context" name="context" value="{{ context }}">
-                <input type="text" id="query" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
-                <button type="submit" class="submit" formaction="{{ url_for('quick_search') }}" form="mainform" id="action1" name="action1" value="show" title="Query for instances and selected features">Show</button>
-            </fieldset>
-            <br />
-            <div class="info">
-                {% if error is not none %}
-                <span style="color:var(--link-color-1)">{{ error }}</span>
-                {% else %}
-                    Found {{ total }} Benchmark Instances
-                {% endif %} 
-            </div>
-        </form>
+            <form method="post" id="mainform">
+                <fieldset>
+                    <legend>Query for Instances</legend>
+                    <input type="hidden" id="context" name="context" value="{{ context }}">
+                    <input type="hidden" id="selected_db" name="selected_db" value="{{ selected }}">
+                    <input type="text" id="query" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
+                    <button type="submit" class="submit" formaction="{{ url_for('quick_search') }}" form="mainform" id="queryaction" value="show" title="Query for instances and selected features">Show</button>
+                </fieldset>
+                <br />
+                <div class="info">
+                    {% if error is not none %}
+                    <span style="color:var(--link-color-1)">{{ error }}</span>
+                    {% else %}
+                        Found {{ total }} Benchmark Instances
+                    {% endif %} 
+                </div>
+            </form>
+        </div>
         <div class="help">
             <fieldset>
                 <legend>Quickstart</legend>
                 <ul>
                     <li><b>Query for Instances:</b><br />
                         Constraints are of the form "featurename operator value" and can be combined with "and" and "or".<br />
-                        Query Example: <a href="{{ url_for('quick_search', track='main_2023') }}">track=main_2023</a>
+                        Query Example: <a href="{{ url_for('quick_search', track='main_2023', context='cnf') }}">track=main_2023</a>
                     </li>
                     <li><b>Download Instances:</b><br />
                         The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances.<br />
