@@ -23,6 +23,7 @@ from gbd_core.grammar import ParserException
 from gbd_core import util, contexts, schema
 from gbd_core.util_argparse import *
 from gbd_init.feature_extractors import generic_extractors
+from gbd_init.instance_transformers import generic_transformers
 
 
 ### Command-Line Interface Entry Points
@@ -45,15 +46,10 @@ def cli_init_generic(api: GBD, args):
     init_features_generic(args.initfuncname, api, rlimits, df, args.target)
 
 
-def cli_trans_cnf2kis(api: GBD, args):
-    from gbd_init.benchmark_transformers import init_transform_cnf_to_kis
+def cli_trans_generic(api: GBD, args):
+    from gbd_init.instance_transformers import transform_instances_generic
     rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_transform_cnf_to_kis(api, rlimits, args.query, args.hashes, args.target, args.source)
-
-def cli_trans_sani(api: GBD, args):
-    from gbd_init.benchmark_transformers import init_sani
-    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
-    init_sani(api, rlimits, args.query, args.hashes, args.target, args.source)
+    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source)
 
 
 def cli_create(api: GBD, args):
@@ -150,7 +146,8 @@ def main():
 
     # hooks for generic feature extractors:
     for key in generic_extractors.keys():
-        parser_init_generic = parser_init_subparsers.add_parser(key, help='Initialize Featureset {}, valid contexts are: {}'.format(key, ", ".join(generic_extractors[key]["contexts"])))
+        gex = generic_extractors[key]
+        parser_init_generic = parser_init_subparsers.add_parser(key, help=gex["description"])
         add_query_and_hashes_arguments(parser_init_generic)
         parser_init_generic.set_defaults(func=cli_init_generic, initfuncname=key)
 
@@ -161,15 +158,13 @@ def main():
     parser_trans.add_argument('--target', help='Target database; determines target context (default: first db in list)', default=None)
 
     parser_trans_subparsers = parser_trans.add_subparsers(help='Select Transformation Procedure:', required=True, dest='transform how?')
-    
-    # generate kis instances from cnf instances:
-    parser_trans_cnf2kis = parser_trans_subparsers.add_parser('cnf2kis', help='Generate KIS Instances from CNF Instances')
-    add_query_and_hashes_arguments(parser_trans_cnf2kis)
-    parser_trans_cnf2kis.set_defaults(func=cli_trans_cnf2kis)
-    # init sanitized:
-    parser_trans_sani = parser_trans_subparsers.add_parser('sanitize', help='Initialize sanitized benchmarks')
-    add_query_and_hashes_arguments(parser_trans_sani)
-    parser_trans_sani.set_defaults(func=cli_trans_sani)
+
+    # hooks for generic instance transformers:
+    for key in generic_transformers.keys():
+        gex = generic_transformers[key]
+        parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"])
+        add_query_and_hashes_arguments(parser_trans_generic)
+        parser_trans_generic.set_defaults(func=cli_trans_generic, transfuncname=key)
 
     # GBD HASH
     parser_hash = subparsers.add_parser('hash', help='Print hash for a single file')

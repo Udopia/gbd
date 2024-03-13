@@ -96,26 +96,31 @@ def compute_opb_base_features(hash, path, limits):
 
 generic_extractors = {
     "base" : {
+        "description" : "Extract base features from CNF files. ",
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
     },
     "gate" : {
+        "description" : "Extract gate features from CNF files. ",
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in gate_feature_names() ],
         "compute" : compute_gate_features,
     },
     "isohash" : {
+        "description" : "Compute ISOHash for CNF or WCNF files. ",
         "contexts" : [ "cnf", "wcnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
     },
     "wcnfbase" : {
+        "description" : "Extract base features from WCNF files. ",
         "contexts" : [ "wcnf" ],
         "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
         "compute" : compute_wcnf_base_features,
     },
     "opbbase" : {
+        "description" : "Extract base features from OPB files. ",
         "contexts" : [ "opb" ],
         "features" : [ (name, "empty") for name in opb_base_feature_names() ],
         "compute" : compute_opb_base_features,
