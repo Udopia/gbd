@@ -27,10 +27,10 @@ def get_gbd_argparser():
 
 def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('query', help='GBD Query', nargs='?')
-    parser.add_argument('--hashes', help='Give Hashes as ARGS or via STDIN', nargs='*', default=[])
+    parser.add_argument('--hashes', help='Explicitly select instances: Hashes can be passed as arguments to this option, but also via <stdin>.', nargs='*', default=[])
 
 def add_resource_limits_arguments(parser: argparse.ArgumentParser):
-    parser.add_argument('-j', "--jobs", default=1, type=int, help='Specify number of parallel jobs')
+    parser.add_argument('-j', "--jobs", default=1, type=int, help='Set number of parallel jobs')
     parser.add_argument('-t', '--tlim', default=5000, type=int, help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')")
     parser.add_argument('-m', '--mlim', default=2000, type=int, help="Memory limit (MB) per instance for 'init' sub-commands")
     parser.add_argument('-f', '--flim', default=1000, type=int, help="File size limit (MB) per instance for 'init' sub-commands which create files")

@@ -179,12 +179,12 @@ def main():
     # GBD GET $QUERY
     parser_get = subparsers.add_parser('get', help='Get data by query (or hash-list via stdin)')
     add_query_and_hashes_arguments(parser_get)
-    parser_get.add_argument('-r', '--resolve', help='List of features to resolve against', nargs='+', default=[])
+    parser_get.add_argument('-r', '--resolve', help='List of feature names to resolve against', nargs='+', default=[])
     parser_get.add_argument('-c', '--collapse', default='group_concat', 
                             choices=['group_concat', 'min', 'max', 'avg', 'count', 'sum', 'none'], 
-                            help='Treatment of multiple values per hash (or grouping value resp.)')
-    parser_get.add_argument('-g', '--group_by', default=None, help='Group by specified attribute value')
-    parser_get.add_argument('--join-type', help='Join Type: treatment of missing values in queries', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
+                            help='Specify a function for the handling of multiple feature values')
+    parser_get.add_argument('-g', '--group_by', default=None, help='Group by the specified feature as the key, rather than by the primary key')
+    parser_get.add_argument('--join-type', help='Join Type: treatment of missing values', choices=['INNER', 'OUTER', 'LEFT'], default="LEFT")
     parser_get.add_argument('-d', '--delimiter', default=' ', help='CSV delimiter to use in output')
     parser_get.add_argument('-H', '--header', action='store_true', help='Include header information in output')
     parser_get.set_defaults(func=cli_get)
@@ -253,7 +253,7 @@ def main():
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
         if e.name == 'gbdc':
-            util.eprint("You can install 'gbdc' from source: https://github.com/Udopia/gbdc")
+            util.eprint("Find installation instructions at https://github.com/Udopia/gbdc")
         sys.exit(1)
     except ParserException as e:
         util.eprint("Failed to parse query: " + args.query)
