@@ -24,7 +24,14 @@ from gbd_core import util
 from gbd_core.contexts import identify
 from gbd_init.initializer import Initializer, InitializerException
 
-import gbdc
+try:
+    from gbdc import cnf2kis, sanitize
+except ImportError:
+    def cnf2kis(ipath, opath, maxedges, maxnodes, tlim, mlim, flim):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+    
+    def sanitize(ipath, tlim, mlim):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
 
 # Transform SAT Problem to k-Independent Set Problem
@@ -32,11 +39,17 @@ def kis_filename(path):
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
     return kispath + '.kis'
 
-def cnf2kis(hash, path, limits):
+# Sanitize CNF
+def sanitized_filename(path):
+    sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
+    return sanpath + '.sanitized.cnf'
+
+
+def wrap_cnf2kis(hash, path, limits):
     kispath = kis_filename(path)
     util.eprint('Transforming {} to k-ISP {}'.format(path, kispath))
     try:
-        result = gbdc.cnf2kis(path, kispath, 2**32, 2**32, limits['tlim'], limits['mlim'], limits['flim'])
+        result = cnf2kis(path, kispath, 2**32, 2**32, limits['tlim'], limits['mlim'], limits['flim'])
         if "local" in result:
             kishash = result['hash']
             return [ ('local', kishash, result['local']), ('to_cnf', kishash, hash),
@@ -50,54 +63,55 @@ def cnf2kis(hash, path, limits):
 
     return [ ]
 
-def init_transform_cnf_to_kis(api: GBD, rlimits, query, hashes, target_db, source):
-    if source != 'cnf':
-        raise InitializerException("Source database must be in context 'cnf'")
-    if api.database.dcontext(target_db) != 'kis':
-        raise InitializerException("Target database must be in context 'kis'")
-    features = [ ('local', None), ('to_cnf', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ]
-    transformer = Initializer(api, rlimits, target_db, features, cnf2kis)
-    transformer.create_features()
-
-    df = api.query(query, hashes, [source+":local"], collapse=None)
-    dfilter = df['local'].apply(lambda x: x and not os.path.isfile(kis_filename(x)))
-
-    transformer.run(df[dfilter])
-
-
-# Sanitize CNF
-def sanitized_filename(path):
-    sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
-    return sanpath + '.sanitized.cnf'
-
-def sanitize_cnf(hash, path, limits):
-    util.eprint('Sanitizing {}'.format(path))
-
+def wrap_sanitize(hash, path, limits):
     sanname = sanitized_filename(path)
+    util.eprint('Sanitizing {}'.format(path))
     try:
         with open(sanname, 'w') as f, util.stdout_redirected(f):
-            if gbdc.sanitize(path): 
+            if sanitize(path): 
                 sanhash = identify(sanname)
                 return [ ('local', sanhash, sanname), ('to_cnf', sanhash, hash) ]
             else:
                 raise GBDException("Sanitization failed for {}".format(path))
     except Exception as e:
         util.eprint(str(e))
-        os.remove(sanname)
+        if os.path.exists(sanname):
+            os.remove(sanname)
 
     return [ ]
 
-def init_sani(api: GBD, rlimits, query, hashes, target_db, source):
-    if source != 'cnf':
-        raise InitializerException("Source database must be in context 'cnf'")
-    if api.database.dcontext(target_db) != 'sancnf':
-        raise InitializerException("Target database must be in context 'sancnf'")
-    features = [ ('local', None) , ('to_cnf', None) ]
-    transformer = Initializer(api, rlimits, target_db, features, sanitize_cnf)
+
+def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, target_db, source):
+    einfo = generic_transformers[key]
+    context = api.database.dcontext(target_db)
+    if not context in einfo["target"]:
+        raise InitializerException("Target database context must be in {}".format(einfo["target"]))
+    if not source in einfo["source"]:
+        raise InitializerException("Source database context must be in {}".format(einfo["source"]))
+    transformer = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"])
     transformer.create_features()
 
     df = api.query(query, hashes, [source+":local"], collapse=None)
-    dfilter = df['local'].apply(lambda x: x and not os.path.isfile(sanitized_filename(x)))
+    dfilter = df['local'].apply(lambda x: x and not os.path.isfile(einfo["filename"](x)))
 
     transformer.run(df[dfilter])
 
+
+generic_transformers = {
+    "sanitize" : {
+        "description" : "Sanitize CNF files. ",
+        "source" : [ "cnf" ],
+        "target" : [ "sancnf" ],
+        "features" : [ ('local', None) , ('to_cnf', None) ],
+        "compute" : wrap_sanitize,
+        "filename" : sanitized_filename,
+    },
+    "cnf2kis" : {
+        "description" : "Transform CNF files to k-ISP instances. ",
+        "source" : [ "cnf" ],
+        "target" : [ "kis" ],
+        "features" : [ ('local', None), ('to_cnf', None), ('nodes', 'empty'), ('edges', 'empty'), ('k', 'empty') ],
+        "compute" : wrap_cnf2kis,
+        "filename" : kis_filename,
+    },
+}
