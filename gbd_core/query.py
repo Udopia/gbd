@@ -103,7 +103,7 @@ class GBDQuery:
                         result[faddress] = "{j} JOIN {t} ON {t}.hash = {ft}.{n}".format(j=join_type, t=faddress, ft=ffeatures_address, n=fname)
                 else:
                     tfeat = self.find_translator_feature(gcontext, fcontext)
-                    direction = ("hash", tfeat.name) if self.db.dcontext(tfeat.database) == gcontext else (tfeat.name, "hash")
+                    direction = ("hash", "value") if self.db.dcontext(tfeat.database) == gcontext else ("value", "hash")
                     
                     taddress = tfeat.database + "." + tfeat.table
                     if not taddress in result:                           
