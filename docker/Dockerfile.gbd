@@ -13,10 +13,6 @@ RUN pip install --no-cache-dir gbd-tools
 
 WORKDIR /gbd
 
-#RUN wget --no-cache --no-cookies https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/meta.db
-#RUN wget --no-cache --no-cookies https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/base.db
-#RUN wget --no-cache --no-cookies https://git.scc.kit.edu/fv2117/gbd-data/-/raw/master/gbdnew/gate.db
-
 EXPOSE 44071
 
 ENTRYPOINT [ "gbd", "serve" ]

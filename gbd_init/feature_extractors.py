@@ -26,28 +26,28 @@ try:
     from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features
 except ImportError:
     def extract_base_features(path, tlim, mlim):
-        return [ ]
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
     
     def base_feature_names():
         return [ ]
 
     def extract_gate_features(path, tlim, mlim):
-        return [ ]
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def gate_feature_names():
         return [ ]
     
     def isohash(path):
-        return [ ]
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def extract_wcnf_base_features(path, tlim, mlim):
-        return [ ]
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
     
     def wcnf_base_feature_names():
         return [ ]
 
     def extract_opb_base_features(path, tlim, mlim):
-        return [ ]
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def opb_base_feature_names():
         return [ ]
