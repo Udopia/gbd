@@ -227,7 +227,7 @@ class GBD:
             Returns: list of features names
         """
         lst = self.database.get_features([] if not dbname else [dbname])
-        if "hash" in lst:
+        while "hash" in lst:
             lst.remove("hash")
         return lst
 
