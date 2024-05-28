@@ -41,26 +41,22 @@ class Parser:
 
         constraint 
             = 
-            | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) str:string 
             | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
+            | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) str:string 
             | col:(dbname ":" column | column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
             ;
 
         termstart 
             = 
-            t:term
+            ("(") t:term (")")
             ;
 
         term 
             = 
-            | left:(term | termend) top:("+" | "-" | "*" | "/") right:(term | termend)
-            | ("(") t:(term | termend) (")")
+            | left:term top:("+" | "-" | "*" | "/") right:term
+            | ("(") t:term (")")
             | constant:number
-            ;
-
-        termend
-            =
-            col:(dbname ":" column | column)
+            | col:(dbname ":" column | column)
             ;
 
         string

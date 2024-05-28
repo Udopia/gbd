@@ -44,7 +44,7 @@ class SchemaTestCase(unittest.TestCase):
         self.assertEqual(parser.get_features(), set(["a"]))
         parser = Parser("a = (1 - 2)")
         self.assertEqual(parser.get_features(), set(["a"]))
-        parser = Parser("a = (1 + 2) / b")
+        parser = Parser("a = ((1 + 2) / b)")
         self.assertEqual(parser.get_features(), set(["a", "b"]))
         parser = Parser("a = (b)")
         self.assertEqual(parser.get_features(), set(["a", "b"]))
