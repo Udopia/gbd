@@ -26,7 +26,7 @@ class InitializerException(Exception):
 
 class Initializer:
 
-    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc):
+    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, haspool=False):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
@@ -51,8 +51,17 @@ class Initializer:
     def run(self, instances: pd.DataFrame):
         if self.rlimits['jobs'] == 1:
             self.init_sequential(instances)
+        elif self.haspool:
+            self.init_parallel2(instances)
         else:
             self.init_parallel(instances)
+
+
+    def init_parallel2(self, instances: pd.DataFrame):
+        handle = self.initfunc(instances, self.rlimits) # non-blocking call
+        while not handle.done():
+            result = handle.result() # blocking call
+            self.save_features(result)
 
 
     def init_sequential(self, instances: pd.DataFrame):
