@@ -56,9 +56,12 @@ def cli_create(api: GBD, args):
     api.create_feature(args.name, args.unique, args.target)
 
 def cli_delete(api: GBD, args):
-    if args.hashes and len(args.hashes) or args.values and len(args.values):
+    if (args.hashes and len(args.hashes) or args.values and len(args.values)) and args.name:
         if args.force or util.confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
             api.reset_values(args.name, args.values, args.hashes)
+    elif args.hashes and not args.name:
+        if args.force or util.confirm("Delete given hashes entirely?".format(args.name)):
+            api.delete_hashes(args.hashes)
     elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
         api.delete_feature(args.name)
 
@@ -201,7 +204,7 @@ def main():
     parser_delete = subparsers.add_parser('delete', help='Delete all values assiociated with given hashes (via argument or stdin) or remove feature if no hashes are given')
     parser_delete.add_argument('--hashes', help='Hashes for which to delete values', nargs='*', default=[])
     parser_delete.add_argument('--values', help='Values to delete', nargs='*', default=[])
-    parser_delete.add_argument('name', type=column_type, help='Name of feature')
+    parser_delete.add_argument('name', type=column_type, help='Name of feature (default: all)', nargs='?')
     parser_delete.add_argument('-f', '--force', action='store_true', help='Do not ask for confirmation')
     parser_delete.set_defaults(func=cli_delete)
 
