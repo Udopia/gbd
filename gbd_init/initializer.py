@@ -33,6 +33,7 @@ class Initializer:
         self.features = features
         self.initfunc = initfunc
         self.rlimits = rlimits
+        self.haspool = haspool
 
 
     def create_features(self):
