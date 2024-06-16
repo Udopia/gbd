@@ -1,40 +1,56 @@
-# GBD Benchmark Database
+# Global Benchmark Database (GBD)
 
 [![DOI](https://zenodo.org/badge/141396410.svg)](https://zenodo.org/doi/10.5281/zenodo.10213943)
 
-GBD Benchmark Database (GBD) contributes data to your solver evaluations.
+GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 
-## GBD has three interfaces
+## GBD contributes data to your algorithmic evaluations
 
-- Command-line interface `gbd`
-- Web interface `gbd serve`
-- Python interface `gbd_core.api.GBD`
+GBD provides benchmark instance identifiers, feature extractors, and instance transformers for hard algorithmic problem domains, now including propositional satisfiability (SAT) and optimization (MaxSAT), and pseudo-Boolean optimization (PBO).
 
 ## GBD solves several problems
 
-- benchmark instance identification and identification of equivalence classes of benchmark instances (gbdhash, isohash, instance family, ...)
-- distribution of benchmark instances and benchmark meta-data
-- a simple query language to provide access to filtered sets of benchmark instances and instance features
-- initialization and maintenance of instance feature databases (meta.db, base.db, gate.db, ...)
-- transformation algorithms for benchmark instances such as instance sanitization or transformation of cnf to k-isp instances
-- keeping track of contexts (cnf, sanitized-cnf, k-isp, ...) and relations of instances between contexts
+- benchmark instance identification
+- identification of equivalence classes of benchmark instances
+- distribution of benchmark instances and benchmark metadata
+- initialization and maintenance of instance feature databases
+- transformation algorithms for benchmark instances
 
-## Programming Language
+GBD provides an extensible set of problem domains, feature extractors, and instance transformers.
+For a description of those currently supported, see the [GBDC documentation](https://udopia.github.io/gbdc/doc/Index.html).
+GBDC is a Python extension module for GBD's performance-critical code (written in C++), maintained in a separate [repository](https://github.com/Udopia/gbdc).
 
-- Python 3
-- SQLite
+## Installation and Configuration
 
-## Installation
+- Run `pip install gbd-tools`
+- Run `pip install gbdc` (optional, installation of extension module gbdc)
+- Obtain a GBD database, e.g. download [https://benchmark-database.de/getdatabase/meta.db](https://benchmark-database.de/getdatabase/meta.db).
+- Configure your environment by registering paths to databases like this `export GBD_DB=path/to/database1:path/to/database2`.
+- Test the command line interface with the `gbd info` and `gbd --help` commands.
 
-- `pip install gbd-tools`
+## GBD Interfaces
 
-## Configuration
+GBD provides the command-line tool `gbd`, the web interface `gbd serve`, and the Python interface `gbd_core.api.GBD`.
 
-- fetch a database, e.g., [https://benchmark-database.de/getdatabase/meta.db](https://benchmark-database.de/getdatabase/meta.db)
-- `export GBD_DB=[path/to/database1]:[path/to/database2:..]` (and put it in your .bashrc)
-- test command-line interface with commands `gbd info` and `gbd --help`
+### GBD Command-Line Interface
 
-## GBD Python Interface
+Central commands in gbd are those for data access `gbd get` and database initialization `gbd init`.
+See `gbd --help` for more commands.
+Once a database is registered in the environment variable `GBD_DB`, the `gbd get` command can be used to access data.
+See `gbd get --help` for more information.
+`gbd init` provides access to registered feature extractors, such as those provided by the `gdbc` extension module.
+All initialization routines can be run in parallel, and resource limits can be set per process.
+See `gbd init --help` for more information.
+More guidance on how to setup and use the command-line interface to control your experiments can be found in our [2024 SAT Tool Paper](https://arxiv.org/pdf/2405.10045).
+
+### GBD Server
+
+The GBD server can be started locally with gbd serve. Our instance of the GBD server is hosted at [https://benchmark-database.de/](https://benchmark-database.de/).
+You can download benchmark instances and prebuilt feature databases from there.
+
+### GBD Python Interface
+
+The GBD Python interface is used by all programs in the GBD ecosystem. Important here is the query command, which returns GBD data in the form of a Pandas dataframe for further analysis, as shown in the following example.
 
 ```Python
 from gbd_core.api import GBD
@@ -42,58 +58,7 @@ with GBD(['path/to/database1', 'path/to/database2', ..] as gbd:
     df = gbd.query("family = hardware-bmc", resolve=['verified-result', 'runtime-kissat'])
 ```
 
-## GBD Server
+Scripts and use cases of GBD's Python interface are available on [https://udopia.github.io/gbdeval/](https://udopia.github.io/gbdeval/).
+The [evaluation demo](https://udopia.github.io/gbdeval/demo_evaluation.html) demonstrates portfolio analysis and subsequent category-wise performance evaluation using the 2023 SAT competition data.
+The [prediction demo](https://udopia.github.io/gbdeval/demo_prediction.html) demonstrates category prediction from instance features and subsequent feature importance evaluation.
 
-This runs under [https://benchmark-database.de/](https://benchmark-database.de/).
-The command is available in gbd-tools: `gbd serve --help`
-
-## GBD Command-Line Interface
-
-### gbd get
-
-We assume [https://benchmark-database.de/getdatabase/meta.db](meta.db) is in your gbd path `GBD_DB`.
-
-Get list of benchmark instances in database:
-
-`gbd get`
-
-Get list of benchmark instances including some meta-data
-
-`gbd get -r result family`
-
-Filter for specific benchmark instances with gbd-query
-
-`gbd get "family = hardware-bmc" -r filename`
-
-### gbd init
-
-We assume you installed the python extension module [`gdbc`](https://github.com/Udopia/gbdc).
-
-All initialization routines can run in parallel and per-process ressource limits can be set.
-See `gbd init --help` for more info.
-
-#### gbd init local
-
-To initialize a database with local paths to your own benchmarks:
-
-`gbd -d my.db init local [path/to/benchmarks]`
-
-After that in my.db, the features local and filename exist and are associated with their corresponding gbd-hash:
-
-`gbd -d my.db get -r local filename`
-
-#### gbd init isohash
-
-To identify isomorphic instances (approximately by the hash of the sorted degree-sequence of their graph representation):
-
-`gbd -d my.db init isohash`
-
-After that in my.db, instances can be grouped by their isohash:
-
-`gbd -d my.db get -r local filename -g isohash`
-
-#### gbd init base, gbd init gate
-
-`gbd -d my.db:mybase.db init --target mybase base`
-
-`gbd -d my.db:mygate.db init --target mygate gate`
