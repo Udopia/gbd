@@ -23,12 +23,10 @@ from gbd_core.api import GBD, GBDException
 from gbd_core import util
 import os
 
-def prep_data(path, rec):
-    filename = os.path.basename(path)
-    hash = filename[:filename.find('-')]
+def prep_data(path, rec, hash):
     print('Extracting features from {} {}'.format(hash, path))
     return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
-            rec.items() if key != 'base_features_runtime']
+            rec.items()]
 
 
 class InitializerException(Exception):
@@ -74,23 +72,22 @@ class Initializer:
 
 
     def init_parallel_tp(self, instances: pd.DataFrame):
-        args = [(row['local'],) for idx, row in instances.iterrows() if row['local'] != 'None']
-        q = self.initfunc(self.rlimits['mlim'], self.rlimits['jobs'], args)
+        args = {row['local']: row['hash'] for idx, row in instances.iterrows() if row['local'] != 'None'}
+        q = self.initfunc(self.rlimits['mlim']*1e6, self.rlimits['jobs'], args.values())
         while not q.done():
             if not q.empty():
-                rec = q.pop()
+                result = q.pop()
+                rec = result[0]
+                success = result[1]
+                path = result[2]
+                hash = args[path]
                 # if computation successful
-                if rec[1]:
-                    # rec[2] is path, rec[0] result of computation
-                    data = prep_data(rec[2], rec[0])
-                    self.save_features(data)
-                else:
-                    print('Failed to extract features from {}'.format(rec[2]))
-                    data = prep_data(rec[2], rec[0])
-                    self.save_features(data)
+                if not success:
+                    print('Failed to extract features from {}'.format(path))
+                data = prep_data(path, rec, hash)
+                self.save_features(data)
             else:
                 time.sleep(0.5)
-        print("Done extracting!")
 
     def init_parallel_pp(self, instances: pd.DataFrame):
         with pebble.ProcessPool(max_workers=self.rlimits['jobs'], max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
