@@ -100,7 +100,6 @@ generic_extractors = {
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
-        "haspool" : True,
     },
     "gate" : {
         "description" : "Extract gate features from CNF files. ",
