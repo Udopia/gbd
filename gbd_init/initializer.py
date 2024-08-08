@@ -23,8 +23,8 @@ from gbd_core.api import GBD, GBDException
 from gbd_core import util
 import os
 
-def prep_data(path, rec, hash):
-    print('Extracting features from {} {}'.format(hash, path))
+def prep_data(rec, hash):
+    print('Extracting features from {}'.format(hash))
     return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
             rec.items()]
 
@@ -73,7 +73,8 @@ class Initializer:
 
     def init_parallel_tp(self, instances: pd.DataFrame):
         args = {row['local']: row['hash'] for idx, row in instances.iterrows() if row['local'] != 'None'}
-        q = self.initfunc(self.rlimits['mlim']*1e6, self.rlimits['jobs'], args.values())
+        paths = [(key,) for key in args.keys()]
+        q = self.initfunc(self.rlimits['mlim']*int(1e6), self.rlimits['jobs'], paths)
         while not q.done():
             if not q.empty():
                 result = q.pop()
@@ -84,7 +85,7 @@ class Initializer:
                 # if computation successful
                 if not success:
                     print('Failed to extract features from {}'.format(path))
-                data = prep_data(path, rec, hash)
+                data = prep_data(rec, hash)
                 self.save_features(data)
             else:
                 time.sleep(0.5)
