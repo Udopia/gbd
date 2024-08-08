@@ -26,7 +26,8 @@ setup(name='gbd_tools',
     'tatsu',
     'pandas',
     'waitress',
-    'pebble'
+    'pebble',
+    'gbdc'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
