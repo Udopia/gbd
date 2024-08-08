@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='gbd_tools',
-  version='4.8.8',
+  version='4.8.9',
   description='GBD Tools: Maintenance and Distribution of Benchmark Instances and their Attributes',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
@@ -26,7 +26,8 @@ setup(name='gbd_tools',
     'tatsu',
     'pandas',
     'waitress',
-    'pebble'
+    'pebble',
+    'gbdc'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[

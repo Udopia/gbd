@@ -16,15 +16,20 @@
 import pandas as pd
 import os
 import glob
+import warnings
 
 from gbd_core.contexts import suffix_list, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
+gbdc_available = True
+tp_available = True
 try:
     from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features
 except ImportError:
+    gbdc_available = False
+    warnings.warn("gbdc not found. Please install using 'pip install gbdc'.")
     def extract_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
     
@@ -51,6 +56,26 @@ except ImportError:
 
     def opb_base_feature_names():
         return [ ]
+
+try:
+    from gbdc import tp_extract_base_features, tp_extract_gate_features, tp_extract_wcnf_base_features, tp_extract_opb_base_features
+except ImportError:
+    tp_available = False
+    msg = "Older version of gbdc found, please update." if gbdc_available else "gbdc not found"
+    if gbdc_available:
+        warnings.warn(msg)
+
+    def tp_extract_base_features(x, y, z):
+        raise ModuleNotFoundError(msg, name="gbdc")
+
+    def tp_extract_gate_features(x, y, z):
+        raise ModuleNotFoundError(msg, name="gbdc")
+
+    def tp_extract_wcnf_base_features(x, y, z):
+        raise ModuleNotFoundError(msg, name="gbdc")
+
+    def tp_extract_opb_base_features(x, y, z):
+        raise ModuleNotFoundError(msg, name="gbdc")
 
 
 ## GBDHash
@@ -100,31 +125,39 @@ generic_extractors = {
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
-        "haspool" : True,
+        "threadpool" : tp_extract_base_features,
+        "usepool" : True
     },
     "gate" : {
         "description" : "Extract gate features from CNF files. ",
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in gate_feature_names() ],
         "compute" : compute_gate_features,
+        "threadpool" : tp_extract_gate_features,
+        "usepool" : True
     },
     "isohash" : {
         "description" : "Compute ISOHash for CNF or WCNF files. ",
         "contexts" : [ "cnf", "wcnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
+        "usepool" : False
     },
     "wcnfbase" : {
         "description" : "Extract base features from WCNF files. ",
         "contexts" : [ "wcnf" ],
         "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
         "compute" : compute_wcnf_base_features,
+        "threadpool" : tp_extract_wcnf_base_features,
+        "usepool" : True
     },
     "opbbase" : {
         "description" : "Extract base features from OPB files. ",
         "contexts" : [ "opb" ],
         "features" : [ (name, "empty") for name in opb_base_feature_names() ],
         "compute" : compute_opb_base_features,
+        "threadpool" : tp_extract_opb_base_features,
+        "usepool" : True
     }
 }
 
@@ -134,7 +167,9 @@ def init_features_generic(key: str, api: GBD, rlimits, df, target_db):
     context = api.database.dcontext(target_db)
     if not context in einfo["contexts"]:
         raise InitializerException("Target database context must be in {}".format(einfo["contexts"]))
-    extractor = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"], einfo["haspool"] if "haspool" in einfo else False)
+    use_pool = "usepool" in einfo and einfo["usepool"] and tp_available
+    initfunc = einfo["threadpool"] if use_pool else einfo["compute"]
+    extractor = Initializer(api, rlimits, target_db, einfo["features"], initfunc, use_pool)
     extractor.create_features()
     extractor.run(df)
 
@@ -143,7 +178,7 @@ def init_local(api: GBD, rlimits, root, target_db):
     context = api.database.dcontext(target_db)
     
     features = [ ("local", None), ("filename", None) ]
-    extractor = Initializer(api, rlimits, target_db, features, compute_hash)
+    extractor = Initializer(api, rlimits, target_db, features, compute_hash, False)
     extractor.create_features()
 
     # Cleanup stale entries
