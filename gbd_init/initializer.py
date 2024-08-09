@@ -34,7 +34,7 @@ class InitializerException(Exception):
 
 class Initializer:
 
-    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, usepool=True):
+    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, usepool=False):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db

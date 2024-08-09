@@ -126,7 +126,7 @@ generic_extractors = {
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
         "threadpool" : tp_extract_base_features,
-        "usepool" : True
+        "usepool" : False
     },
     "gate" : {
         "description" : "Extract gate features from CNF files. ",
@@ -134,7 +134,7 @@ generic_extractors = {
         "features" : [ (name, "empty") for name in gate_feature_names() ],
         "compute" : compute_gate_features,
         "threadpool" : tp_extract_gate_features,
-        "usepool" : True
+        "usepool" : False
     },
     "isohash" : {
         "description" : "Compute ISOHash for CNF or WCNF files. ",
@@ -149,7 +149,7 @@ generic_extractors = {
         "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
         "compute" : compute_wcnf_base_features,
         "threadpool" : tp_extract_wcnf_base_features,
-        "usepool" : True
+        "usepool" : False
     },
     "opbbase" : {
         "description" : "Extract base features from OPB files. ",
@@ -157,7 +157,7 @@ generic_extractors = {
         "features" : [ (name, "empty") for name in opb_base_feature_names() ],
         "compute" : compute_opb_base_features,
         "threadpool" : tp_extract_opb_base_features,
-        "usepool" : True
+        "usepool" : False
     }
 }
 
