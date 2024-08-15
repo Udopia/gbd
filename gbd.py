@@ -40,10 +40,11 @@ def cli_init_local(api: GBD, args):
 
 def cli_init_generic(api: GBD, args):
     from gbd_init.feature_extractors import init_features_generic
-    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    use_threadpool = args.jjobs != 0
+    rlimits = { 'jobs': args.jjobs if use_threadpool else args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
     context = api.database.dcontext(args.target)
     df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN", group_by=context + ":hash")
-    init_features_generic(args.initfuncname, api, rlimits, df, args.target)
+    init_features_generic(args.initfuncname, api, rlimits, df, args.target, use_threadpool)
 
 
 def cli_trans_generic(api: GBD, args):
@@ -97,9 +98,9 @@ def cli_info(api: GBD, args):
         print("# Available Contexts: " + ", ".join(contexts.contexts()))
         for context in contexts.contexts():
             print()
-            print("## " + contexts.context_data[context]['description'])
+            print("## " + contexts.description(context))
             print(" - Context Prefix: " + context)
-            print(" - File Extensions: " + ",".join(contexts.suffix_list(context)))
+            print(" - File Extensions: " + ",".join(contexts.suffixes(context)))
     elif args.name is None:
         print("# Available Data Sources: " + ", ".join(api.get_databases()))
         for dbname in api.get_databases():
@@ -157,7 +158,7 @@ def main():
     # TRANSFORMATION
     parser_trans = subparsers.add_parser('transform', help='Transform Benchmarks')
     add_resource_limits_arguments(parser_trans)
-    parser_trans.add_argument('--source', help='Source context', default='cnf')
+    parser_trans.add_argument('--source', help='Source context', default=contexts.default_context())
     parser_trans.add_argument('--target', help='Target database; determines target context (default: first db in list)', default=None)
 
     parser_trans_subparsers = parser_trans.add_subparsers(help='Select Transformation Procedure:', required=True, dest='transform how?')
@@ -246,6 +247,9 @@ def main():
                 args.hashes = util.read_hashes()  # read hashes from stdin
         if hasattr(args, 'target') and args.target is None:
             args.target = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
+        if args.db is None or len(args.db) == 0:
+            util.eprint("No database specified. Use -d or set GBD_DB environment variable.")
+            sys.exit(1)
         with GBD(args.db.split(os.pathsep), args.verbose) as api:
             args.func(api, args)
     except ModuleNotFoundError as e:
