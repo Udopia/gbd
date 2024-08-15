@@ -36,12 +36,12 @@ except ImportError:
 
 # Transform SAT Problem to k-Independent Set Problem
 def kis_filename(path):
-    kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
+    kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffixes('cnf'), path)
     return kispath + '.kis'
 
 # Sanitize CNF
 def sanitized_filename(path):
-    sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffix_list('cnf'), path)
+    sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffixes('cnf'), path)
     return sanpath + '.sanitized.cnf'
 
 

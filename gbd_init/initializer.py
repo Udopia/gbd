@@ -19,22 +19,18 @@ import pebble
 from concurrent.futures import as_completed
 import pandas as pd
 
+from gbd_core.util import eprint
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
+import gbdc
 import os
-
-def prep_data(rec, hash):
-    print('Extracting features from {}'.format(hash))
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
-            rec.items()]
-
 
 class InitializerException(Exception):
     pass
 
 class Initializer:
 
-    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, usepool=True):
+    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, usepool=False):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
@@ -43,6 +39,10 @@ class Initializer:
         self.rlimits = rlimits
         self.usepool = usepool
 
+    def prep_data(self, rec, hash):
+        return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
+                rec.items() if self.api.feature_exists(key)]
+    
 
     def create_features(self):
         for (name, default) in self.features:
@@ -72,21 +72,19 @@ class Initializer:
 
 
     def init_parallel_tp(self, instances: pd.DataFrame):
-        args = {row['local']: row['hash'] for idx, row in instances.iterrows() if row['local'] != 'None'}
-        paths = [(key,) for key in args.keys()]
-        q = self.initfunc(self.rlimits['mlim']*int(1e6), self.rlimits['jobs'], paths)
-        while not q.done():
-            if not q.empty():
-                result = q.pop()
-                rec = result[0]
-                success = result[1]
-                path = result[2]
-                hash = args[path]
-                # if computation successful
-                if not success:
-                    print('Failed to extract features from {}'.format(path))
-                data = prep_data(rec, hash)
+        tp = gbdc.ThreadPool(self.rlimits['mlim'], self.rlimits['jobs'], self.rlimits['tlim'])
+        for idx, row in instances.iterrows():
+            self.initfunc(row['hash'], row['local'], self.rlimits, tp)
+        n_jobs = len(instances)
+        while n_jobs != 0:
+            if tp.result_ready():
+                result = tp.pop_result()
+                rec = result[gbdc.RESULT_INDICES.RETURN_VALUE]
+                path = rec['local']
+                hash = rec['hash']
+                data = self.prep_data(rec, hash)
                 self.save_features(data)
+                n_jobs -= 1
             else:
                 time.sleep(0.5)
 

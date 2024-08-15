@@ -18,7 +18,7 @@ import os
 import glob
 import warnings
 
-from gbd_core.contexts import suffix_list, identify, get_context_by_suffix
+from gbd_core.contexts import suffixes, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
@@ -58,25 +58,12 @@ except ImportError:
         return [ ]
 
 try:
-    from gbdc import tp_extract_base_features, tp_extract_gate_features, tp_extract_wcnf_base_features, tp_extract_opb_base_features
+    from gbdc import ThreadPool
 except ImportError:
     tp_available = False
     msg = "Older version of gbdc found, please update." if gbdc_available else "gbdc not found"
     if gbdc_available:
         warnings.warn(msg)
-
-    def tp_extract_base_features(x, y, z):
-        raise ModuleNotFoundError(msg, name="gbdc")
-
-    def tp_extract_gate_features(x, y, z):
-        raise ModuleNotFoundError(msg, name="gbdc")
-
-    def tp_extract_wcnf_base_features(x, y, z):
-        raise ModuleNotFoundError(msg, name="gbdc")
-
-    def tp_extract_opb_base_features(x, y, z):
-        raise ModuleNotFoundError(msg, name="gbdc")
-
 
 ## GBDHash
 def compute_hash(hash, path, limits):
@@ -95,27 +82,39 @@ def compute_isohash(hash, path, limits):
     return [ ('isohash', hash, ihash) ]
 
 ## Base Features
-def compute_base_features(hash, path, limits):
+def compute_base_features(hash, path, limits, tp=None):
     eprint('Extracting base features from {} {}'.format(hash, path))
-    rec = extract_base_features(path, limits['tlim'], limits['mlim'])
+    if tp_available:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
+    else:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 ## Gate Features
-def compute_gate_features(hash, path, limits):
+def compute_gate_features(hash, path, limits, tp=None):
     eprint('Extracting gate features from {} {}'.format(hash, path))
-    rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
+    if tp_available:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
+    else:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]   
 
 ## WCNF Base Features
-def compute_wcnf_base_features(hash, path, limits):
+def compute_wcnf_base_features(hash, path, limits, tp=None):
     eprint('Extracting WCNF base features from {} {}'.format(hash, path))
-    rec = extract_wcnf_base_features(path, limits['tlim'], limits['mlim'])
+    if tp_available:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
+    else:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 ## OPB Base Features
-def compute_opb_base_features(hash, path, limits):
+def compute_opb_base_features(hash, path, limits, tp=None):
     eprint('Extracting OPB base features from {} {}'.format(hash, path))
-    rec = extract_opb_base_features(path, limits['tlim'], limits['mlim'])
+    if tp_available:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
+    else:
+        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
@@ -125,51 +124,40 @@ generic_extractors = {
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
-        "threadpool" : tp_extract_base_features,
-        "usepool" : True
     },
     "gate" : {
         "description" : "Extract gate features from CNF files. ",
         "contexts" : [ "cnf" ],
         "features" : [ (name, "empty") for name in gate_feature_names() ],
         "compute" : compute_gate_features,
-        "threadpool" : tp_extract_gate_features,
-        "usepool" : True
     },
     "isohash" : {
         "description" : "Compute ISOHash for CNF or WCNF files. ",
         "contexts" : [ "cnf", "wcnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
-        "usepool" : False
     },
     "wcnfbase" : {
         "description" : "Extract base features from WCNF files. ",
         "contexts" : [ "wcnf" ],
         "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
         "compute" : compute_wcnf_base_features,
-        "threadpool" : tp_extract_wcnf_base_features,
-        "usepool" : True
     },
     "opbbase" : {
         "description" : "Extract base features from OPB files. ",
         "contexts" : [ "opb" ],
         "features" : [ (name, "empty") for name in opb_base_feature_names() ],
         "compute" : compute_opb_base_features,
-        "threadpool" : tp_extract_opb_base_features,
-        "usepool" : True
     }
 }
 
 
-def init_features_generic(key: str, api: GBD, rlimits, df, target_db):
+def init_features_generic(key: str, api: GBD, rlimits, df, target_db, use_threadpool=False):
     einfo = generic_extractors[key]
     context = api.database.dcontext(target_db)
     if not context in einfo["contexts"]:
         raise InitializerException("Target database context must be in {}".format(einfo["contexts"]))
-    use_pool = "usepool" in einfo and einfo["usepool"] and tp_available
-    initfunc = einfo["threadpool"] if use_pool else einfo["compute"]
-    extractor = Initializer(api, rlimits, target_db, einfo["features"], initfunc, use_pool)
+    extractor = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"], use_threadpool and tp_available)
     extractor.create_features()
     extractor.run(df)
 
@@ -192,7 +180,7 @@ def init_local(api: GBD, rlimits, root, target_db):
         api.reset_values("local", values=missing["local"].tolist())
 
     # Create df with paths not yet in local table
-    paths = [ path for suffix in suffix_list(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    paths = [ path for suffix in suffixes(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
     df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
     
     extractor.run(df2)
