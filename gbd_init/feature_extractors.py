@@ -18,7 +18,7 @@ import os
 import glob
 import warnings
 
-from gbd_core.contexts import suffix_list, identify, get_context_by_suffix
+from gbd_core.contexts import suffixes, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
@@ -192,7 +192,7 @@ def init_local(api: GBD, rlimits, root, target_db):
         api.reset_values("local", values=missing["local"].tolist())
 
     # Create df with paths not yet in local table
-    paths = [ path for suffix in suffix_list(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    paths = [ path for suffix in suffixes(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
     df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
     
     extractor.run(df2)
