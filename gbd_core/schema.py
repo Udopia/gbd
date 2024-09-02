@@ -141,14 +141,14 @@ class Schema:
         if len(pair) > 1 and pair[0] in contexts.contexts():
             return pair[0]
         else:
-            return 'cnf'
+            return contexts.default_context()
 
 
     @classmethod
     def dbname_from_path(cls, path):
         filename = os.path.splitext(os.path.basename(path))[0]
         if filename[0].isdigit():
-            filename = "cnf_" + filename
+            filename = contexts.default_context() + "_" + filename
         return re.sub("[^a-zA-Z0-9]", "_", filename)
 
     @classmethod

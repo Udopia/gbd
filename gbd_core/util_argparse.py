@@ -19,10 +19,8 @@ import re
 
 def get_gbd_argparser():
     parser = argparse.ArgumentParser(description='GBD Benchmark Database')
-
     parser.add_argument('-d', "--db", type=gbd_db_type, default=os.environ.get('GBD_DB'), help='Specify database to work with')
     parser.add_argument('-v', '--verbose', action='store_true', help='Print additional (or diagnostic) information to stderr')
-
     return parser
 
 def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
@@ -31,7 +29,7 @@ def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
 
 def add_resource_limits_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('-j', "--jobs", default=1, type=int, help='Set number of parallel jobs')
-    parser.add_argument('-t', '--tlim', default=5000, type=int, help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')")
+    parser.add_argument('-t', '--tlim', default=5000, type=int, help="Time limit (sec) per instance for 'init' sub-commands")
     parser.add_argument('-m', '--mlim', default=2000, type=int, help="Memory limit (MB) per instance for 'init' sub-commands")
     parser.add_argument('-f', '--flim', default=1000, type=int, help="File size limit (MB) per instance for 'init' sub-commands which create files")
 
