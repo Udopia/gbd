@@ -86,7 +86,7 @@ class Initializer:
                 self.save_features(data)
                 n_jobs -= 1
             else:
-                time.sleep(0.5)
+                time.sleep(0.1)
 
     def init_parallel_pp(self, instances: pd.DataFrame):
         with pebble.ProcessPool(max_workers=self.rlimits['jobs'], max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
