@@ -41,7 +41,8 @@ See `gbd get --help` for more information.
 `gbd init` provides access to registered feature extractors, such as those provided by the `gdbc` extension module.
 All initialization routines can be run in parallel, and resource limits can be set per process.
 See `gbd init --help` for more information.
-More guidance on how to setup and use the command-line interface to control your experiments can be found in our [2024 SAT Tool Paper](https://arxiv.org/pdf/2405.10045).
+
+For more guidance on the GBD concept, the underlying data model, and specific use cases, please see our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
 
 ### GBD Server
 
