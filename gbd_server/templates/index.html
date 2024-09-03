@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-    <title>GBD Benchmark Database</title>
+    <title>Global Benchmark Database</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
     <!--<script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
@@ -16,7 +16,7 @@
         <div class="form">
             <form method="post" id="contextform">
             <fieldset style="float:left">
-                <legend>Select Context</legend>
+                <legend>Select a context</legend>
                 <input type="hidden" id="selected_db" name="selected_db" value="">
                 <input type="hidden" id="query" name="query" value="">
                 {% for c in contexts %}
@@ -32,7 +32,7 @@
             </form>
             <form method="post" id="dbform">
             <fieldset>
-                <legend>Select '{{ context }}' Database</legend>
+                <legend>Select a context-specific database</legend>
                 <input type="hidden" id="context" name="context" value="{{ context }}">
                 <input type="hidden" id="query" name="query" value="{{ query }}">
                 {% for dbname in databases %}
@@ -69,16 +69,14 @@
             <fieldset>
                 <legend>Quickstart</legend>
                 <ul>
-                    <li><b>Query for Instances:</b><br />
-                        Constraints are of the form "featurename operator value" and can be combined with "and" and "or".<br />
-                        Query Example: <a href="{{ url_for('quick_search', track='main_2023', context='cnf') }}">track=main_2023</a>
+                    <li><b>Query for Instances:</b>
+                        Simple queries are constraints of the form "feature operator value", e.g., <a href="{{ url_for('quick_search', track='main_2024', context='cnf') }}">track=main_2024</a>. More complex queries can be formulated as specified in <a href="https://doi.org/10.4230/LIPIcs.SAT.2024.18">our SAT 2024 paper</a>.
                     </li>
-                    <li><b>Download Instances:</b><br />
-                        The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances.<br />
-                        Usage Example: <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>
+                    <li><b>Download Instances:</b>
+                        The file <a href="{{ url_for('get_url_file', query=query, context=context) }}">{{ query_name }}.uri</a> contains the download links for the selected instances. Use it to download the instances, e.g., with wget like this<br /> <span style="font-family: monospace;">wget --content-disposition -i {{ query_name }}.uri</span>.
                     </li>
-                    <li><b>Download Selected Database:</b><br />
-                        <a href="{{ url_for('get_database_file', database=selected) }}" title="Download Database">Download {{ selected }}</a>
+                    <li><b>Download the selected database:</b>
+                        <a href="{{ url_for('get_database_file', database=selected) }}" title="Download Database">{{ selected }}</a>
                     </li>
                 </ul>
             </fieldset>
@@ -135,7 +133,7 @@
             {% endif %}
         </div>
         <div style="float: right;">
-            If you find this useful, please cite: <a href="https://easychair.org/publications/paper/jQXv">A Problem Meta-Data Library for Research in SAT</a>
+            If you find this useful, please cite <a href="https://doi.org/10.4230/LIPIcs.SAT.2024.18">Global Benchmark Database (Iser &amp; Jabs, SAT 2024)</a>
         </div>
     </footer>
 </div>
