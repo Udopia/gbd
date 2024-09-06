@@ -30,6 +30,7 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         self.db.set_values(self.feat, self.val1, self.hashes)
 
         self.db.create_feature(self.feat, default_value=None, target_db=self.dbname2)
+        self.db.set_values(self.feat, self.val1, self.hashes[:1], target_db=self.dbname2)
         self.db.set_values(self.feat, self.val2, self.hashes, target_db=self.dbname2)
 
         self.db.create_feature(self.feat2, default_value=None, target_db=self.dbname2)
@@ -86,6 +87,10 @@ class QueryNonUniqueTestCase(unittest.TestCase):
     def test_numeric_inequality(self):
         res = self.query("{} < 2".format(self.feat3))
         self.assertEqual(len(res), 1)
+        
+    def test_multivalued_subselect(self):
+        res = self.query("{db}:{f} != {v1} and {db}:{f} = {v2}".format(f=self.feat, v1=self.val1, v2=self.val2, db=self.dbname2))
+        self.assertEqual(len(res), 2)
 
     def test_feature_accessible(self):
         res = self.simple_query(self.feat2, self.val2)
