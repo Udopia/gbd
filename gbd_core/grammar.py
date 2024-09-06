@@ -130,10 +130,11 @@ class Parser:
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
                 feat = db.faddr("".join(ast["col"]))
                 feat_is_1_n = db.find("".join(ast["col"])).default is None
-                if "str" in ast: # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
+                if "str" in ast: # cop:("=" | "!=")
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
-                        return "{t}.hash IN (SELECT {t}.hash FROM {t} WHERE {f} {o} '{s}')".format(o=operator, t=table, f=feat, s=ast["str"])
+                        setop = "IN" if ast["cop"] == "=" else "NOT IN"
+                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(o=setop, t=table, f=feat, s=ast["str"])
                     else:
                         return "{} {} '{}'".format(feat, operator, ast["str"])
                 elif "num" in ast: # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
