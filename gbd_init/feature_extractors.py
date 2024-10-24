@@ -24,7 +24,6 @@ from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 gbdc_available = True
-tp_available = True
 try:
     from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features
 except ImportError:
@@ -57,14 +56,6 @@ except ImportError:
     def opb_base_feature_names():
         return [ ]
 
-try:
-    from gbdc import ThreadPool
-except ImportError:
-    tp_available = False
-    msg = "Older version of gbdc found, please update." if gbdc_available else "gbdc not found"
-    if gbdc_available:
-        warnings.warn(msg)
-
 ## GBDHash
 def compute_hash(hash, path, limits):
     eprint('Hashing {}'.format(path))
@@ -84,37 +75,25 @@ def compute_isohash(hash, path, limits):
 ## Base Features
 def compute_base_features(hash, path, limits, tp=None):
     eprint('Extracting base features from {} {}'.format(hash, path))
-    if tp_available:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
-    else:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
+    rec = extract_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 ## Gate Features
 def compute_gate_features(hash, path, limits, tp=None):
     eprint('Extracting gate features from {} {}'.format(hash, path))
-    if tp_available:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
-    else:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
+    rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]   
 
 ## WCNF Base Features
 def compute_wcnf_base_features(hash, path, limits, tp=None):
     eprint('Extracting WCNF base features from {} {}'.format(hash, path))
-    if tp_available:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
-    else:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
+    rec = extract_wcnf_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 ## OPB Base Features
 def compute_opb_base_features(hash, path, limits, tp=None):
     eprint('Extracting OPB base features from {} {}'.format(hash, path))
-    if tp_available:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'], tp, hash)
-    else:
-        rec = extract_base_features(path, limits['tlim'], limits['mlim'])
+    rec = extract_opb_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
 
@@ -152,12 +131,12 @@ generic_extractors = {
 }
 
 
-def init_features_generic(key: str, api: GBD, rlimits, df, target_db, use_threadpool=False):
+def init_features_generic(key: str, api: GBD, rlimits, df, target_db):
     einfo = generic_extractors[key]
     context = api.database.dcontext(target_db)
     if not context in einfo["contexts"]:
         raise InitializerException("Target database context must be in {}".format(einfo["contexts"]))
-    extractor = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"], use_threadpool and tp_available)
+    extractor = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"])
     extractor.create_features()
     extractor.run(df)
 
@@ -166,7 +145,7 @@ def init_local(api: GBD, rlimits, root, target_db):
     context = api.database.dcontext(target_db)
     
     features = [ ("local", None), ("filename", None) ]
-    extractor = Initializer(api, rlimits, target_db, features, compute_hash, False)
+    extractor = Initializer(api, rlimits, target_db, features, compute_hash)
     extractor.create_features()
 
     # Cleanup stale entries

@@ -40,11 +40,10 @@ def cli_init_local(api: GBD, args):
 
 def cli_init_generic(api: GBD, args):
     from gbd_init.feature_extractors import init_features_generic
-    use_threadpool = args.jjobs != 0
-    rlimits = { 'jobs': args.jjobs if use_threadpool else args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
+    rlimits = { 'jobs': args.jobs, 'tlim': args.tlim, 'mlim': args.mlim, 'flim': args.flim }
     context = api.database.dcontext(args.target)
     df = api.query(args.query, args.hashes, [ context + ":local" ], collapse="MIN", group_by=context + ":hash")
-    init_features_generic(args.initfuncname, api, rlimits, df, args.target, use_threadpool)
+    init_features_generic(args.initfuncname, api, rlimits, df, args.target)
 
 
 def cli_trans_generic(api: GBD, args):

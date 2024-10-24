@@ -29,7 +29,6 @@ def add_query_and_hashes_arguments(parser: argparse.ArgumentParser):
 
 def add_resource_limits_arguments(parser: argparse.ArgumentParser):
     parser.add_argument('-j', "--jobs", default=1, type=int, help='Set number of parallel jobs')
-    parser.add_argument("--jjobs", default=0, type=int, help='Set number of parallel jobs for threadpool.')
     parser.add_argument('-t', '--tlim', default=5000, type=int, help="Time limit (sec) per instance for 'init' sub-commands (also used for score calculation in 'eval' and 'plot')")
     parser.add_argument('-m', '--mlim', default=2000, type=int, help="Memory limit (MB) per instance for 'init' sub-commands")
     parser.add_argument('-f', '--flim', default=1000, type=int, help="File size limit (MB) per instance for 'init' sub-commands which create files")

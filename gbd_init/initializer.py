@@ -30,14 +30,13 @@ class InitializerException(Exception):
 
 class Initializer:
 
-    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc, usepool=False):
+    def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
         self.target_db = target_db
         self.features = features
         self.initfunc = initfunc
         self.rlimits = rlimits
-        self.usepool = usepool
 
     def prep_data(self, rec, hash):
         return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
@@ -60,33 +59,13 @@ class Initializer:
     def run(self, instances: pd.DataFrame):
         if self.rlimits['jobs'] == 1:
             self.init_sequential(instances)
-        elif self.usepool:
-            self.init_parallel_tp(instances)
         else:
             self.init_parallel_pp(instances)
 
     def init_sequential(self, instances: pd.DataFrame):
-        for idx, row in instances.iterrows():
+        for _, row in instances.iterrows():
             result = self.initfunc(row['hash'], row['local'], self.rlimits)
             self.save_features(result)
-
-
-    def init_parallel_tp(self, instances: pd.DataFrame):
-        tp = gbdc.ThreadPool(self.rlimits['mlim'], self.rlimits['jobs'], self.rlimits['tlim'])
-        for idx, row in instances.iterrows():
-            self.initfunc(row['hash'], row['local'], self.rlimits, tp)
-        n_jobs = len(instances)
-        while n_jobs != 0:
-            if tp.result_ready():
-                result = tp.pop_result()
-                rec = result[gbdc.RESULT_INDICES.RETURN_VALUE]
-                path = rec['local']
-                hash = rec['hash']
-                data = self.prep_data(rec, hash)
-                self.save_features(data)
-                n_jobs -= 1
-            else:
-                time.sleep(0.1)
 
     def init_parallel_pp(self, instances: pd.DataFrame):
         with pebble.ProcessPool(max_workers=self.rlimits['jobs'], max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
