@@ -9,20 +9,17 @@ description = "GBD Tools: Maintenance and Distribution of Benchmark Instances an
 readme = "README.md"
 license-files = ["LICENSE"]
 requires-python = ">=3.6"
-authors = [
-    { name = "Markus Iser", email = "markus.iser@kit.edu" }
-]
+authors = [{ name = "Markus Iser", email = "markus.iser@kit.edu" }]
 urls = { Homepage = "https://github.com/Udopia/gbd" }
-classifiers = [
-    "Programming Language :: Python :: 3"
-]
+classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
-    "flask",
-    "tatsu",
-    "pandas",
-    "waitress",
-    "pebble",
-    "gbdc"
+  "flask",
+  "tatsu",
+  "pandas",
+  "waitress",
+  "pebble",
+  "gbdc",
+  "IPython",
 ]
 scripts = { gbd = "gbd:main" }
 
