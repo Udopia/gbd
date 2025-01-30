@@ -27,7 +27,8 @@ setup(name='gbd_tools',
     'pandas',
     'waitress',
     'pebble',
-    'gbdc'
+    'gbdc',
+    'IPython'
   ],
   install_obsoletes=['global-benchmark-database-tool'],
   classifiers=[
