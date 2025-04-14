@@ -5,4 +5,5 @@ include gbd_server/static/img/*.png
 include gbd_server/static/img/*.jpg
 include gbd_server/static/*.css
 include gbd_server/static/*.js
+include default_config.toml
 

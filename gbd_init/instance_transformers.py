@@ -25,31 +25,36 @@ from gbd_core.contexts import identify
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import cnf2kis, sanitize
+    from gbdc import cnf2kis, sanitise, normalise
 except ImportError:
-    def cnf2kis(ipath, opath, maxedges, maxnodes, tlim, mlim, flim):
+    def cnf2kis(ipath, opath):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
     
-    def sanitize(ipath, tlim, mlim):
+    def sanitise(ipath, opath):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+    
+    def normalise(ipath, opath):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
 
-# Transform SAT Problem to k-Independent Set Problem
 def kis_filename(path):
     kispath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffixes('cnf'), path)
     return kispath + '.kis'
 
-# Sanitize CNF
-def sanitized_filename(path):
+def sanitised_filename(path):
     sanpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffixes('cnf'), path)
     return sanpath + '.sanitized.cnf'
+
+def normalised_filename(path):
+    normpath = reduce(lambda path, suffix: path[:-len(suffix)] if path.endswith(suffix) else path, contexts.suffixes('cnf'), path)
+    return normpath + '.normalised.cnf'
 
 
 def wrap_cnf2kis(hash, path, limits):
     kispath = kis_filename(path)
     util.eprint('Transforming {} to k-ISP {}'.format(path, kispath))
     try:
-        result = cnf2kis(path, kispath, 2**32, 2**32, limits['tlim'], limits['mlim'], limits['flim'])
+        result = cnf2kis(path, kispath)
         if "local" in result:
             kishash = result['hash']
             return [ ('local', kishash, result['local']), ('to_cnf', kishash, hash),
@@ -63,20 +68,39 @@ def wrap_cnf2kis(hash, path, limits):
 
     return [ ]
 
-def wrap_sanitize(hash, path, limits):
-    sanname = sanitized_filename(path)
-    util.eprint('Sanitizing {}'.format(path))
+def wrap_sanitise(hash, path, limits):
+    sanpath = sanitised_filename(path)
+    util.eprint('Sanitising {}'.format(path))
     try:
-        with open(sanname, 'w') as f, util.stdout_redirected(f):
-            if sanitize(path): 
-                sanhash = identify(sanname)
-                return [ ('local', sanhash, sanname), ('to_cnf', sanhash, hash) ]
+        with open(sanpath, 'w') as f, util.stdout_redirected(f):
+            result = sanitise(path, sanpath)
+            if "local" in result:
+                sanhash = result['hash']
+                return [ ('local', sanhash, result['local']), ('to_cnf', sanhash, hash) ]
             else:
                 raise GBDException("Sanitization failed for {}".format(path))
     except Exception as e:
         util.eprint(str(e))
-        if os.path.exists(sanname):
-            os.remove(sanname)
+        if os.path.exists(sanpath):
+            os.remove(sanpath)
+
+    return [ ]
+
+def wrap_normalise(hash, path, limits):
+    normpath = normalised_filename(path)
+    util.eprint('Normalising {}'.format(path))
+    try:
+        with open(normpath, 'w') as f, util.stdout_redirected(f):
+            result = normalise(path, normpath)
+            normhash = result['hash']
+            if "local" in result and hash == normhash:
+                return [ ('local', normhash, result['local']) ]
+            else:
+                raise GBDException("Normalisation failed for {}".format(path))
+    except Exception as e:
+        util.eprint(str(e))
+        if os.path.exists(normpath):
+            os.remove(normpath)
 
     return [ ]
 
@@ -98,13 +122,21 @@ def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, targ
 
 
 generic_transformers = {
-    "sanitize" : {
-        "description" : "Sanitize CNF files. ",
+    "sanitise" : {
+        "description" : "Sanitise CNF files. ",
         "source" : [ "cnf" ],
         "target" : [ "sancnf" ],
         "features" : [ ('local', None) , ('to_cnf', None) ],
-        "compute" : wrap_sanitize,
-        "filename" : sanitized_filename,
+        "compute" : wrap_sanitise,
+        "filename" : sanitised_filename,
+    },
+    "normalise" : {
+        "description" : "Normalise CNF files. ",
+        "source" : [ "cnf" ],
+        "target" : [ "cnf" ],
+        "features" : [ ('local', None) ],
+        "compute" : wrap_normalise,
+        "filename" : normalised_filename,
     },
     "cnf2kis" : {
         "description" : "Transform CNF files to k-ISP instances. ",

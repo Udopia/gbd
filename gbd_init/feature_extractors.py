@@ -23,12 +23,9 @@ from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
-gbdc_available = True
 try:
-    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features
+    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features, checksani, checksani_feature_names
 except ImportError:
-    gbdc_available = False
-    warnings.warn("gbdc not found. Please install using 'pip install gbdc'.")
     def extract_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
     
@@ -54,6 +51,12 @@ except ImportError:
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def opb_base_feature_names():
+        return [ ]
+    
+    def checksani(path, tlim, mlim):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+    
+    def checksani_feature_names():
         return [ ]
 
 ## GBDHash
@@ -96,23 +99,35 @@ def compute_opb_base_features(hash, path, limits, tp=None):
     rec = extract_opb_base_features(path, limits['tlim'], limits['mlim'])
     return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
 
+## SANI Features
+def compute_sani_features(hash, path, limits, tp=None):
+    eprint('Extracting SANI features from {} {}'.format(hash, path))
+    rec = checksani(path, limits['tlim'], limits['mlim'])
+    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+
 
 generic_extractors = {
     "base" : {
         "description" : "Extract base features from CNF files. ",
-        "contexts" : [ "cnf" ],
+        "contexts" : [ "cnf", "sancnf" ],
         "features" : [ (name, "empty") for name in base_feature_names() ],
         "compute" : compute_base_features,
     },
+    "checksani" : {
+        "description" : "Extract sanitise status from CNF files. ",
+        "contexts" : [ "cnf", "sancnf" ],
+        "features" : [ (name, "empty") for name in checksani_feature_names() ],
+        "compute" : compute_sani_features,
+    },
     "gate" : {
         "description" : "Extract gate features from CNF files. ",
-        "contexts" : [ "cnf" ],
+        "contexts" : [ "cnf", "sancnf" ],
         "features" : [ (name, "empty") for name in gate_feature_names() ],
         "compute" : compute_gate_features,
     },
     "isohash" : {
         "description" : "Compute ISOHash for CNF or WCNF files. ",
-        "contexts" : [ "cnf", "wcnf" ],
+        "contexts" : [ "cnf", "wcnf", "sancnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
     },
