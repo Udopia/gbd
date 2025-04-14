@@ -56,8 +56,7 @@ def description(context):
     return config[context]['description']
 
 def suffixes(context):
-    packed = [ "", ".gz", ".lzma", ".xz", ".bz2" ]
-    return [ config[context]['suffix'] + p for p in packed ]
+    return [ config[context]['suffix'] + p for p in [ "", ".gz", ".lzma", ".xz", ".bz2" ] ]
 
 def idfunc(context):
     return config[context]['idfunc']

@@ -1,0 +1,12 @@
+[contexts]
+default = "cnf"
+cnf = { suffix = ".cnf", idfunc = "cnf_hash", description = "DIMACS Conjunctive Normal Form (CNF)" }
+sancnf = { suffix = ".sanitized.cnf", idfunc = "cnf_hash", description = "Sanitized CNF" }
+kis = { suffix = ".kis", idfunc = "cnf_hash", description = "k-Independent Set Problem Graph" }
+opb = { suffix = ".opb", idfunc = "opb_hash", description = "Pseudo-Boolean Optimization Problem" }
+wcnf = { suffix = ".wcnf", idfunc = "wcnf_hash", description = "Weighted CNF (WCNF)" }
+wecnf = { suffix = ".wecnf", idfunc = "cnf_hash", description = "Weighted Extended CNF (WECNF)" }
+
+[transformers]
+
+[extractors]
