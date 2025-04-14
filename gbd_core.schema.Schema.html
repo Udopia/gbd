@@ -7,7 +7,7 @@
   <head>
     
     <title>gbd_core.schema.Schema</title>
-    <meta name="generator" content="pydoctor 24.3.3"> 
+    <meta name="generator" content="pydoctor 24.11.2"> 
         
     </meta>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="apidocs.css" />
     <link rel="stylesheet" type="text/css" href="extra.css" />
+    
 </head>
 
   <body>
@@ -52,7 +53,7 @@
             
             <span class="input-group-btn">
               <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
-              <a class="btn btn-default" id="search-help-button" title="Help" onclick="toggleSearchHelpText()"><img src="fonts/info.svg" alt="Help" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
             </span>
           </div>
         </div>
@@ -76,39 +77,6 @@
             <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
         </noscript>
 
-        <div class="hint" id="search-help-box">
-          <p class="rst-last">
-      
-            Search bar offers the following options:
-            <ul>   
-                <li>
-                  <strong>Term presence.</strong> The below example searches for documents that 
-                    must contain “foo”, might contain “bar” and must not contain “baz”: <code>+foo bar -baz</code>
-                </li> 
-
-                <li>
-                  <strong>Wildcards.</strong> The below example searches for documents with words beginning with “foo”: <code>foo*</code>
-                </li> 
-
-                <li>
-                  <strong>Search in specific fields.</strong> The following search matches all objects 
-                  in "twisted.mail" that matches “search”: <code>+qname:twisted.mail.* +search</code>
-
-                  <p>
-                    Possible fields: 'name', 'qname' (fully qualified name), 'docstring', and 'kind'.
-                    Last two fields are only applicable if "search in docstrings" is enabled.
-                  </p>
-                </li>
-
-                <li>
-                  <strong>Fuzzy matches.</strong> The following search matches all documents 
-                  that have a word within 1 edit distance of “foo”: <code>foo~1</code>
-                </li>
-            </ul>
-
-          </p>
-        </div>
-
         <div id="search-status"> </div>
 
         <div class="warning" id="search-warn-box" style="display: none;">
@@ -119,8 +87,8 @@
           <!-- Filled dynamically by JS -->
         </table>
         
-        <div style="margin-top: 8px;">
-          <p>Results provided by <a href="https://lunrjs.com">Lunr.js</a></p>
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
         </div>
       </div>
 
@@ -544,7 +512,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Schema</span>: <a href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L41" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.schema.Schema.__init__">Schema(dbcon, dbname, path, features, ...)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Schema</span>: <a href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L41" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.schema.Schema.__init__">Schema(dbcon, dbname, path, features, ...)</a></code></p>
           <p><a href="classIndex.html#gbd_core.schema.Schema">View In Hierarchy</a></p>
         </div>
 
@@ -553,7 +521,7 @@
         </div>
 
         <div id="splitTables">
-          <table class="children sortable" id="id13">
+          <table class="children sortable" id="id14">
   
   
   <tr class="classmethod">
@@ -717,7 +685,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_csv</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L129">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L129">
       
       (source)
     </a>
@@ -744,7 +712,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L133">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L133">
       
       (source)
     </a>
@@ -771,7 +739,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_name</span><span class="function-signature">(cls, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L138">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L138">
       
       (source)
     </a>
@@ -798,7 +766,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">create</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L65">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L65">
       
       (source)
     </a>
@@ -825,7 +793,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">dbname_from_path</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L147">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L147">
       
       (source)
     </a>
@@ -852,7 +820,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">features_from_csv</span><span class="function-signature">(cls, dbname, path, con) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L92">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L92">
       
       (source)
     </a>
@@ -879,7 +847,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">features_from_database</span><span class="function-signature">(cls, dbname, path, con) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L113">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L113">
       
       (source)
     </a>
@@ -906,7 +874,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">from_csv</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L83">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L83">
       
       (source)
     </a>
@@ -933,7 +901,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">from_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L75">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L75">
       
       (source)
     </a>
@@ -960,7 +928,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">is_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L51">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L51">
       
       (source)
     </a>
@@ -987,7 +955,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">valid_feature_or_raise</span><span class="function-signature">(cls, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L154">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L154">
       
       (source)
     </a>
@@ -1014,7 +982,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, dbcon, dbname, path, features, context, csv=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L43">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L43">
       
       (source)
     </a>
@@ -1041,7 +1009,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">absorb</span><span class="function-signature">(self, schema)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L201">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L201">
       
       (source)
     </a>
@@ -1068,7 +1036,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_feature</span><span class="function-signature">(self, name, default_value=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, permissive=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L223">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L223">
       
       (source)
     </a>
@@ -1095,7 +1063,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_main_table_if_not_exists</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L208">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L208">
       
       (source)
     </a>
@@ -1122,7 +1090,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">execute</span><span class="function-signature">(self, sql)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L184">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L184">
       
       (source)
     </a>
@@ -1149,7 +1117,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_connection</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L178">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L178">
       
       (source)
     </a>
@@ -1176,7 +1144,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L195">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L195">
       
       (source)
     </a>
@@ -1203,7 +1171,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_tables</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L192">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L192">
       
       (source)
     </a>
@@ -1230,7 +1198,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">has_feature</span><span class="function-signature">(self, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L198">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L198">
       
       (source)
     </a>
@@ -1257,7 +1225,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">is_in_memory</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L175">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L175">
       
       (source)
     </a>
@@ -1284,7 +1252,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">set_values</span><span class="function-signature">(self, feature, value, hashes)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L256">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L256">
       
       (source)
     </a>
@@ -1310,7 +1278,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">context</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L47">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L47">
       
       (source)
     </a>
@@ -1337,7 +1305,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">csv</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L49">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L49">
       
       (source)
     </a>
@@ -1364,7 +1332,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">dbcon</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L48">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L48">
       
       (source)
     </a>
@@ -1391,7 +1359,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">dbname</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L44">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L44">
       
       (source)
     </a>
@@ -1418,7 +1386,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">features</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L46">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L46">
       
       (source)
     </a>
@@ -1445,7 +1413,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">path</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/3d77b0d4a0b85ce39309ba6cb9739acb6b58befd/gbd_core/schema.py#L45">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/0b5ece0135e050d91d2ff31197ce99c8bb94727c/gbd_core/schema.py#L45">
       
       (source)
     </a>
@@ -1469,10 +1437,10 @@
     <footer class="navbar navbar-default">
 
   
-  <div class="container">
+  <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.3.3 at 2024-10-24 09:22:53.
+    24.11.2 at 2025-04-14 18:59:21.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
