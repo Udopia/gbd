@@ -24,7 +24,7 @@ from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features, checksani, checksani_feature_names
+    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, weisfeiler_leman_hash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features, checksani, checksani_feature_names
 except ImportError:
     def extract_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
@@ -39,6 +39,9 @@ except ImportError:
         return [ ]
     
     def isohash(path):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+    
+    def weisfeiler_leman_hash(path):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def extract_wcnf_base_features(path, tlim, mlim):
@@ -74,6 +77,16 @@ def compute_isohash(hash, path, limits):
     else:
         ihash = isohash(path)
     return [ ('isohash', hash, ihash) ]
+
+## ISOHash2
+def compute_isohash2(hash, path, limits):
+    eprint('Computing ISOHash2 for {}'.format(path))
+    context = get_context_by_suffix(path)
+    if context == 'wcnf':
+        ihash = weisfeiler_leman_hash(path)
+    else:
+        ihash = weisfeiler_leman_hash(path)
+    return [ ('isohash2', hash, ihash) ]
 
 ## Base Features
 def compute_base_features(hash, path, limits, tp=None):
@@ -130,6 +143,12 @@ generic_extractors = {
         "contexts" : [ "cnf", "wcnf", "sancnf" ],
         "features" : [ ("isohash", "empty") ],
         "compute" : compute_isohash,
+    },
+    "isohash2" : {
+        "description" : "Compute ISOHash2 for CNF or WCNF files. ",
+        "contexts" : [ "cnf", "wcnf", "sancnf" ],
+        "features" : [ ("isohash2", "empty") ],
+        "compute" : compute_isohash2,
     },
     "wcnfbase" : {
         "description" : "Extract base features from WCNF files. ",
