@@ -1,7 +1,6 @@
-
 # MIT License
 
-# Copyright (c) 2023 Markus Iser, Karlsruhe Institute of Technology (KIT)
+# Copyright (c) 2025 Ashlin Iser, Karlsruhe Institute of Technology (KIT)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +27,6 @@ class DatabaseException(Exception):
 
 
 class Database:
-
     def __init__(self, path_list: list, verbose=False, autocommit=True):
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
@@ -46,7 +44,7 @@ class Database:
             # first database is the default database:
             if not self.maindb:
                 self.maindb = schema.dbname
-        
+
     def __enter__(self):
         return self
 
@@ -54,12 +52,10 @@ class Database:
         self.connection.commit()
         self.connection.close()
 
-
     # returns major version of sqlite3 as float
     @classmethod
     def sqlite3_version(cls):
-        return float(sqlite3.sqlite_version.rsplit('.', 1)[0])
-
+        return float(sqlite3.sqlite_version.rsplit(".", 1)[0])
 
     def init_schemas(self, path_list) -> typing.Dict[str, Schema]:
         result = dict()
@@ -73,7 +69,6 @@ class Database:
                 raise DatabaseException("Database name collision on " + schema.dbname)
         return result
 
-
     # return a dictionary which maps feature names to feature infos
     def init_features(self) -> typing.Dict[str, FeatureInfo]:
         result = dict()
@@ -83,8 +78,8 @@ class Database:
             for feature in schema.features.values():
                 # first found feature is used: (=feature precedence by database position)
                 if not feature.name in result:
-                    result[feature.name] = [ feature ]
-                elif feature.column == "hash" and feature.table == "features": 
+                    result[feature.name] = [feature]
+                elif feature.column == "hash" and feature.table == "features":
                     # first found features table is the one that serves the hash
                     if result[feature.name][0].table != "features":
                         result[feature.name].insert(0, feature)
@@ -93,7 +88,6 @@ class Database:
                 else:
                     result[feature.name].append(feature)
         return result
-
 
     def query(self, q):
         if self.verbose:
@@ -113,7 +107,6 @@ class Database:
     def set_auto_commit(self, autocommit):
         self.autocommit = autocommit
 
-
     def dexists(self, dbname):
         return dbname in self.schemas.keys()
 
@@ -124,30 +117,28 @@ class Database:
         if not dbname in self.schemas:
             raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].path
-        
+
     def dcontext(self, dbname):
         if not dbname in self.schemas:
             raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].context
-        
+
     def dtables(self, dbname):
         if not dbname in self.schemas:
             raise DatabaseException("Database '{}' not found".format(dbname))
         return self.schemas[dbname].get_tables()
-
 
     def finfo(self, fname, db=None):
         if fname in self.features and len(self.features[fname]) > 0:
             if db is None:
                 return self.features[fname][0]
             else:
-                infos = [ info for info in self.features[fname] if info.database == db ]
+                infos = [info for info in self.features[fname] if info.database == db]
                 if len(infos) == 0:
                     raise DatabaseException("Feature '{}' does not exists in database {}".format(fname, db))
                 return infos[0]
         else:
             raise DatabaseException("Feature '{}' does not exists".format(fname))
-        
 
     def faddr_column(self, feature):
         finfo = self.find(feature)
@@ -156,25 +147,24 @@ class Database:
     def faddr_table(self, feature):
         finfo = self.find(feature)
         return "{}.{}".format(finfo.database, finfo.table)
-    
 
-    def find(self, fid: str, db: str=None):
-        """ Find feature by name or feature identifier
-        
-            Args:
-            fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
-            db: database name (optional), if given fid is unique without database: or context: prefix
+    def find(self, fid: str, db: str = None):
+        """Find feature by name or feature identifier
 
-            Returns:
-            FeatureInfo object: the info object for the first found feature
-            feature precedence is according to the order of databases in the path list
-            ambiguity can be resolved by using one of the following methods.
-            - by giving a database name as the second argument or
-            - by using the fid syntax "database:feature"
-            - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
+        Args:
+        fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
+        db: database name (optional), if given fid is unique without database: or context: prefix
 
-            Raises:
-            DatabaseException: if feature is not found or given database info is ambiguous
+        Returns:
+        FeatureInfo object: the info object for the first found feature
+        feature precedence is according to the order of databases in the path list
+        ambiguity can be resolved by using one of the following methods.
+        - by giving a database name as the second argument or
+        - by using the fid syntax "database:feature"
+        - by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)
+
+        Raises:
+        DatabaseException: if feature is not found or given database info is ambiguous
         """
         parts = fid.split(":")
         if db is not None:
@@ -193,7 +183,6 @@ class Database:
             return self.finfo(parts[1], db)
         else:
             raise DatabaseException("Feature '{}' not found".format(fid))
-        
 
     def faddr(self, fid: str, with_column=True):
         finfo = self.find(fid)
@@ -203,36 +192,32 @@ class Database:
         else:
             return "{}.{}".format(finfo.database, finfo.table)
 
-
-    def get_databases(self, context: str=None):
-        return [ dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context ]
+    def get_databases(self, context: str = None):
+        return [dbname for (dbname, schema) in self.schemas.items() if not context or context == schema.context]
 
     def get_contexts(self, dbs=[]):
-        return list(set([ s.context for s in self.schemas.values() if not dbs or s.dbname in dbs ]))
-  
+        return list(set([s.context for s in self.schemas.values() if not dbs or s.dbname in dbs]))
+
     def get_features(self, dbs=[]):
-        return [ name for (name, infos) in self.features.items() for info in infos if not dbs or info.database in dbs ]
+        return [name for (name, infos) in self.features.items() for info in infos if not dbs or info.database in dbs]
 
     def get_tables(self, dbs=[]):
-        tables = [ info.table for infos in self.features.values() for info in infos if not dbs or info.database in dbs ]
+        tables = [info.table for infos in self.features.values() for info in infos if not dbs or info.database in dbs]
         return list(set(tables))
-
 
     def create_feature(self, name, default_value=None, target_db=None, permissive=False):
         db = target_db or self.maindb
         created = self.schemas[db].create_feature(name, default_value, permissive)
         for finfo in created:
             if not finfo.name in self.features.keys():
-                self.features[finfo.name] = [ finfo ]
+                self.features[finfo.name] = [finfo]
             else:
                 # this code disregards feature precedence by database position:
                 self.features[finfo.name].append(finfo)
 
-
     def set_values(self, fname, value, hashes, target_db=None):
         finfo = self.finfo(fname, target_db)
         self.schemas[finfo.database].set_values(fname, value, hashes)
-
 
     def rename_feature(self, fname, new_fname, target_db=None):
         Schema.valid_feature_or_raise(new_fname)
@@ -248,16 +233,15 @@ class Database:
             del self.features[fname]
         finfo.name = new_fname
         if not new_fname in self.features.keys():
-            self.features[new_fname] = [ finfo ]
+            self.features[new_fname] = [finfo]
         else:
             # this code disregards feature precedence by database position:
             self.features[new_fname].append(finfo)
 
-
     def delete_feature(self, fname, target_db=None):
         finfo = self.finfo(fname, target_db)
         if finfo.default is None:
-            self.execute('DROP TABLE IF EXISTS {}.{}'.format(finfo.database, fname))
+            self.execute("DROP TABLE IF EXISTS {}.{}".format(finfo.database, fname))
         elif Database.sqlite3_version() >= 3.35:
             self.execute("ALTER TABLE {}.{} DROP COLUMN {}".format(finfo.database, finfo.table, fname))
         else:
@@ -266,7 +250,6 @@ class Database:
         if not len(self.features[fname]):
             del self.features[fname]
 
-
     def delete(self, fname, values=[], hashes=[], target_db=None):
         finfo = self.finfo(fname, target_db)
         w1 = "{cl} IN ('{v}')".format(cl=finfo.column, v="', '".join(values))
@@ -274,24 +257,27 @@ class Database:
         where = "{} AND {}".format(w1 if len(values) else "1=1", w2 if len(hashes) else "1=1")
         db = finfo.database
         if finfo.default is None:
-            hashlist = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where)) ]
+            hashlist = [r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))]
             self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))
-            remaining = [ r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist))) ]
-            setnone = [ h for h in hashlist if not h in remaining ]
+            remaining = [
+                r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist)))
+            ]
+            setnone = [h for h in hashlist if not h in remaining]
             self.execute("UPDATE {d}.features SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, col=fname, h="', '".join(setnone)))
         else:
             self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
 
-
     def delete_hashes_entirely(self, hashes, target_db=None):
-        tables = self.get_tables([ target_db ])
+        tables = self.get_tables([target_db])
         for table in tables:
             self.execute("DELETE FROM {}.{} WHERE hash IN ('{h}')".format(target_db, table, h="', '".join(hashes)))
 
-
     def copy_feature(self, old_name, new_name, target_db, hashlist=[]):
         old_finfo = self.find(old_name)
-        data = self.query("SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)))
-        for (hash, value) in data:
+        data = self.query(
+            "SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(
+                d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)
+            )
+        )
+        for hash, value in data:
             self.set_values(new_name, value, [hash], target_db)
-

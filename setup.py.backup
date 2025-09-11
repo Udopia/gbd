@@ -6,7 +6,7 @@ setup(name='gbd_tools',
   long_description=open('README.md', 'rt').read(),
   long_description_content_type="text/markdown",
   url='https://github.com/Udopia/gbd',
-  author='Markus Iser',
+  author='Ashlin Iser',
   author_email='markus.iser@kit.edu',
   packages=[
     "gbd_core", 

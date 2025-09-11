@@ -1,7 +1,6 @@
-
 # MIT License
 
-# Copyright (c) 2023 Markus Iser, Karlsruhe Institute of Technology (KIT)
+# Copyright (c) 2025 Ashlin Iser, Karlsruhe Institute of Technology (KIT)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,52 +19,58 @@ default = "cnf"
 
 ### Configuration of Available Contexts
 config = {
-    "cnf" : {
+    "cnf": {
         "description": "Conjunctive Normal Form (CNF) in DIMACS format",
         "suffix": ".cnf",
         "idfunc": cnf_hash,
     },
-    "sancnf" : {
+    "sancnf": {
         "description": "Sanitized Conjunctive Normal Form (CNF) in DIMACS format",
         "suffix": ".sanitized.cnf",
         "idfunc": cnf_hash,
     },
-    "kis" : {
+    "kis": {
         "description": "k-Independent Set (KIS) in DIMACS-like graph format",
         "suffix": ".kis",
         "idfunc": cnf_hash,
     },
-    "opb" : {
+    "opb": {
         "description": "Pseudo-Boolean Optimization Problem in OPB format",
         "suffix": ".opb",
         "idfunc": opb_hash,
     },
-    "wecnf" : {
+    "wecnf": {
         "description": "Weighted Extended Conjunctive Normal Form (WECNF)",
         "suffix": ".wecnf",
         "idfunc": cnf_hash,
     },
-    "wcnf"  : {
+    "wcnf": {
         "description": "MaxSAT instances in WCNF format",
         "suffix": ".wcnf",
         "idfunc": wcnf_hash,
-    }
+    },
 }
 
+
 def description(context):
-    return config[context]['description']
+    return config[context]["description"]
+
 
 def suffixes(context):
-    return [ config[context]['suffix'] + p for p in [ "", ".gz", ".lzma", ".xz", ".bz2" ] ]
+    return [config[context]["suffix"] + p for p in ["", ".gz", ".lzma", ".xz", ".bz2"]]
+
 
 def idfunc(context):
-    return config[context]['idfunc']
+    return config[context]["idfunc"]
+
 
 def contexts():
     return config.keys()
 
+
 def default_context():
     return default
+
 
 def get_context_by_suffix(benchmark):
     for context in contexts():
@@ -74,8 +79,9 @@ def get_context_by_suffix(benchmark):
                 return context
     return None
 
+
 def identify(path, ct=None):
-    context = ct or get_context_by_suffix(path)    
+    context = ct or get_context_by_suffix(path)
     if context is None:
         raise Exception("Unable to associate context: " + path)
     else:
