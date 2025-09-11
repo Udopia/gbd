@@ -1,7 +1,6 @@
-
 # MIT License
 
-# Copyright (c) 2023 Markus Iser, Karlsruhe Institute of Technology (KIT)
+# Copyright (c) 2025 Ashlin Iser, Karlsruhe Institute of Technology (KIT)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,125 +23,146 @@ from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
 
 try:
-    from gbdc import extract_base_features, base_feature_names, extract_gate_features, gate_feature_names, isohash, wcnfisohash, wcnf_base_feature_names, extract_wcnf_base_features, opb_base_feature_names, extract_opb_base_features, checksani, checksani_feature_names
+    from gbdc import (
+        extract_base_features,
+        base_feature_names,
+        extract_gate_features,
+        gate_feature_names,
+        isohash,
+        wcnfisohash,
+        wcnf_base_feature_names,
+        extract_wcnf_base_features,
+        opb_base_feature_names,
+        extract_opb_base_features,
+        checksani,
+        checksani_feature_names,
+    )
 except ImportError:
+
     def extract_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
-    
+
     def base_feature_names():
-        return [ ]
+        return []
 
     def extract_gate_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def gate_feature_names():
-        return [ ]
-    
+        return []
+
     def isohash(path):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def extract_wcnf_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
-    
+
     def wcnf_base_feature_names():
-        return [ ]
+        return []
 
     def extract_opb_base_features(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def opb_base_feature_names():
-        return [ ]
-    
+        return []
+
     def checksani(path, tlim, mlim):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
-    
+
     def checksani_feature_names():
-        return [ ]
+        return []
+
 
 ## GBDHash
 def compute_hash(hash, path, limits):
-    eprint('Hashing {}'.format(path))
+    eprint("Hashing {}".format(path))
     hash = identify(path)
-    return [ ("local", hash, path), ("filename", hash, os.path.basename(path)) ]
+    return [("local", hash, path), ("filename", hash, os.path.basename(path))]
+
 
 ## ISOHash
 def compute_isohash(hash, path, limits):
-    eprint('Computing ISOHash for {}'.format(path))
+    eprint("Computing ISOHash for {}".format(path))
     context = get_context_by_suffix(path)
-    if context == 'wcnf':
+    if context == "wcnf":
         ihash = wcnfisohash(path)
     else:
         ihash = isohash(path)
-    return [ ('isohash', hash, ihash) ]
+    return [("isohash", hash, ihash)]
+
 
 ## Base Features
 def compute_base_features(hash, path, limits, tp=None):
-    eprint('Extracting base features from {} {}'.format(hash, path))
-    rec = extract_base_features(path, limits['tlim'], limits['mlim'])
-    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+    eprint("Extracting base features from {} {}".format(hash, path))
+    rec = extract_base_features(path, limits["tlim"], limits["mlim"])
+    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
+
 
 ## Gate Features
 def compute_gate_features(hash, path, limits, tp=None):
-    eprint('Extracting gate features from {} {}'.format(hash, path))
-    rec = extract_gate_features(path, limits['tlim'], limits['mlim'])
-    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]   
+    eprint("Extracting gate features from {} {}".format(hash, path))
+    rec = extract_gate_features(path, limits["tlim"], limits["mlim"])
+    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
+
 
 ## WCNF Base Features
 def compute_wcnf_base_features(hash, path, limits, tp=None):
-    eprint('Extracting WCNF base features from {} {}'.format(hash, path))
-    rec = extract_wcnf_base_features(path, limits['tlim'], limits['mlim'])
-    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+    eprint("Extracting WCNF base features from {} {}".format(hash, path))
+    rec = extract_wcnf_base_features(path, limits["tlim"], limits["mlim"])
+    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
+
 
 ## OPB Base Features
 def compute_opb_base_features(hash, path, limits, tp=None):
-    eprint('Extracting OPB base features from {} {}'.format(hash, path))
-    rec = extract_opb_base_features(path, limits['tlim'], limits['mlim'])
-    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+    eprint("Extracting OPB base features from {} {}".format(hash, path))
+    rec = extract_opb_base_features(path, limits["tlim"], limits["mlim"])
+    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
+
 
 ## SANI Features
 def compute_sani_features(hash, path, limits, tp=None):
-    eprint('Extracting SANI features from {} {}'.format(hash, path))
-    rec = checksani(path, limits['tlim'], limits['mlim'])
-    return [ (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() ]
+    eprint("Extracting SANI features from {} {}".format(hash, path))
+    rec = checksani(path, limits["tlim"], limits["mlim"])
+    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
 
 
 generic_extractors = {
-    "base" : {
-        "description" : "Extract base features from CNF files. ",
-        "contexts" : [ "cnf", "sancnf" ],
-        "features" : [ (name, "empty") for name in base_feature_names() ],
-        "compute" : compute_base_features,
+    "base": {
+        "description": "Extract base features from CNF files. ",
+        "contexts": ["cnf", "sancnf"],
+        "features": [(name, "empty") for name in base_feature_names()],
+        "compute": compute_base_features,
     },
-    "checksani" : {
-        "description" : "Extract sanitise status from CNF files. ",
-        "contexts" : [ "cnf", "sancnf" ],
-        "features" : [ (name, "empty") for name in checksani_feature_names() ],
-        "compute" : compute_sani_features,
+    "checksani": {
+        "description": "Extract sanitise status from CNF files. ",
+        "contexts": ["cnf", "sancnf"],
+        "features": [(name, "empty") for name in checksani_feature_names()],
+        "compute": compute_sani_features,
     },
-    "gate" : {
-        "description" : "Extract gate features from CNF files. ",
-        "contexts" : [ "cnf", "sancnf" ],
-        "features" : [ (name, "empty") for name in gate_feature_names() ],
-        "compute" : compute_gate_features,
+    "gate": {
+        "description": "Extract gate features from CNF files. ",
+        "contexts": ["cnf", "sancnf"],
+        "features": [(name, "empty") for name in gate_feature_names()],
+        "compute": compute_gate_features,
     },
-    "isohash" : {
-        "description" : "Compute ISOHash for CNF or WCNF files. ",
-        "contexts" : [ "cnf", "wcnf", "sancnf" ],
-        "features" : [ ("isohash", "empty") ],
-        "compute" : compute_isohash,
+    "isohash": {
+        "description": "Compute ISOHash for CNF or WCNF files. ",
+        "contexts": ["cnf", "wcnf", "sancnf"],
+        "features": [("isohash", "empty")],
+        "compute": compute_isohash,
     },
-    "wcnfbase" : {
-        "description" : "Extract base features from WCNF files. ",
-        "contexts" : [ "wcnf" ],
-        "features" : [ (name, "empty") for name in wcnf_base_feature_names() ],
-        "compute" : compute_wcnf_base_features,
+    "wcnfbase": {
+        "description": "Extract base features from WCNF files. ",
+        "contexts": ["wcnf"],
+        "features": [(name, "empty") for name in wcnf_base_feature_names()],
+        "compute": compute_wcnf_base_features,
     },
-    "opbbase" : {
-        "description" : "Extract base features from OPB files. ",
-        "contexts" : [ "opb" ],
-        "features" : [ (name, "empty") for name in opb_base_feature_names() ],
-        "compute" : compute_opb_base_features,
-    }
+    "opbbase": {
+        "description": "Extract base features from OPB files. ",
+        "contexts": ["opb"],
+        "features": [(name, "empty") for name in opb_base_feature_names()],
+        "compute": compute_opb_base_features,
+    },
 }
 
 
@@ -158,8 +178,8 @@ def init_features_generic(key: str, api: GBD, rlimits, df, target_db):
 
 def init_local(api: GBD, rlimits, root, target_db):
     context = api.database.dcontext(target_db)
-    
-    features = [ ("local", None), ("filename", None) ]
+
+    features = [("local", None), ("filename", None)]
     extractor = Initializer(api, rlimits, target_db, features, compute_hash)
     extractor.create_features()
 
@@ -174,7 +194,7 @@ def init_local(api: GBD, rlimits, root, target_db):
         api.reset_values("local", values=missing["local"].tolist())
 
     # Create df with paths not yet in local table
-    paths = [ path for suffix in suffixes(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True) ]
+    paths = [path for suffix in suffixes(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True)]
     df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
-    
+
     extractor.run(df2)

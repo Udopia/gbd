@@ -1,7 +1,6 @@
-
 # MIT License
 
-# Copyright (c) 2023 Markus Iser, Karlsruhe Institute of Technology (KIT)
+# Copyright (c) 2025 Ashlin Iser, Karlsruhe Institute of Technology (KIT)
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +24,12 @@ from gbd_core import util
 import gbdc
 import os
 
+
 class InitializerException(Exception):
     pass
 
-class Initializer:
 
+class Initializer:
     def __init__(self, api: GBD, rlimits: dict, target_db: str, features: list, initfunc):
         self.api = api
         self.api.database.set_auto_commit(False)
@@ -39,15 +39,14 @@ class Initializer:
         self.rlimits = rlimits
 
     def prep_data(self, rec, hash):
-        return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in
-                rec.items() if self.api.feature_exists(key)]
-    
+        return [
+            (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() if self.api.feature_exists(key)
+        ]
 
     def create_features(self):
-        for (name, default) in self.features:
+        for name, default in self.features:
             self.api.database.create_feature(name, default, self.target_db, True)
         self.api.database.commit()
-
 
     def save_features(self, result: list):
         for attr in result:
@@ -55,22 +54,21 @@ class Initializer:
             self.api.database.set_values(name, value, [hashv], self.target_db)
         self.api.database.commit()
 
-
     def run(self, instances: pd.DataFrame):
-        if self.rlimits['jobs'] == 1:
+        if self.rlimits["jobs"] == 1:
             self.init_sequential(instances)
         else:
             self.init_parallel_pp(instances)
 
     def init_sequential(self, instances: pd.DataFrame):
         for _, row in instances.iterrows():
-            result = self.initfunc(row['hash'], row['local'], self.rlimits)
+            result = self.initfunc(row["hash"], row["local"], self.rlimits)
             self.save_features(result)
 
     def init_parallel_pp(self, instances: pd.DataFrame):
-        with pebble.ProcessPool(max_workers=self.rlimits['jobs'], max_tasks=1, context=multiprocessing.get_context('forkserver')) as p:
-            futures = [ p.schedule(self.initfunc, (row['hash'], row['local'], self.rlimits)) for idx, row in instances.iterrows() ]
-            for f in as_completed(futures):  #, timeout=api.tlim if api.tlim > 0 else None):
+        with pebble.ProcessPool(max_workers=self.rlimits["jobs"], max_tasks=1, context=multiprocessing.get_context("forkserver")) as p:
+            futures = [p.schedule(self.initfunc, (row["hash"], row["local"], self.rlimits)) for idx, row in instances.iterrows()]
+            for f in as_completed(futures):  # , timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()
                     self.save_features(result)
@@ -81,6 +79,6 @@ class Initializer:
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
                 except Exception as e:
                     import traceback
+
                     traceback.print_exc()
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
-
