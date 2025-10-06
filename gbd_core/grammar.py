@@ -68,7 +68,8 @@ class Parser:
             | /[a-zA-Z0-9_\.\-\/\,\:\+\=\@]+/
             ;
 
-        number = /[-]?[0-9]+[.]?[0-9]*/ ;
+        # number = /[-]?[0-9]+[.]?[0-9]*/ ;
+        number = /[-]?[0-9]+(?:\.[0-9]+)?(?![A-Za-z0-9_])/ ;
         singlequotedstring = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@\s"\*\\]+/ ;
         doublequotedstring = /[a-zA-Z0-9_\.\-\/\,\:\+\=\@\s'\*\\]+/ ;
         column = /[a-zA-Z][a-zA-Z0-9_]*/ ;
@@ -84,9 +85,7 @@ class Parser:
                 print("Parsed: " + query)
                 print(json.dumps(tatsu.util.asjson(self.ast), indent=2))
         except tatsu.exceptions.FailedParse as e:
-            raise ParserException("Failed to parse query: {}".format(str(e)))
-        except tatsu.exceptions.FailedLeftRecursion as e:
-            raise ParserException("Failed to parse query: {}".format(str(e)))
+            raise ParserException(f"Failed to parse query: {str(e)}") from e
 
     def get_features(self, ast=None):
         # import pprint
@@ -107,23 +106,23 @@ class Parser:
             else:
                 return set()
         except TypeError as e:
-            raise ParserException("Failed to parse query: {}".format(str(e)))
+            raise ParserException(f"Failed to parse query: {str(e)}") from e
 
     def get_sql(self, db: Database, ast=None):
         try:
             ast = ast if ast else self.ast
             if "qop" in ast and ast["qop"] == "not":
                 return "NOT (" + self.get_sql(db, ast["q"]) + ")"
-            elif "q" in ast:
+            if "q" in ast:
                 return "(" + self.get_sql(db, ast["q"]) + ")"
-            elif "t" in ast:
+            if "t" in ast:
                 return "(" + self.get_sql(db, ast["t"]) + ")"
-            elif "qop" in ast or "top" in ast:  # query operator or term operator
+            if "qop" in ast or "top" in ast:  # query operator or term operator
                 operator = ast["qop"] if ast["qop"] else ast["top"]
                 left = self.get_sql(db, ast["left"])
                 right = self.get_sql(db, ast["right"])
-                return "{} {} {}".format(left, operator, right)
-            elif "cop" in ast:  # constraint operator
+                return f"{left} {operator} {right}"
+            if "cop" in ast:  # constraint operator
                 operator = "not like" if ast["cop"] == "unlike" else ast["cop"]
                 feat = db.faddr("".join(ast["col"]))
                 feat_is_1_n = db.find("".join(ast["col"])).default is None
@@ -132,24 +131,21 @@ class Parser:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "=" else "NOT IN"
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(o=setop, t=table, f=feat, s=ast["str"])
-                    else:
-                        return "{} {} '{}'".format(feat, operator, ast["str"])
-                elif "num" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
+                    return f"{feat} {operator} '{ast['str']}'"
+                if "num" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         return "{t}.hash IN (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {o} {s})".format(o=operator, t=table, f=feat, s=ast["num"])
-                    else:
-                        return "CAST({} AS FLOAT) {} {}".format(feat, operator, ast["num"])
-                elif "lik" in ast:  # cop:("like" | "unlike")
+                    return f"CAST({feat} AS FLOAT) {operator} {ast['num']}"
+                if "lik" in ast:  # cop:("like" | "unlike")
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "like" else "NOT IN"
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(
                             o=setop, t=table, f=feat, s="".join([t for t in ast["lik"] if t])
                         )
-                    else:
-                        return "{} {} '{}'".format(feat, operator, "".join([t for t in ast["lik"] if t]))
-                elif "ter" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
+                    return f"{feat} {operator} '{''.join([t for t in ast['lik'] if t])}'"
+                if "ter" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n and ast["cop"] == "!=":
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "NOT IN" if ast["cop"] == "!=" else "IN"
@@ -157,17 +153,15 @@ class Parser:
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {c} {s})".format(
                             o=setop, c=cop, t=table, f=feat, s=self.get_sql(db, ast["ter"])
                         )
-                    else:
-                        return "CAST({} AS FLOAT) {} {}".format(feat, operator, self.get_sql(db, ast["ter"]))
+                    return f"CAST({feat} AS FLOAT) {operator} {self.get_sql(db, ast['ter'])}"
                 raise ParserException("Missing right-hand side of constraint")
-            elif "col" in ast:
+            if "col" in ast:
                 feature = db.faddr("".join(ast["col"]))
-                return "CAST({} AS FLOAT)".format(feature)
-            elif "constant" in ast:
+                return f"CAST({feature} AS FLOAT)"
+            if "constant" in ast:
                 return ast["constant"]
-            else:
-                return "1=1"
+            return "1=1"
         except TypeError as e:
-            raise ParserException("Failed to parse query: {}".format(str(e)))
+            raise ParserException(f"Failed to parse query: {str(e)}") from e
         except DatabaseException as e:
-            raise ParserException("Failed to parse query: {}".format(str(e)))
+            raise ParserException(f"Failed to parse query: {str(e)}") from e
