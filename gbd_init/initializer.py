@@ -16,7 +16,7 @@ import multiprocessing
 import time
 import pebble
 from concurrent.futures import as_completed
-import pandas as pd
+import polars as pl
 
 from gbd_core.util import eprint
 from gbd_core.api import GBD, GBDException
@@ -54,20 +54,20 @@ class Initializer:
             self.api.database.set_values(name, value, [hashv], self.target_db)
         self.api.database.commit()
 
-    def run(self, instances: pd.DataFrame):
+    def run(self, instances: pl.DataFrame):
         if self.rlimits["jobs"] == 1:
             self.init_sequential(instances)
         else:
             self.init_parallel_pp(instances)
 
-    def init_sequential(self, instances: pd.DataFrame):
-        for _, row in instances.iterrows():
+    def init_sequential(self, instances: pl.DataFrame):
+        for row in instances.iter_rows(named=True):
             result = self.initfunc(row["hash"], row["local"], self.rlimits)
             self.save_features(result)
 
-    def init_parallel_pp(self, instances: pd.DataFrame):
+    def init_parallel_pp(self, instances: pl.DataFrame):
         with pebble.ProcessPool(max_workers=self.rlimits["jobs"], max_tasks=1, context=multiprocessing.get_context("forkserver")) as p:
-            futures = [p.schedule(self.initfunc, (row["hash"], row["local"], self.rlimits)) for idx, row in instances.iterrows()]
+            futures = [p.schedule(self.initfunc, (row["hash"], row["local"], self.rlimits)) for row in instances.iter_rows(named=True)]
             for f in as_completed(futures):  # , timeout=api.tlim if api.tlim > 0 else None):
                 try:
                     result = f.result()

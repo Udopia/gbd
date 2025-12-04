@@ -5,6 +5,13 @@
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
 
+## GBD 5.0 Release Notes
+
+In addition to several bug fixes and performance improvements, GBD 5.0 no longer depends on Pandas for its interface module.
+This simplifies installation and use in various environments.
+The faster, more lightweight Polars library is now used for dataframes instead.
+Therefore, upgrading to GBD 5.0 requires existing code to be adapted to use Polars dataframes, or Polars dataframes to be explicitly converted to Pandas dataframes (e.g. via df.to_pandas()).
+
 ## GBD contributes data to your algorithmic evaluations
 
 GBD provides benchmark instance identifiers, feature extractors, and instance transformers for hard algorithmic problem domains, now including propositional satisfiability (SAT) and optimization (MaxSAT), and pseudo-Boolean optimization (PBO).

@@ -15,7 +15,7 @@
 
 import sqlite3
 import tatsu
-import pandas as pd
+import polars as pl
 
 from contextlib import ExitStack
 import traceback
@@ -60,7 +60,7 @@ class GBD:
 
         return identify(path)
 
-    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by=None, join_type="LEFT"):
+    def query(self, gbd_query=None, hashes=[], resolve=[], collapse="group_concat", group_by=None, join_type="LEFT") -> pl.DataFrame:
         """Query the database
 
         Args:
@@ -72,7 +72,7 @@ class GBD:
         join_type (str): join type: left or inner
 
         Returns:
-        pandas.DataFrame: query result
+        polars.DataFrame: query result
         """
         query_builder = GBDQuery(self.database, gbd_query)
         try:
@@ -90,7 +90,7 @@ class GBD:
         group = group_by or query_builder.determine_group_by(resolve)
         cols = [p.split(":") for p in [group] + resolve]
         cols = [c[0] if len(c) == 1 else c[1] for c in cols]
-        return pd.DataFrame(result, columns=cols)
+        return pl.DataFrame(result, schema=cols, orient="row")
 
     def set_values(self, name, value, hashes, target_db=None):
         """Set feature value for given hashes
@@ -129,12 +129,15 @@ class GBD:
             for values_slice in util.slice_iterator(values, 10):
                 for hashes_slice in util.slice_iterator(hashes, 10):
                     self.database.delete(feature, values_slice, hashes_slice, target_db)
+                    self.database.commit()
         elif len(values):
             for values_slice in util.slice_iterator(values, 10):
                 self.database.delete(feature, values_slice, [], target_db)
+                self.database.commit()
         elif len(hashes):
             for hashes_slice in util.slice_iterator(hashes, 10):
                 self.database.delete(feature, [], hashes_slice, target_db)
+                self.database.commit()
 
     def delete_hashes(self, hashes, target_db=None):
         """Delete all values for given hashes
@@ -195,15 +198,17 @@ class GBD:
     def get_feature_info(self, fname):
         """Retrieve information about a specific feature"""
         finfo = self.database.find(fname)
-        df = self.query(resolve=[fname], collapse=None)
-        numcol = df[fname].apply(lambda x: pd.to_numeric(x, errors="coerce"))
+        df: pl.DataFrame = self.query(resolve=[fname], collapse=None)
+        
+        min_value = sorted(pl.Series(df[fname]).to_list())[0]
+        max_value = sorted(pl.Series(df[fname]).to_list(), reverse=True)[0]
         return {
-            "feature_name": fname,
-            "feature_count": len(df.index),
-            "feature_default": finfo.default,
-            "feature_min": numcol.min(),
-            "feature_max": numcol.max(),
-            "feature_values": " ".join([val for val in df[fname].unique() if val and not util.is_number(val)]),
+            "feature": fname,
+            "count": len(df),
+            "default": finfo.default,
+            "num-min": min_value,
+            "num-max": max_value,
+            "strings": " ".join(sorted([val for val in df[fname].unique() if val and not util.is_number(val)])),
         }
 
     def get_features(self, dbname: str = None):
@@ -310,6 +315,6 @@ class GBD:
         if not self.feature_exists(new_name, target_db):
             self.create_feature(new_name, target_db=target_db)
 
-        hashes = list(self.query(gbd_query=gbd_query, hashes=hashes)["hash"])
+        hashes = self.query(gbd_query=gbd_query, hashes=hashes)["hash"].to_list()
 
         self.database.copy_feature(old_name, new_name, target_db, hashes)

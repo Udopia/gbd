@@ -17,6 +17,7 @@
 import os
 import sys
 import traceback
+import polars as pl
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
@@ -53,7 +54,7 @@ def cli_trans_generic(api: GBD, args):
     from gbd_init.instance_transformers import transform_instances_generic
 
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
-    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source)
+    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source, args.collapse)
 
 
 def cli_create(api: GBD, args):
@@ -86,15 +87,15 @@ def cli_copy(api: GBD, args):
 
 
 def cli_get(api: GBD, args):
-    df = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type)
+    df: pl.DataFrame = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type)
     if args.header:
         print(args.delimiter.join(df.columns))
-    for index, row in df.iterrows():
-        print(args.delimiter.join([item or "[None]" for item in row.to_list()]))
+    for row in df.iter_rows(named=True):
+        print(args.delimiter.join([str(row[col]) if row[col] is not None else "[None]" for col in df.columns]))
 
 
 def cli_set(api: GBD, args):
-    hashes = api.query(args.query, args.hashes)["hash"].tolist()
+    hashes = api.query(args.query, args.hashes)["hash"].to_list()
     if args.create:
         hashes = list(set(hashes + args.hashes))
     if len(hashes) > 0:
@@ -178,6 +179,13 @@ def main():
         parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"])
         add_query_and_hashes_arguments(parser_trans_generic)
         parser_trans_generic.set_defaults(func=cli_trans_generic, transfuncname=key)
+        parser_trans_generic.add_argument(
+            "-c",
+            "--collapse",
+            default="group_concat",
+            choices=["group_concat", "min", "max", "avg", "count", "sum", "none"],
+            help="Specify a function for the handling of multiple feature values",
+        )
 
     # GBD HASH
     parser_hash = subparsers.add_parser("hash", help="Print hash for a single file")
@@ -279,6 +287,8 @@ def main():
         if args.verbose:
             util.eprint(traceback.format_exc())
         sys.exit(1)
+    except pl.exceptions.DataOrientationWarning as e:
+        util.eprint(traceback.format_exc())
     except Exception as e:
         util.eprint("{}: {}".format(type(e), str(e)))
         if args.verbose:

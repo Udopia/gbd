@@ -16,6 +16,7 @@ import pandas as pd
 import os
 import glob
 import warnings
+import polars as pl
 
 from gbd_core.contexts import suffixes, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
@@ -166,7 +167,7 @@ generic_extractors = {
 }
 
 
-def init_features_generic(key: str, api: GBD, rlimits, df, target_db):
+def init_features_generic(key: str, api: GBD, rlimits, df: pl.DataFrame, target_db):
     einfo = generic_extractors[key]
     context = api.database.dcontext(target_db)
     if not context in einfo["contexts"]:
@@ -184,17 +185,26 @@ def init_local(api: GBD, rlimits, root, target_db):
     extractor.create_features()
 
     # Cleanup stale entries
-    df = api.query(group_by=context + ":local")
-    dfilter = df["local"].apply(lambda x: not x or not os.path.isfile(x))
-    missing = df[dfilter]
+    df: pl.DataFrame = api.query(group_by=context + ":local", collapse=None)
+     
+    def path_exists(p):
+        return p is not None and os.path.exists(p)
+    
+    missing = df.with_columns(
+        exists=pl.col("local").map_elements(
+            path_exists,
+            return_dtype=pl.Boolean
+        )
+    ).filter(~pl.col("exists")).select("local")
+    
     if len(missing) and api.verbose:
-        for path in missing["local"].tolist():
+        for path in missing["local"].to_list():
             eprint(path)
     if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
-        api.reset_values("local", values=missing["local"].tolist())
+        api.reset_values("local", values=missing["local"].to_list())
 
     # Create df with paths not yet in local table
     paths = [path for suffix in suffixes(context) for path in glob.iglob(root + "/**/*" + suffix, recursive=True)]
-    df2 = pd.DataFrame([(None, path) for path in paths if not path in df["local"].to_list()], columns=["hash", "local"])
+    df2 = pl.DataFrame([(None, path) for path in paths if path not in df["local"].to_list()], schema=["hash", "local"], orient="row")
 
     extractor.run(df2)

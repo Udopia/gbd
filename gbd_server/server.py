@@ -17,6 +17,7 @@
 from logging.handlers import TimedRotatingFileHandler
 import os
 import re
+import polars as pl
 
 import flask
 import logging
@@ -95,7 +96,7 @@ def page_response(context, query, database, page=0):
         end = start + 1000
         error = None
         try:
-            df = gbd.query(query, resolve=["{}:{}".format(database, f) for f in app.config["features"][database]], collapse="GROUP_CONCAT")
+            df: pl.DataFrame = gbd.query(query, resolve=["{}:{}".format(database, f) for f in app.config["features"][database]], collapse="GROUP_CONCAT")
         except GBDException as err:
             error = "GBDException: {}".format(str(err))
         except DatabaseException as err:
@@ -111,10 +112,15 @@ def page_response(context, query, database, page=0):
             contexts=app.config["contexts"],
             query=query,
             query_name=query_to_name(query),
-            result=df.iloc[start:end, :].values.tolist() if error is None else [],
-            total=len(df.index) if error is None else 0,
+            # result=df.iloc[start:end, :].values.tolist() if error is None else [],
+            result=(
+                [list(r) for r in df.slice(start, end - start).rows()]
+                if error is None
+                else []
+            ),
+            total=len(df) if error is None else 0,
             page=page,
-            pages=int(len(df.index) / 1000) + 1 if error is None else 0,
+            pages=int(len(df) / 1000) + 1 if error is None else 0,
             selected=database,
             features=app.config["features"][database],
             databases=[gbd.get_database_name(db) for db in app.config["contextdbs"][context]],
@@ -144,13 +150,13 @@ def get_url_file():
     with GBD(app.config["contextdbs"][context]) as gbd:
         query = request_query(flask.request)
         try:
-            df = gbd.query(query)
+            df: pl.DataFrame = gbd.query(query)
         except (GBDException, DatabaseException, ParserException) as err:
             return error_response("{}, {}".format(type(err), str(err)), flask.request.remote_addr, errno=500)
         if context == "cnf":
-            content = "\n".join([flask.url_for("get_file", hashvalue=val, _external=True) for val in df["hash"].tolist()])
+            content = "\n".join([flask.url_for("get_file", hashvalue=val, _external=True) for val in df["hash"].to_list()])
         else:
-            content = "\n".join([flask.url_for("get_file", hashvalue=val, context=context, _external=True) for val in df["hash"].tolist()])
+            content = "\n".join([flask.url_for("get_file", hashvalue=val, context=context, _external=True) for val in df["hash"].to_list()])
         return file_response(content, query_to_name(query) + ".uri", "text/uri-list", flask.request.remote_addr)
 
 
@@ -172,10 +178,10 @@ def get_file(hashvalue):
     context = request_context(flask.request)
     print(context, app.config["contextdbs"][context])
     with GBD(app.config["contextdbs"][context]) as gbd:
-        df = gbd.query(hashes=[hashvalue], resolve=["local", "filename"], collapse="MIN")
-        if not len(df.index):
+        df: pl.DataFrame = gbd.query(hashes=[hashvalue], resolve=["local", "filename"], collapse="MIN")
+        if not len(df):
             return error_response("Hash '{}' not found".format(hashvalue), flask.request.remote_addr)
-        row = df.iloc[0]
+        row = df.to_dicts()[0]
         if not os.path.exists(row["local"]):
             return error_response("Files temporarily not accessible", flask.request.remote_addr)
         return path_response(row["local"], row["hash"] + "-" + row["filename"], "application/x-xz", flask.request.remote_addr)
