@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gbd_tools"
-version = "4.9.14"
+version = "5.0.0"
 description = "GBD Tools: Maintenance and Distribution of Benchmark Instances and their Attributes"
 readme = "README.md"
 license-files = ["LICENSE"]
@@ -12,7 +12,7 @@ requires-python = ">=3.6"
 authors = [{ name = "Ashlin Iser", email = "iser@kit.edu" }]
 urls = { Homepage = "https://github.com/Udopia/gbd" }
 classifiers = ["Programming Language :: Python :: 3"]
-dependencies = ["flask", "tatsu", "pandas", "waitress", "pebble", "gbdc"]
+dependencies = ["flask", "tatsu", "polars", "waitress", "pebble", "gbdc"]
 scripts = { gbd = "gbd:main" }
 
 [tool.setuptools]

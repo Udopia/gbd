@@ -60,12 +60,12 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         q = GBDQuery(self.db, query).build_query()
         return [ hash for (hash, ) in self.db.query(q) ]
 
-    def dump(self):
-        import sqlite3
-        conn = sqlite3.connect(self.file)
-        for line in conn.iterdump():
-            print(line)
-        conn.close()
+    # def dump(self):
+    #     import sqlite3
+    #     conn = sqlite3.connect(self.file)
+    #     for line in conn.iterdump():
+    #         print(line)
+    #     conn.close()
 
 
     def test_feature_precedence_rules(self):

@@ -1,7 +1,7 @@
 
 import os
 import unittest
-import pandas as pd
+import polars as pl
 import random
 import sqlite3
 
@@ -44,26 +44,26 @@ class InitTestCase(unittest.TestCase):
         init = Initializer(api, rlimits, self.name, [('random', 0)], self.init_random)
         init.create_features()
         self.assertTrue(api.feature_exists('random'))
-        df = pd.DataFrame([(str(n), None) for n in range(100)], columns=["hash", "local"])
+        df: pl.DataFrame  = pl.DataFrame([(str(n), None) for n in range(100)], schema=["hash", "local"], orient="row")
         init.run(df)
-        df = api.query("random > 0", [], ["random"])
-        self.assertEqual(len(df.index), 100)
+        df: pl.DataFrame = api.query("random > 0", [], ["random"])
+        self.assertEqual(len(df), 100)
 
     def test_init_local(self):
         api = GBD([self.file], verbose=False)
         rlimits = { 'jobs': 1, 'tlim': 5000, 'mlim': 2000, 'flim': 1000 }
         init_local(api, rlimits, self.dir, self.name)
         self.assertTrue(api.feature_exists('local'))
-        df = api.query("local like %benchmark.cnf", [], ["local"])
-        self.assertEqual(len(df.index), 1)
-        self.assertEqual(df.iloc[0]['local'], os.path.realpath(self.benchmark))
-        self.assertEqual(df.iloc[0]['hash'], self.reference_hash)
+        df: pl.DataFrame = api.query("local like %benchmark.cnf", [], ["local"])
+        self.assertEqual(len(df), 1)
+        self.assertEqual(df.to_dicts()[0]['local'], os.path.realpath(self.benchmark))
+        self.assertEqual(df.to_dicts()[0]['hash'], self.reference_hash)
 
     def test_init_cnf_features_generic(self):
         api = GBD([self.file], verbose=False)
         rlimits = { 'jobs': 1, 'tlim': 5000, 'mlim': 2000, 'flim': 1000 }
         init_local(api, rlimits, self.dir, self.name)
-        df = api.query("local like %benchmark.cnf", [], ["local"])
+        df: pl.DataFrame = api.query("local like %benchmark.cnf", [], ["local"])
         for key in generic_extractors.keys():
             if 'cnf' in generic_extractors[key]['contexts']:
                 init_features_generic(key, api, rlimits, df, self.name)

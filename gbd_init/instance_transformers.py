@@ -14,6 +14,7 @@
 
 
 import os
+import polars as pl
 from functools import reduce
 
 from gbd_core import contexts
@@ -114,7 +115,7 @@ def wrap_normalise(hash, path, limits):
     return []
 
 
-def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, target_db, source):
+def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, target_db, source, collapse=None):
     einfo = generic_transformers[key]
     context = api.database.dcontext(target_db)
     if not context in einfo["target"]:
@@ -123,11 +124,19 @@ def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, targ
         raise InitializerException("Source database context must be in {}".format(einfo["source"]))
     transformer = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"])
     transformer.create_features()
+    
+    def path_exists(p):
+        return p is not None and os.path.exists(einfo["filename"](p))
 
-    df = api.query(query, hashes, [source + ":local"], collapse=None)
-    dfilter = df["local"].apply(lambda x: x and not os.path.isfile(einfo["filename"](x)))
+    df: pl.DataFrame = api.query(query, hashes, [source + ":local"], collapse=collapse)
+    missing = df.with_columns(
+        exists=pl.col("local").map_elements(
+            path_exists,
+            return_dtype=pl.Boolean
+        )
+    ).filter(~pl.col("exists"))
 
-    transformer.run(df[dfilter])
+    transformer.run(missing)
 
 
 generic_transformers = {
