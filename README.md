@@ -1,6 +1,6 @@
 # Global Benchmark Database (GBD)
 
-[![DOI](https://zenodo.org/badge/141396410.svg)](https://zenodo.org/doi/10.5281/zenodo.10213943)
+[![DOI](https://zenodo.org/badge/141396410.svg)](https://doi.org/10.5281/zenodo.17820182)
 
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
