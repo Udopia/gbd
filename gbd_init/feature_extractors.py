@@ -30,6 +30,7 @@ try:
         gate_feature_names,
         isohash,
         wcnfisohash,
+        isohash2,
         wcnf_base_feature_names,
         extract_wcnf_base_features,
         opb_base_feature_names,
@@ -52,6 +53,9 @@ except ImportError:
         return []
 
     def isohash(path):
+        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+    
+    def isohash2(path):
         raise ModuleNotFoundError("gbdc not found", name="gbdc")
 
     def extract_wcnf_base_features(path, tlim, mlim):
@@ -89,6 +93,12 @@ def compute_isohash(hash, path, limits):
     else:
         ihash = isohash(path)
     return [("isohash", hash, ihash)]
+
+## ISOHash2
+def compute_isohash2(hash, path, limits):
+    eprint("Computing ISOHash2 for {}".format(path))
+    ihash = isohash2(path)
+    return [("isohash2", hash, ihash)]
 
 
 ## Base Features
@@ -150,6 +160,12 @@ generic_extractors = {
         "contexts": ["cnf", "wcnf", "sancnf"],
         "features": [("isohash", "empty")],
         "compute": compute_isohash,
+    },
+    "isohash2": {
+        "description": "Compute ISOHash2 for CNF files. ",
+        "contexts": ["cnf", "sancnf"],
+        "features": [("isohash2", "empty")],
+        "compute": compute_isohash2,
     },
     "wcnfbase": {
         "description": "Extract base features from WCNF files. ",
