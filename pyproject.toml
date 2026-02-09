@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gbd_tools"
-version = "5.0.1"
+version = "5.0.2"
 description = "GBD Tools: Maintenance and Distribution of Benchmark Instances and their Attributes"
 readme = "README.md"
 license-files = ["LICENSE"]
