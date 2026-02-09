@@ -35,3 +35,4 @@ gbd-server-logs/*
 build/
 dist/
 *.egg-info/
+venv/
