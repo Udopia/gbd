@@ -8,7 +8,7 @@ default = "cnf"
 ### Load Configuration from Files
 def load_config(default_config_path, user_config_path=None):
     # Load the default configuration file
-    with pkg_resources.open_text('gbd_tools', default_config_path) as f:
+    with pkg_resources.open_text("gbd_core", default_config_path) as f:
         config = toml.load(f)
     
     # If a user configuration file is provided, load it and update the config

@@ -27,6 +27,9 @@ from gbd_init.feature_extractors import generic_extractors
 from gbd_init.instance_transformers import generic_transformers
 
 
+GBDC_HELP_SUFFIX = " [requires optional dependency: pip install 'gbd-tools[gbdc]']"
+
+
 ### Command-Line Interface Entry Points
 def cli_hash(api: GBD, args):
     from gbd_core.contexts import identify
@@ -147,7 +150,7 @@ def main():
     subparsers = parser.add_subparsers(help="Available Commands:", required=True, dest="gbd command")
 
     # INITIALIZATION
-    parser_init = subparsers.add_parser("init", help="Initialize Database")
+    parser_init = subparsers.add_parser("init", help="Initialize Database (some procedures require gbdc)")
     add_resource_limits_arguments(parser_init)
     parser_init.add_argument("--target", help="Target database for new features (default: first db in list); also determines target context", default=None)
 
@@ -161,12 +164,12 @@ def main():
     # hooks for generic feature extractors:
     for key in generic_extractors.keys():
         gex = generic_extractors[key]
-        parser_init_generic = parser_init_subparsers.add_parser(key, help=gex["description"])
+        parser_init_generic = parser_init_subparsers.add_parser(key, help=gex["description"] + GBDC_HELP_SUFFIX)
         add_query_and_hashes_arguments(parser_init_generic)
         parser_init_generic.set_defaults(func=cli_init_generic, initfuncname=key)
 
     # TRANSFORMATION
-    parser_trans = subparsers.add_parser("transform", help="Transform Benchmarks")
+    parser_trans = subparsers.add_parser("transform", help="Transform Benchmarks (requires gbdc)")
     add_resource_limits_arguments(parser_trans)
     parser_trans.add_argument("--source", help="Source context", default=contexts.default_context())
     parser_trans.add_argument("--target", help="Target database; determines target context (default: first db in list)", default=None)
@@ -176,7 +179,7 @@ def main():
     # hooks for generic instance transformers:
     for key in generic_transformers.keys():
         gex = generic_transformers[key]
-        parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"])
+        parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"] + GBDC_HELP_SUFFIX)
         add_query_and_hashes_arguments(parser_trans_generic)
         parser_trans_generic.set_defaults(func=cli_trans_generic, transfuncname=key)
         parser_trans_generic.add_argument(
@@ -280,6 +283,7 @@ def main():
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
         if e.name == "gbdc":
+            util.eprint("Install optional dependency with: pip install 'gbd-tools[gbdc]'")
             util.eprint("Find installation instructions at https://github.com/Udopia/gbdc")
         sys.exit(1)
     except ParserException as e:

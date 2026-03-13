@@ -13,16 +13,12 @@
 # copies or substantial portions of the Software.
 
 import multiprocessing
-import time
 import pebble
 from concurrent.futures import as_completed
 import polars as pl
 
-from gbd_core.util import eprint
 from gbd_core.api import GBD, GBDException
 from gbd_core import util
-import gbdc
-import os
 
 
 class InitializerException(Exception):
