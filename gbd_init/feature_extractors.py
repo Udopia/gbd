@@ -14,13 +14,23 @@
 
 import os
 import glob
-import warnings
 import polars as pl
 
 from gbd_core.contexts import suffixes, identify, get_context_by_suffix
 from gbd_core.api import GBD, GBDException
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
+
+_GBDC_INSTALL_HINT = "Install optional dependency with: pip install 'gbd-tools[gbdc]'"
+_GBDC_IMPORT_ERROR = None
+
+
+def _raise_missing_gbdc():
+    msg = "gbdc is required for this operation. {}".format(_GBDC_INSTALL_HINT)
+    if _GBDC_IMPORT_ERROR is not None:
+        msg = "{} ({})".format(msg, _GBDC_IMPORT_ERROR)
+    raise ModuleNotFoundError(msg, name="gbdc") from _GBDC_IMPORT_ERROR
+
 
 try:
     from gbdc import (
@@ -38,40 +48,48 @@ try:
         checksani,
         checksani_feature_names,
     )
-except ImportError:
+except ModuleNotFoundError as exc:
+    if exc.name != "gbdc":
+        raise
+    _GBDC_IMPORT_ERROR = exc
+except ImportError as exc:
+    _GBDC_IMPORT_ERROR = exc
+
+
+if _GBDC_IMPORT_ERROR is not None:
 
     def extract_base_features(path, tlim, mlim):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def base_feature_names():
         return []
 
     def extract_gate_features(path, tlim, mlim):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def gate_feature_names():
         return []
 
     def isohash(path):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
     
     def isohash2(path):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def extract_wcnf_base_features(path, tlim, mlim):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def wcnf_base_feature_names():
         return []
 
     def extract_opb_base_features(path, tlim, mlim):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def opb_base_feature_names():
         return []
 
     def checksani(path, tlim, mlim):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def checksani_feature_names():
         return []

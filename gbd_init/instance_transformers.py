@@ -24,18 +24,37 @@ from gbd_core import util
 from gbd_core.contexts import identify
 from gbd_init.initializer import Initializer, InitializerException
 
+_GBDC_INSTALL_HINT = "Install optional dependency with: pip install 'gbd-tools[gbdc]'"
+_GBDC_IMPORT_ERROR = None
+
+
+def _raise_missing_gbdc():
+    msg = "gbdc is required for this operation. {}".format(_GBDC_INSTALL_HINT)
+    if _GBDC_IMPORT_ERROR is not None:
+        msg = "{} ({})".format(msg, _GBDC_IMPORT_ERROR)
+    raise ModuleNotFoundError(msg, name="gbdc") from _GBDC_IMPORT_ERROR
+
+
 try:
     from gbdc import cnf2kis, sanitise, normalise
-except ImportError:
+except ModuleNotFoundError as exc:
+    if exc.name != "gbdc":
+        raise
+    _GBDC_IMPORT_ERROR = exc
+except ImportError as exc:
+    _GBDC_IMPORT_ERROR = exc
+
+
+if _GBDC_IMPORT_ERROR is not None:
 
     def cnf2kis(ipath, opath):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def sanitise(ipath, opath):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
     def normalise(ipath, opath):
-        raise ModuleNotFoundError("gbdc not found", name="gbdc")
+        _raise_missing_gbdc()
 
 
 def kis_filename(path):

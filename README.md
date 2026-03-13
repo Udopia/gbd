@@ -31,7 +31,7 @@ GBDC is a Python extension module for GBD's performance-critical code (written i
 ## Installation and Configuration
 
 - Run `pip install gbd-tools`
-- Run `pip install gbdc` (optional, installation of extension module gbdc)
+- Run `pip install 'gbd-tools[gbdc]'` on supported platforms if you want the optional GBDC extension module
 - Obtain a GBD database, e.g. download [https://benchmark-database.de/getdatabase/meta.db](https://benchmark-database.de/getdatabase/meta.db).
 - Configure your environment by registering paths to databases like this `export GBD_DB=path/to/database1:path/to/database2`.
 - Test the command line interface with the `gbd info` and `gbd --help` commands.
