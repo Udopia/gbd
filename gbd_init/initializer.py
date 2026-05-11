@@ -45,9 +45,12 @@ class Initializer:
         self.api.database.commit()
 
     def save_features(self, result: list):
-        for attr in result:
-            name, hashv, value = attr[0], attr[1], attr[2]
-            self.api.database.set_values(name, value, [hashv], self.target_db)
+        hashv = result[0][1]
+        mappings = {}
+        for name, hashv2, value in result:
+            assert hashv == hashv2
+            mappings[name] = value
+        self.api.database.set_values(mappings, [hashv], self.target_db)
         self.api.database.commit()
 
     def run(self, instances: pl.DataFrame):

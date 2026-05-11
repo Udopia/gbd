@@ -215,9 +215,15 @@ class Database:
                 # this code disregards feature precedence by database position:
                 self.features[finfo.name].append(finfo)
 
-    def set_values(self, fname, value, hashes, target_db=None):
-        finfo = self.finfo(fname, target_db)
-        self.schemas[finfo.database].set_values(fname, value, hashes)
+    def set_values(self, mappings: typing.Dict[str, typing.Any], hashes: list[str], target_db=None):
+        db_mappings = {}
+        for fname, value in mappings.items():
+            finfo = self.finfo(fname, target_db)
+            if finfo.database not in db_mappings:
+                db_mappings[finfo.database] = {}
+            db_mappings[finfo.database][fname] = value
+        for database, mappings in db_mappings.items():
+            self.schemas[database].set_values(mappings, hashes)
 
     def rename_feature(self, fname, new_fname, target_db=None):
         Schema.valid_feature_or_raise(new_fname)

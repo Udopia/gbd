@@ -392,20 +392,28 @@ class Schema:
 
         return created
 
-    def set_values(self, feature, value, hashes):
-        if not self.has_feature(feature):
-            raise SchemaException("Feature '{}' does not exist".format(feature))
+    def set_values(self, mappings: typing.Dict[str, typing.Any], hashes: list[str]):
         if not len(hashes):
             raise SchemaException("No hashes given")
-        table = self.features[feature].table
-        column = self.features[feature].column
-        values = ", ".join(["('{}', '{}')".format(hash, value) for hash in hashes])
-        if self.features[feature].default is None:
-            self.execute("INSERT OR IGNORE INTO {tab} (hash, {col}) VALUES {vals}".format(tab=table, col=column, vals=values))
-            self.execute("UPDATE features SET {col}=hash WHERE hash in ('{h}')".format(col=table, h="', '".join(hashes)))
-        else:
-            self.execute(
-                "INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT (hash) DO UPDATE SET {col}='{val}' WHERE hash in ('{h}')".format(
-                    tab=table, col=column, val=value, vals=values, h="', '".join(hashes)
-                )
-            )
+        hash_list = ", ".join(f"'{hash}'" for hash in hashes)
+        # Apply values to non-unique features, but collect unique feature values
+        unique_mappings = {}
+        for feature, value in mappings.items():
+            if not self.has_feature(feature):
+                raise SchemaException("Feature '{}' does not exist".format(feature))
+            table = self.features[feature].table
+            column = self.features[feature].column
+            if self.features[feature].default is None:
+                values = ", ".join(f"('{hash}', '{value}')" for hash in hashes)
+                self.execute(f"INSERT OR IGNORE INTO {table} (hash, {column}) VALUES {values}")
+                self.execute(f"UPDATE features SET {table}=hash WHERE hash in ({hash_list})")
+                continue
+            assert table == "features"
+            unique_mappings[column] = value
+        if not unique_mappings:
+            return
+        # Execute one query for the main table
+        columns = ", ".join(unique_mappings)
+        values = ", ".join(f"('{hash}', {", ".join(f"'{val}'" for val in unique_mappings.values())})" for hash in hashes)
+        updates = ", ".join(f"{col}='{val}'" for col, val in unique_mappings.items())
+        self.execute(f"INSERT INTO features (hash, {columns}) VALUES {values} ON CONFLICT (hash) DO UPDATE SET {updates} WHERE hash in ({hash_list})")

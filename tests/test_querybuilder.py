@@ -27,19 +27,19 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         self.db = Database([self.file1,self.file2], verbose=False)
 
         self.db.create_feature(self.feat, default_value=None, target_db=self.dbname1)
-        self.db.set_values(self.feat, self.val1, self.hashes)
+        self.db.set_values({self.feat: self.val1}, self.hashes)
 
         self.db.create_feature(self.feat, default_value=None, target_db=self.dbname2)
-        self.db.set_values(self.feat, self.val1, self.hashes[:1], target_db=self.dbname2)
-        self.db.set_values(self.feat, self.val2, self.hashes, target_db=self.dbname2)
+        self.db.set_values({self.feat: self.val1}, self.hashes[:1], target_db=self.dbname2)
+        self.db.set_values({self.feat: self.val2}, self.hashes, target_db=self.dbname2)
 
         self.db.create_feature(self.feat2, default_value=None, target_db=self.dbname2)
-        self.db.set_values(self.feat2, self.val2, self.hashes)
+        self.db.set_values({self.feat2: self.val2}, self.hashes)
 
         self.db.create_feature(self.feat3, default_value=0, target_db=self.dbname1)
-        self.db.set_values(self.feat3, 1, self.hashes[0])
-        self.db.set_values(self.feat3, 10, self.hashes[1])
-        self.db.set_values(self.feat3, 100, self.hashes[2])
+        self.db.set_values({self.feat3: 1}, self.hashes[0])
+        self.db.set_values({self.feat3: 10}, self.hashes[1])
+        self.db.set_values({self.feat3: 100}, self.hashes[2])
 
         return super().setUp()
 
