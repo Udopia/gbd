@@ -16,8 +16,7 @@ class TestGBDHash(unittest.TestCase):
         self.reference_hash = identify(self.ref_file)
 
     def tearDown(self):
-        if self.currentResult.wasSuccessful():
-            os.remove(self.ref_file)
+        os.remove(self.ref_file)
 
     def run(self, result=None):
         self.currentResult = result
