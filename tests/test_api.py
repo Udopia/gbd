@@ -29,9 +29,9 @@ class APITestCase(unittest.TestCase):
         return super().tearDown()
 
     def test_databases_exist(self):
-        self.assertEquals(self.api.get_databases(), [ self.name1, self.name2 ])
-        self.assertEquals(self.api.get_database_path(self.name1), self.file1)
-        self.assertEquals(self.api.get_database_path(self.name2), self.file2)
+        self.assertEqual(self.api.get_databases(), [ self.name1, self.name2 ])
+        self.assertEqual(self.api.get_database_path(self.name1), self.file1)
+        self.assertEqual(self.api.get_database_path(self.name2), self.file2)
 
     def test_create_feature(self):
         self.api.create_feature("A", None, self.name1)

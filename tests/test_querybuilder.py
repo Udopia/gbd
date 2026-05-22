@@ -95,3 +95,103 @@ class QueryNonUniqueTestCase(unittest.TestCase):
     def test_feature_accessible(self):
         res = self.simple_query(self.feat2, self.val2)
         self.assertEqual(len(res), 3)
+
+
+class LikeQueryTestCase(unittest.TestCase):
+    """Tests for 'like' / 'unlike' query operators on a 1:n (multi-valued) feature.
+
+    Each test also prints the generated SQL so it is easy to compare
+    against what the CLI actually sends when the query "stops working".
+
+    setUp creates both 'filename' and 'local' features so that the scenario
+        gbd get "filename like xorshift%" -r local
+    is reproduced exactly (including the LEFT JOIN on 'local').
+    """
+
+    hashes = ["hash_xorshift", "hash_scheduling", "hash_planning"]
+    filenames = ["xorshift.cnf", "scheduling.cnf", "planning.cnf"]
+    locals_ = ["/data/xorshift.cnf", "/data/scheduling.cnf", "/data/planning.cnf"]
+
+    def setUp(self) -> None:
+        self.file = util.get_random_unique_filename("testlike", ".db")
+        sqlite3.connect(self.file).close()
+        self.dbname = Schema.dbname_from_path(self.file)
+        self.db = Database([self.file], verbose=False)
+        self.db.create_feature("filename", default_value=None, target_db=self.dbname)
+        self.db.create_feature("local", default_value=None, target_db=self.dbname)
+        for h, fn, loc in zip(self.hashes, self.filenames, self.locals_):
+            self.db.set_values("filename", fn, [h])
+            self.db.set_values("local", loc, [h])
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        if os.path.exists(self.file):
+            os.remove(self.file)
+        return super().tearDown()
+
+    def query(self, query_str, resolve=[], collapse=None):
+        q = GBDQuery(self.db, query_str).build_query(resolve=resolve, collapse=collapse)
+        print("\n[SQL] {!r} => {}".format(query_str, q))
+        return self.db.query(q)
+
+    # -- prefix match: filename like xorshift%  (exactly what the user reported) --
+
+    def test_like_prefix(self):
+        res = [h for (h,) in self.query("filename like xorshift%")]
+        self.assertEqual(len(res), 1, "prefix like should return exactly one match")
+        self.assertIn("hash_xorshift", res)
+
+    def test_unlike_prefix(self):
+        res = [h for (h,) in self.query("filename unlike xorshift%")]
+        self.assertEqual(len(res), 2, "prefix unlike should exclude the xorshift hash")
+        self.assertNotIn("hash_xorshift", res)
+
+    # -- suffix match: filename like %cnf --
+
+    def test_like_suffix(self):
+        res = [h for (h,) in self.query("filename like %cnf")]
+        self.assertEqual(len(res), 3, "suffix like %%cnf should match all three filenames")
+
+    # -- infix match: filename like %scheduling% --
+
+    def test_like_infix(self):
+        res = [h for (h,) in self.query("filename like %scheduling%")]
+        self.assertEqual(len(res), 1, "infix like should return exactly one match")
+        self.assertIn("hash_scheduling", res)
+
+    # -- combined: like inside an AND expression --
+
+    def test_like_combined_with_and(self):
+        res = [h for (h,) in self.query("filename like xorshift% and filename like %shift%")]
+        self.assertEqual(len(res), 1)
+        self.assertIn("hash_xorshift", res)
+
+    # -- exact match via like (no wildcards) --
+
+    def test_like_exact(self):
+        res = [h for (h,) in self.query("filename like planning.cnf")]
+        self.assertEqual(len(res), 1, "like without wildcards should behave like equality")
+        self.assertIn("hash_planning", res)
+
+    # -- no results expected --
+
+    def test_like_no_match(self):
+        res = self.query("filename like doesnotexist%")
+        self.assertEqual(len(res), 0, "like with no matching value should return empty result")
+
+    # -- mirror of CLI: gbd get "filename like xorshift%" -r local --
+    # collapse=group_concat + resolve=["local"] is exactly what the CLI uses.
+    # If this passes but the CLI still returns all benchmarks, the bug is
+    # outside the query builder (shell quoting, missing feature in DB, etc.).
+
+    def test_like_prefix_with_resolve_and_collapse(self):
+        rows = self.query("filename like xorshift%", resolve=["local"], collapse="group_concat")
+        hashes = [h for (h, _) in rows]
+        locals_ = [loc for (_, loc) in rows]
+        self.assertEqual(len(hashes), 1, "should return exactly one row")
+        self.assertIn("hash_xorshift", hashes)
+        self.assertIn("/data/xorshift.cnf", locals_)
+
+    def test_like_no_match_with_resolve_and_collapse(self):
+        rows = self.query("filename like doesnotexist%", resolve=["local"], collapse="group_concat")
+        self.assertEqual(len(rows), 0)

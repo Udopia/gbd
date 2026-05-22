@@ -45,7 +45,7 @@ class Parser:
             | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) ter:termstart
             | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) num:number 
             | col:(dbname ":" column | column) cop:("=" | "!=" | "<=" | ">=" | "<" | ">" ) str:string 
-            | col:(dbname ":" column | column) cop:("like" | "unlike") ~ lik:(["%"] string ["%"])
+            | col:(dbname ":" column | column) cop:("like" | "unlike") ~ pre:["%"] lik:string suf:["%"]
             ;
 
         termstart 
@@ -141,10 +141,12 @@ class Parser:
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "like" else "NOT IN"
+                        s = (ast.get("pre") or "") + ast["lik"] + (ast.get("suf") or "")
                         return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(
-                            o=setop, t=table, f=feat, s="".join([t for t in ast["lik"] if t])
+                            o=setop, t=table, f=feat, s=s
                         )
-                    return f"{feat} {operator} '{''.join([t for t in ast['lik'] if t])}'"
+                    s = (ast.get("pre") or "") + ast["lik"] + (ast.get("suf") or "")
+                    return f"{feat} {operator} '{s}'"
                 if "ter" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n and ast["cop"] == "!=":
                         table = db.faddr_table("".join(ast["col"]))
