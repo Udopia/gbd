@@ -23,7 +23,7 @@ class GBDQuery:
     """Translates a GBD query string and parameters into a complete SQLite SELECT statement.
 
     A GBD query spans one or more ATTACHed SQLite databases managed by
-    :py:class:`~gbd_core.database.Database`.  Each database belongs to a *context*
+    :py:class:`Database`.  Each database belongs to a *context*
     (e.g. ``cnf``, ``wcnf``, ``pbo``).  Features within the same context are joined
     directly; features from a different context require a *translator feature* - a 1:n
     feature named ``to_{context}`` that maps hashes between contexts.
@@ -47,7 +47,7 @@ class GBDQuery:
         self.features = self.parser.get_features()
 
     def features_exist_or_throw(self, features):
-        """Raise :py:exc:`~gbd_core.database.DatabaseException` if any feature in
+        """Raise :py:exc:`DatabaseException` if any feature in
         *features* does not exist in the attached databases.
 
         Args:
@@ -66,7 +66,7 @@ class GBDQuery:
             group_by (str | None): Group results by this feature instead of the default
                 ``context:hash`` column; inferred from *resolve* when ``None``.
             join_type (str): ``"LEFT"`` (default, include unmatched hashes) or
-                ``"INNER"`` (exclude them). 
+                ``"INNER"`` (exclude them).
                 Cross-context joins are always ``INNER`` (see ``Issues.md`` #4).
             collapse (str | None): Aggregate function for resolved columns; one of
                 ``"group_concat"``, ``"min"``, ``"max"``, ``"avg"``, ``"count"``,
@@ -126,7 +126,7 @@ class GBDQuery:
 
         Returns:
             str: SQL SELECT clause, e.g.
-            ``"SELECT DISTINCT cnf_db.features.hash, cnf_db.local.value"``.
+                ``"SELECT DISTINCT cnf_db.features.hash, cnf_db.local.value"``.
         """
         result = [self.db.faddr(f) for f in [group_by] + resolve]
         if collapse and collapse != "none":

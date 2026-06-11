@@ -30,7 +30,7 @@ jobs:
             --make-html \
             --html-output=./apidocs \
             --project-base-dir="$(pwd)" \
-            --docformat=restructuredtext \
+            --docformat=google \
             --intersphinx=https://docs.python.org/3/objects.inv \
             ./gbd_core
 

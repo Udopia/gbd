@@ -128,7 +128,7 @@ class Parser:
         """Return the set of feature names referenced anywhere in the query.
 
         Walks the AST recursively and collects every ``col`` leaf. The returned names
-        are used by :py:class:`~gbd_core.query.GBDQuery` to verify that all referenced
+        are used by :py:class:`GBDQuery` to verify that all referenced
         features exist before executing a query.
 
         Args:
@@ -165,7 +165,7 @@ class Parser:
         """Recursively compile the parsed AST into a SQL WHERE fragment.
 
         Column addresses are fully qualified as ``database.table.column`` via
-        :py:meth:`~gbd_core.database.Database.faddr`. The translation is cardinality-aware:
+        :py:meth:`Database.faddr`. The translation is cardinality-aware:
 
         * **1:1, string** ``col = 'v'`` -> ``db.features.col = 'v'``
         * **1:n, string** ``col = 'v'`` ->

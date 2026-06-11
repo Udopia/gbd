@@ -93,3 +93,52 @@ class DatabaseTestCase(unittest.TestCase):
     def test_unique_feature_delete(self):
         self.db.delete_feature(self.feat)
         self.assertRaises(DatabaseException, self.db.find, self.feat)
+
+    # ---- additional coverage ---------------------------------------------------
+
+    def test_rename_unique_feature(self):
+        self.db.rename_feature(self.feat, "renamed_feat")
+        # new name queryable
+        res = self.query("renamed_feat", self.val1)
+        self.assertEqual(len(res), 3)
+        # old name gone from registry
+        self.assertNotIn(self.feat, self.db.get_features())
+        self.assertRaises(DatabaseException, self.db.find, self.feat)
+
+    def test_find_by_database_prefix(self):
+        finfo = self.db.find("{}:{}".format(self.name, self.feat))
+        self.assertEqual(finfo.database, self.name)
+        self.assertEqual(finfo.name, self.feat)
+
+    def test_faddr_returns_qualified_address(self):
+        addr = self.db.faddr(self.feat)
+        # format: database.table.column
+        parts = addr.split(".")
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], self.name)
+        self.assertEqual(parts[1], "features")
+        self.assertEqual(parts[2], self.feat)
+
+    def test_create_feature_reserved_name_raises(self):
+        from gbd_core.schema import SchemaException
+        with self.assertRaises(SchemaException):
+            self.db.create_feature("hash")
+        with self.assertRaises(SchemaException):
+            self.db.create_feature("value")
+
+    def test_create_feature_duplicate_raises(self):
+        from gbd_core.schema import SchemaException
+        with self.assertRaises(SchemaException):
+            self.db.create_feature(self.feat, default_value=self.defv)
+
+    def test_get_features_includes_created_feature(self):
+        features = self.db.get_features()
+        self.assertIn(self.feat, features)
+        self.assertIn("hash", features)
+
+    def test_get_databases_returns_attached(self):
+        self.assertIn(self.name, self.db.get_databases())
+
+    def test_finfo_wrong_db_raises(self):
+        with self.assertRaises(DatabaseException):
+            self.db.finfo(self.feat, "nonexistent_db")

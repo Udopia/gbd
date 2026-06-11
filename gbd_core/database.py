@@ -106,11 +106,11 @@ class Database:
         return float(sqlite3.sqlite_version.rsplit(".", 1)[0])
 
     def init_schemas(self, path_list) -> typing.Dict[str, Schema]:
-        """Load each path as a :py:class:`~gbd_core.schema.Schema` and return a mapping
+        """Load each path as a :py:class:`Schema` and return a mapping
         of logical database name → Schema.
 
         In-memory schemas (CSV sources) sharing the same database name are merged via
-        :py:meth:`~gbd_core.schema.Schema.absorb`.  On-disk databases with colliding
+        :py:meth:`Schema.absorb`.  On-disk databases with colliding
         names raise :py:exc:`DatabaseException`.
 
         Args:
@@ -133,7 +133,7 @@ class Database:
     def init_features(self) -> typing.Dict[str, FeatureInfo]:
         """Build the global feature registry across all attached schemas.
 
-        Each feature name maps to an ordered list of :py:class:`~gbd_core.schema.FeatureInfo`
+        Each feature name maps to an ordered list of :py:class:`FeatureInfo`
         objects; the first entry is used by default (highest precedence, determined by
         database order in *path_list*).  The ``hash`` column of the ``features`` table is
         always placed first when present, as it serves as the primary join key.
@@ -230,7 +230,7 @@ class Database:
         return self.schemas[dbname].get_tables()
 
     def finfo(self, fname, db=None):
-        """Return the :py:class:`~gbd_core.schema.FeatureInfo` for *fname*.
+        """Return the :py:class:`FeatureInfo` for *fname*.
 
         Args:
             fname (str): Bare feature name (no ``db:`` prefix).
@@ -269,7 +269,7 @@ class Database:
         """Return the fully-qualified table address ``database.table`` for *feature*.
 
         Used to build subquery references in
-        :py:meth:`~gbd_core.grammar.Parser.get_sql` for 1:n features.
+        :py:meth:`Parser.get_sql` for 1:n features.
 
         Args:
             feature (str): Feature identifier.
@@ -381,7 +381,7 @@ class Database:
     def create_feature(self, name, default_value=None, target_db=None, permissive=False):
         """Create a new feature in *target_db* and register it in the global registry.
 
-        Delegates DDL to :py:meth:`~gbd_core.schema.Schema.create_feature`.
+        Delegates DDL to :py:meth:`Schema.create_feature`.
 
         Args:
             name (str): Feature name; must be a valid identifier.
@@ -426,7 +426,7 @@ class Database:
 
         Args:
             fname (str): Current feature name.
-            new_fname (str): New feature name; must pass :py:meth:`~gbd_core.schema.Schema.valid_feature_or_raise`.
+            new_fname (str): New feature name; must pass :py:meth:`Schema.valid_feature_or_raise`.
             target_db (str | None): Restrict to this database when the feature name is ambiguous.
         """
         Schema.valid_feature_or_raise(new_fname)
@@ -440,8 +440,19 @@ class Database:
         self.features[fname].remove(finfo)
         if not len(self.features[fname]):
             del self.features[fname]
+        # Update the in-memory FeatureInfo so that subsequent faddr() calls use the new names.
+        # For 1:1 features the column name equals the feature name; for 1:n the table name does.
         finfo.name = new_fname
-        if not new_fname in self.features.keys():
+        if finfo.default is not None:
+            finfo.column = new_fname   # 1:1: column in features table
+        else:
+            finfo.table = new_fname    # 1:n: separate table named after feature
+        # Keep Schema-level features dict in sync so Schema.set_values / has_feature work.
+        schema = self.schemas[finfo.database]
+        if fname in schema.features:
+            del schema.features[fname]
+        schema.features[new_fname] = finfo
+        if new_fname not in self.features:
             self.features[new_fname] = [finfo]
         else:
             # this code disregards feature precedence by database position:

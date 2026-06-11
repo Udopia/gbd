@@ -35,7 +35,7 @@ class FeatureInfo:
     """Metadata descriptor for a single GBD feature.
 
     Created by :py:class:`Schema` when inspecting a database or loading a CSV, and
-    returned by :py:meth:`~gbd_core.database.Database.find`.
+    returned by :py:meth:`Database.find`.
 
     The ``default`` attribute encodes feature cardinality:
 
@@ -286,7 +286,7 @@ class Schema:
 
     @classmethod
     def valid_feature_or_raise(cls, name):
-        if not re.match("[a-zA-Z][a-zA-Z0-9_]*", name):
+        if not re.fullmatch("[a-zA-Z][a-zA-Z0-9_]*", name):
             raise SchemaException("Feature name '{}' must be alphanumeric (incl. underline) and start with a letter.".format(name))
         # gbd_keywords = [ 'hash', 'value', 'local', 'filename', 'features' ]
         gbd_keywords = ["hash", "value", "features"]
@@ -523,7 +523,7 @@ class Schema:
 
         Returns:
             list[FeatureInfo]: Newly created FeatureInfo objects (may include the
-            ``hash`` FeatureInfo if the main table was created as a side-effect).
+                ``hash`` FeatureInfo if the main table was created as a side-effect).
 
         Raises:
             SchemaException: If the name is invalid or already exists (unless permissive).
