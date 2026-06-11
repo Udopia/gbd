@@ -74,6 +74,8 @@ class GBD:
         Returns:
         polars.DataFrame: query result
         """
+        if collapse == "none":
+            collapse = None
         query_builder = GBDQuery(self.database, gbd_query)
         try:
             sql = query_builder.build_query(hashes, resolve, group_by, join_type, collapse)

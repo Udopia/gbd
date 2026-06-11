@@ -183,11 +183,7 @@ def main():
         add_query_and_hashes_arguments(parser_trans_generic)
         parser_trans_generic.set_defaults(func=cli_trans_generic, transfuncname=key)
         parser_trans_generic.add_argument(
-            "-c",
-            "--collapse",
-            default="group_concat",
-            choices=["group_concat", "min", "max", "avg", "count", "sum", "none"],
-            help="Specify a function for the handling of multiple feature values",
+            "-c", "--collapse", default="none", choices=["min", "max", "none"], help="Handling multiple values",
         )
 
     # GBD HASH
