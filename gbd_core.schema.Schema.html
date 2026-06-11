@@ -512,12 +512,31 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Schema</span>: <a href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L40" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.schema.Schema.__init__">Schema(dbcon, dbname, path, features, ...)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Schema</span>: <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L65" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.schema.Schema.__init__">Schema(dbcon, dbname, path, features, ...)</a></code></p>
           <p><a href="classIndex.html#gbd_core.schema.Schema">View In Hierarchy</a></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>Represents the structure and SQLite connection of one GBD database (or CSV file).</p>
+<p>Responsible for:</p>
+<ul class="rst-simple">
+<li>Detecting whether a path is an SQLite database or a CSV file.</li>
+<li>Creating or introspecting the <tt class="rst-docutils rst-literal">features</tt> table and any 1:n feature tables.</li>
+<li>Executing DDL and DML within the scope of a single database file.</li>
+</ul>
+<p><strong>SQLite database layout</strong>:</p>
+<pre class="rst-literal-block">
+features(hash UNIQUE NOT NULL, feat1 TEXT DEFAULT 'v', feat2 TEXT DEFAULT 'w', ...)
+&lt;feat_1n&gt;(hash TEXT NOT NULL, value TEXT NOT NULL, UNIQUE(hash, value))
+</pre>
+<p>The <tt class="rst-docutils rst-literal">features</tt> column for a 1:n feature mirrors the hash value so the separate
+table is joinable without an explicit FK constraint.  An INSERT trigger keeps it
+in sync.  A sentinel row <tt class="rst-docutils rst-literal"><span class="pre">(hash='None',</span> <span class="pre">value='None')</span></tt> is present in every 1:n
+table (see <tt class="rst-docutils rst-literal">Issues.md</tt> #7).</p>
+<p><strong>Context detection</strong></p>
+<p>The context is inferred from the database name prefix, e.g. <tt class="rst-docutils rst-literal">cnf_sc2021</tt> -&gt;
+context <tt class="rst-docutils rst-literal">cnf</tt>.  There is no context metadata stored inside the file itself.</p>
+</div>
         </div>
 
         <div id="splitTables">
@@ -538,42 +557,42 @@
     
     <td>Class Method</td>
     <td><code><a href="#context_from_name" class="internal-link" title="gbd_core.schema.Schema.context_from_name">context<wbr></wbr>_from<wbr></wbr>_name</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Infer the GBD context from a database name.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#create" class="internal-link" title="gbd_core.schema.Schema.create">create</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Auto-detect the file type at <em>path</em> and return the appropriate Schema.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#dbname_from_path" class="internal-link" title="gbd_core.schema.Schema.dbname_from_path">dbname<wbr></wbr>_from<wbr></wbr>_path</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Derive a valid SQLite <tt class="rst-docutils rst-literal">ATTACH</tt> identifier from a file path.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#features_from_csv" class="internal-link" title="gbd_core.schema.Schema.features_from_csv">features<wbr></wbr>_from<wbr></wbr>_csv</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Import a CSV file into an in-memory SQLite table and build feature metadata.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#features_from_database" class="internal-link" title="gbd_core.schema.Schema.features_from_database">features<wbr></wbr>_from<wbr></wbr>_database</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Introspect an SQLite database and build feature metadata.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#from_csv" class="internal-link" title="gbd_core.schema.Schema.from_csv">from<wbr></wbr>_csv</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Load a CSV file into a shared in-memory SQLite database and return a Schema.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#from_database" class="internal-link" title="gbd_core.schema.Schema.from_database">from<wbr></wbr>_database</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Load a Schema from an existing SQLite <tt class="rst-docutils rst-literal">.db</tt> file.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
     <td><code><a href="#is_database" class="internal-link" title="gbd_core.schema.Schema.is_database">is<wbr></wbr>_database</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return <tt class="rst-docutils rst-literal">True</tt> if <em>path</em> points to an SQLite database file.</td>
   </tr><tr class="classmethod">
     
     <td>Class Method</td>
@@ -583,7 +602,7 @@
     
     <td>Method</td>
     <td><code><a href="#__init__" class="internal-link" title="gbd_core.schema.Schema.__init__">__init__</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -593,12 +612,12 @@
     
     <td>Method</td>
     <td><code><a href="#create_feature" class="internal-link" title="gbd_core.schema.Schema.create_feature">create<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Create a new feature column or table in this schema.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#create_main_table_if_not_exists" class="internal-link" title="gbd_core.schema.Schema.create_main_table_if_not_exists">create<wbr></wbr>_main<wbr></wbr>_table<wbr></wbr>_if<wbr></wbr>_not<wbr></wbr>_exists</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Ensure the central <tt class="rst-docutils rst-literal">features(hash)</tt> table exists.</td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -633,7 +652,7 @@
     
     <td>Method</td>
     <td><code><a href="#set_values" class="internal-link" title="gbd_core.schema.Schema.set_values">set<wbr></wbr>_values</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Persist <em>value</em> for <em>feature</em> on each hash in <em>hashes</em>.</td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -685,7 +704,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_csv</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L130">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L241">
       
       (source)
     </a>
@@ -712,7 +731,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L134">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L245">
       
       (source)
     </a>
@@ -739,7 +758,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">context_from_name</span><span class="function-signature">(cls, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L139">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L250">
       
       (source)
     </a>
@@ -751,7 +770,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Infer the GBD context from a database name.</p>
+<p>Expects the format <tt class="rst-docutils rst-literal">{context}_{rest}</tt> where <em>context</em> is a registered GBD
+context string.  Falls back to the default context when no prefix matches.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">name:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Database name (without path or extension).</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Context name.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -766,7 +788,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">create</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L66">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L133">
       
       (source)
     </a>
@@ -778,7 +800,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Auto-detect the file type at <em>path</em> and return the appropriate Schema.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Path to a <tt class="rst-docutils rst-literal">.db</tt> file or CSV file.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a></code></td><td class="fieldArgDesc">Loaded schema instance.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.SchemaException.html" class="internal-link" title="gbd_core.schema.SchemaException">SchemaException</a></code></td><td>If the file cannot be opened or parsed.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -793,7 +815,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">dbname_from_path</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L147">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L269">
       
       (source)
     </a>
@@ -805,7 +827,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Derive a valid SQLite <tt class="rst-docutils rst-literal">ATTACH</tt> identifier from a file path.</p>
+<p>Strips directory and extension, sanitises non-alphanumeric characters to
+underscores, and prepends the default context if the name starts with a digit.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">File-system path.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Alphanumeric database name, e.g. <tt class="rst-docutils rst-literal">"cnf_sc2021"</tt>.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -820,7 +845,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">features_from_csv</span><span class="function-signature">(cls, dbname, path, con) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L93">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L173">
       
       (source)
     </a>
@@ -832,7 +857,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Import a CSV file into an in-memory SQLite table and build feature metadata.</p>
+<p>The CSV must contain a <tt class="rst-docutils rst-literal">hash</tt> column; all columns become 1:1 features stored
+in a single <tt class="rst-docutils rst-literal">features</tt> table.  Column names are sanitised to valid identifiers.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Logical database name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Path to the CSV file.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">con</span></td><td class="fieldArgDesc">In-memory <tt class="rst-docutils rst-literal">sqlite3</tt> connection.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></td><td class="fieldArgDesc">Feature registry for this schema.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.SchemaException.html" class="internal-link" title="gbd_core.schema.SchemaException">SchemaException</a></code></td><td>If the CSV lacks a <tt class="rst-docutils rst-literal">hash</tt> column.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -847,7 +875,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">features_from_database</span><span class="function-signature">(cls, dbname, path, con) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L114">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L210">
       
       (source)
     </a>
@@ -859,7 +887,12 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Introspect an SQLite database and build feature metadata.</p>
+<p>Iterates all non-underscore-prefixed tables.  Columns that are FK references
+(a <tt class="rst-docutils rst-literal">features</tt> column whose name matches a table name) and the <tt class="rst-docutils rst-literal">hash</tt> column
+of non-<tt class="rst-docutils rst-literal">features</tt> tables are skipped.  All remaining columns become
+<code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code> entries.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Logical database name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">File path (informational only).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">con</span></td><td class="fieldArgDesc">Open <tt class="rst-docutils rst-literal">sqlite3</tt> connection.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></td><td class="fieldArgDesc">Feature registry for this schema.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -874,7 +907,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">from_csv</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L84">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L163">
       
       (source)
     </a>
@@ -886,7 +919,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Load a CSV file into a shared in-memory SQLite database and return a Schema.</p></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -901,7 +934,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">from_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L76">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L154">
       
       (source)
     </a>
@@ -913,7 +946,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Load a Schema from an existing SQLite <tt class="rst-docutils rst-literal">.db</tt> file.</p></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -928,7 +961,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">is_database</span><span class="function-signature">(cls, path)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L49">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L108">
       
       (source)
     </a>
@@ -940,7 +973,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return <tt class="rst-docutils rst-literal">True</tt> if <em>path</em> points to an SQLite database file.</p>
+<p>An empty file is accepted as a new database.  If the path does not exist, the
+user is prompted to confirm creation.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.SchemaException.html" class="internal-link" title="gbd_core.schema.SchemaException">SchemaException</a></code></td><td>If the path does not exist and creation is declined.</td></tr></table></div>
   </div>
 </div><div class="baseclassmethod">
   
@@ -955,7 +991,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">valid_feature_or_raise</span><span class="function-signature">(cls, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L154">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L287">
       
       (source)
     </a>
@@ -982,7 +1018,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, dbcon, dbname, path, features, context, csv=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L41">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L90">
       
       (source)
     </a>
@@ -994,7 +1030,8 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbcon</span></td><td class="fieldArgDesc">Open <tt class="rst-docutils rst-literal">sqlite3</tt> connection for this schema.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Logical database name (alphanumeric, derived from filename).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">File-system path to the <tt class="rst-docutils rst-literal">.db</tt> or CSV file.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">features:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></td><td class="fieldArgDesc">Feature registry for this schema.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">context:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">GBD context (e.g. <tt class="rst-docutils rst-literal">"cnf"</tt>, <tt class="rst-docutils rst-literal">"kis"</tt>).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">csv:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">True</tt> when loaded from a CSV into in-memory SQLite;
+affects <code><a href="#is_in_memory" class="internal-link" title="gbd_core.schema.Schema.is_in_memory">is_in_memory</a></code>.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1009,7 +1046,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">absorb</span><span class="function-signature">(self, schema)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L339">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L472">
       
       (source)
     </a>
@@ -1036,7 +1073,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_feature</span><span class="function-signature">(self, name, default_value=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, permissive=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L361">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L504">
       
       (source)
     </a>
@@ -1048,7 +1085,26 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Create a new feature column or table in this schema.</p>
+<dl class="rst-docutils">
+<dt><strong>1:1 feature</strong> (<tt class="rst-docutils rst-literal">default_value</tt> is not <tt class="rst-docutils rst-literal">None</tt>)</dt>
+<dd>Adds <tt class="rst-docutils rst-literal">{name} TEXT NOT NULL DEFAULT {default_value}</tt> to the <tt class="rst-docutils rst-literal">features</tt>
+table.</dd>
+<dt><strong>1:n feature</strong> (<tt class="rst-docutils rst-literal">default_value</tt> is <tt class="rst-docutils rst-literal">None</tt>)</dt>
+<dd>Creates a separate table <tt class="rst-docutils rst-literal"><span class="pre">{name}(hash,</span> value)</tt> with
+<tt class="rst-docutils rst-literal">UNIQUE(hash, value)</tt>, inserts the sentinel row <tt class="rst-docutils rst-literal">('None', 'None')</tt>
+(see <tt class="rst-docutils rst-literal">Issues.md</tt> #7), and installs a trigger to keep
+<tt class="rst-docutils rst-literal"><span class="pre">features.{name}</span></tt> (the FK mirror column) in sync.</dd>
+</dl>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">name:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name; validated against reserved words and SQLite
+keywords unless <em>permissive</em> is <tt class="rst-docutils rst-literal">True</tt>.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">default<wbr></wbr>_value:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">None</tt> for 1:n; any string for 1:1.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">permissive:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">Skip validation and silently ignore if already exists
+(used internally by initialisers).</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></td><td class="fieldArgDesc"><dl class="rst-docutils">
+<dt>Newly created FeatureInfo objects (may include the</dt>
+<dd><tt class="rst-docutils rst-literal">hash</tt> FeatureInfo if the main table was created as a side-effect).</dd>
+</dl>
+</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.SchemaException.html" class="internal-link" title="gbd_core.schema.SchemaException">SchemaException</a></code></td><td>If the name is invalid or already exists (unless permissive).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1063,7 +1119,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_main_table_if_not_exists</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L345">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L478">
       
       (source)
     </a>
@@ -1075,7 +1131,12 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Ensure the central <tt class="rst-docutils rst-literal">features(hash)</tt> table exists.</p>
+<p>If absent (new database), creates it, back-fills hashes from all existing 1:n
+tables, and installs INSERT triggers on those tables to keep <tt class="rst-docutils rst-literal">features</tt>
+populated automatically.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></td><td class="fieldArgDesc">A list containing the <tt class="rst-docutils rst-literal">hash</tt> FeatureInfo if the table
+was newly created; empty list if it already existed.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1090,7 +1151,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">execute</span><span class="function-signature">(self, sql)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L323">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L456">
       
       (source)
     </a>
@@ -1117,7 +1178,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_connection</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L317">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L450">
       
       (source)
     </a>
@@ -1144,7 +1205,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L333">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L466">
       
       (source)
     </a>
@@ -1171,7 +1232,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_tables</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L330">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L463">
       
       (source)
     </a>
@@ -1198,7 +1259,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">has_feature</span><span class="function-signature">(self, name)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L336">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L469">
       
       (source)
     </a>
@@ -1225,7 +1286,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">is_in_memory</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L314">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L447">
       
       (source)
     </a>
@@ -1252,7 +1313,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">set_values</span><span class="function-signature">(self, feature, value, hashes)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L395">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L564">
       
       (source)
     </a>
@@ -1264,7 +1325,15 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Persist <em>value</em> for <em>feature</em> on each hash in <em>hashes</em>.</p>
+<ul class="rst-simple">
+<li><strong>1:n feature</strong>: inserts <tt class="rst-docutils rst-literal">(hash, value)</tt> rows; duplicate pairs are silently
+ignored (<tt class="rst-docutils rst-literal">INSERT OR IGNORE</tt>); also updates <tt class="rst-docutils rst-literal"><span class="pre">features.{name}</span> = hash</tt> to
+keep the FK mirror column current.</li>
+<li><strong>1:1 feature</strong>: upserts into the <tt class="rst-docutils rst-literal">features</tt> column; on hash conflict,
+updates the column to <em>value</em>.</li>
+</ul>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">feature:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">value</span></td><td class="fieldArgDesc">Value to store (coerced to <tt class="rst-docutils rst-literal">TEXT</tt> by SQLite).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashes:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Benchmark hashes to update.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.SchemaException.html" class="internal-link" title="gbd_core.schema.SchemaException">SchemaException</a></code></td><td>If the feature does not exist or <em>hashes</em> is empty.</td></tr></table></div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -1278,7 +1347,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">context</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L45">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L104">
       
       (source)
     </a>
@@ -1305,7 +1374,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">csv</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L47">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L106">
       
       (source)
     </a>
@@ -1332,7 +1401,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">dbcon</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L46">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L105">
       
       (source)
     </a>
@@ -1359,7 +1428,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">dbname</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L42">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L101">
       
       (source)
     </a>
@@ -1386,7 +1455,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">features</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L44">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L103">
       
       (source)
     </a>
@@ -1413,7 +1482,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">path</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L43">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L102">
       
       (source)
     </a>
@@ -1440,7 +1509,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 09:31:49.
+    24.11.2 at 2026-06-11 11:45:37.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 

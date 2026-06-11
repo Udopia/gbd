@@ -279,43 +279,54 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">FeatureInfo</span>: <a href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L31" class="sourceLink">(source)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">FeatureInfo</span>: <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L33" class="sourceLink">(source)</a></code></p>
           <p><a href="classIndex.html#gbd_core.schema.FeatureInfo">View In Hierarchy</a></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>Metadata descriptor for a single GBD feature.</p>
+<p>Created by <code><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a></code> when inspecting a database or loading a CSV, and
+returned by <code><a href="gbd_core.database.Database.html#find" class="internal-link" title="gbd_core.database.Database.find">Database.find</a></code>.</p>
+<p>The <tt class="rst-docutils rst-literal">default</tt> attribute encodes feature cardinality:</p>
+<ul class="rst-simple">
+<li><tt class="rst-docutils rst-literal">default is None</tt> -&gt; <strong>1:n feature</strong>: stored in a dedicated table
+<tt class="rst-docutils rst-literal"><span class="pre">{name}(hash</span> TEXT, value TEXT, UNIQUE(hash, value))</tt>.  The <tt class="rst-docutils rst-literal">column</tt> is
+always <tt class="rst-docutils rst-literal">"value"</tt>.</li>
+<li><tt class="rst-docutils rst-literal">default is not None</tt> -&gt; <strong>1:1 feature</strong>: stored as a column named <em>name</em> in
+the central <tt class="rst-docutils rst-literal">features</tt> table with that default value.</li>
+</ul>
+</div>
         </div>
 
         <div id="splitTables">
           <table class="children sortable" id="id13">
   
   
-  <tr class="classvariable">
+  <tr class="instancevariable">
     
-    <td>Class Variable</td>
+    <td>Instance Variable</td>
     <td><code><a href="#column" class="internal-link" title="gbd_core.schema.FeatureInfo.column">column</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="classvariable">
+    <td>Column within <em>table</em> that holds the value. 1:1 -&gt; equals <em>name</em>; 1:n -&gt; <tt class="rst-docutils rst-literal">"value"</tt>.</td>
+  </tr><tr class="instancevariable">
     
-    <td>Class Variable</td>
+    <td>Instance Variable</td>
     <td><code><a href="#database" class="internal-link" title="gbd_core.schema.FeatureInfo.database">database</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="classvariable">
+    <td>Logical database name derived from the file path (e.g. <tt class="rst-docutils rst-literal">"cnf_sc2021"</tt>).</td>
+  </tr><tr class="instancevariable">
     
-    <td>Class Variable</td>
+    <td>Instance Variable</td>
     <td><code><a href="#default" class="internal-link" title="gbd_core.schema.FeatureInfo.default">default</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="classvariable">
+    <td>SQLite default value, or <tt class="rst-docutils rst-literal">None</tt> for 1:n features.</td>
+  </tr><tr class="instancevariable">
     
-    <td>Class Variable</td>
+    <td>Instance Variable</td>
     <td><code><a href="#name" class="internal-link" title="gbd_core.schema.FeatureInfo.name">name</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="classvariable">
+    <td>Logical feature name used in GBD queries (e.g. <tt class="rst-docutils rst-literal">"local"</tt>).</td>
+  </tr><tr class="instancevariable">
     
-    <td>Class Variable</td>
+    <td>Instance Variable</td>
     <td><code><a href="#table" class="internal-link" title="gbd_core.schema.FeatureInfo.table">table</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>SQLite table that stores the feature value. 1:1 -&gt; <tt class="rst-docutils rst-literal">"features"</tt>; 1:n -&gt; the feature name itself.</td>
   </tr>
 </table>
           
@@ -324,7 +335,7 @@
         </div>
 
         <div id="childList">
-          <div class="baseclassvariable">
+          <div class="baseinstancevariable">
   
   
   <a name="gbd_core.schema.FeatureInfo.column">
@@ -336,7 +347,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">column</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L36">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L61">
       
       (source)
     </a>
@@ -348,10 +359,11 @@
   </div>
   <div class="functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Column within <em>table</em> that holds the value.
+1:1 -&gt; equals <em>name</em>; 1:n -&gt; <tt class="rst-docutils rst-literal">"value"</tt>.</p></div>
     
   </div>
-</div><div class="baseclassvariable">
+</div><div class="baseinstancevariable">
   
   
   <a name="gbd_core.schema.FeatureInfo.database">
@@ -363,7 +375,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">database</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L34">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L59">
       
       (source)
     </a>
@@ -375,10 +387,11 @@
   </div>
   <div class="functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Logical database name derived from the file path
+(e.g. <tt class="rst-docutils rst-literal">"cnf_sc2021"</tt>).</p></div>
     
   </div>
-</div><div class="baseclassvariable">
+</div><div class="baseinstancevariable">
   
   
   <a name="gbd_core.schema.FeatureInfo.default">
@@ -389,8 +402,10 @@
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">default</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L37">
+    <span class="py-defname">default</span>: str|<blockquote>
+None</blockquote>
+ =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L62">
       
       (source)
     </a>
@@ -402,10 +417,10 @@
   </div>
   <div class="functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>SQLite default value, or <tt class="rst-docutils rst-literal">None</tt> for 1:n features.</p></div>
     
   </div>
-</div><div class="baseclassvariable">
+</div><div class="baseinstancevariable">
   
   
   <a name="gbd_core.schema.FeatureInfo.name">
@@ -417,7 +432,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">name</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L33">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L58">
       
       (source)
     </a>
@@ -429,10 +444,10 @@
   </div>
   <div class="functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Logical feature name used in GBD queries (e.g. <tt class="rst-docutils rst-literal">"local"</tt>).</p></div>
     
   </div>
-</div><div class="baseclassvariable">
+</div><div class="baseinstancevariable">
   
   
   <a name="gbd_core.schema.FeatureInfo.table">
@@ -444,7 +459,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">table</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/schema.py#L35">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/schema.py#L60">
       
       (source)
     </a>
@@ -456,7 +471,8 @@
   </div>
   <div class="functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>SQLite table that stores the feature value.
+1:1 -&gt; <tt class="rst-docutils rst-literal">"features"</tt>; 1:n -&gt; the feature name itself.</p></div>
     
   </div>
 </div>
@@ -471,7 +487,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 09:31:49.
+    24.11.2 at 2026-06-11 11:45:37.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 

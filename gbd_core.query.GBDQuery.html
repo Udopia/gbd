@@ -322,12 +322,24 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">GBDQuery</span>: <a href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L22" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.query.GBDQuery.__init__">GBDQuery(db, query)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">GBDQuery</span>: <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L22" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.query.GBDQuery.__init__">GBDQuery(db, query)</a></code></p>
           <p><a href="classIndex.html#gbd_core.query.GBDQuery">View In Hierarchy</a></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>Translates a GBD query string and parameters into a complete SQLite SELECT statement.</p>
+<p>A GBD query spans one or more ATTACHed SQLite databases managed by
+<code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code>.  Each database belongs to a <em>context</em>
+(e.g. <tt class="rst-docutils rst-literal">cnf</tt>, <tt class="rst-docutils rst-literal">wcnf</tt>, <tt class="rst-docutils rst-literal">pbo</tt>).  Features within the same context are joined
+directly; features from a different context require a <em>translator feature</em> - a 1:n
+feature named <tt class="rst-docutils rst-literal">to_{context}</tt> that maps hashes between contexts.</p>
+<p>Typical usage:</p>
+<pre class="rst-literal-block">
+q   = GBDQuery(db, "filename like foo%")
+sql = q.build_query(resolve=["local"], collapse="group_concat")
+rows = db.query(sql)
+</pre>
+</div>
         </div>
 
         <div id="splitTables">
@@ -338,42 +350,42 @@
     
     <td>Method</td>
     <td><code><a href="#__init__" class="internal-link" title="gbd_core.query.GBDQuery.__init__">__init__</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#build_from" class="internal-link" title="gbd_core.query.GBDQuery.build_from">build<wbr></wbr>_from</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Build the FROM / JOIN clause.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#build_query" class="internal-link" title="gbd_core.query.GBDQuery.build_query">build<wbr></wbr>_query</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Build and return a complete SQL SELECT statement.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#build_select" class="internal-link" title="gbd_core.query.GBDQuery.build_select">build<wbr></wbr>_select</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Build the SELECT clause.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#build_where" class="internal-link" title="gbd_core.query.GBDQuery.build_where">build<wbr></wbr>_where</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Build the WHERE clause body.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#determine_group_by" class="internal-link" title="gbd_core.query.GBDQuery.determine_group_by">determine<wbr></wbr>_group<wbr></wbr>_by</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the default <tt class="rst-docutils rst-literal">context:hash</tt> column used as the GROUP BY key.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#features_exist_or_throw" class="internal-link" title="gbd_core.query.GBDQuery.features_exist_or_throw">features<wbr></wbr>_exist<wbr></wbr>_or<wbr></wbr>_throw</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Raise <code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code> if any feature in <em>features</em> does not exist in the attached databases.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#find_translator_feature" class="internal-link" title="gbd_core.query.GBDQuery.find_translator_feature">find<wbr></wbr>_translator<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Find the 1:n translator feature that bridges two contexts.</td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -410,7 +422,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, db: <code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code>, query)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L23">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L38">
       
       (source)
     </a>
@@ -422,7 +434,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">db:</span><code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code></td><td class="fieldArgDesc">Multi-database instance used for feature resolution.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">query:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">GBD filter expression, or <tt class="rst-docutils rst-literal">None</tt> / empty string for
+an unconditional (match-all) query.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -437,7 +452,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">build_from</span><span class="function-signature">(self, group, features, join_type=<span class="rst-variable-quote">'</span><span class="rst-variable-string">LEFT</span><span class="rst-variable-quote">'</span>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L74">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L166">
       
       (source)
     </a>
@@ -449,7 +464,21 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Build the FROM / JOIN clause.</p>
+<p>Three JOIN strategies depending on the feature's context relative to the
+group-by column:</p>
+<ol class="rst-arabic rst-simple">
+<li><strong>Same-context, 1:1 feature</strong> (column in <tt class="rst-docutils rst-literal">features</tt> table):
+<tt class="rst-docutils rst-literal">{join_type} JOIN db.features ON db.features.hash = base.hash</tt></li>
+<li><strong>Same-context, 1:n feature</strong> (separate table):
+ensures <tt class="rst-docutils rst-literal">db.features</tt> is joined first, then
+<tt class="rst-docutils rst-literal">{join_type} JOIN <span class="pre">db.{name}</span> ON <span class="pre">db.{name}.hash</span> = <span class="pre">db.features.{name}</span></tt></li>
+<li><strong>Cross-context</strong>: always <tt class="rst-docutils rst-literal">INNER JOIN</tt> via the translator feature table
+regardless of <em>join_type</em> (see <tt class="rst-docutils rst-literal">Issues.md</tt> #4).</li>
+</ol>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">group:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier of the group-by column; its database is the
+base <tt class="rst-docutils rst-literal">FROM</tt> table.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">features:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#set" class="intersphinx-link">set</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">All features that must appear in the clause
+(filter features + resolved features).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">join<wbr></wbr>_type:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">"LEFT"</tt> or <tt class="rst-docutils rst-literal">"INNER"</tt> applied to same-context joins.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL FROM / JOIN clause.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -464,7 +493,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">build_query</span><span class="function-signature">(self, hashes=[], resolve=[], group_by=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, join_type=<span class="rst-variable-quote">'</span><span class="rst-variable-string">LEFT</span><span class="rst-variable-quote">'</span>, collapse=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L33">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L60">
       
       (source)
     </a>
@@ -476,7 +505,16 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Build and return a complete SQL SELECT statement.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashes:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Restrict results to these benchmark hashes.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">resolve:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Features to include as output columns.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">group<wbr></wbr>_by:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Group results by this feature instead of the default
+<tt class="rst-docutils rst-literal">context:hash</tt> column; inferred from <em>resolve</em> when <tt class="rst-docutils rst-literal">None</tt>.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">join<wbr></wbr>_type:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">"LEFT"</tt> (default, include unmatched hashes) or
+<tt class="rst-docutils rst-literal">"INNER"</tt> (exclude them).
+Cross-context joins are always <tt class="rst-docutils rst-literal">INNER</tt> (see <tt class="rst-docutils rst-literal">Issues.md</tt> #4).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">collapse:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Aggregate function for resolved columns; one of
+<tt class="rst-docutils rst-literal">"group_concat"</tt>, <tt class="rst-docutils rst-literal">"min"</tt>, <tt class="rst-docutils rst-literal">"max"</tt>, <tt class="rst-docutils rst-literal">"avg"</tt>, <tt class="rst-docutils rst-literal">"count"</tt>,
+<tt class="rst-docutils rst-literal">"sum"</tt>.  <tt class="rst-docutils rst-literal">None</tt> returns one raw row per join result.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Ready-to-execute SQL query.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -491,7 +529,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">build_select</span><span class="function-signature">(self, group_by, resolve, collapse=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L55">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L112">
       
       (source)
     </a>
@@ -503,7 +541,19 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Build the SELECT clause.</p>
+<p>When <em>collapse</em> is given, every selected column (including the group-by column)
+is wrapped with the aggregate function.  Without <em>collapse</em>, <tt class="rst-docutils rst-literal">SELECT DISTINCT</tt>
+deduplicates rows.</p>
+<p>The group-by column is also aggregated, which is redundant when <tt class="rst-docutils rst-literal">GROUP BY</tt> is present (see <tt class="rst-docutils rst-literal">Issues.md</tt> #6).</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">group<wbr></wbr>_by:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Primary output column (always first in the SELECT list).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">resolve:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Additional output columns.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">collapse:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Aggregate function name (e.g. <tt class="rst-docutils rst-literal">"group_concat"</tt>),
+or <tt class="rst-docutils rst-literal">None</tt> for no aggregation.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc"><dl class="rst-docutils">
+<dt>SQL SELECT clause, e.g.</dt>
+<dd><tt class="rst-docutils rst-literal">"SELECT DISTINCT cnf_db.features.hash, cnf_db.local.value"</tt>.</dd>
+</dl>
+</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -518,7 +568,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">build_where</span><span class="function-signature">(self, hashes, group_by)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L109">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L224">
       
       (source)
     </a>
@@ -530,7 +580,16 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Build the WHERE clause body.</p>
+<p>Combines three conditions with <tt class="rst-docutils rst-literal">AND</tt>:</p>
+<ol class="rst-arabic rst-simple">
+<li><tt class="rst-docutils rst-literal">group_column != 'None'</tt> excludes the sentinel null-hash row present in
+every 1:n feature table (see <tt class="rst-docutils rst-literal">Issues.md</tt> #7 - sentinel design).</li>
+<li>The SQL fragment compiled from the GBD filter expression.</li>
+<li>An optional <tt class="rst-docutils rst-literal">hash IN <span class="pre">(...)</span></tt> restriction when <em>hashes</em> is non-empty.</li>
+</ol>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashes:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Benchmark hashes to restrict results to; empty list
+means no hash restriction.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">group<wbr></wbr>_by:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier of the group-by column.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL WHERE clause body (without the <tt class="rst-docutils rst-literal">WHERE</tt> keyword).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -545,7 +604,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">determine_group_by</span><span class="function-signature">(self, resolve)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L49">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L93">
       
       (source)
     </a>
@@ -557,7 +616,11 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the default <tt class="rst-docutils rst-literal">context:hash</tt> column used as the GROUP BY key.</p>
+<p>Uses the database of the first feature in <em>resolve</em>, or the primary <tt class="rst-docutils rst-literal">hash</tt>
+feature when <em>resolve</em> is empty.</p>
+<p>When <em>resolve</em> spans multiple contexts, only the first feature's context is considered (see <tt class="rst-docutils rst-literal">Issues.md</tt> #5).</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">resolve:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Features that will be resolved in the query.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier of the form <tt class="rst-docutils rst-literal">"context:hash"</tt>.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -572,7 +635,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">features_exist_or_throw</span><span class="function-signature">(self, features)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L28">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L49">
       
       (source)
     </a>
@@ -584,7 +647,8 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Raise <code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code> if any feature in
+<em>features</em> does not exist in the attached databases.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">features:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Feature identifiers to validate.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -599,7 +663,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">find_translator_feature</span><span class="function-signature">(self, source_context, target_context)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L61">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L136">
       
       (source)
     </a>
@@ -611,7 +675,12 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Find the 1:n translator feature that bridges two contexts.</p>
+<p>A translator feature is a 1:n feature named <tt class="rst-docutils rst-literal">to_{target_context}</tt> stored in a
+database of <em>source_context</em>, or <tt class="rst-docutils rst-literal">to_{source_context}</tt> stored in a database of
+<em>target_context</em>.  It provides a hash mapping used by <code><a href="#build_from" class="internal-link" title="gbd_core.query.GBDQuery.build_from">build_from</a></code> to
+construct cross-context JOINs.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">source<wbr></wbr>_context:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Context of the primary (group-by) table.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_context:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Context of the feature being resolved.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code></td><td class="fieldArgDesc">Info object for the translator feature.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If no translator feature exists for the context pair.</td></tr></table></div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -625,7 +694,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">db</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L24">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L45">
       
       (source)
     </a>
@@ -652,7 +721,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">features</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L26">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L47">
       
       (source)
     </a>
@@ -679,7 +748,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">parser</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/query.py#L25">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/query.py#L46">
       
       (source)
     </a>
@@ -706,7 +775,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 09:31:49.
+    24.11.2 at 2026-06-11 11:45:37.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 

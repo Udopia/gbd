@@ -602,12 +602,46 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Database</span>: <a href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L29" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">Database(path_list, verbose, autocommit)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Database</span>: <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L31" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">Database(path_list, verbose, autocommit)</a></code></p>
           <p><a href="classIndex.html#gbd_core.database.Database">View In Hierarchy</a></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>Manages multiple ATTACHed SQLite databases as a single virtual feature namespace.</p>
+<p>One or more <tt class="rst-docutils rst-literal">.db</tt> files (and/or CSV files loaded into shared in-memory SQLite)
+are ATTACHed to a central in-memory connection.  This allows cross-database SQL JOINs
+to work transparently within a single cursor.</p>
+<p><strong>Data model</strong></p>
+<p>Each attached database centres on a <tt class="rst-docutils rst-literal">features</tt> table:</p>
+<pre class="rst-literal-block">
+features(hash UNIQUE NOT NULL, feat_a TEXT DEFAULT 'v', feat_b TEXT DEFAULT 'w', ...)
+</pre>
+<ul>
+<li><p class="rst-first"><strong>1:1 features</strong> (<tt class="rst-docutils rst-literal">FeatureInfo.default != None</tt>): stored as columns in <tt class="rst-docutils rst-literal">features</tt>;
+each hash has exactly one value.</p>
+</li>
+<li><p class="rst-first"><strong>1:n features</strong> (<tt class="rst-docutils rst-literal">FeatureInfo.default is None</tt>): stored in a separate table:</p>
+<pre class="rst-literal-block">
+{name}(hash TEXT NOT NULL, value TEXT NOT NULL, UNIQUE(hash, value))
+</pre>
+<p>A same-named column in <tt class="rst-docutils rst-literal">features</tt> echoes the hash value as a foreign-key reference
+so the table is reachable via a JOIN.  A sentinel row <tt class="rst-docutils rst-literal"><span class="pre">(hash='None',</span> <span class="pre">value='None')</span></tt>
+is inserted at creation time (see <tt class="rst-docutils rst-literal">Issues.md</tt> #7).</p>
+</li>
+</ul>
+<p><strong>Feature precedence</strong></p>
+<p>When the same feature name exists in multiple databases, the database that appears first
+in <em>path_list</em> takes precedence.  Queries can bypass precedence by using the
+<tt class="rst-docutils rst-literal">database:feature</tt> or <tt class="rst-docutils rst-literal">context:feature</tt> syntax.</p>
+<p>Usage:</p>
+<pre class="rst-literal-block">
+with Database(["cnf_sc2021.db", "gate_sc2021.db"]) as db:
+    sql = GBDQuery(db, "vars &gt; 1000").build_query(
+        resolve=["local"], collapse="group_concat"
+    )
+    rows = db.query(sql)
+</pre>
+</div>
         </div>
 
         <div id="splitTables">
@@ -633,7 +667,7 @@
     
     <td>Method</td>
     <td><code><a href="#__init__" class="internal-link" title="gbd_core.database.Database.__init__">__init__</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td><span class="undocumented">No summary</span></td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -643,27 +677,27 @@
     
     <td>Method</td>
     <td><code><a href="#copy_feature" class="internal-link" title="gbd_core.database.Database.copy_feature">copy<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Copy values from <em>old_name</em> into <em>new_name</em> for the given hashes.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#create_feature" class="internal-link" title="gbd_core.database.Database.create_feature">create<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Create a new feature in <em>target_db</em> and register it in the global registry.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#dcontext" class="internal-link" title="gbd_core.database.Database.dcontext">dcontext</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the context name (e.g. <tt class="rst-docutils rst-literal">"cnf"</tt>, <tt class="rst-docutils rst-literal">"kis"</tt>) of <em>dbname</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#delete" class="internal-link" title="gbd_core.database.Database.delete">delete</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Delete specific (hash, value) pairs or reset values to their default.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#delete_feature" class="internal-link" title="gbd_core.database.Database.delete_feature">delete<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Delete feature <em>fname</em> and all its stored values.</td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -673,92 +707,92 @@
     
     <td>Method</td>
     <td><code><a href="#dexists" class="internal-link" title="gbd_core.database.Database.dexists">dexists</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return <tt class="rst-docutils rst-literal">True</tt> if <em>dbname</em> is an attached database.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#dmain" class="internal-link" title="gbd_core.database.Database.dmain">dmain</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return <tt class="rst-docutils rst-literal">True</tt> if <em>dbname</em> is the default (first-attached) database.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#dpath" class="internal-link" title="gbd_core.database.Database.dpath">dpath</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the file-system path of <em>dbname</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#dtables" class="internal-link" title="gbd_core.database.Database.dtables">dtables</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the list of SQLite table names in <em>dbname</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#execute" class="internal-link" title="gbd_core.database.Database.execute">execute</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Execute a raw SQL DDL/DML statement and optionally auto-commit.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#faddr" class="internal-link" title="gbd_core.database.Database.faddr">faddr</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the fully-qualified SQL address for <em>fid</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#faddr_column" class="internal-link" title="gbd_core.database.Database.faddr_column">faddr<wbr></wbr>_column</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the fully-qualified column address <tt class="rst-docutils rst-literal">database.table.column</tt> for <em>feature</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#faddr_table" class="internal-link" title="gbd_core.database.Database.faddr_table">faddr<wbr></wbr>_table</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the fully-qualified table address <tt class="rst-docutils rst-literal">database.table</tt> for <em>feature</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#find" class="internal-link" title="gbd_core.database.Database.find">find</a></code></td>
-    <td>Find feature by name or feature identifier</td>
+    <td>Find a feature by name or qualified identifier.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#finfo" class="internal-link" title="gbd_core.database.Database.finfo">finfo</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code> for <em>fname</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_contexts" class="internal-link" title="gbd_core.database.Database.get_contexts">get<wbr></wbr>_contexts</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the unique context names of the attached databases.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_databases" class="internal-link" title="gbd_core.database.Database.get_databases">get<wbr></wbr>_databases</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return all attached database names, optionally filtered by <em>context</em>.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_features" class="internal-link" title="gbd_core.database.Database.get_features">get<wbr></wbr>_features</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the names of all known features, optionally filtered by database.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_tables" class="internal-link" title="gbd_core.database.Database.get_tables">get<wbr></wbr>_tables</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the unique table names across all features, optionally filtered by database.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#init_features" class="internal-link" title="gbd_core.database.Database.init_features">init<wbr></wbr>_features</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Build the global feature registry across all attached schemas.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#init_schemas" class="internal-link" title="gbd_core.database.Database.init_schemas">init<wbr></wbr>_schemas</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Load each path as a <code><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a></code> and return a mapping of logical database name → Schema.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#query" class="internal-link" title="gbd_core.database.Database.query">query</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Execute a raw SQL SELECT and return all rows.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#rename_feature" class="internal-link" title="gbd_core.database.Database.rename_feature">rename<wbr></wbr>_feature</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Rename feature <em>fname</em> to <em>new_fname</em> in its database.</td>
   </tr><tr class="method">
     
     <td>Method</td>
@@ -768,7 +802,7 @@
     
     <td>Method</td>
     <td><code><a href="#set_values" class="internal-link" title="gbd_core.database.Database.set_values">set<wbr></wbr>_values</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Set <em>value</em> for feature <em>fname</em> on each hash in <em>hashes</em>.</td>
   </tr><tr class="instancevariable">
     
     <td>Instance Variable</td>
@@ -825,7 +859,7 @@
     
     @<a href="https://docs.python.org/3/library/functions.html#classmethod" class="intersphinx-link">classmethod</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">sqlite3_version</span><span class="function-signature">(cls)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L56">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L104">
       
       (source)
     </a>
@@ -852,7 +886,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__enter__</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L48">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L96">
       
       (source)
     </a>
@@ -879,7 +913,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__exit__</span><span class="function-signature">(self, exception_type, exception_value, traceback)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L51">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L99">
       
       (source)
     </a>
@@ -906,7 +940,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, path_list: <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code>, verbose=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>, autocommit=<a href="https://docs.python.org/3/library/constants.html#True" class="intersphinx-link">True</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L30">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L69">
       
       (source)
     </a>
@@ -918,7 +952,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path<wbr></wbr>_list:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Ordered list of paths to <tt class="rst-docutils rst-literal">.db</tt> or CSV files.
+The first entry becomes the default database for write operations.
+Ordering also determines feature precedence when names collide.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">verbose:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">Print every executed SQL statement to stderr.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">autocommit:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">Commit after every <code><a href="#execute" class="internal-link" title="gbd_core.database.Database.execute">execute</a></code> call.  Set to
+<tt class="rst-docutils rst-literal">False</tt> for batched writes and call <code><a href="#commit" class="internal-link" title="gbd_core.database.Database.commit">commit</a></code> manually.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -933,7 +970,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">commit</span><span class="function-signature">(self)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L104">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L188">
       
       (source)
     </a>
@@ -960,7 +997,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">copy_feature</span><span class="function-signature">(self, old_name, new_name, target_db, hashlist=[])</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L275">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L520">
       
       (source)
     </a>
@@ -972,7 +1009,9 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Copy values from <em>old_name</em> into <em>new_name</em> for the given hashes.</p>
+<p><em>new_name</em> must already exist in <em>target_db</em>.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">old<wbr></wbr>_name:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Source feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">new<wbr></wbr>_name:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Destination feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Database for the destination feature.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashlist:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Restrict the copy to these hashes.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -987,7 +1026,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">create_feature</span><span class="function-signature">(self, name, default_value=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>, permissive=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L208">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L381">
       
       (source)
     </a>
@@ -999,7 +1038,16 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Create a new feature in <em>target_db</em> and register it in the global registry.</p>
+<p>Delegates DDL to <code><a href="gbd_core.schema.Schema.html#create_feature" class="internal-link" title="gbd_core.schema.Schema.create_feature">Schema.create_feature</a></code>.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">name:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name; must be a valid identifier.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">default<wbr></wbr>_value:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">None</tt> creates a <strong>1:n</strong> feature (separate
+<tt class="rst-docutils rst-literal"><span class="pre">{name}(hash,</span> value)</tt> table); any string creates a <strong>1:1</strong> feature
+(column in <tt class="rst-docutils rst-literal">features</tt> with that default).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Target database name; defaults to the first database.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">permissive:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">If <tt class="rst-docutils rst-literal">True</tt>, silently skip if the feature already exists
+and bypass name validation (for internal use by initialisers).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1014,7 +1062,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">dcontext</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L121">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L212">
       
       (source)
     </a>
@@ -1026,7 +1074,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the context name (e.g. <tt class="rst-docutils rst-literal">"cnf"</tt>, <tt class="rst-docutils rst-literal">"kis"</tt>) of <em>dbname</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If <em>dbname</em> is not attached.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1041,7 +1089,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">delete</span><span class="function-signature">(self, fname, values=[], hashes=[], target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L253">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L485">
       
       (source)
     </a>
@@ -1053,7 +1101,14 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Delete specific (hash, value) pairs or reset values to their default.</p>
+<p>For <strong>1:n features</strong>: deletes matching rows from the feature table.  For any
+hash that now has no remaining values, resets the FK column in <tt class="rst-docutils rst-literal">features</tt> to
+<tt class="rst-docutils rst-literal">'None'</tt>.
+For <strong>1:1 features</strong>: resets the column to its default value for matching hashes.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">values:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Value filter; empty list means no value restriction.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashes:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Hash filter; empty list means no hash restriction.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Restrict to this database when ambiguous.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1068,7 +1123,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">delete_feature</span><span class="function-signature">(self, fname, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L241">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L461">
       
       (source)
     </a>
@@ -1080,7 +1135,12 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Delete feature <em>fname</em> and all its stored values.</p>
+<p>For 1:n features, drops the separate table.
+For 1:1 features, drops the column (requires SQLite &gt;= 3.35).</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name to delete.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Restrict to this database when ambiguous.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If a 1:1 feature is requested on SQLite &lt; 3.35.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1095,7 +1155,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">delete_hashes_entirely</span><span class="function-signature">(self, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L270">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L515">
       
       (source)
     </a>
@@ -1122,7 +1182,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">dexists</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L110">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L194">
       
       (source)
     </a>
@@ -1134,7 +1194,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return <tt class="rst-docutils rst-literal">True</tt> if <em>dbname</em> is an attached database.</p></div>
   </div>
 </div><div class="basemethod">
   
@@ -1149,7 +1209,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">dmain</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L113">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L198">
       
       (source)
     </a>
@@ -1161,7 +1221,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return <tt class="rst-docutils rst-literal">True</tt> if <em>dbname</em> is the default (first-attached) database.</p></div>
   </div>
 </div><div class="basemethod">
   
@@ -1176,7 +1236,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">dpath</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L116">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L202">
       
       (source)
     </a>
@@ -1188,7 +1248,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the file-system path of <em>dbname</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If <em>dbname</em> is not attached.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1203,7 +1263,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">dtables</span><span class="function-signature">(self, dbname)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L126">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L222">
       
       (source)
     </a>
@@ -1215,7 +1275,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the list of SQLite table names in <em>dbname</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If <em>dbname</em> is not attached.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1230,7 +1290,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">execute</span><span class="function-signature">(self, q)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L97">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L176">
       
       (source)
     </a>
@@ -1242,7 +1302,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Execute a raw SQL DDL/DML statement and optionally auto-commit.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">q:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL statement (e.g. INSERT, UPDATE, ALTER TABLE, CREATE TABLE).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1257,7 +1317,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">faddr</span><span class="function-signature">(self, fid: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, with_column=<a href="https://docs.python.org/3/library/constants.html#True" class="intersphinx-link">True</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L187">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L318">
       
       (source)
     </a>
@@ -1269,7 +1329,8 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the fully-qualified SQL address for <em>fid</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fid:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier (bare name, <tt class="rst-docutils rst-literal">db:name</tt>, or <tt class="rst-docutils rst-literal">context:name</tt>).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">with<wbr></wbr>_column:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">If <tt class="rst-docutils rst-literal">True</tt> (default), return <tt class="rst-docutils rst-literal">database.table.column</tt>;
+if <tt class="rst-docutils rst-literal">False</tt>, return <tt class="rst-docutils rst-literal">database.table</tt>.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Fully-qualified address usable in SQL expressions.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1284,7 +1345,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">faddr_column</span><span class="function-signature">(self, feature)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L143">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L256">
       
       (source)
     </a>
@@ -1296,7 +1357,7 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the fully-qualified column address <tt class="rst-docutils rst-literal">database.table.column</tt> for <em>feature</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">feature:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier (bare name, or <tt class="rst-docutils rst-literal">db:name</tt> / <tt class="rst-docutils rst-literal">context:name</tt>).</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">e.g. <tt class="rst-docutils rst-literal">"cnf_sc2021.local.value"</tt></td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1311,7 +1372,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">faddr_table</span><span class="function-signature">(self, feature)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L147">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L268">
       
       (source)
     </a>
@@ -1323,7 +1384,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the fully-qualified table address <tt class="rst-docutils rst-literal">database.table</tt> for <em>feature</em>.</p>
+<p>Used to build subquery references in
+<code><a href="gbd_core.grammar.Parser.html#get_sql" class="internal-link" title="gbd_core.grammar.Parser.get_sql">Parser.get_sql</a></code> for 1:n features.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">feature:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">e.g. <tt class="rst-docutils rst-literal">"cnf_sc2021.local"</tt></td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1338,7 +1402,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">find</span><span class="function-signature">(self, fid: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, db: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L151">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L283">
       
       (source)
     </a>
@@ -1350,20 +1414,13 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p>Find feature by name or feature identifier</p>
-<p>Args:
-fid: feature identifier, of the form "database:feature", "context:feature" or "feature"
-db: database name (optional), if given fid is unique without database: or context: prefix</p>
-<p>Returns:
-FeatureInfo object: the info object for the first found feature
-feature precedence is according to the order of databases in the path list
-ambiguity can be resolved by using one of the following methods.
-- by giving a database name as the second argument or
-- by using the fid syntax "database:feature"
-- by using the fid syntax "context:feature" (note that this does not necessarily resolve all ambiguity)</p>
-<p>Raises:
-DatabaseException: if feature is not found or given database info is ambiguous</p>
-</div>
+    <div><p>Find a feature by name or qualified identifier.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fid:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature identifier - one of:
+<tt class="rst-docutils rst-literal">"feature"</tt> (bare), <tt class="rst-docutils rst-literal">"database:feature"</tt>, or <tt class="rst-docutils rst-literal">"context:feature"</tt>.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Restrict lookup to this database name.  Raises if <em>fid</em>
+already contains a different database prefix.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code></td><td class="fieldArgDesc">Info object for the highest-precedence matching feature.
+Precedence follows the order of databases in <em>path_list</em>.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If the feature is not found or database identifiers are
+ambiguous.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1378,7 +1435,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">finfo</span><span class="function-signature">(self, fname, db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L131">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L232">
       
       (source)
     </a>
@@ -1390,7 +1447,9 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code> for <em>fname</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Bare feature name (no <tt class="rst-docutils rst-literal">db:</tt> prefix).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Restrict lookup to this database name.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code></td><td class="fieldArgDesc">Highest-precedence info object for the feature.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code></td><td>If the feature does not exist (or not in <em>db</em>).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1405,7 +1464,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_contexts</span><span class="function-signature">(self, dbs=[])</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L198">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L347">
       
       (source)
     </a>
@@ -1417,7 +1476,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the unique context names of the attached databases.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbs:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">If non-empty, restrict to these database names.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Unique context names (order not guaranteed).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1432,7 +1491,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_databases</span><span class="function-signature">(self, context: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> = <a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L195">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L336">
       
       (source)
     </a>
@@ -1444,7 +1503,9 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return all attached database names, optionally filtered by <em>context</em>.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">context:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">If given, only databases of this context are returned.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Database names in attachment order.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1459,7 +1520,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, dbs=[])</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L201">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L358">
       
       (source)
     </a>
@@ -1471,7 +1532,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the names of all known features, optionally filtered by database.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbs:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">If non-empty, only features from these databases are included.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Feature names (may contain duplicates if a feature spans databases).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1486,7 +1547,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_tables</span><span class="function-signature">(self, dbs=[])</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L204">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L369">
       
       (source)
     </a>
@@ -1498,7 +1559,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the unique table names across all features, optionally filtered by database.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">dbs:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">If non-empty, restrict to these database names.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Unique table names.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1513,7 +1574,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">init_features</span><span class="function-signature">(self) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L73">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L133">
       
       (source)
     </a>
@@ -1525,7 +1586,13 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Build the global feature registry across all attached schemas.</p>
+<p>Each feature name maps to an ordered list of <code><a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a></code>
+objects; the first entry is used by default (highest precedence, determined by
+database order in <em>path_list</em>).  The <tt class="rst-docutils rst-literal">hash</tt> column of the <tt class="rst-docutils rst-literal">features</tt> table is
+always placed first when present, as it serves as the primary join key.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="gbd_core.schema.FeatureInfo.html" class="internal-link" title="gbd_core.schema.FeatureInfo">FeatureInfo</a>]]</code></td><td class="fieldArgDesc">Feature name -&gt; list of FeatureInfo (highest
+precedence first).</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1540,7 +1607,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">init_schemas</span><span class="function-signature">(self, path_list) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a>]</code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L60">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L108">
       
       (source)
     </a>
@@ -1552,7 +1619,12 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Load each path as a <code><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a></code> and return a mapping
+of logical database name → Schema.</p>
+<p>In-memory schemas (CSV sources) sharing the same database name are merged via
+<code><a href="gbd_core.schema.Schema.html#absorb" class="internal-link" title="gbd_core.schema.Schema.absorb">Schema.absorb</a></code>.  On-disk databases with colliding
+names raise <code><a href="gbd_core.database.DatabaseException.html" class="internal-link" title="gbd_core.database.DatabaseException">DatabaseException</a></code>.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">path<wbr></wbr>_list:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Paths to <tt class="rst-docutils rst-literal">.db</tt> or CSV files.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, <code><a href="gbd_core.schema.Schema.html" class="internal-link" title="gbd_core.schema.Schema">Schema</a>]</code></td><td class="fieldArgDesc">Ordered mapping of database name to Schema instance.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1567,7 +1639,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">query</span><span class="function-signature">(self, q)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L92">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L163">
       
       (source)
     </a>
@@ -1579,7 +1651,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Execute a raw SQL SELECT and return all rows.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">q:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL SELECT statement.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>]</code></td><td class="fieldArgDesc">All result rows as tuples.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1594,7 +1666,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">rename_feature</span><span class="function-signature">(self, fname, new_fname, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L222">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L421">
       
       (source)
     </a>
@@ -1606,7 +1678,12 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Rename feature <em>fname</em> to <em>new_fname</em> in its database.</p>
+<p>For 1:n features, also renames the underlying separate table.
+Updates the in-memory feature registry accordingly.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Current feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">new<wbr></wbr>_fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">New feature name; must pass <code><a href="gbd_core.schema.Schema.html#valid_feature_or_raise" class="internal-link" title="gbd_core.schema.Schema.valid_feature_or_raise">Schema.valid_feature_or_raise</a></code>.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Restrict to this database when the feature name is ambiguous.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -1621,7 +1698,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">set_auto_commit</span><span class="function-signature">(self, autocommit)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L107">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L191">
       
       (source)
     </a>
@@ -1648,7 +1725,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
     
     
     <span class="py-keyword">def</span> <span class="py-defname">set_values</span><span class="function-signature">(self, fname, value, hashes, target_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L218">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L404">
       
       (source)
     </a>
@@ -1660,7 +1737,16 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Set <em>value</em> for feature <em>fname</em> on each hash in <em>hashes</em>.</p>
+<p>For <strong>1:1 features</strong> this is an upsert on the <tt class="rst-docutils rst-literal">features</tt> table column.
+For <strong>1:n features</strong> a new <tt class="rst-docutils rst-literal">(hash, value)</tt> row is inserted (or silently ignored
+if the pair already exists), preserving all other values for the same hash.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">fname:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">Feature name.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">value</span></td><td class="fieldArgDesc">Value to assign (coerced to <tt class="rst-docutils rst-literal">TEXT</tt> by SQLite).</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">hashes:</span><code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code> |<blockquote>
+str</blockquote>
+</td><td class="fieldArgDesc">One or more benchmark hashes.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">target<wbr></wbr>_db:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Target database; uses the feature's registered
+database when <tt class="rst-docutils rst-literal">None</tt>.</td></tr></table></div>
   </div>
 </div><div class="baseinstancevariable">
   
@@ -1674,7 +1760,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">autocommit</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L37">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L85">
       
       (source)
     </a>
@@ -1701,7 +1787,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">connection</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L34">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L82">
       
       (source)
     </a>
@@ -1728,7 +1814,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">cursor</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L35">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L83">
       
       (source)
     </a>
@@ -1755,7 +1841,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">features</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L33">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L81">
       
       (source)
     </a>
@@ -1782,7 +1868,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">maindb</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L36">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L84">
       
       (source)
     </a>
@@ -1809,7 +1895,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">schemas</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L32">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L80">
       
       (source)
     </a>
@@ -1836,7 +1922,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="functionHeader">
     
     <span class="py-defname">verbose</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/database.py#L31">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/database.py#L79">
       
       (source)
     </a>
@@ -1863,7 +1949,7 @@ DatabaseException: if feature is not found or given database info is ambiguous</
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 09:31:49.
+    24.11.2 at 2026-06-11 11:45:37.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
