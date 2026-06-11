@@ -282,12 +282,35 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Parser</span>: <a href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L25" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.grammar.Parser.__init__">Parser(query, verbose)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Parser</span>: <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L27" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.grammar.Parser.__init__">Parser(query, verbose)</a></code></p>
           <p><a href="classIndex.html#gbd_core.grammar.Parser">View In Hierarchy</a></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>Parses GBD query strings and compiles them to SQL WHERE fragments.</p>
+<p>The GBD query language is a small filter DSL:</p>
+<ul class="rst-simple">
+<li>Boolean logic: <tt class="rst-docutils rst-literal">and</tt>, <tt class="rst-docutils rst-literal">or</tt>, <tt class="rst-docutils rst-literal">not</tt></li>
+<li>Comparisons: <tt class="rst-docutils rst-literal">=</tt>, <tt class="rst-docutils rst-literal">!=</tt>, <tt class="rst-docutils rst-literal">&lt;</tt>, <tt class="rst-docutils rst-literal">&gt;</tt>, <tt class="rst-docutils rst-literal">&lt;=</tt>, <tt class="rst-docutils rst-literal">&gt;=</tt></li>
+<li>Pattern matching: <tt class="rst-docutils rst-literal">like</tt> / <tt class="rst-docutils rst-literal">unlike</tt> with optional leading/trailing <tt class="rst-docutils rst-literal">%</tt> wildcard</li>
+<li>Feature references: <tt class="rst-docutils rst-literal">feature</tt>, <tt class="rst-docutils rst-literal">context:feature</tt>, or <tt class="rst-docutils rst-literal">database:feature</tt></li>
+<li>Right-hand side: unquoted or single/double-quoted strings, integers/floats, or
+parenthesised arithmetic terms (<tt class="rst-docutils rst-literal">+</tt>, <tt class="rst-docutils rst-literal">-</tt>, <tt class="rst-docutils rst-literal">*</tt>, <tt class="rst-docutils rst-literal">/</tt>)</li>
+</ul>
+<p><strong>1:1 vs 1:n feature translation</strong> (see <code><a href="#get_sql" class="internal-link" title="gbd_core.grammar.Parser.get_sql">get_sql</a></code>):</p>
+<ul class="rst-simple">
+<li><em>1:1 features</em> (<tt class="rst-docutils rst-literal">FeatureInfo.default != None</tt>) are stored as columns of the central
+<tt class="rst-docutils rst-literal">features</tt> table; comparisons are emitted inline.</li>
+<li><em>1:n features</em> (<tt class="rst-docutils rst-literal">FeatureInfo.default is None</tt>) are stored in a separate
+<tt class="rst-docutils rst-literal"><span class="pre">{name}(hash,</span> value)</tt> table; equality / inequality / like comparisons are wrapped in
+a subquery so they act as set-membership tests (<tt class="rst-docutils rst-literal">IN</tt> / <tt class="rst-docutils rst-literal">NOT IN</tt>).
+Numeric inequality and arithmetic-term comparisons on 1:n features fall through to an
+inline comparison, meaning "at least one value satisfies the condition".
+See <tt class="rst-docutils rst-literal">Issues.md</tt> #2 and #3.</li>
+</ul>
+<p>String values are interpolated directly into the SQL string without escaping.
+See <tt class="rst-docutils rst-literal">Issues.md</tt> #1; SQL injection risk.</p>
+</div>
         </div>
 
         <div id="splitTables">
@@ -298,17 +321,17 @@
     
     <td>Method</td>
     <td><code><a href="#__init__" class="internal-link" title="gbd_core.grammar.Parser.__init__">__init__</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Parse <em>query</em> into an internal AST.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_features" class="internal-link" title="gbd_core.grammar.Parser.get_features">get<wbr></wbr>_features</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Return the set of feature names referenced anywhere in the query.</td>
   </tr><tr class="method">
     
     <td>Method</td>
     <td><code><a href="#get_sql" class="internal-link" title="gbd_core.grammar.Parser.get_sql">get<wbr></wbr>_sql</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Recursively compile the parsed AST into a SQL WHERE fragment.</td>
   </tr><tr class="constant">
     
     <td>Constant</td>
@@ -345,7 +368,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, query, verbose=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L81">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L108">
       
       (source)
     </a>
@@ -357,7 +380,10 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Parse <em>query</em> into an internal AST.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">query:</span>str|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">GBD query string, e.g. <tt class="rst-docutils rst-literal">"filename like foo% and vars &gt; 100"</tt>.
+Pass <tt class="rst-docutils rst-literal">None</tt> or an empty string for an unconditional (match-all) query.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">verbose:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">If <tt class="rst-docutils rst-literal">True</tt>, print the raw query and its JSON AST to stdout.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If <em>query</em> is syntactically invalid.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -372,7 +398,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, ast=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L90">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L127">
       
       (source)
     </a>
@@ -384,7 +410,14 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Return the set of feature names referenced anywhere in the query.</p>
+<p>Walks the AST recursively and collects every <tt class="rst-docutils rst-literal">col</tt> leaf. The returned names
+are used by <code><a href="gbd_core.query.GBDQuery.html" class="internal-link" title="gbd_core.query.GBDQuery">GBDQuery</a></code> to verify that all referenced
+features exist before executing a query.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">ast:</span>dict|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Sub-tree to walk; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#set" class="intersphinx-link">set</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Feature names, possibly qualified as <tt class="rst-docutils rst-literal">"context:feature"</tt> or
+<tt class="rst-docutils rst-literal">"database:feature"</tt> if the query uses such prefixes.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>On unexpected AST structure.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -399,7 +432,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_sql</span><span class="function-signature">(self, db: <code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code>, ast=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L111">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L164">
       
       (source)
     </a>
@@ -411,7 +444,27 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>Recursively compile the parsed AST into a SQL WHERE fragment.</p>
+<p>Column addresses are fully qualified as <tt class="rst-docutils rst-literal">database.table.column</tt> via
+<code><a href="gbd_core.database.Database.html#faddr" class="internal-link" title="gbd_core.database.Database.faddr">Database.faddr</a></code>. The translation is cardinality-aware:</p>
+<ul class="rst-simple">
+<li><strong>1:1, string</strong> <tt class="rst-docutils rst-literal">col = 'v'</tt> -&gt; <tt class="rst-docutils rst-literal">db.features.col = 'v'</tt></li>
+<li><strong>1:n, string</strong> <tt class="rst-docutils rst-literal">col = 'v'</tt> -&gt;
+<tt class="rst-docutils rst-literal">db.col.hash IN (SELECT db.col.hash FROM db.col WHERE db.col.value = 'v')</tt></li>
+<li><strong>1:n, string</strong> <tt class="rst-docutils rst-literal">col != 'v'</tt> -&gt;
+<tt class="rst-docutils rst-literal">db.col.hash NOT IN (SELECT … WHERE db.col.value = 'v')</tt></li>
+<li><strong>1:n, like</strong> <tt class="rst-docutils rst-literal">col like foo%</tt> -&gt;
+<tt class="rst-docutils rst-literal">db.col.hash IN (SELECT … WHERE db.col.value like <span class="pre">'foo%')</span></tt></li>
+<li><strong>1:n, numeric</strong> <tt class="rst-docutils rst-literal">col &gt; 5</tt> -&gt;
+<tt class="rst-docutils rst-literal">CAST(db.col.value AS FLOAT) &gt; 5</tt>  <em>(any-row semantics - see Issues.md #2)</em></li>
+<li><strong>1:n, term</strong> <tt class="rst-docutils rst-literal">col != (expr)</tt> -&gt;
+<tt class="rst-docutils rst-literal">db.col.hash NOT IN (SELECT … WHERE CAST(db.col.value AS FLOAT) = expr)</tt></li>
+<li><strong>1:n, term</strong> <tt class="rst-docutils rst-literal">col op (expr)</tt> (other ops) -&gt;
+<tt class="rst-docutils rst-literal">CAST(db.col.value AS FLOAT) op expr</tt>  <em>(any-row semantics - see Issues.md #3)</em></li>
+</ul>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">db:</span><code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code></td><td class="fieldArgDesc">Used to resolve feature addresses and determine cardinality.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">ast:</span>dict|<blockquote>
+None</blockquote>
+</td><td class="fieldArgDesc">Sub-tree to compile; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL expression fragment suitable for embedding in a WHERE clause.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If the AST is malformed or a feature cannot be resolved.</td></tr></table></div>
   </div>
 </div><div class="baseconstant">
   
@@ -425,7 +478,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">GRAMMAR</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L26">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L53">
       
       (source)
     </a>
@@ -459,7 +512,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">model</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L79">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L106">
       
       (source)
     </a>
@@ -486,7 +539,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">ast</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/1231228a348533fc2d98d1d934b8ed01af000421/gbd_core/grammar.py#L83">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/grammar.py#L120">
       
       (source)
     </a>
@@ -513,7 +566,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 09:31:49.
+    24.11.2 at 2026-06-11 11:45:37.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
