@@ -19,10 +19,37 @@ from gbd_core.database import Database, DatabaseException
 
 
 class ParserException(Exception):
+    """Raised when a GBD query string cannot be parsed or when a referenced
+    feature cannot be resolved in the database."""
     pass
 
 
 class Parser:
+    """Parses GBD query strings and compiles them to SQL WHERE fragments.
+
+    The GBD query language is a small filter DSL:
+
+    - Boolean logic: ``and``, ``or``, ``not``
+    - Comparisons: ``=``, ``!=``, ``<``, ``>``, ``<=``, ``>=``
+    - Pattern matching: ``like`` / ``unlike`` with optional leading/trailing ``%`` wildcard
+    - Feature references: ``feature``, ``context:feature``, or ``database:feature``
+    - Right-hand side: unquoted or single/double-quoted strings, integers/floats, or
+      parenthesised arithmetic terms (``+``, ``-``, ``*``, ``/``)
+
+    **1:1 vs 1:n feature translation** (see :py:meth:`get_sql`):
+
+    * *1:1 features* (``FeatureInfo.default != None``) are stored as columns of the central
+      ``features`` table; comparisons are emitted inline.
+    * *1:n features* (``FeatureInfo.default is None``) are stored in a separate
+      ``{name}(hash, value)`` table; equality / inequality / like comparisons are wrapped in
+      a subquery so they act as set-membership tests (``IN`` / ``NOT IN``).
+      Numeric inequality and arithmetic-term comparisons on 1:n features fall through to an
+      inline comparison, meaning "at least one value satisfies the condition".
+      See ``Issues.md`` #2 and #3.
+
+    String values are interpolated directly into the SQL string without escaping.
+    See ``Issues.md`` #1; SQL injection risk.
+    """
     GRAMMAR = r"""
         @@grammar::GBDQuery
         @@ignorecase::True
@@ -79,6 +106,16 @@ class Parser:
     model = tatsu.compile(GRAMMAR)
 
     def __init__(self, query, verbose=False):
+        """Parse *query* into an internal AST.
+
+        Args:
+            query (str | None): GBD query string, e.g. ``"filename like foo% and vars > 100"``.
+                Pass ``None`` or an empty string for an unconditional (match-all) query.
+            verbose (bool): If ``True``, print the raw query and its JSON AST to stdout.
+
+        Raises:
+            ParserException: If *query* is syntactically invalid.
+        """
         try:
             self.ast = Parser.model.parse(query) if query else dict()
             if verbose:
@@ -88,6 +125,22 @@ class Parser:
             raise ParserException(f"Failed to parse query: {str(e)}") from e
 
     def get_features(self, ast=None):
+        """Return the set of feature names referenced anywhere in the query.
+
+        Walks the AST recursively and collects every ``col`` leaf. The returned names
+        are used by :py:class:`~gbd_core.query.GBDQuery` to verify that all referenced
+        features exist before executing a query.
+
+        Args:
+            ast (dict | None): Sub-tree to walk; defaults to the root AST.
+
+        Returns:
+            set[str]: Feature names, possibly qualified as ``"context:feature"`` or
+            ``"database:feature"`` if the query uses such prefixes.
+
+        Raises:
+            ParserException: On unexpected AST structure.
+        """
         # import pprint
         # pp = pprint.PrettyPrinter(depth=6)
         # pp.pprint(ast)
@@ -109,6 +162,35 @@ class Parser:
             raise ParserException(f"Failed to parse query: {str(e)}") from e
 
     def get_sql(self, db: Database, ast=None):
+        """Recursively compile the parsed AST into a SQL WHERE fragment.
+
+        Column addresses are fully qualified as ``database.table.column`` via
+        :py:meth:`~gbd_core.database.Database.faddr`. The translation is cardinality-aware:
+
+        * **1:1, string** ``col = 'v'`` -> ``db.features.col = 'v'``
+        * **1:n, string** ``col = 'v'`` ->
+          ``db.col.hash IN (SELECT db.col.hash FROM db.col WHERE db.col.value = 'v')``
+        * **1:n, string** ``col != 'v'`` ->
+          ``db.col.hash NOT IN (SELECT … WHERE db.col.value = 'v')``
+        * **1:n, like** ``col like foo%`` ->
+          ``db.col.hash IN (SELECT … WHERE db.col.value like 'foo%')``
+        * **1:n, numeric** ``col > 5`` ->
+          ``CAST(db.col.value AS FLOAT) > 5``  *(any-row semantics - see Issues.md #2)*
+        * **1:n, term** ``col != (expr)`` ->
+          ``db.col.hash NOT IN (SELECT … WHERE CAST(db.col.value AS FLOAT) = expr)``
+        * **1:n, term** ``col op (expr)`` (other ops) -> 
+          ``CAST(db.col.value AS FLOAT) op expr``  *(any-row semantics - see Issues.md #3)*
+
+        Args:
+            db (Database): Used to resolve feature addresses and determine cardinality.
+            ast (dict | None): Sub-tree to compile; defaults to the root AST.
+
+        Returns:
+            str: SQL expression fragment suitable for embedding in a WHERE clause.
+
+        Raises:
+            ParserException: If the AST is malformed or a feature cannot be resolved.
+        """
         try:
             ast = ast if ast else self.ast
             if "qop" in ast and ast["qop"] == "not":
