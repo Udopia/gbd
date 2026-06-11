@@ -96,6 +96,57 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         res = self.simple_query(self.feat2, self.val2)
         self.assertEqual(len(res), 3)
 
+    # ---- additional coverage -------------------------------------------------
+
+    def build_and_run(self, query_str, **kwargs):
+        """Build a SQL query with extra kwargs and return all raw rows."""
+        q = GBDQuery(self.db, query_str).build_query(**kwargs)
+        return self.db.query(q)
+
+    def test_or_operator(self):
+        # feat3 is 1:1 with values a=1, b=10, c=100
+        res = self.query("{f} = 1 or {f} = 10".format(f=self.feat3))
+        self.assertSetEqual(set(res), {"a", "b"})
+
+    def test_not_operator(self):
+        # "not feat3 = 1" should return b and c
+        res = self.query("not {f} = 1".format(f=self.feat3))
+        self.assertSetEqual(set(res), {"b", "c"})
+
+    def test_empty_query_returns_all_hashes(self):
+        res = self.query("")
+        self.assertSetEqual(set(res), {"a", "b", "c"})
+
+    def test_hash_filter_restricts_results(self):
+        q = GBDQuery(self.db, "").build_query(hashes=["a"])
+        res = [h for (h,) in self.db.query(q)]
+        self.assertEqual(res, ["a"])
+
+    def test_hash_filter_with_condition(self):
+        # Filter to hashes ["a", "b"] AND feat3 > 5 → only "b" (feat3=10)
+        q = GBDQuery(self.db, "{f} > 5".format(f=self.feat3)).build_query(hashes=["a", "b"])
+        res = [h for (h,) in self.db.query(q)]
+        self.assertEqual(res, ["b"])
+
+    def test_numeric_eq_1to1(self):
+        res = self.query("{f} = 10".format(f=self.feat3))
+        self.assertEqual(res, ["b"])
+
+    def test_collapse_none_returns_multiple_rows_for_multivalued_hash(self):
+        # In db2, hash "a" has both val1 and val2; collapse=None must return 2 rows for "a"
+        rows = self.build_and_run("", resolve=["{}:{}".format(self.dbname2, self.feat)], collapse=None)
+        hash_a_rows = [r for r in rows if r[0] == "a"]
+        self.assertEqual(len(hash_a_rows), 2)
+
+    def test_collapse_group_concat_returns_one_row_per_hash(self):
+        rows = self.build_and_run("", resolve=["{}:{}".format(self.dbname2, self.feat)], collapse="group_concat")
+        # One aggregated row per hash
+        self.assertEqual(len(rows), 3)
+        # hash "a" row should contain both values concatenated
+        hash_a_row = next(r for r in rows if r[0] == "a")
+        self.assertIn(self.val1, hash_a_row[1])
+        self.assertIn(self.val2, hash_a_row[1])
+
 
 class LikeQueryTestCase(unittest.TestCase):
     """Tests for 'like' / 'unlike' query operators on a 1:n (multi-valued) feature.
@@ -131,7 +182,6 @@ class LikeQueryTestCase(unittest.TestCase):
 
     def query(self, query_str, resolve=[], collapse=None):
         q = GBDQuery(self.db, query_str).build_query(resolve=resolve, collapse=collapse)
-        print("\n[SQL] {!r} => {}".format(query_str, q))
         return self.db.query(q)
 
     # -- prefix match: filename like xorshift%  (exactly what the user reported) --
