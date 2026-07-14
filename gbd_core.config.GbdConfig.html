@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>gbd_core.config.GbdConfig</title>
+    <meta name="generator" content="pydoctor 24.11.2"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+    
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a> <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+</nav>
+    
+    <div class="container-fluid">
+
+      <!-- Side navigation -->
+      <div class="sidebarcontainer" style="display: none;">
+        
+        <div class="sidebar"><nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="This class"><wbr></wbr>Gbd<wbr></wbr>Config</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="gbd_core.config.GbdConfig.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_section" class="internal-link" title="gbd_core.config.GbdConfig._section">_section</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#config_paths" class="internal-link" title="gbd_core.config.GbdConfig.config_paths">config<wbr></wbr>_paths</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#raw" class="internal-link" title="gbd_core.config.GbdConfig.raw">raw</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#contexts" class="internal-link" title="gbd_core.config.GbdConfig.contexts">contexts</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#databases" class="internal-link" title="gbd_core.config.GbdConfig.databases">databases</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#extractors" class="internal-link" title="gbd_core.config.GbdConfig.extractors">extractors</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#transformers" class="internal-link" title="gbd_core.config.GbdConfig.transformers">transformers</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="gbd_core.config.html" class="internal-link" title="The parent of this class">config</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig"><wbr></wbr>Gbd<wbr></wbr>Config</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        <div class="childrenKindTitle">Functions</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#default_config" class="internal-link" title="gbd_core.config.default_config">default<wbr></wbr>_config</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#is_config_file" class="internal-link" title="gbd_core.config.is_config_file">is<wbr></wbr>_config<wbr></wbr>_file</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#resolve_sources" class="internal-link" title="gbd_core.config.resolve_sources">resolve<wbr></wbr>_sources</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_deep_merge" class="internal-link" title="gbd_core.config._deep_merge">_deep<wbr></wbr>_merge</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_load_defaults" class="internal-link" title="gbd_core.config._load_defaults">_load<wbr></wbr>_defaults</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_load_toml" class="internal-link" title="gbd_core.config._load_toml">_load<wbr></wbr>_toml</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_named_tables" class="internal-link" title="gbd_core.config._named_tables">_named<wbr></wbr>_tables</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_normalize" class="internal-link" title="gbd_core.config._normalize">_normalize</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_read_toml" class="internal-link" title="gbd_core.config._read_toml">_read<wbr></wbr>_toml</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_resolve_block" class="internal-link" title="gbd_core.config._resolve_block">_resolve<wbr></wbr>_block</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_split_paths" class="internal-link" title="gbd_core.config._split_paths">_split<wbr></wbr>_paths</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Variables</div>
+        <ul>
+    
+    <li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_CONFIG_TABLES" class="internal-link" title="gbd_core.config._CONFIG_TABLES">_CONFIG<wbr></wbr>_TABLES</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.html#_REGISTRY_BLOCKS" class="internal-link" title="gbd_core.config._REGISTRY_BLOCKS">_REGISTRY<wbr></wbr>_BLOCKS</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        </div>
+        <div id="collapseSideBar">
+          <a class="btn btn-link" onclick="toggleSideBarCollapse()" title="Toggle Sidebar Collapse">
+          </a>
+        </div> 
+        <script src="sidebartoggle.js" type="text/javascript"></script>
+       
+      </div>
+
+      <div id="main" class="">
+        
+
+        
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">gbd_core</a></code><wbr></wbr>.<code><a href="gbd_core.config.html" class="internal-link" title="gbd_core.config">config</a></code><wbr></wbr>.<code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">GbdConfig</span>: <a href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L140" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.config.GbdConfig.__init__">GbdConfig(config_paths)</a></code></p>
+          <p><a href="classIndex.html#gbd_core.config.GbdConfig">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p>Merged view of the GBD configuration (bundled defaults + user config layers).</p></div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id5">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="gbd_core.config.GbdConfig.__init__">__init__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#config_paths" class="internal-link" title="gbd_core.config.GbdConfig.config_paths">config<wbr></wbr>_paths</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#raw" class="internal-link" title="gbd_core.config.GbdConfig.raw">raw</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="property">
+    
+    <td>Property</td>
+    <td><code><a href="#contexts" class="internal-link" title="gbd_core.config.GbdConfig.contexts">contexts</a></code></td>
+    <td>The <tt class="rst-docutils rst-literal">[contexts]</tt> table (including the <tt class="rst-docutils rst-literal">default</tt> key, if present).</td>
+  </tr><tr class="property">
+    
+    <td>Property</td>
+    <td><code><a href="#databases" class="internal-link" title="gbd_core.config.GbdConfig.databases">databases</a></code></td>
+    <td>Database paths declared in the config (<tt class="rst-docutils rst-literal">[databases] paths = <span class="pre">[...]</span></tt>).</td>
+  </tr><tr class="property">
+    
+    <td>Property</td>
+    <td><code><a href="#extractors" class="internal-link" title="gbd_core.config.GbdConfig.extractors">extractors</a></code></td>
+    <td><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</td>
+  </tr><tr class="property">
+    
+    <td>Property</td>
+    <td><code><a href="#transformers" class="internal-link" title="gbd_core.config.GbdConfig.transformers">transformers</a></code></td>
+    <td><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</td>
+  </tr><tr class="method private">
+    
+    <td>Method</td>
+    <td><code><a href="#_section" class="internal-link" title="gbd_core.config.GbdConfig._section">_section</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="basemethod">
+  
+  
+  <a name="gbd_core.config.GbdConfig.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, config_paths=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L143">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#__init__" title="gbd_core.config.GbdConfig.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.config.GbdConfig.config_paths">
+    
+  </a>
+  <a name="config_paths">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">config_paths</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L146">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#config_paths" title="gbd_core.config.GbdConfig.config_paths">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="gbd_core.config.GbdConfig.raw">
+    
+  </a>
+  <a name="raw">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">raw</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L150">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#raw" title="gbd_core.config.GbdConfig.raw">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseproperty">
+  
+  
+  <a name="gbd_core.config.GbdConfig.contexts">
+    
+  </a>
+  <a name="contexts">
+    
+  </a>
+  <div class="functionHeader">
+    @<a href="https://docs.python.org/3/library/functions.html#property" class="intersphinx-link">property</a><br />
+    <span class="py-defname">contexts</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L161">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#contexts" title="gbd_core.config.GbdConfig.contexts">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>The <tt class="rst-docutils rst-literal">[contexts]</tt> table (including the <tt class="rst-docutils rst-literal">default</tt> key, if present).</p></div>
+    
+  </div>
+</div><div class="baseproperty">
+  
+  
+  <a name="gbd_core.config.GbdConfig.databases">
+    
+  </a>
+  <a name="databases">
+    
+  </a>
+  <div class="functionHeader">
+    @<a href="https://docs.python.org/3/library/functions.html#property" class="intersphinx-link">property</a><br />
+    <span class="py-defname">databases</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L156">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#databases" title="gbd_core.config.GbdConfig.databases">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>Database paths declared in the config (<tt class="rst-docutils rst-literal">[databases] paths = <span class="pre">[...]</span></tt>).</p></div>
+    
+  </div>
+</div><div class="baseproperty">
+  
+  
+  <a name="gbd_core.config.GbdConfig.extractors">
+    
+  </a>
+  <a name="extractors">
+    
+  </a>
+  <div class="functionHeader">
+    @<a href="https://docs.python.org/3/library/functions.html#property" class="intersphinx-link">property</a><br />
+    <span class="py-defname">extractors</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L166">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#extractors" title="gbd_core.config.GbdConfig.extractors">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</p></div>
+    
+  </div>
+</div><div class="baseproperty">
+  
+  
+  <a name="gbd_core.config.GbdConfig.transformers">
+    
+  </a>
+  <a name="transformers">
+    
+  </a>
+  <div class="functionHeader">
+    @<a href="https://docs.python.org/3/library/functions.html#property" class="intersphinx-link">property</a><br />
+    <span class="py-defname">transformers</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L171">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#transformers" title="gbd_core.config.GbdConfig.transformers">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</p></div>
+    
+  </div>
+</div><div class="basemethod private">
+  
+  
+  <a name="gbd_core.config.GbdConfig._section">
+    
+  </a>
+  <a name="_section">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_section</span><span class="function-signature">(self, name: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L152">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_section" title="gbd_core.config.GbdConfig._section">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+
+  
+  <div class="container-fluid">
+    <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
+  generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+    24.11.2 at 2026-07-14 11:00:12.
+  </div>
+
+  <!-- Search related scripts needs to be loaded at the end of HTML 
+    parsing not to introduce overhead and display HTML data asap -->
+  <script src="ajax.js" type="text/javascript"></script>
+  <script src="searchlib.js" type="text/javascript"></script>
+  <script src="search.js" type="text/javascript"></script>
+
+</footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

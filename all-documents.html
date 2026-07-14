@@ -107,7 +107,7 @@
             <div class="type">Package</div>
             <div class="kind">Package</div>
             <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
+            <div class="summary"><span class="undocumented">No package docstring; 1/9 module documented</span></div>
           </li><li id="gbd_core.api">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.api</div>
@@ -123,7 +123,7 @@
             <div class="type">Module</div>
             <div class="kind">Module</div>
             <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
+            <div class="summary">GBD configuration system.</div>
           </li><li id="gbd_core.contexts">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts</div>
@@ -131,7 +131,7 @@
             <div class="type">Module</div>
             <div class="kind">Module</div>
             <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
+            <div class="summary"><span class="undocumented">No module docstring; 0/2 variable, 0/1 constant, 2/9 functions documented</span></div>
           </li><li id="gbd_core.database">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.database</div>
@@ -236,6 +236,190 @@
             <div class="kind">Function</div>
             <div class="privacy">PUBLIC</div>
             <div class="summary">prompts for yes or no response from the user. Returns True for yes and False for no. 'resp' should be set to the default value assumed by the caller when user simply types ENTER.</div>
+          </li><li id="gbd_core.config._read_toml">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._read<wbr></wbr>_toml</div>
+            <div class="url">gbd_core.config.html#_read_toml</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._CONFIG_TABLES">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._CONFIG<wbr></wbr>_TABLES</div>
+            <div class="url">gbd_core.config.html#_CONFIG_TABLES</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Constant</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._REGISTRY_BLOCKS">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._REGISTRY<wbr></wbr>_BLOCKS</div>
+            <div class="url">gbd_core.config.html#_REGISTRY_BLOCKS</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Constant</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._load_toml">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._load<wbr></wbr>_toml</div>
+            <div class="url">gbd_core.config.html#_load_toml</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._split_paths">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._split<wbr></wbr>_paths</div>
+            <div class="url">gbd_core.config.html#_split_paths</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._named_tables">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._named<wbr></wbr>_tables</div>
+            <div class="url">gbd_core.config.html#_named_tables</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary">Keep only the <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries of a mapping.</div>
+          </li><li id="gbd_core.config._deep_merge">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._deep<wbr></wbr>_merge</div>
+            <div class="url">gbd_core.config.html#_deep_merge</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary">Recursively merge <tt class="rst-docutils rst-literal">override</tt> onto <tt class="rst-docutils rst-literal">base</tt> (override wins on conflicts).</div>
+          </li><li id="gbd_core.config.is_config_file">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.is<wbr></wbr>_config<wbr></wbr>_file</div>
+            <div class="url">gbd_core.config.html#is_config_file</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">True if <tt class="rst-docutils rst-literal">path</tt> is a single existing file that parses as a GBD TOML config (i.e. contains a known top-level table). A colon-separated list is legacy.</div>
+          </li><li id="gbd_core.config.resolve_sources">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.resolve<wbr></wbr>_sources</div>
+            <div class="url">gbd_core.config.html#resolve_sources</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">Resolve the ordered configuration layers and legacy database paths.</div>
+          </li><li id="gbd_core.config._load_defaults">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._load<wbr></wbr>_defaults</div>
+            <div class="url">gbd_core.config.html#_load_defaults</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config._resolve_block">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._resolve<wbr></wbr>_block</div>
+            <div class="url">gbd_core.config.html#_resolve_block</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary">Return a registry block's <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries, resolving an optional <tt class="rst-docutils rst-literal">file</tt> reference (inline entries win over referenced ones on a name clash).</div>
+          </li><li id="gbd_core.config._normalize">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>._normalize</div>
+            <div class="url">gbd_core.config.html#_normalize</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary">Return a copy of a parsed config with registry <tt class="rst-docutils rst-literal">file</tt> references resolved.</div>
+          </li><li id="gbd_core.config.GbdConfig">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config</div>
+            <div class="url">gbd_core.config.GbdConfig.html</div>
+            <div class="type">Class</div>
+            <div class="kind">Class</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">Merged view of the GBD configuration (bundled defaults + user config layers).</div>
+          </li><li id="gbd_core.config.GbdConfig.__init__">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.__init__</div>
+            <div class="url">gbd_core.config.GbdConfig.html#__init__</div>
+            <div class="type">Function</div>
+            <div class="kind">Method</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config.GbdConfig.config_paths">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.config<wbr></wbr>_paths</div>
+            <div class="url">gbd_core.config.GbdConfig.html#config_paths</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Instance Variable</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config.GbdConfig.raw">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.raw</div>
+            <div class="url">gbd_core.config.GbdConfig.html#raw</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Instance Variable</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config.GbdConfig._section">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>._section</div>
+            <div class="url">gbd_core.config.GbdConfig.html#_section</div>
+            <div class="type">Function</div>
+            <div class="kind">Method</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.config.GbdConfig.databases">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.databases</div>
+            <div class="url">gbd_core.config.GbdConfig.html#databases</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Property</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">Database paths declared in the config (<tt class="rst-docutils rst-literal">[databases] paths = <span class="pre">[...]</span></tt>).</div>
+          </li><li id="gbd_core.config.GbdConfig.contexts">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.contexts</div>
+            <div class="url">gbd_core.config.GbdConfig.html#contexts</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Property</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">The <tt class="rst-docutils rst-literal">[contexts]</tt> table (including the <tt class="rst-docutils rst-literal">default</tt> key, if present).</div>
+          </li><li id="gbd_core.config.GbdConfig.extractors">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.extractors</div>
+            <div class="url">gbd_core.config.GbdConfig.html#extractors</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Property</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary"><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</div>
+          </li><li id="gbd_core.config.GbdConfig.transformers">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.<wbr></wbr>Gbd<wbr></wbr>Config<wbr></wbr>.transformers</div>
+            <div class="url">gbd_core.config.GbdConfig.html#transformers</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Property</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary"><tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> definition</tt> (file references resolved).</div>
+          </li><li id="gbd_core.config.default_config">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.default<wbr></wbr>_config</div>
+            <div class="url">gbd_core.config.html#default_config</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">The configuration from the environment: bundled defaults plus the <tt class="rst-docutils rst-literal">GBD</tt> config layer when it points to a valid config file.</div>
+          </li><li id="gbd_core.contexts._IDFUNCS">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts<wbr></wbr>._IDFUNCS</div>
+            <div class="url">gbd_core.contexts.html#_IDFUNCS</div>
+            <div class="type">Attribute</div>
+            <div class="kind">Constant</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary"><span class="undocumented">Undocumented</span></div>
           </li><li id="gbd_core.contexts.default">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts<wbr></wbr>.default</div>
@@ -252,6 +436,22 @@
             <div class="kind">Variable</div>
             <div class="privacy">PUBLIC</div>
             <div class="summary"><span class="undocumented">Undocumented</span></div>
+          </li><li id="gbd_core.contexts._build">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts<wbr></wbr>._build</div>
+            <div class="url">gbd_core.contexts.html#_build</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PRIVATE</div>
+            <div class="summary">(Re)build the module-level <tt class="rst-docutils rst-literal">config</tt> and <tt class="rst-docutils rst-literal">default</tt> from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code>.</div>
+          </li><li id="gbd_core.contexts.reload">
+            
+            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts<wbr></wbr>.reload</div>
+            <div class="url">gbd_core.contexts.html#reload</div>
+            <div class="type">Function</div>
+            <div class="kind">Function</div>
+            <div class="privacy">PUBLIC</div>
+            <div class="summary">Rebuild the available contexts from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code> (or configuration layers/paths, or the bundled defaults when None).</div>
           </li><li id="gbd_core.contexts.description">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.contexts<wbr></wbr>.description</div>
@@ -1268,62 +1468,6 @@
             <div class="kind">Method</div>
             <div class="privacy">PUBLIC</div>
             <div class="summary">Copies feature with given name</div>
-          </li><li id="gbd_core.config.default">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.default</div>
-            <div class="url">gbd_core.config.html#default</div>
-            <div class="type">Attribute</div>
-            <div class="kind">Variable</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.load_config">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.load<wbr></wbr>_config</div>
-            <div class="url">gbd_core.config.html#load_config</div>
-            <div class="type">Function</div>
-            <div class="kind">Function</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.config_to_dict">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.config<wbr></wbr>_to<wbr></wbr>_dict</div>
-            <div class="url">gbd_core.config.html#config_to_dict</div>
-            <div class="type">Function</div>
-            <div class="kind">Function</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.default_config_path">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.default<wbr></wbr>_config<wbr></wbr>_path</div>
-            <div class="url">gbd_core.config.html#default_config_path</div>
-            <div class="type">Attribute</div>
-            <div class="kind">Variable</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.user_config_path">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.user<wbr></wbr>_config<wbr></wbr>_path</div>
-            <div class="url">gbd_core.config.html#user_config_path</div>
-            <div class="type">Attribute</div>
-            <div class="kind">Variable</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.config_parser">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.config<wbr></wbr>_parser</div>
-            <div class="url">gbd_core.config.html#config_parser</div>
-            <div class="type">Attribute</div>
-            <div class="kind">Variable</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.config.config">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.config<wbr></wbr>.config</div>
-            <div class="url">gbd_core.config.html#config</div>
-            <div class="type">Attribute</div>
-            <div class="kind">Variable</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
           </li><li id="gbd_core.util_argparse.get_gbd_argparser">
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.util<wbr></wbr>_argparse<wbr></wbr>.get<wbr></wbr>_gbd<wbr></wbr>_argparser</div>
@@ -1376,14 +1520,6 @@
             
             <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.util<wbr></wbr>_argparse<wbr></wbr>.key<wbr></wbr>_value<wbr></wbr>_type</div>
             <div class="url">gbd_core.util_argparse.html#key_value_type</div>
-            <div class="type">Function</div>
-            <div class="kind">Function</div>
-            <div class="privacy">PUBLIC</div>
-            <div class="summary"><span class="undocumented">Undocumented</span></div>
-          </li><li id="gbd_core.util_argparse.gbd_db_type">
-            
-            <div class="fullName">gbd<wbr></wbr>_core<wbr></wbr>.util<wbr></wbr>_argparse<wbr></wbr>.gbd<wbr></wbr>_db<wbr></wbr>_type</div>
-            <div class="url">gbd_core.util_argparse.html#gbd_db_type</div>
             <div class="type">Function</div>
             <div class="kind">Function</div>
             <div class="privacy">PUBLIC</div>
