@@ -24,7 +24,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.name = Schema.dbname_from_path(self.file)
         self.db = Database([self.file], verbose=False)
         self.db.create_feature(self.feat, default_value=self.defv)
-        self.db.set_values(self.feat, self.val1, ["a", "b", "c"])
+        self.db.set_values({self.feat: self.val1}, ["a", "b", "c"])
         return super().setUp()
 
     def tearDown(self) -> None:
@@ -52,7 +52,7 @@ class DatabaseTestCase(unittest.TestCase):
 
     # Overwrite one value and check if it is set correctly and that the other values are still there
     def test_unique_feature_values_overwrite(self):
-        self.db.set_values(self.feat, self.val2, ["a"])
+        self.db.set_values({self.feat: self.val2}, ["a"])
         res = self.query(self.feat, self.val1)
         self.assertEqual(len(res), 2)
         self.assertSetEqual(set(res), set(["b", "c"]))

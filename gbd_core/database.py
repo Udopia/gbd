@@ -404,22 +404,28 @@ class Database:
                 # this code disregards feature precedence by database position:
                 self.features[finfo.name].append(finfo)
 
-    def set_values(self, fname, value, hashes, target_db=None):
-        """Set *value* for feature *fname* on each hash in *hashes*.
+    def set_values(self, mappings, hashes, target_db=None):
+        """Set multiple feature values on the given hashes in one batch.
 
-        For **1:1 features** this is an upsert on the ``features`` table column.
-        For **1:n features** a new ``(hash, value)`` row is inserted (or silently ignored
-        if the pair already exists), preserving all other values for the same hash.
+        ``mappings`` is a ``{feature_name: value}`` dict. Features are grouped by their
+        database, and each database's unique (1:1) features are written in a single SQL
+        statement (see :py:meth:`Schema.set_values`).
+
+        The batched multi-value interface was contributed by Christoph Jabs (chrjabs,
+        PR #39) to make feature extraction dramatically faster.
 
         Args:
-            fname (str): Feature name.
-            value: Value to assign (coerced to ``TEXT`` by SQLite).
+            mappings (dict): Mapping of feature name to value.
             hashes (list[str] | str): One or more benchmark hashes.
-            target_db (str | None): Target database; uses the feature's registered
+            target_db (str | None): Target database; uses each feature's registered
                 database when ``None``.
         """
-        finfo = self.finfo(fname, target_db)
-        self.schemas[finfo.database].set_values(fname, value, hashes)
+        db_mappings = {}
+        for fname, value in mappings.items():
+            finfo = self.finfo(fname, target_db)
+            db_mappings.setdefault(finfo.database, {})[fname] = value
+        for database, database_mappings in db_mappings.items():
+            self.schemas[database].set_values(database_mappings, hashes)
 
     def rename_feature(self, fname, new_fname, target_db=None):
         """Rename feature *fname* to *new_fname* in its database.

@@ -45,9 +45,14 @@ class Initializer:
         self.api.database.commit()
 
     def save_features(self, result: list):
-        for attr in result:
-            name, hashv, value = attr[0], attr[1], attr[2]
-            self.api.database.set_values(name, value, [hashv], self.target_db)
+        # Group each hash's (feature, value) pairs so that a hash's unique features are
+        # written in a single query. Robust to empty results (e.g. failed or timed-out
+        # extractions, which yield []) and to results spanning multiple hashes.
+        by_hash = {}
+        for name, hashv, value in result:
+            by_hash.setdefault(hashv, {})[name] = value
+        for hashv, mappings in by_hash.items():
+            self.api.database.set_values(mappings, [hashv], self.target_db)
         self.api.database.commit()
 
     def run(self, instances: pl.DataFrame):
