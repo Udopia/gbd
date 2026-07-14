@@ -11,6 +11,7 @@ For an introduction to the GBD concept, the underlying data model, and specific 
 
 GBD 5.2 adds the `gbd interactive` command, which opens an IPython shell with the result of a query available as a Polars dataframe for exploratory analysis (install via `pip install 'gbd-tools[interactive]'`).
 Database initialization is also considerably faster: feature values are now written in batches, which greatly reduces the time spent populating large feature databases.
+Both features are based on contributions by Christoph Jabs ([@chrjabs](https://github.com/chrjabs), pull requests [#32](https://github.com/Udopia/gbd/pull/32) and [#39](https://github.com/Udopia/gbd/pull/39)), imported and adapted to the Polars-based interface and the configuration-driven architecture introduced in 5.1.
 
 ## GBD 5.1 Release Notes
 
