@@ -1,0 +1,34 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Installs gbd-tools plus the gbdc command-line tools (from PyPI), so that
+      # `gbd init` / `gbd transform` and the integration test can run.
+      - name: Install gbd-tools[gbdc]
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[gbdc] pytest
+
+      - name: Unit tests
+        run: pytest tests/ -q
+
+      - name: Integration test (gbd <-> gbdc)
+        run: bash tests/integration_test.sh
