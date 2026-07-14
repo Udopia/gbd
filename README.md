@@ -7,25 +7,6 @@
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
 
-## GBD 5.2 Release Notes
-
-GBD 5.2 adds the `gbd interactive` command, which opens an IPython shell with the result of a query available as a Polars dataframe for exploratory analysis (install via `pip install 'gbd-tools[interactive]'`).
-Database initialization is also considerably faster: feature values are now written in batches, which greatly reduces the time spent populating large feature databases.
-Both features are based on contributions by Christoph Jabs ([@chrjabs](https://github.com/chrjabs), pull requests [#32](https://github.com/Udopia/gbd/pull/32) and [#39](https://github.com/Udopia/gbd/pull/39)), imported and adapted to the Polars-based interface and the configuration-driven architecture introduced in 5.1.
-
-## GBD 5.1 Release Notes
-
-GBD 5.1 decouples gbd from GBDC: the performance-critical feature extractors and instance transformers are now standalone command-line tools that gbd invokes as external processes, rather than a hard Python dependency.
-Extractors, transformers, contexts, and databases are declared in a TOML configuration, so you can register and use your own tools.
-A central configuration file can be provided via the new `GBD` environment variable, which takes precedence over `GBD_DB`.
-
-## GBD 5.0 Release Notes
-
-In addition to several bug fixes and performance improvements, GBD 5.0 no longer depends on Pandas for its interface module.
-This simplifies installation and use in various environments.
-The faster, more lightweight Polars library is now used for dataframes instead.
-Therefore, upgrading to GBD 5.0 requires existing code to be adapted to use Polars dataframes, or Polars dataframes to be explicitly converted to Pandas dataframes (e.g. via df.to_pandas()).
-
 ## GBD contributes data to your algorithmic evaluations
 
 GBD provides benchmark instance identifiers, feature extractors, and instance transformers for hard algorithmic problem domains, now including propositional satisfiability (SAT) and optimization (MaxSAT), and pseudo-Boolean optimization (PBO).
@@ -73,7 +54,7 @@ You can download benchmark instances and prebuilt feature databases from there.
 
 ### GBD Python Interface
 
-The GBD Python interface is used by all programs in the GBD ecosystem. Important here is the query command, which returns GBD data in the form of a Pandas dataframe for further analysis, as shown in the following example.
+The GBD Python interface is used by all programs in the GBD ecosystem. Important here is the query command, which returns GBD data in the form of a Polars dataframe for further analysis, as shown in the following example.
 
 ```Python
 from gbd_core.api import GBD
@@ -84,4 +65,25 @@ with GBD(['path/to/database1', 'path/to/database2', ..] as gbd:
 Scripts and use cases of GBD's Python interface are available on [https://udopia.github.io/gbdeval/](https://udopia.github.io/gbdeval/).
 The [evaluation demo](https://udopia.github.io/gbdeval/demo_evaluation.html) demonstrates portfolio analysis and subsequent category-wise performance evaluation using the 2023 SAT competition data.
 The [prediction demo](https://udopia.github.io/gbdeval/demo_prediction.html) demonstrates category prediction from instance features and subsequent feature importance evaluation.
+
+## Release Notes
+
+### GBD 5.2
+
+GBD 5.2 adds the `gbd interactive` command, which opens an IPython shell with the result of a query available as a Polars dataframe for exploratory analysis (install via `pip install 'gbd-tools[interactive]'`).
+Database initialization is also considerably faster: feature values are now written in batches, which greatly reduces the time spent populating large feature databases.
+Both features are based on contributions by Christoph Jabs ([@chrjabs](https://github.com/chrjabs), pull requests [#32](https://github.com/Udopia/gbd/pull/32) and [#39](https://github.com/Udopia/gbd/pull/39)), imported and adapted to the Polars-based interface and the configuration-driven architecture introduced in 5.1.
+
+### GBD 5.1
+
+GBD 5.1 decouples gbd from GBDC: the performance-critical feature extractors and instance transformers are now standalone command-line tools that gbd invokes as external processes, rather than a hard Python dependency.
+Extractors, transformers, contexts, and databases are declared in a TOML configuration, so you can register and use your own tools.
+A central configuration file can be provided via the new `GBD` environment variable, which takes precedence over `GBD_DB`.
+
+### GBD 5.0
+
+In addition to several bug fixes and performance improvements, GBD 5.0 no longer depends on Pandas for its interface module.
+This simplifies installation and use in various environments.
+The faster, more lightweight Polars library is now used for dataframes instead.
+Therefore, upgrading to GBD 5.0 requires existing code to be adapted to use Polars dataframes, or Polars dataframes to be explicitly converted to Pandas dataframes (e.g. via df.to_pandas()).
 
