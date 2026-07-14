@@ -110,7 +110,7 @@ class GBD:
             raise GBDException("Feature '{}' does not exist".format(name))
         if not len(hashes):
             raise GBDException("No hashes given")
-        self.database.set_values(name, value, hashes, target_db)
+        self.database.set_values({name: value}, hashes, target_db)
 
     def reset_values(self, feature, values=[], hashes=[], target_db=None):
         """Reset feature value for given hashes

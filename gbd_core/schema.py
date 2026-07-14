@@ -578,19 +578,55 @@ class Schema:
         Raises:
             SchemaException: If the feature does not exist or *hashes* is empty.
         """
-        if not self.has_feature(feature):
-            raise SchemaException("Feature '{}' does not exist".format(feature))
+    def set_values(self, mappings, hashes):
+        """Persist multiple feature values on the given hashes.
+
+        ``mappings`` is a ``{feature_name: value}`` dict.
+
+        * **1:n features** are written individually: ``(hash, value)`` rows are inserted
+          into the feature's own table (duplicate pairs ignored) and ``features.{name} =
+          hash`` is updated to keep the mirror column current.
+        * **1:1 features** are all written to the ``features`` table in a single
+          ``INSERT ... ON CONFLICT`` statement, which is far faster than one query per
+          feature when an extractor produces many features per instance.
+
+        The batched multi-value writer was contributed by Christoph Jabs (chrjabs,
+        PR #39): collapsing per-feature writes into one query took a wcnfbase extraction
+        run from ~20 minutes down to ~40 seconds.
+
+        Args:
+            mappings (dict): Mapping of feature name to value.
+            hashes (list[str]): Benchmark hashes to update.
+
+        Raises:
+            SchemaException: If a feature does not exist or *hashes* is empty.
+        """
         if not len(hashes):
             raise SchemaException("No hashes given")
-        table = self.features[feature].table
-        column = self.features[feature].column
-        values = ", ".join(["('{}', '{}')".format(hash, value) for hash in hashes])
-        if self.features[feature].default is None:
-            self.execute("INSERT OR IGNORE INTO {tab} (hash, {col}) VALUES {vals}".format(tab=table, col=column, vals=values))
-            self.execute("UPDATE features SET {col}=hash WHERE hash in ('{h}')".format(col=table, h="', '".join(hashes)))
-        else:
-            self.execute(
-                "INSERT INTO {tab} (hash, {col}) VALUES {vals} ON CONFLICT (hash) DO UPDATE SET {col}='{val}' WHERE hash in ('{h}')".format(
-                    tab=table, col=column, val=value, vals=values, h="', '".join(hashes)
-                )
+        hash_list = ", ".join("'{}'".format(h) for h in hashes)
+        unique = {}  # column -> value, batched into a single query on the 'features' table
+        for feature, value in mappings.items():
+            if not self.has_feature(feature):
+                raise SchemaException("Feature '{}' does not exist".format(feature))
+            table = self.features[feature].table
+            column = self.features[feature].column
+            if self.features[feature].default is None:
+                # 1:n feature: dedicated table plus a mirror column in the 'features' table
+                values = ", ".join("('{}', '{}')".format(h, value) for h in hashes)
+                self.execute("INSERT OR IGNORE INTO {tab} (hash, {col}) VALUES {vals}".format(tab=table, col=column, vals=values))
+                self.execute("UPDATE features SET {col}=hash WHERE hash in ({h})".format(col=table, h=hash_list))
+            else:
+                # 1:1 feature: a column in the 'features' table (batched below)
+                assert table == "features"
+                unique[column] = value
+        if not unique:
+            return
+        columns = ", ".join(unique)
+        cells = ", ".join("'{}'".format(v) for v in unique.values())
+        row_values = ", ".join("('{}', {})".format(h, cells) for h in hashes)
+        updates = ", ".join("{}='{}'".format(col, v) for col, v in unique.items())
+        self.execute(
+            "INSERT INTO features (hash, {cols}) VALUES {vals} ON CONFLICT (hash) DO UPDATE SET {upd} WHERE hash in ({h})".format(
+                cols=columns, vals=row_values, upd=updates, h=hash_list
             )
+        )

@@ -22,8 +22,8 @@ class DatabaseTestCase(unittest.TestCase):
         self.name = Schema.dbname_from_path(self.file)
         self.db = Database([self.file], verbose=False)
         self.db.create_feature(self.feat, default_value=None)
-        self.db.set_values(self.feat, self.val1, ["a", "b", "c"])
-        self.db.set_values(self.feat, self.val2, ["a", "b", "c"])
+        self.db.set_values({self.feat: self.val1}, ["a", "b", "c"])
+        self.db.set_values({self.feat: self.val2}, ["a", "b", "c"])
         return super().setUp()
 
     def tearDown(self) -> None:
