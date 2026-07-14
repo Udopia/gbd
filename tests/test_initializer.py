@@ -1,5 +1,6 @@
 
 import os
+import shutil
 import unittest
 import polars as pl
 import random
@@ -8,9 +9,11 @@ import sqlite3
 from gbd_core.database import Database
 from gbd_core.schema import Schema
 from gbd_core.api import GBD, GBDException
+from gbd_core import config
 from gbd_init.initializer import Initializer
 from gbd_core.contexts import identify
-from gbd_init.feature_extractors import init_local, init_features_generic, generic_extractors
+from gbd_init.feature_extractors import init_local, init_features_generic, build_extractors
+from gbd_init import external
 
 from tests import util
 
@@ -64,10 +67,12 @@ class InitTestCase(unittest.TestCase):
         rlimits = { 'jobs': 1, 'tlim': 5000, 'mlim': 2000, 'flim': 1000 }
         init_local(api, rlimits, self.dir, self.name)
         df: pl.DataFrame = api.query("local like %benchmark.cnf", [], ["local"])
-        for key in generic_extractors.keys():
-            if 'cnf' in generic_extractors[key]['contexts']:
-                init_features_generic(key, api, rlimits, df, self.name)
-                for feature in generic_extractors[key]['features']:
-                    self.assertTrue(api.feature_exists(feature[0]))
+        registry = build_extractors(config.GbdConfig())
+        for key, spec in registry.items():
+            if 'cnf' not in spec['contexts'] or shutil.which(spec['tool']) is None:
+                continue
+            init_features_generic(key, api, rlimits, df, self.name, registry)
+            for name, _default in external.feature_names(spec['tool']):
+                self.assertTrue(api.feature_exists(name))
 
     

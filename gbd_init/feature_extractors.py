@@ -15,197 +15,56 @@
 import os
 import glob
 import polars as pl
+from functools import partial
 
-from gbd_core.contexts import suffixes, identify, get_context_by_suffix
-from gbd_core.api import GBD, GBDException
+from gbd_core.contexts import suffixes, identify
+from gbd_core.api import GBD
 from gbd_core.util import eprint, confirm
 from gbd_init.initializer import Initializer, InitializerException
-
-_GBDC_INSTALL_HINT = "Install optional dependency with: pip install 'gbd-tools[gbdc]'"
-_GBDC_IMPORT_ERROR = None
+from gbd_init import external
 
 
-def _raise_missing_gbdc():
-    msg = "gbdc is required for this operation. {}".format(_GBDC_INSTALL_HINT)
-    if _GBDC_IMPORT_ERROR is not None:
-        msg = "{} ({})".format(msg, _GBDC_IMPORT_ERROR)
-    raise ModuleNotFoundError(msg, name="gbdc") from _GBDC_IMPORT_ERROR
-
-
-try:
-    from gbdc import (
-        extract_base_features,
-        base_feature_names,
-        extract_gate_features,
-        gate_feature_names,
-        isohash,
-        wcnfisohash,
-        isohash2,
-        wcnf_base_feature_names,
-        extract_wcnf_base_features,
-        opb_base_feature_names,
-        extract_opb_base_features,
-        checksani,
-        checksani_feature_names,
-    )
-except ModuleNotFoundError as exc:
-    if exc.name != "gbdc":
-        raise
-    _GBDC_IMPORT_ERROR = exc
-except ImportError as exc:
-    _GBDC_IMPORT_ERROR = exc
-
-
-if _GBDC_IMPORT_ERROR is not None:
-
-    def extract_base_features(path, tlim, mlim):
-        _raise_missing_gbdc()
-
-    def base_feature_names():
-        return []
-
-    def extract_gate_features(path, tlim, mlim):
-        _raise_missing_gbdc()
-
-    def gate_feature_names():
-        return []
-
-    def isohash(path):
-        _raise_missing_gbdc()
-    
-    def isohash2(path):
-        _raise_missing_gbdc()
-
-    def extract_wcnf_base_features(path, tlim, mlim):
-        _raise_missing_gbdc()
-
-    def wcnf_base_feature_names():
-        return []
-
-    def extract_opb_base_features(path, tlim, mlim):
-        _raise_missing_gbdc()
-
-    def opb_base_feature_names():
-        return []
-
-    def checksani(path, tlim, mlim):
-        _raise_missing_gbdc()
-
-    def checksani_feature_names():
-        return []
-
-
-## GBDHash
+## GBDHash (local paths): computed in-process, does not require an external tool.
 def compute_hash(hash, path, limits):
     eprint("Hashing {}".format(path))
     hash = identify(path)
     return [("local", hash, path), ("filename", hash, os.path.basename(path))]
 
 
-## ISOHash
-def compute_isohash(hash, path, limits):
-    eprint("Computing ISOHash for {}".format(path))
-    context = get_context_by_suffix(path)
-    if context == "wcnf":
-        ihash = wcnfisohash(path)
-    else:
-        ihash = isohash(path)
-    return [("isohash", hash, ihash)]
-
-## ISOHash2
-def compute_isohash2(hash, path, limits):
-    eprint("Computing ISOHash2 for {}".format(path))
-    ihash = isohash2(path)
-    return [("isohash2", hash, ihash)]
+## Generic external-tool extractor
+def _compute_extractor(hash, path, limits, tool):
+    eprint("Running {} on {}".format(tool, path))
+    try:
+        values, status = external.run_extractor(tool, path, limits)
+    except external.ExternalToolException as e:
+        eprint(str(e))
+        return []
+    if status != "success":
+        eprint("{}: {} {}".format(status, tool, path))
+        return []
+    return [(key, hash, external.convert(value)) for key, value in values.items()]
 
 
-## Base Features
-def compute_base_features(hash, path, limits, tp=None):
-    eprint("Extracting base features from {} {}".format(hash, path))
-    rec = extract_base_features(path, limits["tlim"], limits["mlim"])
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
+def build_extractors(gbdconfig):
+    """Build the extractor registry ``name -> spec`` from the configuration."""
+    registry = {}
+    for name, spec in gbdconfig.extractors.items():
+        registry[name] = {
+            "description": spec.get("description", name),
+            "contexts": spec.get("contexts", []),
+            "tool": spec["tool"],
+        }
+    return registry
 
 
-## Gate Features
-def compute_gate_features(hash, path, limits, tp=None):
-    eprint("Extracting gate features from {} {}".format(hash, path))
-    rec = extract_gate_features(path, limits["tlim"], limits["mlim"])
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
-
-
-## WCNF Base Features
-def compute_wcnf_base_features(hash, path, limits, tp=None):
-    eprint("Extracting WCNF base features from {} {}".format(hash, path))
-    rec = extract_wcnf_base_features(path, limits["tlim"], limits["mlim"])
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
-
-
-## OPB Base Features
-def compute_opb_base_features(hash, path, limits, tp=None):
-    eprint("Extracting OPB base features from {} {}".format(hash, path))
-    rec = extract_opb_base_features(path, limits["tlim"], limits["mlim"])
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
-
-
-## SANI Features
-def compute_sani_features(hash, path, limits, tp=None):
-    eprint("Extracting SANI features from {} {}".format(hash, path))
-    rec = checksani(path, limits["tlim"], limits["mlim"])
-    return [(key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items()]
-
-
-generic_extractors = {
-    "base": {
-        "description": "Extract base features from CNF files. ",
-        "contexts": ["cnf", "sancnf"],
-        "features": [(name, "empty") for name in base_feature_names()],
-        "compute": compute_base_features,
-    },
-    "checksani": {
-        "description": "Extract sanitise status from CNF files. ",
-        "contexts": ["cnf", "sancnf"],
-        "features": [(name, "empty") for name in checksani_feature_names()],
-        "compute": compute_sani_features,
-    },
-    "gate": {
-        "description": "Extract gate features from CNF files. ",
-        "contexts": ["cnf", "sancnf"],
-        "features": [(name, "empty") for name in gate_feature_names()],
-        "compute": compute_gate_features,
-    },
-    "isohash": {
-        "description": "Compute ISOHash for CNF or WCNF files. ",
-        "contexts": ["cnf", "wcnf", "sancnf"],
-        "features": [("isohash", "empty")],
-        "compute": compute_isohash,
-    },
-    "isohash2": {
-        "description": "Compute ISOHash2 for CNF files. ",
-        "contexts": ["cnf", "sancnf"],
-        "features": [("isohash2", "empty")],
-        "compute": compute_isohash2,
-    },
-    "wcnfbase": {
-        "description": "Extract base features from WCNF files. ",
-        "contexts": ["wcnf"],
-        "features": [(name, "empty") for name in wcnf_base_feature_names()],
-        "compute": compute_wcnf_base_features,
-    },
-    "opbbase": {
-        "description": "Extract base features from OPB files. ",
-        "contexts": ["opb"],
-        "features": [(name, "empty") for name in opb_base_feature_names()],
-        "compute": compute_opb_base_features,
-    },
-}
-
-
-def init_features_generic(key: str, api: GBD, rlimits, df: pl.DataFrame, target_db):
-    einfo = generic_extractors[key]
+def init_features_generic(key: str, api: GBD, rlimits, df: pl.DataFrame, target_db, registry):
+    einfo = registry[key]
     context = api.database.dcontext(target_db)
-    if not context in einfo["contexts"]:
+    if context not in einfo["contexts"]:
         raise InitializerException("Target database context must be in {}".format(einfo["contexts"]))
-    extractor = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"])
+    features = external.feature_names(einfo["tool"])
+    compute = partial(_compute_extractor, tool=einfo["tool"])
+    extractor = Initializer(api, rlimits, target_db, features, compute)
     extractor.create_features()
     extractor.run(df)
 

@@ -25,23 +25,22 @@ wecnf = { suffix = ".wecnf", idfunc = "cnf_hash", description = "Weighted Extend
 # Feature extractors: external command-line tools that compute features for an
 # instance. Entries may be defined inline (as below) or offloaded to a separate
 # file via `file = "extractors.toml"` (inline entries win on a name clash).
-#
-# Example:
-#   [extractors.base]
-#   tool = "gbd-extract-base"
-#   contexts = ["cnf", "sancnf"]
-#   description = "Extract base features from CNF files."
 [extractors]
+base = { tool = "gbd-extract-base", contexts = ["cnf", "sancnf"], description = "Extract base features from CNF files." }
+gate = { tool = "gbd-extract-gate", contexts = ["cnf", "sancnf"], description = "Extract gate features from CNF files." }
+checksani = { tool = "gbd-checksani", contexts = ["cnf", "sancnf"], description = "Check sanitation status of CNF files." }
+isohash = { tool = "gbd-isohash", contexts = ["cnf", "wcnf", "sancnf"], description = "Compute the ISOHash of CNF or WCNF files." }
+isohash2 = { tool = "gbd-isohash2", contexts = ["cnf", "sancnf"], description = "Compute the ISOHash2 of CNF files." }
+wcnfbase = { tool = "gbd-extract-wcnf", contexts = ["wcnf"], description = "Extract base features from WCNF files." }
+opbbase = { tool = "gbd-extract-opb", contexts = ["opb"], description = "Extract base features from OPB files." }
 
 # Instance transformers: external command-line tools that derive a new instance
 # from an existing one. Entries may be inline or offloaded via `file = "..."`.
-#
-# Example:
-#   [transformers.cnf2kis]
-#   tool = "gbd-cnf2kis"
-#   source = ["cnf"]
-#   target = ["kis"]
-#   compress = "none"
-#   description = "Transform CNF files to k-Independent Set instances."
+# `output_suffix` overrides the target context's suffix for the produced file;
+# `compress` (none|xz|gz|bz2) requests compressed output.
 [transformers]
+sanitise = { tool = "gbd-sanitize", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", description = "Sanitise CNF files." }
+normalise = { tool = "gbd-normalize", source = ["cnf"], target = ["cnf"], output_suffix = ".normalised.cnf", description = "Normalise CNF files." }
+cnf2kis = { tool = "gbd-cnf2kis", source = ["cnf"], target = ["kis"], description = "Transform CNF files to k-Independent Set instances." }
+
 

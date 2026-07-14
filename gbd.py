@@ -23,11 +23,8 @@ from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
 from gbd_core import util, contexts, schema, config
 from gbd_core.util_argparse import *
-from gbd_init.feature_extractors import generic_extractors
-from gbd_init.instance_transformers import generic_transformers
-
-
-GBDC_HELP_SUFFIX = " [requires optional dependency: pip install 'gbd-tools[gbdc]']"
+from gbd_init.feature_extractors import build_extractors
+from gbd_init.instance_transformers import build_transformers
 
 
 ### Command-Line Interface Entry Points
@@ -50,14 +47,14 @@ def cli_init_generic(api: GBD, args):
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
     context = api.database.dcontext(args.target)
     df = api.query(args.query, args.hashes, [context + ":local"], collapse="MIN", group_by=context + ":hash")
-    init_features_generic(args.initfuncname, api, rlimits, df, args.target)
+    init_features_generic(args.initfuncname, api, rlimits, df, args.target, args.extractors)
 
 
 def cli_trans_generic(api: GBD, args):
     from gbd_init.instance_transformers import transform_instances_generic
 
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
-    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source, args.collapse)
+    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source, args.transformers, args.collapse)
 
 
 def cli_create(api: GBD, args):
@@ -144,7 +141,38 @@ If you do not trust the source of the databases, do not run the server.
 
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
+def _preparse_db_arg():
+    """Extract the top-level ``-d/--db`` value from the leading options (before the
+    subcommand), without argparse, so the configuration can be resolved before the
+    config-driven subcommands are built. Scanning only the leading options avoids
+    clashing with subcommand-level ``-d`` flags (e.g. ``get -d`` is a delimiter)."""
+    argv = sys.argv[1:]
+    i = 0
+    db = None
+    while i < len(argv):
+        tok = argv[i]
+        if tok in ("-d", "--db"):
+            db = argv[i + 1] if i + 1 < len(argv) else None
+            i += 2
+        elif tok.startswith("--db="):
+            db = tok.split("=", 1)[1]
+            i += 1
+        elif tok in ("-v", "--verbose", "-h", "--help"):
+            i += 1
+        else:
+            break  # first token that is not a leading top-level option: the subcommand
+    return db
+
+
 def main():
+    # Resolve the configuration first so that init/transform subcommands can be built
+    # from the configured extractor/transformer registries.
+    config_layers, db_paths = config.resolve_sources(_preparse_db_arg())
+    gbdconfig = config.GbdConfig(config_layers)
+    contexts.reload(gbdconfig)
+    extractors = build_extractors(gbdconfig)
+    transformers = build_transformers(gbdconfig)
+
     parser = get_gbd_argparser()
 
     subparsers = parser.add_subparsers(help="Available Commands:", required=True, dest="gbd command")
@@ -161,10 +189,9 @@ def main():
     parser_init_local.add_argument("path", type=directory_type, help="Path to benchmarks")
     parser_init_local.set_defaults(func=cli_init_local)
 
-    # hooks for generic feature extractors:
-    for key in generic_extractors.keys():
-        gex = generic_extractors[key]
-        parser_init_generic = parser_init_subparsers.add_parser(key, help=gex["description"] + GBDC_HELP_SUFFIX)
+    # hooks for configured feature extractors:
+    for key, gex in extractors.items():
+        parser_init_generic = parser_init_subparsers.add_parser(key, help=gex["description"])
         add_query_and_hashes_arguments(parser_init_generic)
         parser_init_generic.set_defaults(func=cli_init_generic, initfuncname=key)
 
@@ -176,10 +203,9 @@ def main():
 
     parser_trans_subparsers = parser_trans.add_subparsers(help="Select Transformation Procedure:", required=True, dest="transform how?")
 
-    # hooks for generic instance transformers:
-    for key in generic_transformers.keys():
-        gex = generic_transformers[key]
-        parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"] + GBDC_HELP_SUFFIX)
+    # hooks for configured instance transformers:
+    for key, gex in transformers.items():
+        parser_trans_generic = parser_trans_subparsers.add_parser(key, help=gex["description"])
         add_query_and_hashes_arguments(parser_trans_generic)
         parser_trans_generic.set_defaults(func=cli_trans_generic, transfuncname=key)
         parser_trans_generic.add_argument(
@@ -270,12 +296,7 @@ def main():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
 
-        # Resolve the configuration source and database list (see gbd_core.config).
-        config_layers, db_paths = config.resolve_sources(args.db)
-        gbdconfig = config.GbdConfig(config_layers)
-        contexts.reload(gbdconfig)
         databases = db_paths or gbdconfig.databases
-
         if not databases:
             util.eprint("No data source specified. Use -d, or set the GBD or GBD_DB environment variable.")
             sys.exit(1)
@@ -285,6 +306,8 @@ def main():
 
         with GBD(databases, args.verbose) as api:
             args.gbdconfig = gbdconfig
+            args.extractors = extractors
+            args.transformers = transformers
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
