@@ -79,7 +79,10 @@ class Database:
         self.verbose = verbose
         self.schemas = self.init_schemas(path_list)
         self.features = self.init_features()
-        self.connection = sqlite3.connect("file::memory:?cache=shared", uri=True, timeout=10)
+        # Private in-memory hub (no shared cache) so that concurrent Database instances in the same
+        # process do not share state. CSV/in-memory schemas keep their own named shared-cache dbs,
+        # which are attached to this hub below.
+        self.connection = sqlite3.connect("file::memory:", uri=True, timeout=10)
         self.cursor = self.connection.cursor()
         self.maindb = None
         self.autocommit = autocommit
