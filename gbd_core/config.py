@@ -26,9 +26,78 @@ is auto-detected as either a legacy colon-separated database list or a path to a
 central config file (see :func:`is_config_file`); a legacy database list (or the
 ``GBD_DB`` environment variable) provides the databases when no config layer does.
 
+Configuration file format
+--------------------------
+
+A GBD configuration is a TOML document with up to four top-level tables. A file is
+recognised as a config (rather than a database list) as soon as it contains at least
+one of them. All tables are optional; anything omitted keeps its bundled default.
+
+``[databases]``
+    Extra databases loaded in addition to any given via ``-d/--db`` or ``GBD_DB``.
+
+    - ``paths`` (list of str): filesystem paths to SQLite database files.
+
+``[contexts]``
+    Problem domains, keyed by context name. Each context maps a file suffix to the
+    identifier (hash) function used for that domain.
+
+    - ``default`` (str): the context assumed when none is given on the CLI.
+    - ``<name>`` (table): a context definition with the keys
+
+      - ``suffix`` (str): file-name suffix that identifies instances of this context
+        (e.g. ``".cnf"``).
+      - ``idfunc`` (str): name of the hash function used to compute instance
+        identifiers (e.g. ``"cnf_hash"``, ``"opb_hash"``, ``"wcnf_hash"``).
+      - ``description`` (str): human-readable description.
+
+``[extractors]``
+    Feature extractors: external command-line tools that compute features for an
+    instance. Keyed by extractor name; each entry supports
+
+    - ``tool`` (str): the command gbd runs. It may include a subcommand
+      (e.g. ``"gbdc base"``) and is split with shell-like quoting.
+    - ``contexts`` (list of str): contexts this extractor applies to.
+    - ``description`` (str): human-readable description.
+
+``[transformers]``
+    Instance transformers: external command-line tools that derive a new instance
+    from an existing one. Keyed by transformer name; each entry supports
+
+    - ``tool`` (str): the command gbd runs (see ``tool`` above).
+    - ``source`` (list of str): contexts the transformer reads from.
+    - ``target`` (list of str): contexts the transformer writes to.
+    - ``output_suffix`` (str, optional): overrides the target context's suffix for
+      the produced file.
+    - ``compress`` (str, optional): compression for the produced file, one of
+      ``none``, ``xz``, ``gz``, ``bz2``.
+    - ``description`` (str): human-readable description.
+
 Registry blocks (``[extractors]``, ``[transformers]``) may be defined inline,
 offloaded to a separate file via ``file = "..."``, or both (inline entries win on a
-name clash).
+name clash). When ``file`` is relative, it is resolved against the directory of the
+config that references it.
+
+Example
+-------
+
+.. code-block:: toml
+
+    [databases]
+    paths = ["/data/meta.db", "/data/features.db"]
+
+    [contexts]
+    default = "cnf"
+    cnf = { suffix = ".cnf", idfunc = "cnf_hash", description = "DIMACS CNF" }
+
+    [extractors]
+    # Inline entry ...
+    base = { tool = "gbdc base", contexts = ["cnf"], description = "Base features." }
+    # ... or offload the rest to a separate file (inline entries win on a clash):
+    file = "my_extractors.toml"
+
+    [transformers]
+    sanitise = { tool = "gbdc sanitize", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", compress = "xz", description = "Sanitise CNF files." }
 """
 
 import os
