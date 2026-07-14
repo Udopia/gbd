@@ -114,6 +114,11 @@
       </div>
       
       <div>
+         
+          <div class="childrenKindTitle">Contents</div>
+          <ul><li><a class="rst-internal rst-reference" href="#rst-configuration-file-format" id="rst-toc-entry-1">Configuration file format</a></li>
+<li><a class="rst-internal rst-reference" href="#rst-example" id="rst-toc-entry-2">Example</a></li>
+</ul>
         
 
         
@@ -435,7 +440,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py" class="sourceLink">(source)</a>
           <p></p>
         </div>
 
@@ -451,9 +456,81 @@ acts as a user-level default that a <tt class="rst-docutils rst-literal"><span c
 is auto-detected as either a legacy colon-separated database list or a path to a
 central config file (see <code><a href="#is_config_file" class="internal-link" title="gbd_core.config.is_config_file">is_config_file</a></code>); a legacy database list (or the
 <tt class="rst-docutils rst-literal">GBD_DB</tt> environment variable) provides the databases when no config layer does.</p>
+<div class="rst-section" id="rst-configuration-file-format">
+<h2 class="heading">Configuration file format</h2>
+<p>A GBD configuration is a TOML document with up to four top-level tables. A file is
+recognised as a config (rather than a database list) as soon as it contains at least
+one of them. All tables are optional; anything omitted keeps its bundled default.</p>
+<dl class="rst-docutils">
+<dt><tt class="rst-docutils rst-literal">[databases]</tt></dt>
+<dd><p class="rst-first">Extra databases loaded in addition to any given via <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> or <tt class="rst-docutils rst-literal">GBD_DB</tt>.</p>
+<ul class="rst-simple rst-last">
+<li><tt class="rst-docutils rst-literal">paths</tt> (list of str): filesystem paths to SQLite database files.</li>
+</ul>
+</dd>
+<dt><tt class="rst-docutils rst-literal">[contexts]</tt></dt>
+<dd><p class="rst-first">Problem domains, keyed by context name. Each context maps a file suffix to the
+identifier (hash) function used for that domain.</p>
+<ul class="rst-simple rst-last">
+<li><tt class="rst-docutils rst-literal">default</tt> (str): the context assumed when none is given on the CLI.</li>
+<li><tt class="rst-docutils rst-literal">&lt;name&gt;</tt> (table): a context definition with the keys<ul>
+<li><tt class="rst-docutils rst-literal">suffix</tt> (str): file-name suffix that identifies instances of this context
+(e.g. <tt class="rst-docutils rst-literal">".cnf"</tt>).</li>
+<li><tt class="rst-docutils rst-literal">idfunc</tt> (str): name of the hash function used to compute instance
+identifiers (e.g. <tt class="rst-docutils rst-literal">"cnf_hash"</tt>, <tt class="rst-docutils rst-literal">"opb_hash"</tt>, <tt class="rst-docutils rst-literal">"wcnf_hash"</tt>).</li>
+<li><tt class="rst-docutils rst-literal">description</tt> (str): human-readable description.</li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt><tt class="rst-docutils rst-literal">[extractors]</tt></dt>
+<dd><p class="rst-first">Feature extractors: external command-line tools that compute features for an
+instance. Keyed by extractor name; each entry supports</p>
+<ul class="rst-simple rst-last">
+<li><tt class="rst-docutils rst-literal">tool</tt> (str): the command gbd runs. It may include a subcommand
+(e.g. <tt class="rst-docutils rst-literal">"gbdc base"</tt>) and is split with shell-like quoting.</li>
+<li><tt class="rst-docutils rst-literal">contexts</tt> (list of str): contexts this extractor applies to.</li>
+<li><tt class="rst-docutils rst-literal">description</tt> (str): human-readable description.</li>
+</ul>
+</dd>
+<dt><tt class="rst-docutils rst-literal">[transformers]</tt></dt>
+<dd><p class="rst-first">Instance transformers: external command-line tools that derive a new instance
+from an existing one. Keyed by transformer name; each entry supports</p>
+<ul class="rst-simple rst-last">
+<li><tt class="rst-docutils rst-literal">tool</tt> (str): the command gbd runs (see <tt class="rst-docutils rst-literal">tool</tt> above).</li>
+<li><tt class="rst-docutils rst-literal">source</tt> (list of str): contexts the transformer reads from.</li>
+<li><tt class="rst-docutils rst-literal">target</tt> (list of str): contexts the transformer writes to.</li>
+<li><tt class="rst-docutils rst-literal">output_suffix</tt> (str, optional): overrides the target context's suffix for
+the produced file.</li>
+<li><tt class="rst-docutils rst-literal">compress</tt> (str, optional): compression for the produced file, one of
+<tt class="rst-docutils rst-literal">none</tt>, <tt class="rst-docutils rst-literal">xz</tt>, <tt class="rst-docutils rst-literal">gz</tt>, <tt class="rst-docutils rst-literal">bz2</tt>.</li>
+<li><tt class="rst-docutils rst-literal">description</tt> (str): human-readable description.</li>
+</ul>
+</dd>
+</dl>
 <p>Registry blocks (<tt class="rst-docutils rst-literal">[extractors]</tt>, <tt class="rst-docutils rst-literal">[transformers]</tt>) may be defined inline,
 offloaded to a separate file via <tt class="rst-docutils rst-literal">file = <span class="pre">"..."</span></tt>, or both (inline entries win on a
-name clash).</p>
+name clash). When <tt class="rst-docutils rst-literal">file</tt> is relative, it is resolved against the directory of the
+config that references it.</p>
+</div>
+<div class="rst-section" id="rst-example">
+<h2 class="heading">Example</h2>
+<pre class="py-doctest">
+[databases]
+paths = [<span class="py-string">"/data/meta.db"</span>, <span class="py-string">"/data/features.db"</span>]
+
+[contexts]
+default = <span class="py-string">"cnf"</span>
+cnf = { suffix = <span class="py-string">".cnf"</span>, idfunc = <span class="py-string">"cnf_hash"</span>, description = <span class="py-string">"DIMACS CNF"</span> }
+
+[extractors]
+<span class="py-comment"># Inline entry ...</span>
+base = { tool = <span class="py-string">"gbdc base"</span>, contexts = [<span class="py-string">"cnf"</span>], description = <span class="py-string">"Base features."</span> }
+<span class="py-comment"># ... or offload the rest to a separate file (inline entries win on a clash):</span>
+file = <span class="py-string">"my_extractors.toml"</span>
+
+[transformers]
+sanitise = { tool = <span class="py-string">"gbdc sanitize"</span>, source = [<span class="py-string">"cnf"</span>], target = [<span class="py-string">"sancnf"</span>], output_suffix = <span class="py-string">".sanitized.cnf"</span>, compress = <span class="py-string">"xz"</span>, description = <span class="py-string">"Sanitise CNF files."</span> }</pre></div>
 </div>
         </div>
 
@@ -552,7 +629,7 @@ name clash).</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">default_config</span><span class="function-signature">() -&gt; <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L177">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L246">
       
       (source)
     </a>
@@ -580,7 +657,7 @@ config layer when it points to a valid config file.</p></div>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">is_config_file</span><span class="function-signature">(path: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L80">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L149">
       
       (source)
     </a>
@@ -608,7 +685,7 @@ config layer when it points to a valid config file.</p></div>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">resolve_sources</span><span class="function-signature">(cli_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L91">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L160">
       
       (source)
     </a>
@@ -640,7 +717,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_deep_merge</span><span class="function-signature">(base: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, override: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L69">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L138">
       
       (source)
     </a>
@@ -667,7 +744,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_load_defaults</span><span class="function-signature">() -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L115">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L184">
       
       (source)
     </a>
@@ -694,7 +771,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_load_toml</span><span class="function-signature">(path: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L55">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L124">
       
       (source)
     </a>
@@ -721,7 +798,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_named_tables</span><span class="function-signature">(mapping: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L64">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L133">
       
       (source)
     </a>
@@ -748,7 +825,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_normalize</span><span class="function-signature">(raw: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, base_dir: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L135">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L204">
       
       (source)
     </a>
@@ -775,7 +852,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_read_toml</span><span class="function-signature">(fp)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L40">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L109">
       
       (source)
     </a>
@@ -802,7 +879,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_resolve_block</span><span class="function-signature">(raw: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, block: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, base_dir: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L120">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L189">
       
       (source)
     </a>
@@ -830,7 +907,7 @@ when no config layer does.</p>
     
     
     <span class="py-keyword">def</span> <span class="py-defname">_split_paths</span><span class="function-signature">(value: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code></span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L60">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L129">
       
       (source)
     </a>
@@ -856,7 +933,7 @@ when no config layer does.</p>
   <div class="functionHeader">
     
     <span class="py-defname">_CONFIG_TABLES</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><span class="rst-variable-ellipsis">...</span>]</code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L51">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L120">
       
       (source)
     </a>
@@ -883,7 +960,7 @@ when no config layer does.</p>
   <div class="functionHeader">
     
     <span class="py-defname">_REGISTRY_BLOCKS</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><span class="rst-variable-ellipsis">...</span>]</code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/8e000a494a55bc990da34aa8ad99dd0ac437c076/gbd_core/config.py#L52">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4c7c4f9863a43f041705866164765fbc93c93916/gbd_core/config.py#L121">
       
       (source)
     </a>
@@ -910,7 +987,7 @@ when no config layer does.</p>
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-07-14 17:17:13.
+    24.11.2 at 2026-07-14 17:19:17.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
