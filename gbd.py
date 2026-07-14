@@ -25,6 +25,7 @@ from gbd_core import util, contexts, schema, config
 from gbd_core.util_argparse import *
 from gbd_init.feature_extractors import build_extractors
 from gbd_init.instance_transformers import build_transformers
+from gbd_init.external import ExternalToolException
 
 
 ### Command-Line Interface Entry Points
@@ -178,7 +179,7 @@ def main():
     subparsers = parser.add_subparsers(help="Available Commands:", required=True, dest="gbd command")
 
     # INITIALIZATION
-    parser_init = subparsers.add_parser("init", help="Initialize Database (some procedures require gbdc)")
+    parser_init = subparsers.add_parser("init", help="Initialize database features (extractors require external tools)")
     add_resource_limits_arguments(parser_init)
     parser_init.add_argument("--target", help="Target database for new features (default: first db in list); also determines target context", default=None)
 
@@ -196,7 +197,7 @@ def main():
         parser_init_generic.set_defaults(func=cli_init_generic, initfuncname=key)
 
     # TRANSFORMATION
-    parser_trans = subparsers.add_parser("transform", help="Transform Benchmarks (requires gbdc)")
+    parser_trans = subparsers.add_parser("transform", help="Transform benchmark instances (requires external tools)")
     add_resource_limits_arguments(parser_trans)
     parser_trans.add_argument("--source", help="Source context", default=contexts.default_context())
     parser_trans.add_argument("--target", help="Target database; determines target context (default: first db in list)", default=None)
@@ -309,11 +310,12 @@ def main():
             args.extractors = extractors
             args.transformers = transformers
             args.func(api, args)
+    except ExternalToolException as e:
+        util.eprint(str(e))
+        util.eprint("Ensure the required external GBD tools are installed and on your PATH (e.g. pip install 'gbd-tools[gbdc]').")
+        sys.exit(1)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))
-        if e.name == "gbdc":
-            util.eprint("Install optional dependency with: pip install 'gbd-tools[gbdc]'")
-            util.eprint("Find installation instructions at https://github.com/Udopia/gbdc")
         sys.exit(1)
     except ParserException as e:
         util.eprint("Failed to parse query: " + args.query)
