@@ -38,3 +38,9 @@ build/
 dist/
 *.egg-info/
 venv/
+
+# test artifact written into the repo by tests/test_initializer.py
+benchmark.cnf
+
+# work-in-progress design doc, not part of the published docs yet
+doc/external-tools-contract.md

@@ -1,3 +1,18 @@
+# GBD default configuration (skeleton).
+#
+# This file ships with gbd-tools as the built-in default configuration. Any user
+# configuration registered via the GBD environment variable (or passed to -d/--db
+# as a file path) is layered on top of it, low-to-high precedence:
+#
+#     bundled defaults  <  $GBD config  <  -d/--db config
+#
+# Copy this file as a starting point for your own GBD configuration.
+
+# Databases provided to gbd, in addition to any given via -d/--db or GBD_DB.
+[databases]
+paths = []
+
+# Problem domains: file suffix, identifier (hash) function, and description.
 [contexts]
 default = "cnf"
 cnf = { suffix = ".cnf", idfunc = "cnf_hash", description = "DIMACS Conjunctive Normal Form (CNF)" }
@@ -7,6 +22,26 @@ opb = { suffix = ".opb", idfunc = "opb_hash", description = "Pseudo-Boolean Opti
 wcnf = { suffix = ".wcnf", idfunc = "wcnf_hash", description = "Weighted CNF (WCNF)" }
 wecnf = { suffix = ".wecnf", idfunc = "cnf_hash", description = "Weighted Extended CNF (WECNF)" }
 
+# Feature extractors: external command-line tools that compute features for an
+# instance. Entries may be defined inline (as below) or offloaded to a separate
+# file via `file = "extractors.toml"` (inline entries win on a name clash).
+#
+# Example:
+#   [extractors.base]
+#   tool = "gbd-extract-base"
+#   contexts = ["cnf", "sancnf"]
+#   description = "Extract base features from CNF files."
+[extractors]
+
+# Instance transformers: external command-line tools that derive a new instance
+# from an existing one. Entries may be inline or offloaded via `file = "..."`.
+#
+# Example:
+#   [transformers.cnf2kis]
+#   tool = "gbd-cnf2kis"
+#   source = ["cnf"]
+#   target = ["kis"]
+#   compress = "none"
+#   description = "Transform CNF files to k-Independent Set instances."
 [transformers]
 
-[extractors]
