@@ -15,172 +15,107 @@
 
 import os
 import polars as pl
-from functools import reduce
+from functools import partial, reduce
 
 from gbd_core import contexts
-from gbd_core.api import GBD, GBDException
+from gbd_core.api import GBD
 from gbd_core import util
-
-from gbd_core.contexts import identify
 from gbd_init.initializer import Initializer, InitializerException
-
-_GBDC_INSTALL_HINT = "Install optional dependency with: pip install 'gbd-tools[gbdc]'"
-_GBDC_IMPORT_ERROR = None
+from gbd_init import external
 
 
-def _raise_missing_gbdc():
-    msg = "gbdc is required for this operation. {}".format(_GBDC_INSTALL_HINT)
-    if _GBDC_IMPORT_ERROR is not None:
-        msg = "{} ({})".format(msg, _GBDC_IMPORT_ERROR)
-    raise ModuleNotFoundError(msg, name="gbdc") from _GBDC_IMPORT_ERROR
+_COMPRESSION_SUFFIX = {"xz": ".xz", "gz": ".gz", "bz2": ".bz2"}
 
 
-try:
-    from gbdc import cnf2kis, sanitise, normalise
-except ModuleNotFoundError as exc:
-    if exc.name != "gbdc":
-        raise
-    _GBDC_IMPORT_ERROR = exc
-except ImportError as exc:
-    _GBDC_IMPORT_ERROR = exc
+def _strip_context_suffix(path, source_context):
+    return reduce(lambda p, suffix: p[: -len(suffix)] if p.endswith(suffix) else p, contexts.suffixes(source_context), path)
 
 
-if _GBDC_IMPORT_ERROR is not None:
-
-    def cnf2kis(ipath, opath):
-        _raise_missing_gbdc()
-
-    def sanitise(ipath, opath):
-        _raise_missing_gbdc()
-
-    def normalise(ipath, opath):
-        _raise_missing_gbdc()
+def _output_path(path, source_context, output_suffix):
+    return _strip_context_suffix(path, source_context) + output_suffix
 
 
-def kis_filename(path):
-    kispath = reduce(lambda path, suffix: path[: -len(suffix)] if path.endswith(suffix) else path, contexts.suffixes("cnf"), path)
-    return kispath + ".kis"
+def _final_path(output_path, compress):
+    return output_path + _COMPRESSION_SUFFIX.get(compress, "")
 
 
-def sanitised_filename(path):
-    sanpath = reduce(lambda path, suffix: path[: -len(suffix)] if path.endswith(suffix) else path, contexts.suffixes("cnf"), path)
-    return sanpath + ".sanitized.cnf"
+def _remove(path):
+    if path and os.path.exists(path):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
 
 
-def normalised_filename(path):
-    normpath = reduce(lambda path, suffix: path[: -len(suffix)] if path.endswith(suffix) else path, contexts.suffixes("cnf"), path)
-    return normpath + ".normalised.cnf"
-
-
-def wrap_cnf2kis(hash, path, limits):
-    kispath = kis_filename(path)
-    util.eprint("Transforming {} to k-ISP {}".format(path, kispath))
+## Generic external-tool transformer
+def _compute_transformer(hash, path, limits, tool, source_context, output_suffix, compress):
+    output = _output_path(path, source_context, output_suffix)
+    final = _final_path(output, compress)
+    util.eprint("Transforming {} -> {}".format(path, final))
     try:
-        result = cnf2kis(path, kispath)
-        if "local" in result:
-            kishash = result["hash"]
-            return [
-                ("local", kishash, result["local"]),
-                ("to_cnf", kishash, hash),
-                ("nodes", kishash, result["nodes"]),
-                ("edges", kishash, result["edges"]),
-                ("k", kishash, result["k"]),
-            ]
-        else:
-            raise GBDException("CNF2KIS failed for {} due to {}".format(path, result["hash"]))
-    except Exception as e:
+        values, status = external.run_transformer(tool, path, output, compress, limits)
+    except external.ExternalToolException as e:
         util.eprint(str(e))
-        if os.path.exists(kispath):
-            os.remove(kispath)
-
-    return []
-
-
-def wrap_sanitise(hash, path, limits):
-    sanpath = sanitised_filename(path)
-    util.eprint("Sanitising {}".format(path))
-    try:
-        with open(sanpath, "w") as f, util.stdout_redirected(f):
-            result = sanitise(path, sanpath)
-            if "local" in result:
-                sanhash = result["hash"]
-                return [("local", sanhash, result["local"]), ("to_cnf", sanhash, hash)]
-            else:
-                raise GBDException("Sanitization failed for {}".format(path))
-    except Exception as e:
-        util.eprint(str(e))
-        if os.path.exists(sanpath):
-            os.remove(sanpath)
-
-    return []
+        _remove(final)
+        return []
+    if status != "success":
+        util.eprint("{}: {} {}".format(status, tool, path))
+        _remove(final)
+        return []
+    newhash = values.pop("hash", None)
+    if not newhash:
+        util.eprint("Transformer {} produced no hash for {}".format(tool, path))
+        _remove(final)
+        return []
+    return [(key, newhash, external.convert(value)) for key, value in values.items()]
 
 
-def wrap_normalise(hash, path, limits):
-    normpath = normalised_filename(path)
-    util.eprint("Normalising {}".format(path))
-    try:
-        with open(normpath, "w") as f, util.stdout_redirected(f):
-            result = normalise(path, normpath)
-            normhash = result["hash"]
-            if "local" in result and hash == normhash:
-                return [("local", normhash, result["local"])]
-            else:
-                raise GBDException("Normalisation failed for {}".format(path))
-    except Exception as e:
-        util.eprint(str(e))
-        if os.path.exists(normpath):
-            os.remove(normpath)
-
-    return []
+def build_transformers(gbdconfig):
+    """Build the transformer registry ``name -> spec`` from the configuration."""
+    registry = {}
+    for name, spec in gbdconfig.transformers.items():
+        registry[name] = {
+            "description": spec.get("description", name),
+            "tool": spec["tool"],
+            "source": spec.get("source", []),
+            "target": spec.get("target", []),
+            "compress": spec.get("compress", "none"),
+            "output_suffix": spec.get("output_suffix"),
+        }
+    return registry
 
 
-def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, target_db, source, collapse=None):
-    einfo = generic_transformers[key]
-    context = api.database.dcontext(target_db)
-    if not context in einfo["target"]:
+def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, target_db, source, registry, collapse=None):
+    einfo = registry[key]
+    target_context = api.database.dcontext(target_db)
+    if target_context not in einfo["target"]:
         raise InitializerException("Target database context must be in {}".format(einfo["target"]))
-    if not source in einfo["source"]:
-        raise InitializerException("Source database context must be in {}".format(einfo["source"]))
-    transformer = Initializer(api, rlimits, target_db, einfo["features"], einfo["compute"])
+    if source not in einfo["source"]:
+        raise InitializerException("Source context must be in {}".format(einfo["source"]))
+
+    # Output filename: source path with its context suffix replaced by the target suffix
+    # (a per-transformer `output_suffix` overrides the target context's suffix).
+    output_suffix = einfo["output_suffix"] or contexts.config[target_context]["suffix"]
+    compress = einfo["compress"]
+
+    features = external.feature_names(einfo["tool"])
+    compute = partial(
+        _compute_transformer,
+        tool=einfo["tool"],
+        source_context=source,
+        output_suffix=output_suffix,
+        compress=compress,
+    )
+    transformer = Initializer(api, rlimits, target_db, features, compute)
     transformer.create_features()
-    
-    def path_exists(p):
-        return p is not None and os.path.exists(einfo["filename"](p))
 
     df: pl.DataFrame = api.query(query, hashes, [source + ":local"], collapse=collapse)
+
+    def not_yet_transformed(p):
+        return p is not None and not os.path.exists(_final_path(_output_path(p, source, output_suffix), compress))
+
     missing = df.with_columns(
-        exists=pl.col("local").map_elements(
-            path_exists,
-            return_dtype=pl.Boolean
-        )
-    ).filter(~pl.col("exists"))
+        todo=pl.col("local").map_elements(not_yet_transformed, return_dtype=pl.Boolean)
+    ).filter(pl.col("todo"))
 
     transformer.run(missing)
-
-
-generic_transformers = {
-    "sanitise": {
-        "description": "Sanitise CNF files. ",
-        "source": ["cnf"],
-        "target": ["sancnf"],
-        "features": [("local", None), ("to_cnf", None)],
-        "compute": wrap_sanitise,
-        "filename": sanitised_filename,
-    },
-    "normalise": {
-        "description": "Normalise CNF files. ",
-        "source": ["cnf"],
-        "target": ["cnf"],
-        "features": [("local", None)],
-        "compute": wrap_normalise,
-        "filename": normalised_filename,
-    },
-    "cnf2kis": {
-        "description": "Transform CNF files to k-ISP instances. ",
-        "source": ["cnf"],
-        "target": ["kis"],
-        "features": [("local", None), ("to_cnf", None), ("nodes", "empty"), ("edges", "empty"), ("k", "empty")],
-        "compute": wrap_cnf2kis,
-        "filename": kis_filename,
-    },
-}
