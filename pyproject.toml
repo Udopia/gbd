@@ -17,6 +17,7 @@ scripts = { gbd = "gbd:main" }
 
 [project.optional-dependencies]
 gbdc = ["gbdc>=0.4.0"]
+interactive = ["ipython"]
 
 [tool.setuptools]
 include-package-data = false

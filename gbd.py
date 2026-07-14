@@ -95,6 +95,22 @@ def cli_get(api: GBD, args):
         print(args.delimiter.join([str(row[col]) if row[col] is not None else "[None]" for col in df.columns]))
 
 
+# The `interactive` command was contributed by Christoph Jabs (chrjabs, PR #32).
+# Ported here from Pandas to the Polars-based query interface, with IPython as an
+# optional dependency (`pip install 'gbd-tools[interactive]'`).
+def cli_interactive(api: GBD, args):
+    try:
+        import IPython
+    except ModuleNotFoundError:
+        util.eprint("The 'interactive' command requires IPython. Install it with: pip install 'gbd-tools[interactive]'")
+        sys.exit(1)
+    data: pl.DataFrame = api.query(args.query, args.hashes, args.resolve, args.collapse, args.group_by, args.join_type)  # noqa: F841
+    IPython.embed(
+        header="GBD query result is available as the Polars DataFrame `data` (use data.to_pandas() for a Pandas frame).",
+        colors="neutral",
+    )
+
+
 def cli_set(api: GBD, args):
     hashes = api.query(args.query, args.hashes)["hash"].to_list()
     if args.create:
@@ -234,6 +250,21 @@ def main():
     parser_get.add_argument("-d", "--delimiter", default=" ", help="CSV delimiter to use in output")
     parser_get.add_argument("-H", "--header", action="store_true", help="Include header information in output")
     parser_get.set_defaults(func=cli_get)
+
+    # GBD INTERACTIVE $QUERY (contributed by chrjabs, PR #32; requires the optional 'interactive' extra)
+    parser_interactive = subparsers.add_parser("interactive", help="Query data and open an interactive Python prompt (requires IPython)")
+    add_query_and_hashes_arguments(parser_interactive)
+    parser_interactive.add_argument("-r", "--resolve", help="List of feature names to resolve against", nargs="+", default=[])
+    parser_interactive.add_argument(
+        "-c",
+        "--collapse",
+        default="group_concat",
+        choices=["group_concat", "min", "max", "avg", "count", "sum", "none"],
+        help="Specify a function for the handling of multiple feature values",
+    )
+    parser_interactive.add_argument("-g", "--group_by", default=None, help="Group by the specified feature as the key, rather than by the primary key")
+    parser_interactive.add_argument("--join-type", help="Join Type: treatment of missing values", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
+    parser_interactive.set_defaults(func=cli_interactive)
 
     # GBD SET
     parser_set = subparsers.add_parser("set", help="Set specified attribute-value for query result")
