@@ -8,7 +8,7 @@ authors:
   given-names: "Christoph"
   orcid: "https://orcid.org/0000-0003-3532-696X"
 title: "GBD Tools"
-version: 4.7.0
-doi: 10.5281/zenodo.10213944
-date-released: 2023-11-28
+version: 5.2.0
+doi: 10.5281/zenodo.10213943
+date-released: 2026-07-14
 url: "https://github.com/Udopia/gbd"

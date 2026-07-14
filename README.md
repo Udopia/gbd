@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/Udopia/gbd/actions/workflows/tests.yml/badge.svg)](https://github.com/Udopia/gbd/actions/workflows/tests.yml)
 [![Paper DOI](https://img.shields.io/badge/DOI-10.4230%2FLIPIcs.SAT.2024.18-blue)](https://doi.org/10.4230/LIPIcs.SAT.2024.18)
-[![Zenodo archive v4.7.0](https://img.shields.io/badge/Zenodo%20archive-v4.7.0-blue?logo=zenodo)](https://doi.org/10.5281/zenodo.10213944)
+[![Zenodo](https://img.shields.io/badge/Zenodo-latest%20release-blue?logo=zenodo)](https://doi.org/10.5281/zenodo.10213943)
 
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
@@ -47,6 +47,12 @@ See `gbd get --help` for more information.
 All initialization routines can be run in parallel, and resource limits can be set per process.
 See `gbd init --help` for more information.
 
+For example, once a database is registered you can resolve features for a set of instances with:
+
+```bash
+gbd -d meta.db get "family = hardware-bmc" -r verified-result runtime-kissat
+```
+
 ### GBD Server
 
 The GBD server can be started locally with gbd serve. Our instance of the GBD server is hosted at [https://benchmark-database.de/](https://benchmark-database.de/).
@@ -58,7 +64,7 @@ The GBD Python interface is used by all programs in the GBD ecosystem. Important
 
 ```Python
 from gbd_core.api import GBD
-with GBD(['path/to/database1', 'path/to/database2', ..] as gbd:
+with GBD(['path/to/database1', 'path/to/database2']) as gbd:
     df = gbd.query("family = hardware-bmc", resolve=['verified-result', 'runtime-kissat'])
 ```
 
@@ -86,4 +92,13 @@ In addition to several bug fixes and performance improvements, GBD 5.0 no longer
 This simplifies installation and use in various environments.
 The faster, more lightweight Polars library is now used for dataframes instead.
 Therefore, upgrading to GBD 5.0 requires existing code to be adapted to use Polars dataframes, or Polars dataframes to be explicitly converted to Pandas dataframes (e.g. via df.to_pandas()).
+
+## Citation
+
+If you use GBD in your research, please cite our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
+Citation metadata for the software itself is provided in [CITATION.cff](CITATION.cff), and archived releases are available on [Zenodo](https://doi.org/10.5281/zenodo.10213943) (this concept DOI always resolves to the latest release; each release also has its own version DOI).
+
+## License
+
+GBD is released under the [MIT License](LICENSE).
 
