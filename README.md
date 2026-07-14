@@ -1,9 +1,22 @@
 # Global Benchmark Database (GBD)
 
-[![DOI](https://zenodo.org/badge/141396410.svg)](https://doi.org/10.5281/zenodo.17820182)
+[![Tests](https://github.com/Udopia/gbd/actions/workflows/tests.yml/badge.svg)](https://github.com/Udopia/gbd/actions/workflows/tests.yml)
+[![Paper DOI](https://img.shields.io/badge/DOI-10.4230%2FLIPIcs.SAT.2024.18-blue)](https://doi.org/10.4230/LIPIcs.SAT.2024.18)
+[![Zenodo archive v4.7.0](https://img.shields.io/badge/Zenodo%20archive-v4.7.0-blue?logo=zenodo)](https://doi.org/10.5281/zenodo.10213944)
 
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
+
+## GBD 5.2 Release Notes
+
+GBD 5.2 adds the `gbd interactive` command, which opens an IPython shell with the result of a query available as a Polars dataframe for exploratory analysis (install via `pip install 'gbd-tools[interactive]'`).
+Database initialization is also considerably faster: feature values are now written in batches, which greatly reduces the time spent populating large feature databases.
+
+## GBD 5.1 Release Notes
+
+GBD 5.1 decouples gbd from GBDC: the performance-critical feature extractors and instance transformers are now standalone command-line tools that gbd invokes as external processes, rather than a hard Python dependency.
+Extractors, transformers, contexts, and databases are declared in a TOML configuration, so you can register and use your own tools.
+A central configuration file can be provided via the new `GBD` environment variable, which takes precedence over `GBD_DB`.
 
 ## GBD 5.0 Release Notes
 
