@@ -41,10 +41,10 @@ try:  # Python 3.11+
         return _toml.load(fp)
 
 except ModuleNotFoundError:  # Python < 3.11
-    import toml as _toml
+    import tomli as _toml
 
     def _read_toml(fp):
-        return _toml.loads(fp.read().decode("utf-8"))
+        return _toml.load(fp)
 
 
 ### Top-level tables that identify a file as a GBD configuration
