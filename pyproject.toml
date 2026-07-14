@@ -34,3 +34,8 @@ gbd_server = [
 	"static/img/*.png",
 	"static/img/*.jpg",
 ]
+
+[tool.pytest.ini_options]
+# Put the repository root on sys.path so the `tests` package (tests/util.py) imports.
+pythonpath = ["."]
+testpaths = ["tests"]
