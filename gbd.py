@@ -21,7 +21,7 @@ import polars as pl
 
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
-from gbd_core import util, contexts, schema
+from gbd_core import util, contexts, schema, config
 from gbd_core.util_argparse import *
 from gbd_init.feature_extractors import generic_extractors
 from gbd_init.instance_transformers import generic_transformers
@@ -269,12 +269,22 @@ def main():
         if hasattr(args, "hashes") and not sys.stdin.isatty():
             if not args.hashes or len(args.hashes) == 0:
                 args.hashes = util.read_hashes()  # read hashes from stdin
-        if hasattr(args, "target") and args.target is None:
-            args.target = schema.Schema.dbname_from_path(args.db.split(os.pathsep)[0])
-        if args.db is None or len(args.db) == 0:
-            util.eprint("No database specified. Use -d or set GBD_DB environment variable.")
+
+        # Resolve the configuration source and database list (see gbd_core.config).
+        config_layers, db_paths = config.resolve_sources(args.db)
+        gbdconfig = config.GbdConfig(config_layers)
+        contexts.reload(gbdconfig)
+        databases = db_paths or gbdconfig.databases
+
+        if not databases:
+            util.eprint("No data source specified. Use -d, or set the GBD or GBD_DB environment variable.")
             sys.exit(1)
-        with GBD(args.db.split(os.pathsep), args.verbose) as api:
+
+        if hasattr(args, "target") and args.target is None:
+            args.target = schema.Schema.dbname_from_path(databases[0])
+
+        with GBD(databases, args.verbose) as api:
+            args.gbdconfig = gbdconfig
             args.func(api, args)
     except ModuleNotFoundError as e:
         util.eprint("Module '{}' not found. Please install it.".format(e.name))

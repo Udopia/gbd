@@ -19,7 +19,13 @@ import re
 
 def get_gbd_argparser():
     parser = argparse.ArgumentParser(description="GBD Benchmark Database")
-    parser.add_argument("-d", "--db", type=gbd_db_type, default=os.environ.get("GBD_DB"), help="Specify database to work with")
+    parser.add_argument(
+        "-d",
+        "--db",
+        default=None,
+        help="Data source: colon-separated database paths, or a GBD TOML config file "
+        "(default: value of the GBD or GBD_DB environment variable)",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="Print additional (or diagnostic) information to stderr")
     return parser
 
@@ -75,12 +81,3 @@ def key_value_type(s):
     if len(tup) != 2:
         raise argparse.ArgumentTypeError("key-value type: {0} must be separated by exactly one = ".format(s))
     return (column_type(tup[0]), tup[1])
-
-
-def gbd_db_type(dbstr):
-    if not dbstr:
-        default = os.environ.get("GBD_DB")
-        if not default:
-            raise argparse.ArgumentTypeError("Datasources Missing: Set GBD_DB environment variable (Find databases here: https://benchmark-database.de)")
-        return default  # .split(':')
-    return dbstr

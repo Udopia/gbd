@@ -13,43 +13,47 @@
 # copies or substantial portions of the Software.
 
 from gbd_init.gbdhash import cnf_hash, opb_hash, wcnf_hash
+from gbd_core import config as _config
 
-### Default Context
-default = "cnf"
-
-### Configuration of Available Contexts
-config = {
-    "cnf": {
-        "description": "Conjunctive Normal Form (CNF) in DIMACS format",
-        "suffix": ".cnf",
-        "idfunc": cnf_hash,
-    },
-    "sancnf": {
-        "description": "Sanitized Conjunctive Normal Form (CNF) in DIMACS format",
-        "suffix": ".sanitized.cnf",
-        "idfunc": cnf_hash,
-    },
-    "kis": {
-        "description": "k-Independent Set (KIS) in DIMACS-like graph format",
-        "suffix": ".kis",
-        "idfunc": cnf_hash,
-    },
-    "opb": {
-        "description": "Pseudo-Boolean Optimization Problem in OPB format",
-        "suffix": ".opb",
-        "idfunc": opb_hash,
-    },
-    "wecnf": {
-        "description": "Weighted Extended Conjunctive Normal Form (WECNF)",
-        "suffix": ".wecnf",
-        "idfunc": cnf_hash,
-    },
-    "wcnf": {
-        "description": "MaxSAT instances in WCNF format",
-        "suffix": ".wcnf",
-        "idfunc": wcnf_hash,
-    },
+### Registry of known identifier (hash) functions, keyed by their config name
+_IDFUNCS = {
+    "cnf_hash": cnf_hash,
+    "opb_hash": opb_hash,
+    "wcnf_hash": wcnf_hash,
 }
+
+### Default Context and Available Contexts (populated from configuration)
+default = "cnf"
+config = {}
+
+
+def _build(gbdconfig):
+    """(Re)build the module-level ``config`` and ``default`` from a :class:`GbdConfig`."""
+    global config, default
+    raw = gbdconfig.contexts
+    built = {}
+    for name, details in raw.items():
+        if name == "default" or not isinstance(details, dict):
+            continue
+        built[name] = {
+            "description": details.get("description", name),
+            "suffix": details["suffix"],
+            "idfunc": _IDFUNCS.get(details.get("idfunc", "cnf_hash"), cnf_hash),
+        }
+    config = built
+    default = raw.get("default", "cnf")
+
+
+def reload(config=None):
+    """Rebuild the available contexts from a :class:`GbdConfig` (or configuration
+    layers/paths, or the bundled defaults when None)."""
+    if not isinstance(config, _config.GbdConfig):
+        config = _config.GbdConfig(config)
+    _build(config)
+
+
+### Initial load from the environment (bundled defaults + optional GBD config)
+_build(_config.default_config())
 
 
 def description(context):
