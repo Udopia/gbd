@@ -23,24 +23,25 @@ wcnf = { suffix = ".wcnf", idfunc = "wcnf_hash", description = "Weighted CNF (WC
 wecnf = { suffix = ".wecnf", idfunc = "cnf_hash", description = "Weighted Extended CNF (WECNF)" }
 
 # Feature extractors: external command-line tools that compute features for an
-# instance. Entries may be defined inline (as below) or offloaded to a separate
-# file via `file = "extractors.toml"` (inline entries win on a name clash).
+# instance. The `tool` value is the command gbd runs (it may include a subcommand,
+# e.g. "gbdc base"). Entries may be defined inline (as below) or offloaded to a
+# separate file via `file = "extractors.toml"` (inline entries win on a name clash).
 [extractors]
-base = { tool = "gbd-extract-base", contexts = ["cnf", "sancnf"], description = "Extract base features from CNF files." }
-gate = { tool = "gbd-extract-gate", contexts = ["cnf", "sancnf"], description = "Extract gate features from CNF files." }
-checksani = { tool = "gbd-checksani", contexts = ["cnf", "sancnf"], description = "Check sanitation status of CNF files." }
-isohash = { tool = "gbd-isohash", contexts = ["cnf", "wcnf", "sancnf"], description = "Compute the ISOHash of CNF or WCNF files." }
-isohash2 = { tool = "gbd-isohash2", contexts = ["cnf", "sancnf"], description = "Compute the ISOHash2 of CNF files." }
-wcnfbase = { tool = "gbd-extract-wcnf", contexts = ["wcnf"], description = "Extract base features from WCNF files." }
-opbbase = { tool = "gbd-extract-opb", contexts = ["opb"], description = "Extract base features from OPB files." }
+base = { tool = "gbdc base", contexts = ["cnf", "sancnf"], description = "Extract base features from CNF files." }
+gate = { tool = "gbdc gate", contexts = ["cnf", "sancnf"], description = "Extract gate features from CNF files." }
+checksani = { tool = "gbdc checksani", contexts = ["cnf", "sancnf"], description = "Check sanitation status of CNF files." }
+isohash = { tool = "gbdc isohash", contexts = ["cnf", "wcnf", "sancnf"], description = "Compute the ISOHash of CNF or WCNF files." }
+isohash2 = { tool = "gbdc isohash2", contexts = ["cnf", "sancnf"], description = "Compute the ISOHash2 of CNF files." }
+wcnfbase = { tool = "gbdc wcnfbase", contexts = ["wcnf"], description = "Extract base features from WCNF files." }
+opbbase = { tool = "gbdc opbbase", contexts = ["opb"], description = "Extract base features from OPB files." }
 
 # Instance transformers: external command-line tools that derive a new instance
 # from an existing one. Entries may be inline or offloaded via `file = "..."`.
 # `output_suffix` overrides the target context's suffix for the produced file;
 # `compress` (none|xz|gz|bz2) requests compressed output.
 [transformers]
-sanitise = { tool = "gbd-sanitize", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", description = "Sanitise CNF files." }
-normalise = { tool = "gbd-normalize", source = ["cnf"], target = ["cnf"], output_suffix = ".normalised.cnf", description = "Normalise CNF files." }
-cnf2kis = { tool = "gbd-cnf2kis", source = ["cnf"], target = ["kis"], description = "Transform CNF files to k-Independent Set instances." }
+sanitise = { tool = "gbdc sanitize", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", description = "Sanitise CNF files." }
+normalise = { tool = "gbdc normalize", source = ["cnf"], target = ["cnf"], output_suffix = ".normalised.cnf", description = "Normalise CNF files." }
+cnf2kis = { tool = "gbdc cnf2kis", source = ["cnf"], target = ["kis"], description = "Transform CNF files to k-Independent Set instances." }
 
 
