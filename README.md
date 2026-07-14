@@ -26,14 +26,16 @@ GBD provides benchmark instance identifiers, feature extractors, and instance tr
 
 GBD provides an extensible set of problem domains, feature extractors, and instance transformers.
 For a description of those currently supported, see the [GBDC documentation](https://udopia.github.io/gbdc/doc/Index.html).
-GBDC is a Python extension module for GBD's performance-critical code (written in C++), maintained in a separate [repository](https://github.com/Udopia/gbdc).
+GBDC provides GBD's performance-critical code (written in C++) as standalone command-line tools (feature extractors and instance transformers) that gbd invokes as external processes. It is maintained in a separate [repository](https://github.com/Udopia/gbdc).
+Extractors and transformers are registered in gbd's configuration, so you can also write and register your own tools.
 
 ## Installation and Configuration
 
 - Run `pip install gbd-tools`
-- Run `pip install 'gbd-tools[gbdc]'` on supported platforms if you want the optional GBDC extension module
+- Run `pip install 'gbd-tools[gbdc]'` on supported platforms to also install the GBDC feature extractors and instance transformers used by `gbd init` and `gbd transform`
 - Obtain a GBD database, e.g. download [https://benchmark-database.de/getdatabase/meta.db](https://benchmark-database.de/getdatabase/meta.db).
-- Configure your environment by registering paths to databases like this `export GBD_DB=path/to/database1:path/to/database2`.
+- Register your databases via the environment: `export GBD_DB=path/to/database1:path/to/database2`.
+- Alternatively, register a central TOML configuration file via `export GBD=path/to/gbd.toml`. It can declare databases, contexts, extractors, and transformers. When set, it takes precedence over `GBD_DB`; a `-d/--db` argument (a database list or a config file) overrides both.
 - Test the command line interface with the `gbd info` and `gbd --help` commands.
 
 ## GBD Interfaces
@@ -44,9 +46,9 @@ GBD provides the command-line tool `gbd`, the web interface `gbd serve`, and the
 
 Central commands in gbd are those for data access `gbd get` and database initialization `gbd init`.
 See `gbd --help` for more commands.
-Once a database is registered in the environment variable `GBD_DB`, the `gbd get` command can be used to access data.
+Once a database is registered (via `GBD_DB`, a `GBD` config file, or `-d/--db`), the `gbd get` command can be used to access data.
 See `gbd get --help` for more information.
-`gbd init` provides access to registered feature extractors, such as those provided by the `gdbc` extension module.
+`gbd init` provides access to registered feature extractors, such as the standalone tools provided by `gbdc`, and `gbd transform` applies registered instance transformers.
 All initialization routines can be run in parallel, and resource limits can be set per process.
 See `gbd init --help` for more information.
 
