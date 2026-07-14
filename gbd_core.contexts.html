@@ -191,7 +191,27 @@
         
 
         
+            <div class="itemName"><code><a href="#reload" class="internal-link" title="gbd_core.contexts.reload">reload</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="#suffixes" class="internal-link" title="gbd_core.contexts.suffixes">suffixes</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_build" class="internal-link" title="gbd_core.contexts._build">_build</a></code>
             </div>
         
 
@@ -221,6 +241,16 @@
 
         
             <div class="itemName"><code><a href="#default" class="internal-link" title="gbd_core.contexts.default">default</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_IDFUNCS" class="internal-link" title="gbd_core.contexts._IDFUNCS">_IDFUNCS</a></code>
             </div>
         
 
@@ -382,7 +412,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py" class="sourceLink">(source)</a>
           <p></p>
         </div>
 
@@ -391,7 +421,7 @@
         </div>
 
         <div id="splitTables">
-          <table class="children sortable" id="id5">
+          <table class="children sortable" id="id6">
   
   
   <tr class="function">
@@ -427,6 +457,11 @@
   </tr><tr class="function">
     
     <td>Function</td>
+    <td><code><a href="#reload" class="internal-link" title="gbd_core.contexts.reload">reload</a></code></td>
+    <td>Rebuild the available contexts from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code> (or configuration layers/paths, or the bundled defaults when None).</td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
     <td><code><a href="#suffixes" class="internal-link" title="gbd_core.contexts.suffixes">suffixes</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="variable">
@@ -438,6 +473,16 @@
     
     <td>Variable</td>
     <td><code><a href="#default" class="internal-link" title="gbd_core.contexts.default">default</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_build" class="internal-link" title="gbd_core.contexts._build">_build</a></code></td>
+    <td>(Re)build the module-level <tt class="rst-docutils rst-literal">config</tt> and <tt class="rst-docutils rst-literal">default</tt> from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code>.</td>
+  </tr><tr class="constant private">
+    
+    <td>Constant</td>
+    <td><code><a href="#_IDFUNCS" class="internal-link" title="gbd_core.contexts._IDFUNCS">_IDFUNCS</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr>
 </table>
@@ -460,7 +505,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">contexts</span><span class="function-signature">()</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L67">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L71">
       
       (source)
     </a>
@@ -487,7 +532,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">default_context</span><span class="function-signature">()</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L71">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L75">
       
       (source)
     </a>
@@ -514,7 +559,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">description</span><span class="function-signature">(context)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L55">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L59">
       
       (source)
     </a>
@@ -541,7 +586,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">get_context_by_suffix</span><span class="function-signature">(benchmark)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L75">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L79">
       
       (source)
     </a>
@@ -568,7 +613,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">identify</span><span class="function-signature">(path, ct=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L83">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L87">
       
       (source)
     </a>
@@ -595,7 +640,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">idfunc</span><span class="function-signature">(context)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L63">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L67">
       
       (source)
     </a>
@@ -612,6 +657,34 @@
 </div><div class="basefunction">
   
   
+  <a name="gbd_core.contexts.reload">
+    
+  </a>
+  <a name="reload">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">reload</span><span class="function-signature">(config=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L47">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#reload" title="gbd_core.contexts.reload">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Rebuild the available contexts from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code> (or configuration
+layers/paths, or the bundled defaults when None).</p></div>
+  </div>
+</div><div class="basefunction">
+  
+  
   <a name="gbd_core.contexts.suffixes">
     
   </a>
@@ -622,7 +695,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">suffixes</span><span class="function-signature">(context)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L59">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L63">
       
       (source)
     </a>
@@ -647,8 +720,8 @@
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">config</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L21">
+    <span class="py-defname">config</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L27">
       
       (source)
     </a>
@@ -675,7 +748,7 @@
   <div class="functionHeader">
     
     <span class="py-defname">default</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/contexts.py#L18">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L26">
       
       (source)
     </a>
@@ -690,6 +763,60 @@
     <div><p class="undocumented">Undocumented</p></div>
     
   </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.contexts._build">
+    
+  </a>
+  <a name="_build">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_build</span><span class="function-signature">(gbdconfig)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L30">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_build" title="gbd_core.contexts._build">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>(Re)build the module-level <tt class="rst-docutils rst-literal">config</tt> and <tt class="rst-docutils rst-literal">default</tt> from a <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code>.</p></div>
+  </div>
+</div><div class="baseconstant private">
+  
+  
+  <a name="gbd_core.contexts._IDFUNCS">
+    
+  </a>
+  <a name="_IDFUNCS">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">_IDFUNCS</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/contexts.py#L19">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_IDFUNCS" title="gbd_core.contexts._IDFUNCS">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code>{<wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">cnf_hash</span><span class="rst-variable-quote">'</span>: cnf_hash, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">opb_hash</span><span class="rst-variable-quote">'</span>: opb_hash, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">wcnf_hash</span><span class="rst-variable-quote">'</span>: wcnf_hash}</code></pre></td></tr></table>
+  </div>
 </div>
         </div>
       
@@ -702,7 +829,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 11:45:37.
+    24.11.2 at 2026-07-14 11:00:12.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 

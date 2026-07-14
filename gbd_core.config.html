@@ -119,8 +119,21 @@
         
          
 
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class="">
         
         
+        
+
+        
+            <div class="itemName"><code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig"><wbr></wbr>Gbd<wbr></wbr>Config</a></code>
+            </div>
+        
+
+    </li>
+</ul>
 
         <div class="childrenKindTitle">Functions</div>
         <ul>
@@ -131,7 +144,7 @@
         
 
         
-            <div class="itemName"><code><a href="#config_to_dict" class="internal-link" title="gbd_core.config.config_to_dict">config<wbr></wbr>_to<wbr></wbr>_dict</a></code>
+            <div class="itemName"><code><a href="#default_config" class="internal-link" title="gbd_core.config.default_config">default<wbr></wbr>_config</a></code>
             </div>
         
 
@@ -141,7 +154,97 @@
         
 
         
-            <div class="itemName"><code><a href="#load_config" class="internal-link" title="gbd_core.config.load_config">load<wbr></wbr>_config</a></code>
+            <div class="itemName"><code><a href="#is_config_file" class="internal-link" title="gbd_core.config.is_config_file">is<wbr></wbr>_config<wbr></wbr>_file</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#resolve_sources" class="internal-link" title="gbd_core.config.resolve_sources">resolve<wbr></wbr>_sources</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_deep_merge" class="internal-link" title="gbd_core.config._deep_merge">_deep<wbr></wbr>_merge</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_load_defaults" class="internal-link" title="gbd_core.config._load_defaults">_load<wbr></wbr>_defaults</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_load_toml" class="internal-link" title="gbd_core.config._load_toml">_load<wbr></wbr>_toml</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_named_tables" class="internal-link" title="gbd_core.config._named_tables">_named<wbr></wbr>_tables</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_normalize" class="internal-link" title="gbd_core.config._normalize">_normalize</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_read_toml" class="internal-link" title="gbd_core.config._read_toml">_read<wbr></wbr>_toml</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_resolve_block" class="internal-link" title="gbd_core.config._resolve_block">_resolve<wbr></wbr>_block</a></code>
+            </div>
+        
+
+    </li><li class="private">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#_split_paths" class="internal-link" title="gbd_core.config._split_paths">_split<wbr></wbr>_paths</a></code>
             </div>
         
 
@@ -154,53 +257,23 @@
         <div class="childrenKindTitle">Variables</div>
         <ul>
     
-    <li class="">
+    <li class="private">
         
         
         
 
         
-            <div class="itemName"><code><a href="#config" class="internal-link" title="gbd_core.config.config">config</a></code>
+            <div class="itemName"><code><a href="#_CONFIG_TABLES" class="internal-link" title="gbd_core.config._CONFIG_TABLES">_CONFIG<wbr></wbr>_TABLES</a></code>
             </div>
         
 
-    </li><li class="">
+    </li><li class="private">
         
         
         
 
         
-            <div class="itemName"><code><a href="#config_parser" class="internal-link" title="gbd_core.config.config_parser">config<wbr></wbr>_parser</a></code>
-            </div>
-        
-
-    </li><li class="">
-        
-        
-        
-
-        
-            <div class="itemName"><code><a href="#default" class="internal-link" title="gbd_core.config.default">default</a></code>
-            </div>
-        
-
-    </li><li class="">
-        
-        
-        
-
-        
-            <div class="itemName"><code><a href="#default_config_path" class="internal-link" title="gbd_core.config.default_config_path">default<wbr></wbr>_config<wbr></wbr>_path</a></code>
-            </div>
-        
-
-    </li><li class="">
-        
-        
-        
-
-        
-            <div class="itemName"><code><a href="#user_config_path" class="internal-link" title="gbd_core.config.user_config_path">user<wbr></wbr>_config<wbr></wbr>_path</a></code>
+            <div class="itemName"><code><a href="#_REGISTRY_BLOCKS" class="internal-link" title="gbd_core.config._REGISTRY_BLOCKS">_REGISTRY<wbr></wbr>_BLOCKS</a></code>
             </div>
         
 
@@ -362,52 +435,101 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py" class="sourceLink">(source)</a>
           <p></p>
         </div>
 
         <div class="moduleDocstring">
-          <div><p class="undocumented">Undocumented</p></div>
+          <div><p>GBD configuration system.</p>
+<p>The central configuration is a TOML file registered via the <tt class="rst-docutils rst-literal">GBD</tt> environment
+variable (or passed to <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> as a path). It may declare databases, contexts,
+extractors, and transformers. The bundled <tt class="rst-docutils rst-literal">default_config.toml</tt> provides the
+built-in defaults, onto which any user configuration is merged.</p>
+<p>Configuration layers are merged low-to-high precedence:
+<tt class="rst-docutils rst-literal">bundled defaults</tt> &lt; <tt class="rst-docutils rst-literal">GBD</tt> env config &lt; <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> config. The <tt class="rst-docutils rst-literal">GBD</tt> config
+acts as a user-level default that a <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> config overrides. A <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> value
+is auto-detected as either a legacy colon-separated database list or a path to a
+central config file (see <code><a href="#is_config_file" class="internal-link" title="gbd_core.config.is_config_file">is_config_file</a></code>); a legacy database list (or the
+<tt class="rst-docutils rst-literal">GBD_DB</tt> environment variable) provides the databases when no config layer does.</p>
+<p>Registry blocks (<tt class="rst-docutils rst-literal">[extractors]</tt>, <tt class="rst-docutils rst-literal">[transformers]</tt>) may be defined inline,
+offloaded to a separate file via <tt class="rst-docutils rst-literal">file = <span class="pre">"..."</span></tt>, or both (inline entries win on a
+name clash).</p>
+</div>
         </div>
 
         <div id="splitTables">
           <table class="children sortable" id="id4">
   
   
-  <tr class="function">
+  <tr class="class">
     
-    <td>Function</td>
-    <td><code><a href="#config_to_dict" class="internal-link" title="gbd_core.config.config_to_dict">config<wbr></wbr>_to<wbr></wbr>_dict</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
+    <td>Class</td>
+    <td><code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig"><wbr></wbr>Gbd<wbr></wbr>Config</a></code></td>
+    <td>Merged view of the GBD configuration (bundled defaults + user config layers).</td>
   </tr><tr class="function">
     
     <td>Function</td>
-    <td><code><a href="#load_config" class="internal-link" title="gbd_core.config.load_config">load<wbr></wbr>_config</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="variable">
+    <td><code><a href="#default_config" class="internal-link" title="gbd_core.config.default_config">default<wbr></wbr>_config</a></code></td>
+    <td>The configuration from the environment: bundled defaults plus the <tt class="rst-docutils rst-literal">GBD</tt> config layer when it points to a valid config file.</td>
+  </tr><tr class="function">
     
-    <td>Variable</td>
-    <td><code><a href="#config" class="internal-link" title="gbd_core.config.config">config</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="variable">
+    <td>Function</td>
+    <td><code><a href="#is_config_file" class="internal-link" title="gbd_core.config.is_config_file">is<wbr></wbr>_config<wbr></wbr>_file</a></code></td>
+    <td>True if <tt class="rst-docutils rst-literal">path</tt> is a single existing file that parses as a GBD TOML config (i.e. contains a known top-level table). A colon-separated list is legacy.</td>
+  </tr><tr class="function">
     
-    <td>Variable</td>
-    <td><code><a href="#config_parser" class="internal-link" title="gbd_core.config.config_parser">config<wbr></wbr>_parser</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="variable">
+    <td>Function</td>
+    <td><code><a href="#resolve_sources" class="internal-link" title="gbd_core.config.resolve_sources">resolve<wbr></wbr>_sources</a></code></td>
+    <td>Resolve the ordered configuration layers and legacy database paths.</td>
+  </tr><tr class="function private">
     
-    <td>Variable</td>
-    <td><code><a href="#default" class="internal-link" title="gbd_core.config.default">default</a></code></td>
-    <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="variable">
+    <td>Function</td>
+    <td><code><a href="#_deep_merge" class="internal-link" title="gbd_core.config._deep_merge">_deep<wbr></wbr>_merge</a></code></td>
+    <td>Recursively merge <tt class="rst-docutils rst-literal">override</tt> onto <tt class="rst-docutils rst-literal">base</tt> (override wins on conflicts).</td>
+  </tr><tr class="function private">
     
-    <td>Variable</td>
-    <td><code><a href="#default_config_path" class="internal-link" title="gbd_core.config.default_config_path">default<wbr></wbr>_config<wbr></wbr>_path</a></code></td>
+    <td>Function</td>
+    <td><code><a href="#_load_defaults" class="internal-link" title="gbd_core.config._load_defaults">_load<wbr></wbr>_defaults</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
-  </tr><tr class="variable">
+  </tr><tr class="function private">
     
-    <td>Variable</td>
-    <td><code><a href="#user_config_path" class="internal-link" title="gbd_core.config.user_config_path">user<wbr></wbr>_config<wbr></wbr>_path</a></code></td>
+    <td>Function</td>
+    <td><code><a href="#_load_toml" class="internal-link" title="gbd_core.config._load_toml">_load<wbr></wbr>_toml</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_named_tables" class="internal-link" title="gbd_core.config._named_tables">_named<wbr></wbr>_tables</a></code></td>
+    <td>Keep only the <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries of a mapping.</td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_normalize" class="internal-link" title="gbd_core.config._normalize">_normalize</a></code></td>
+    <td>Return a copy of a parsed config with registry <tt class="rst-docutils rst-literal">file</tt> references resolved.</td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_read_toml" class="internal-link" title="gbd_core.config._read_toml">_read<wbr></wbr>_toml</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_resolve_block" class="internal-link" title="gbd_core.config._resolve_block">_resolve<wbr></wbr>_block</a></code></td>
+    <td>Return a registry block's <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries, resolving an optional <tt class="rst-docutils rst-literal">file</tt> reference (inline entries win over referenced ones on a name clash).</td>
+  </tr><tr class="function private">
+    
+    <td>Function</td>
+    <td><code><a href="#_split_paths" class="internal-link" title="gbd_core.config._split_paths">_split<wbr></wbr>_paths</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="constant private">
+    
+    <td>Constant</td>
+    <td><code><a href="#_CONFIG_TABLES" class="internal-link" title="gbd_core.config._CONFIG_TABLES">_CONFIG<wbr></wbr>_TABLES</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="constant private">
+    
+    <td>Constant</td>
+    <td><code><a href="#_REGISTRY_BLOCKS" class="internal-link" title="gbd_core.config._REGISTRY_BLOCKS">_REGISTRY<wbr></wbr>_BLOCKS</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr>
 </table>
@@ -420,21 +542,21 @@
           <div class="basefunction">
   
   
-  <a name="gbd_core.config.config_to_dict">
+  <a name="gbd_core.config.default_config">
     
   </a>
-  <a name="config_to_dict">
+  <a name="default_config">
     
   </a>
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">config_to_dict</span><span class="function-signature">(config)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L23">
+    <span class="py-keyword">def</span> <span class="py-defname">default_config</span><span class="function-signature">() -&gt; <code><a href="gbd_core.config.GbdConfig.html" class="internal-link" title="gbd_core.config.GbdConfig">GbdConfig</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L177">
       
       (source)
     </a>
-    <a class="headerLink" href="#config_to_dict" title="gbd_core.config.config_to_dict">
+    <a class="headerLink" href="#default_config" title="gbd_core.config.default_config">
       
       
       ¶
@@ -442,26 +564,114 @@
   </div>
   <div class="docstring functionBody">
     
-    <div><p class="undocumented">Undocumented</p></div>
+    <div><p>The configuration from the environment: bundled defaults plus the <tt class="rst-docutils rst-literal">GBD</tt>
+config layer when it points to a valid config file.</p></div>
   </div>
 </div><div class="basefunction">
   
   
-  <a name="gbd_core.config.load_config">
+  <a name="gbd_core.config.is_config_file">
     
   </a>
-  <a name="load_config">
+  <a name="is_config_file">
     
   </a>
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">load_config</span><span class="function-signature">(default_config_path, user_config_path=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L9">
+    <span class="py-keyword">def</span> <span class="py-defname">is_config_file</span><span class="function-signature">(path: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L80">
       
       (source)
     </a>
-    <a class="headerLink" href="#load_config" title="gbd_core.config.load_config">
+    <a class="headerLink" href="#is_config_file" title="gbd_core.config.is_config_file">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>True if <tt class="rst-docutils rst-literal">path</tt> is a single existing file that parses as a GBD TOML config
+(i.e. contains a known top-level table). A colon-separated list is legacy.</p></div>
+  </div>
+</div><div class="basefunction">
+  
+  
+  <a name="gbd_core.config.resolve_sources">
+    
+  </a>
+  <a name="resolve_sources">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">resolve_sources</span><span class="function-signature">(cli_db=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L91">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#resolve_sources" title="gbd_core.config.resolve_sources">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Resolve the ordered configuration layers and legacy database paths.</p>
+<p>Layers are returned low-to-high precedence and merged onto the bundled
+defaults: the <tt class="rst-docutils rst-literal">GBD</tt> env config, then a <tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> config. A legacy
+<tt class="rst-docutils rst-literal"><span class="pre">-d/--db</span></tt> list (or, as a last resort, <tt class="rst-docutils rst-literal">GBD_DB</tt>) provides the databases
+when no config layer does.</p>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code>, <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]]</code></td><td class="fieldArgDesc"><tt class="rst-docutils rst-literal">(config_layers, db_paths)</tt>.</td></tr></table></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._deep_merge">
+    
+  </a>
+  <a name="_deep_merge">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_deep_merge</span><span class="function-signature">(base: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, override: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L69">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_deep_merge" title="gbd_core.config._deep_merge">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Recursively merge <tt class="rst-docutils rst-literal">override</tt> onto <tt class="rst-docutils rst-literal">base</tt> (override wins on conflicts).</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._load_defaults">
+    
+  </a>
+  <a name="_load_defaults">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_load_defaults</span><span class="function-signature">() -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L115">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_load_defaults" title="gbd_core.config._load_defaults">
       
       
       ¶
@@ -471,23 +681,186 @@
     
     <div><p class="undocumented">Undocumented</p></div>
   </div>
-</div><div class="basevariable">
+</div><div class="basefunction private">
   
   
-  <a name="gbd_core.config.config">
+  <a name="gbd_core.config._load_toml">
     
   </a>
-  <a name="config">
+  <a name="_load_toml">
     
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">config</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L39">
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_load_toml</span><span class="function-signature">(path: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L55">
       
       (source)
     </a>
-    <a class="headerLink" href="#config" title="gbd_core.config.config">
+    <a class="headerLink" href="#_load_toml" title="gbd_core.config._load_toml">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._named_tables">
+    
+  </a>
+  <a name="_named_tables">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_named_tables</span><span class="function-signature">(mapping: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L64">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_named_tables" title="gbd_core.config._named_tables">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Keep only the <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries of a mapping.</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._normalize">
+    
+  </a>
+  <a name="_normalize">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_normalize</span><span class="function-signature">(raw: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, base_dir: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L135">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_normalize" title="gbd_core.config._normalize">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Return a copy of a parsed config with registry <tt class="rst-docutils rst-literal">file</tt> references resolved.</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._read_toml">
+    
+  </a>
+  <a name="_read_toml">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_read_toml</span><span class="function-signature">(fp)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L40">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_read_toml" title="gbd_core.config._read_toml">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._resolve_block">
+    
+  </a>
+  <a name="_resolve_block">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_resolve_block</span><span class="function-signature">(raw: <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code>, block: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>, base_dir: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#dict" class="intersphinx-link">dict</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L120">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_resolve_block" title="gbd_core.config._resolve_block">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Return a registry block's <tt class="rst-docutils rst-literal">name <span class="pre">-&gt;</span> table</tt> entries, resolving an optional
+<tt class="rst-docutils rst-literal">file</tt> reference (inline entries win over referenced ones on a name clash).</p></div>
+  </div>
+</div><div class="basefunction private">
+  
+  
+  <a name="gbd_core.config._split_paths">
+    
+  </a>
+  <a name="_split_paths">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">_split_paths</span><span class="function-signature">(value: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code>) -&gt; <code><a href="https://docs.python.org/3/library/stdtypes.html#list" class="intersphinx-link">list</a></code></span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L60">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_split_paths" title="gbd_core.config._split_paths">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="baseconstant private">
+  
+  
+  <a name="gbd_core.config._CONFIG_TABLES">
+    
+  </a>
+  <a name="_CONFIG_TABLES">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">_CONFIG_TABLES</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><span class="rst-variable-ellipsis">...</span>]</code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L51">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#_CONFIG_TABLES" title="gbd_core.config._CONFIG_TABLES">
       
       
       ¶
@@ -496,25 +869,25 @@
   <div class="functionBody">
     
     <div><p class="undocumented">Undocumented</p></div>
-    
+    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code>(<wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">databases</span><span class="rst-variable-quote">'</span>, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">contexts</span><span class="rst-variable-quote">'</span>, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">extractors</span><span class="rst-variable-quote">'</span>, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">transformers</span><span class="rst-variable-quote">'</span>)</code></pre></td></tr></table>
   </div>
-</div><div class="basevariable">
+</div><div class="baseconstant private">
   
   
-  <a name="gbd_core.config.config_parser">
+  <a name="gbd_core.config._REGISTRY_BLOCKS">
     
   </a>
-  <a name="config_parser">
+  <a name="_REGISTRY_BLOCKS">
     
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">config_parser</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L38">
+    <span class="py-defname">_REGISTRY_BLOCKS</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#tuple" class="intersphinx-link">tuple</a>[<wbr></wbr><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>, <wbr></wbr><span class="rst-variable-ellipsis">...</span>]</code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/4aa976ca9a45e0a8da853975253affeaa542cd2b/gbd_core/config.py#L52">
       
       (source)
     </a>
-    <a class="headerLink" href="#config_parser" title="gbd_core.config.config_parser">
+    <a class="headerLink" href="#_REGISTRY_BLOCKS" title="gbd_core.config._REGISTRY_BLOCKS">
       
       
       ¶
@@ -523,88 +896,7 @@
   <div class="functionBody">
     
     <div><p class="undocumented">Undocumented</p></div>
-    
-  </div>
-</div><div class="basevariable">
-  
-  
-  <a name="gbd_core.config.default">
-    
-  </a>
-  <a name="default">
-    
-  </a>
-  <div class="functionHeader">
-    
-    <span class="py-defname">default</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L6">
-      
-      (source)
-    </a>
-    <a class="headerLink" href="#default" title="gbd_core.config.default">
-      
-      
-      ¶
-    </a>
-  </div>
-  <div class="functionBody">
-    
-    <div><p class="undocumented">Undocumented</p></div>
-    
-  </div>
-</div><div class="basevariable">
-  
-  
-  <a name="gbd_core.config.default_config_path">
-    
-  </a>
-  <a name="default_config_path">
-    
-  </a>
-  <div class="functionHeader">
-    
-    <span class="py-defname">default_config_path</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L34">
-      
-      (source)
-    </a>
-    <a class="headerLink" href="#default_config_path" title="gbd_core.config.default_config_path">
-      
-      
-      ¶
-    </a>
-  </div>
-  <div class="functionBody">
-    
-    <div><p class="undocumented">Undocumented</p></div>
-    
-  </div>
-</div><div class="basevariable">
-  
-  
-  <a name="gbd_core.config.user_config_path">
-    
-  </a>
-  <a name="user_config_path">
-    
-  </a>
-  <div class="functionHeader">
-    
-    <span class="py-defname">user_config_path</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/b028e3147b93d1bbec79c3ce2e4e2253a4d60dcf/gbd_core/config.py#L35">
-      
-      (source)
-    </a>
-    <a class="headerLink" href="#user_config_path" title="gbd_core.config.user_config_path">
-      
-      
-      ¶
-    </a>
-  </div>
-  <div class="functionBody">
-    
-    <div><p class="undocumented">Undocumented</p></div>
-    
+    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code>(<wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">extractors</span><span class="rst-variable-quote">'</span>, <wbr></wbr><span class="rst-variable-quote">'</span><span class="rst-variable-string">transformers</span><span class="rst-variable-quote">'</span>)</code></pre></td></tr></table>
   </div>
 </div>
         </div>
@@ -618,7 +910,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-06-11 11:45:37.
+    24.11.2 at 2026-07-14 11:00:12.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
