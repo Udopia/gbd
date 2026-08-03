@@ -1,0 +1,106 @@
+name: Auto Release From Version Bump
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - pyproject.toml
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Need at least one parent commit to compare versions.
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Detect version bump in pyproject.toml
+        id: version
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import subprocess
+          import tomllib
+          from pathlib import Path
+
+          output = Path(os.environ["GITHUB_OUTPUT"])
+
+          current = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+
+          try:
+              previous_text = subprocess.check_output(
+                  ["git", "show", "HEAD^:pyproject.toml"],
+                  text=True,
+              )
+              previous = tomllib.loads(previous_text)["project"]["version"]
+          except Exception:
+              previous = ""
+
+          changed = (current != previous)
+          tag = f"gbd-tools-{current}"
+
+          with output.open("a", encoding="utf-8") as fh:
+              fh.write(f"current={current}\n")
+              fh.write(f"previous={previous}\n")
+              fh.write(f"changed={'true' if changed else 'false'}\n")
+              fh.write(f"tag={tag}\n")
+          PY
+
+      - name: Show detected versions
+        run: |
+          echo "Previous: ${{ steps.version.outputs.previous }}"
+          echo "Current:  ${{ steps.version.outputs.current }}"
+          echo "Changed:  ${{ steps.version.outputs.changed }}"
+          echo "Tag:      ${{ steps.version.outputs.tag }}"
+
+      - name: Create release for new version
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.version.outputs.tag }}';
+            const version = '${{ steps.version.outputs.current }}';
+
+            try {
+              const existing = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag,
+              });
+              core.info(`Release already exists for ${tag}: ${existing.data.html_url}`);
+              return;
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+            }
+
+            const created = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              target_commitish: context.sha,
+              name: `gbd-tools ${version}`,
+              generate_release_notes: true,
+              draft: false,
+              prerelease: false,
+            });
+
+            core.info(`Created release: ${created.data.html_url}`);
+
+      - name: Skip when version is unchanged
+        if: steps.version.outputs.changed != 'true'
+        run: echo "No version bump detected; release not created."
