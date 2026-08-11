@@ -12,17 +12,24 @@ if [ $# -ne 1 ]; then
 fi
 
 username="$1"
-
-if ! command -v htpasswd >/dev/null 2>&1; then
-	echo "htpasswd not found. Install apache2-utils (Debian/Ubuntu) or httpd-tools (RHEL/Alpine)." >&2
-	exit 1
-fi
-
 secret_dir="$(dirname "$secret_file")"
 mkdir -p "$secret_dir"
 
-# -c (re)creates the file; default apr1/MD5 hashing is natively supported by nginx on alpine.
-# Password is prompted for, so it never lands in shell history or process arguments.
-htpasswd -c "$secret_file" "$username"
+# Both branches write an apr1/MD5 hash, which nginx supports natively. The
+# password is prompted for, so it never lands in shell history or process args.
+if command -v htpasswd >/dev/null 2>&1; then
+	htpasswd -c "$secret_file" "$username"
+elif command -v openssl >/dev/null 2>&1; then
+	# Fallback for hosts without apache2-utils (e.g. Debian buster, now EOL).
+	read -rsp "New password: " pw; echo
+	read -rsp "Re-type new password: " pw2; echo
+	[ "$pw" = "$pw2" ] || { echo "passwords do not match" >&2; exit 1; }
+	hash="$(printf '%s\n' "$pw" | openssl passwd -apr1 -stdin)"
+	printf '%s:%s\n' "$username" "$hash" > "$secret_file"
+	unset pw pw2 hash
+else
+	echo "Need htpasswd (apache2-utils) or openssl to create $secret_file." >&2
+	exit 1
+fi
 
 echo "Wrote $secret_file"
