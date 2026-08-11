@@ -2,7 +2,9 @@
 
 <html lang="en">
 <head>
-    <title>Global Benchmark Database</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% if query %}{{ query }} \ {% endif %}Global Benchmark Database{% if context and selected %} ({{ context }}/{{ selected }}){% endif %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
     <!--<script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='sorttable.js') }}"></script>
@@ -12,15 +14,15 @@
 <body>
 <div class="main">
     <header>
-        <img center src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
+        <img src="{{ url_for('static', filename='img/gbd_logo_small.png') }}" alt="GBD-Logo">
         <div class="form">
             <form method="post" id="contextform">
             <fieldset style="float:left">
                 <legend>Select a context</legend>
-                <input type="hidden" id="selected_db" name="selected_db" value="">
-                <input type="hidden" id="query" name="query" value="">
+                <input type="hidden" name="selected_db" value="">
+                <input type="hidden" name="query" value="">
                 {% for c in contexts %}
-                <button type="submit" id="context" name="context" value="{{ c }}" formaction="{{ url_for('quick_search') }}" title="Select problem domain">
+                <button type="submit" name="context" value="{{ c }}" formaction="{{ url_for('quick_search') }}" title="Select problem domain">
                     {% if c == context %}
                     <span style="color:var(--link-color-1)">{{ c }}</span>
                     {% else %}
@@ -33,10 +35,10 @@
             <form method="post" id="dbform">
             <fieldset>
                 <legend>Select a context-specific database</legend>
-                <input type="hidden" id="context" name="context" value="{{ context }}">
-                <input type="hidden" id="query" name="query" value="{{ query }}">
+                <input type="hidden" name="context" value="{{ context }}">
+                <input type="hidden" name="query" value="{{ query }}">
                 {% for dbname in databases %}
-                <button type="submit" id="selected_db" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" title="Select database to display">
+                <button type="submit" name="selected_db" value="{{ dbname }}" formaction="{{ url_for('quick_search') }}" title="Select database to display">
                     {% if dbname == selected %}
                     <span style="color:var(--link-color-1)">{{ dbname }}</span>
                     {% else %}
@@ -50,9 +52,9 @@
             <form method="post" id="mainform">
                 <fieldset>
                     <legend>Query for Instances</legend>
-                    <input type="hidden" id="context" name="context" value="{{ context }}">
-                    <input type="hidden" id="selected_db" name="selected_db" value="{{ selected }}">
-                    <input type="text" id="query" name="query" class="query" placeholder="Query for Instances" value="{{ query }}">
+                    <input type="hidden" name="context" value="{{ context }}">
+                    <input type="hidden" name="selected_db" value="{{ selected }}">
+                    <input type="text" name="query" class="query" placeholder="Query for Instances" aria-label="Query for Instances" value="{{ query }}">
                     <button type="submit" class="submit" formaction="{{ url_for('quick_search') }}" form="mainform" id="queryaction" value="show" title="Query for instances and selected features">Show</button>
                 </fieldset>
                 <br />
@@ -83,13 +85,16 @@
     
     <div class="content">
         <table>
+            <thead>
             <tr>
                 <th>hash</th>
                 {% for feature in features %}
                 <th>{{ feature }}</th>
                 {% endfor %}
             </tr>
+            </thead>
             
+            <tbody>
             {% for row in result %}
             <tr>
                 {% for item in row %}
@@ -107,6 +112,7 @@
                 {% endfor %}
             </tr>
             {% endfor %}
+            </tbody>
         </table>
     </div>
 

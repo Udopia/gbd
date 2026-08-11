@@ -3,6 +3,8 @@ services:
   nginx:
     image: mynginx
     container_name: gbd-nginx
+    depends_on:
+    - gbd
     environment:
     - VIRTUAL_HOST=benchmark-database.de
     secrets:
@@ -17,8 +19,6 @@ services:
     - ${GBD_ROOT:-/home/iser}/nginx/awstats:/awstats
 
   gbd:
-    depends_on:
-    - nginx
     image: mygbd
     environment:
     - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/wcnf_local.db:/raid/gbd/wcnf_meta.db:/raid/gbd/wcnf_base.db:/raid/gbd/opb_local.db:/raid/gbd/opb_meta.db:/raid/gbd/opb_base.db
