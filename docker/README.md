@@ -142,10 +142,13 @@ rebuilds because they live in bind mounts under `GBD_ROOT`.
 
 ## Configuration reference
 
-- **`GBD_ROOT`** — host root for all bind mounts and the secret (default `/home/iser`).
-- **`GBD_DB`** (gbd service) — colon-separated list of database files inside the
+- **`GBD_ROOT`**: host root for all bind mounts and the secret (default `/home/iser`).
+- **`GBD_DB`** (gbd service): colon-separated list of database files inside the
   container (`/raid/gbd/*.db`); each must exist under `$GBD_ROOT/gbd`.
-- **`VIRTUAL_HOST`** (nginx service) — public hostname; substituted into the
+- **`GBD_LOGS`** (gbd service): writable directory for the server log
+  (`trfile.log`); set to `/logs`, backed by the `$GBD_ROOT/logs:/logs:rw` mount.
+  Must not point inside the read-only `/raid/gbd` mount.
+- **`VIRTUAL_HOST`** (nginx service): public hostname; substituted into the
   nginx config and used as the AWStats config name.
 
 The domain `benchmark-database.de` is referenced in
@@ -153,3 +156,25 @@ The domain `benchmark-database.de` is referenced in
 [deploy-cert.sh](deploy-cert.sh) (`domain`), [setup_host.sh](setup_host.sh)
 (placeholder CN), and the `certbot certonly` command. Change it in all four when
 deploying a different host.
+
+## Troubleshooting
+
+**502 Bad Gateway**: nginx is up but the `gbd` upstream isn't answering on
+`:44071`. Inspect the gbd container:
+
+```bash
+docker compose ps                     # is gbd Up, or Restarting?
+docker compose logs --tail=100 gbd
+```
+
+Common causes:
+
+- `FileNotFoundError: .../trfile.log` in a restart loop: `GBD_LOGS` points at a
+  directory that is missing or read-only. It must be a writable path that exists
+  in the container; the compose file sets `GBD_LOGS=/logs`, backed by the
+  `$GBD_ROOT/logs:/logs:rw` mount. Never point it inside `/raid/gbd` (read-only).
+- Missing database files: every path in `GBD_DB` must exist under
+  `$GBD_ROOT/gbd` (mounted read-only at `/raid/gbd`).
+- Duplicate/old containers from a previous run directory holding port 44071:
+  `docker compose down --remove-orphans` in the old location, then bring the
+  stack up from here.
