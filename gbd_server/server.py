@@ -55,7 +55,10 @@ def request_database(request):
 
 
 def request_page(request):
-    return int(request.values.get("page")) if "page" in request.values else 0
+    try:
+        return max(0, int(request.values.get("page")))
+    except (TypeError, ValueError):
+        return 0
 
 
 def request_action(request):
@@ -103,7 +106,8 @@ def page_response(context, query, database, page=0):
             error = "DatabaseException: {}".format(str(err))
         except ParserException as err:
             error = "ParserException: {}".format(str(err))
-        except Exception as err:
+        except Exception:
+            app.logger.exception("Unhandled exception while querying '{}'".format(query))
             error = "An Unhandled Exception Occurred"
         return flask.render_template(
             "index.html",
@@ -120,7 +124,7 @@ def page_response(context, query, database, page=0):
             ),
             total=len(df) if error is None else 0,
             page=page,
-            pages=int(len(df) / 1000) + 1 if error is None else 0,
+            pages=(len(df) + 999) // 1000 if error is None else 0,
             selected=database,
             features=app.config["features"][database],
             databases=[gbd.get_database_name(db) for db in app.config["contextdbs"][context]],
@@ -176,7 +180,6 @@ def get_database_file(database=None):
 @app.route("/file/<hashvalue>")
 def get_file(hashvalue):
     context = request_context(flask.request)
-    print(context, app.config["contextdbs"][context])
     with GBD(app.config["contextdbs"][context]) as gbd:
         df: pl.DataFrame = gbd.query(hashes=[hashvalue], resolve=["local", "filename"], collapse="MIN")
         if not len(df):
@@ -199,6 +202,7 @@ def serve(gbd: GBD, port: int = 5000, logdir: str = "/tmp"):
     console_handler.setLevel(logging.INFO)
     logging.getLogger().addHandler(console_handler)
     # Add handler to write in rotating logging files
+    os.makedirs(logdir, exist_ok=True)
     file_handler = TimedRotatingFileHandler(logdir + "/trfile.log", when="midnight", backupCount=10)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARNING)
