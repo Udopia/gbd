@@ -27,10 +27,13 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from gbd_core.database import DatabaseException
 from gbd_core.api import GBD, GBDException
 from gbd_core.grammar import ParserException
-from gbd_core.util import is_number
 from gbd_core import contexts
 
 app = flask.Flask(__name__)
+
+# Display a value as a formatted number only if it is a plain decimal; scientific
+# notation would mangle hex-hash features like isohash2 (e.g. 9026252821384e97).
+DISPLAY_NUMBER = re.compile(r"^[+-]?\d+(\.\d+)?$")
 
 
 def request_query(request):
@@ -215,7 +218,7 @@ def serve(gbd: GBD, port: int = 5000, logdir: str = "/tmp"):
     app.jinja_env.lstrip_blocks = True
 
     app.jinja_env.tests["link_field"] = lambda field: field is not None and field.startswith("http")
-    app.jinja_env.tests["num_field"] = lambda field: field is not None and is_number(field)
+    app.jinja_env.tests["num_field"] = lambda field: field is not None and DISPLAY_NUMBER.match(str(field)) is not None
     app.jinja_env.tests["int_field"] = lambda field: field is not None and field.isnumeric()
 
     path = os.path.dirname(__file__)
