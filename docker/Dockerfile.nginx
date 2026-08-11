@@ -1,8 +1,6 @@
 FROM nginx:alpine
 
 ENV VIRTUAL_HOST=localhost
-ENV AWSTATS_USER=statsuser
-ENV AWSTATS_PASS=stats1234
 
 RUN apk add --no-cache bash awstats apache2-utils
 

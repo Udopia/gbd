@@ -6,8 +6,12 @@ sed -i "s/__VIRTUAL_HOST__/$VIRTUAL_HOST/g" /etc/nginx/nginx.conf
 nginx
 
 
-# Configures awstats user and password
-htpasswd -cb /awstats/htpasswd $AWSTATS_USER $AWSTATS_PASS
+# Installs awstats basic-auth file from the mounted docker secret
+install -m 0444 /run/secrets/awstats_htpasswd /awstats/htpasswd
+
+
+# Ensures the output dir exists on the persisted (initially empty) /awstats volume
+mkdir -p /awstats/www
 
 
 # Configures cron and starts it

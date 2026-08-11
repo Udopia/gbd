@@ -1,29 +1,34 @@
 version: '3'
 services:
   nginx:
-    image: udopia/nginx
-    #image: mynginx
+    image: mynginx
+    container_name: gbd-nginx
     environment:
     - VIRTUAL_HOST=benchmark-database.de
-    - AWSTATS_USER=statsuser
-    - AWSTATS_PASS=stats1234
+    secrets:
+    - awstats_htpasswd
     ports:
     - 80:80
     - 443:443
     restart: always
     volumes:
-    - /home/iser/nginx/ssl:/etc/nginx/ssl
-    - /home/iser/nginx/ssl/bot:/etc/nginx/ssl/bot
+    - ${GBD_ROOT:-/home/iser}/nginx/ssl:/etc/nginx/ssl
+    - ${GBD_ROOT:-/home/iser}/nginx/ssl/bot:/etc/nginx/ssl/bot
+    - ${GBD_ROOT:-/home/iser}/nginx/awstats:/awstats
 
   gbd:
     depends_on:
     - nginx
-    image: udopia/gbd
-    #image: mygbd
-    #environment:
-    #- GBD_DB=/gbd/meta.db:/gbd/base.db:/gbd/gate.db
+    image: mygbd
+    environment:
+    - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/wcnf_local.db:/raid/gbd/wcnf_meta.db:/raid/gbd/wcnf_base.db:/raid/gbd/opb_local.db:/raid/gbd/opb_meta.db:/raid/gbd/opb_base.db
     ports:
     - 44071:44071
     volumes:
-    - /home/iser/gbd:/raid/gbd:ro
+    - ${GBD_ROOT:-/home/iser}/gbd:/raid/gbd:ro
+    - ${GBD_ROOT:-/home/iser}/logs:/logs:rw
     restart: always
+
+secrets:
+  awstats_htpasswd:
+    file: ${GBD_ROOT:-/home/iser}/nginx/secrets/awstats.htpasswd
