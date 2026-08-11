@@ -23,6 +23,7 @@ services:
     image: mygbd
     environment:
     - GBD_DB=/raid/gbd/meta.db:/raid/gbd/base.db:/raid/gbd/wcnf_local.db:/raid/gbd/wcnf_meta.db:/raid/gbd/wcnf_base.db:/raid/gbd/opb_local.db:/raid/gbd/opb_meta.db:/raid/gbd/opb_base.db
+    - GBD_LOGS=/logs
     ports:
     - 44071:44071
     volumes:

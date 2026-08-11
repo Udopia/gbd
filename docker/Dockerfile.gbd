@@ -1,7 +1,7 @@
 FROM python:slim
 
 #ENV GBD_DB=/gbd/meta.db:/gbd/base.db:/gbd/gate.db
-ENV GBD_LOGS=/raid/gbd/logs
+ENV GBD_LOGS=/logs
 ENV GBD_PORT=44071
 
 RUN apt-get update -y \
@@ -10,6 +10,8 @@ RUN apt-get update -y \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN pip install --no-cache-dir gbd-tools
+
+RUN mkdir -p /logs
 
 WORKDIR /gbd
 
