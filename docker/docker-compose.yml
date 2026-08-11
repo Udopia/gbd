@@ -1,4 +1,5 @@
 version: '3'
+name: gbd
 services:
   nginx:
     image: mynginx
