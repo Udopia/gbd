@@ -14,20 +14,20 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-from logging.handlers import TimedRotatingFileHandler
+import logging
 import os
 import re
-import polars as pl
+from logging.handlers import TimedRotatingFileHandler
 
 import flask
-import logging
+import polars as pl
 import waitress
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from gbd_core.database import DatabaseException
-from gbd_core.api import GBD, GBDException
-from gbd_core.grammar import ParserException
 from gbd_core import contexts
+from gbd_core.api import GBD, GBDException
+from gbd_core.database import DatabaseException
+from gbd_core.grammar import ParserException
 
 app = flask.Flask(__name__)
 
@@ -41,7 +41,7 @@ def request_query(request):
     if "query" in request.values:
         query = request.values.get("query")
     elif len(request.args) > 0:
-        query = " and ".join(["{}={}".format(key, value) for (key, value) in request.args.items() if key != "context"])
+        query = " and ".join([f"{key}={value}" for (key, value) in request.args.items() if key != "context"])
     return query
 
 
@@ -69,7 +69,9 @@ def request_action(request):
 
 
 def request_context(request):
-    return request.values.get("context") if "context" in request.values else contexts.default_context()
+    context = request.values.get("context") if "context" in request.values else contexts.default_context()
+    # Fall back to the default context so an unknown ?context= value cannot raise a KeyError downstream.
+    return context if context in app.config.get("contexts", []) else contexts.default_context()
 
 
 def query_to_name(query):
@@ -77,22 +79,22 @@ def query_to_name(query):
 
 
 def error_response(msg, addr, errno=404):
-    app.logger.error("{}: {}".format(addr, msg))
+    app.logger.error(f"{addr}: {msg}")
     return flask.Response(msg, status=errno, mimetype="text/plain")
 
 
 def file_response(text_blob, filename, mimetype, addr):
-    app.logger.info("{}: Sending generated file {}".format(addr, filename))
-    return flask.Response(text_blob, mimetype=mimetype, headers={"Content-Disposition": 'attachment; filename="{}"'.format(filename), "filename": filename})
+    app.logger.info(f"{addr}: Sending generated file {filename}")
+    return flask.Response(text_blob, mimetype=mimetype, headers={"Content-Disposition": f'attachment; filename="{filename}"', "filename": filename})
 
 
 def path_response(path, filename, mimetype, addr):
-    app.logger.info("{}: Sending file {}".format(addr, path))
+    app.logger.info(f"{addr}: Sending file {path}")
     return flask.send_file(path, as_attachment=True, download_name=filename, mimetype=mimetype)
 
 
 def json_response(json_blob, msg, addr):
-    app.logger.info("{}: {}".format(addr, msg))
+    app.logger.info(f"{addr}: {msg}")
     return flask.Response(json_blob, status=200, mimetype="application/json")
 
 
@@ -102,15 +104,15 @@ def page_response(context, query, database, page=0):
         end = start + 1000
         error = None
         try:
-            df: pl.DataFrame = gbd.query(query, resolve=["{}:{}".format(database, f) for f in app.config["features"][database]], collapse="GROUP_CONCAT")
+            df: pl.DataFrame = gbd.query(query, resolve=[f"{database}:{f}" for f in app.config["features"][database]], collapse="GROUP_CONCAT")
         except GBDException as err:
-            error = "GBDException: {}".format(str(err))
+            error = f"GBDException: {err}"
         except DatabaseException as err:
-            error = "DatabaseException: {}".format(str(err))
+            error = f"DatabaseException: {err}"
         except ParserException as err:
-            error = "ParserException: {}".format(str(err))
+            error = f"ParserException: {err}"
         except Exception:
-            app.logger.exception("Unhandled exception while querying '{}'".format(query))
+            app.logger.exception(f"Unhandled exception while querying '{query}'")
             error = "An Unhandled Exception Occurred"
         return flask.render_template(
             "index.html",
@@ -142,7 +144,7 @@ def quick_search():
     query = request_query(flask.request)
     database = request_database(flask.request)
     context_databases = [GBD.get_database_name(db) for db in app.config["contextdbs"][context]]
-    if not database in context_databases:
+    if database not in context_databases:
         database = context_databases[0]
     page = request_page(flask.request)
     return page_response(context, query, database, page)
@@ -159,7 +161,7 @@ def get_url_file():
         try:
             df: pl.DataFrame = gbd.query(query)
         except (GBDException, DatabaseException, ParserException) as err:
-            return error_response("{}, {}".format(type(err), str(err)), flask.request.remote_addr, errno=500)
+            return error_response(f"{type(err)}, {err}", flask.request.remote_addr, errno=500)
         if context == "cnf":
             content = "\n".join([flask.url_for("get_file", hashvalue=val, _external=True) for val in df["hash"].to_list()])
         else:
@@ -184,13 +186,18 @@ def get_database_file(database=None):
 def get_file(hashvalue):
     context = request_context(flask.request)
     with GBD(app.config["contextdbs"][context]) as gbd:
-        df: pl.DataFrame = gbd.query(hashes=[hashvalue], resolve=["local", "filename"], collapse="MIN")
+        try:
+            df: pl.DataFrame = gbd.query(hashes=[hashvalue], resolve=["local", "filename"], collapse="MIN")
+        except (GBDException, DatabaseException, ParserException) as err:
+            return error_response(f"{type(err)}, {err}", flask.request.remote_addr, errno=500)
         if not len(df):
-            return error_response("Hash '{}' not found".format(hashvalue), flask.request.remote_addr)
+            return error_response(f"Hash '{hashvalue}' not found", flask.request.remote_addr)
         row = df.to_dicts()[0]
         if not os.path.exists(row["local"]):
             return error_response("Files temporarily not accessible", flask.request.remote_addr)
-        return path_response(row["local"], row["hash"] + "-" + row["filename"], "application/x-xz", flask.request.remote_addr)
+        # Restrict to the POSIX portable filename character set so the name is shell-safe.
+        safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", row["filename"])
+        return path_response(row["local"], row["hash"] + "-" + safe_name, "application/x-xz", flask.request.remote_addr)
 
 
 # start the server
@@ -211,7 +218,6 @@ def serve(gbd: GBD, port: int = 5000, logdir: str = "/tmp"):
     file_handler.setLevel(logging.WARNING)
     logging.getLogger().addHandler(file_handler)
 
-    global app
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
 
     app.jinja_env.trim_blocks = True
@@ -228,12 +234,12 @@ def serve(gbd: GBD, port: int = 5000, logdir: str = "/tmp"):
     app.config["contexts"] = gbd.get_contexts()
     app.config["dbnames"] = gbd.get_databases()
     # group databases by context
-    app.config["contextdbs"] = dict()
+    app.config["contextdbs"] = {}
     for ctxt in app.config["contexts"]:
         app.config["contextdbs"][ctxt] = [gbd.get_database_path(c) for c in gbd.get_databases(ctxt)]
     # group features by database
-    app.config["dbpaths"] = dict()
-    app.config["features"] = dict()
+    app.config["dbpaths"] = {}
+    app.config["features"] = {}
     for db in app.config["dbnames"]:
         app.config["features"][db] = [f for f in gbd.get_features(db) if not f in ["hash", "local"]]
         app.config["dbpaths"][db] = gbd.get_database_path(db)
