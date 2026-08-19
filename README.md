@@ -3,6 +3,7 @@
 [![Tests](https://github.com/Udopia/gbd/actions/workflows/tests.yml/badge.svg)](https://github.com/Udopia/gbd/actions/workflows/tests.yml)
 [![Paper DOI](https://img.shields.io/badge/DOI-10.4230%2FLIPIcs.SAT.2024.18-blue)](https://doi.org/10.4230/LIPIcs.SAT.2024.18)
 [![Zenodo](https://img.shields.io/badge/Zenodo-latest%20release-blue?logo=zenodo)](https://doi.org/10.5281/zenodo.10213943)
+[![PyPI](https://img.shields.io/pypi/v/gbd-tools.svg)](https://pypi.org/project/gbd-tools/)
 
 GBD is a comprehensive suite of tools for provisioning and sustainably maintaining benchmark instances and their metadata for empirical research on hard algorithmic problem classes.
 For an introduction to the GBD concept, the underlying data model, and specific use cases, please refer to our [2024 SAT Tool Paper](https://doi.org/10.4230/LIPIcs.SAT.2024.18).
@@ -101,4 +102,3 @@ Citation metadata for the software itself is provided in [CITATION.cff](CITATION
 ## License
 
 GBD is released under the [MIT License](LICENSE).
-
