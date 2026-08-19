@@ -214,6 +214,87 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Resource limits: gbd enforces --tlim/--mlim/--flim on the external tool itself
+# (tools no longer self-limit). A synthetic, contract-compliant "stress" tool is
+# told to overrun one limit at a time via $STRESS_MODE; a run that hits no limit
+# sets stress=1. macOS ignores RLIMIT_AS, so the memory case is skipped there.
+# ---------------------------------------------------------------------------
+say "resource limits"
+if ! have python3; then
+    echo "  skip: python3 not available for the synthetic stress tool"
+else
+    OS="$(uname -s)"
+
+    STRESS_TOOL="$WORKDIR/stress_tool.py"
+    cat > "$STRESS_TOOL" <<'PY'
+import os, sys, time
+
+args = sys.argv[1:]
+if "--feature-names" in args:          # contract: a default marks a unique feature
+    print("stress 0")
+    sys.exit(0)
+
+mode = os.environ.get("STRESS_MODE", "ok")
+if mode == "time":
+    time.sleep(3600)                   # overrun --tlim (wall-clock / CPU)
+elif mode == "mem":
+    blocks = []
+    while True:                        # overrun --mlim (RLIMIT_AS)
+        blocks.append(bytearray(50 * 1024 * 1024))
+elif mode == "file":
+    import signal
+    signal.signal(signal.SIGXFSZ, signal.SIG_DFL)  # die on the limit like a native tool
+    with open(os.environ["STRESS_OUT"], "wb") as f:
+        chunk = b"x" * (1024 * 1024)
+        for _ in range(8192):          # overrun --flim (RLIMIT_FSIZE)
+            f.write(chunk)
+            f.flush()
+
+print("stress 1")                      # only reached when no limit was hit
+print("status success")
+print("runtime 0")
+PY
+
+    SSRC="$WORKDIR/scnf"
+    mkdir -p "$SSRC"
+    printf 'p cnf 3 2\n1 -2 0\n2 -3 0\n' > "$SSRC/s1.cnf"
+    SDB="$WORKDIR/stress.db"           # 'stress' prefix is unknown -> default (cnf) context
+    SCONFIG="$WORKDIR/stress.toml"
+    cat > "$SCONFIG" <<EOF
+[databases]
+paths = ["$SDB"]
+
+[extractors.stress]
+tool = "python3 $STRESS_TOOL"
+contexts = ["cnf"]
+description = "synthetic stress extractor for resource-limit tests"
+EOF
+    echo y | "$GBD_CMD" -d "$SCONFIG" init local "$SSRC" >/dev/null 2>&1
+    sget() { "$GBD_CMD" -d "$SCONFIG" get -r stress < /dev/null 2>/dev/null | count_values '^1$'; }
+
+    # time limit (enforced on Linux and macOS): gbd kills the sleeping tool at -t seconds
+    STRESS_MODE=time "$GBD_CMD" -d "$SCONFIG" init -t 2 stress < /dev/null >/dev/null 2>&1
+    check_eq "time limit prevents extraction (Linux/macOS)" "$(sget)" "0"
+
+    # output file-size limit (enforced on Linux and macOS): RLIMIT_FSIZE kills the writer
+    STRESS_OUT="$WORKDIR/huge.bin" STRESS_MODE=file "$GBD_CMD" -d "$SCONFIG" init -f 1 stress < /dev/null >/dev/null 2>&1
+    check_eq "file-size limit prevents extraction (Linux/macOS)" "$(sget)" "0"
+    rm -f "$WORKDIR/huge.bin"
+
+    # memory limit (enforced on Linux only; macOS ignores RLIMIT_AS)
+    if [[ "$OS" == "Linux" ]]; then
+        STRESS_MODE=mem "$GBD_CMD" -d "$SCONFIG" init -m 200 stress < /dev/null >/dev/null 2>&1
+        check_eq "memory limit prevents extraction (Linux)" "$(sget)" "0"
+    else
+        ok "memory limit skipped on $OS (RLIMIT_AS not enforced)"
+    fi
+
+    # baseline last: without a tight limit the same tool succeeds (guards false positives)
+    STRESS_MODE=ok "$GBD_CMD" -d "$SCONFIG" init stress < /dev/null >/dev/null 2>&1
+    check_eq "baseline: extraction succeeds without tight limits" "$(sget)" "1"
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 say "summary"

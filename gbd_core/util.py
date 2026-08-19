@@ -15,6 +15,27 @@
 import sys
 import os
 
+try:
+    import resource  # POSIX-only; enables per-instance CPU/memory/file-size limits
+except ImportError:  # e.g. Windows
+    resource = None
+
+IS_MACOS = sys.platform == "darwin"
+
+
+def resource_limits_help_note():
+    """Describe which per-instance resource limits gbd can enforce on this system.
+
+    gbd enforces the limits itself when it runs external tools; the platform decides
+    which take effect (macOS ignores the memory limit; without the POSIX ``resource``
+    module only the wall-clock time limit applies).
+    """
+    if resource is None:
+        return "On this system only --tlim is enforced (wall-clock); --mlim and --flim are not enforced (no POSIX resource module)."
+    if IS_MACOS:
+        return "On this system --tlim and --flim are enforced; --mlim is not enforced (macOS ignores RLIMIT_AS)."
+    return "On this system --tlim, --mlim and --flim are all enforced."
+
 
 # Thanks to Boris V. for this code https://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python
 from contextlib import contextmanager

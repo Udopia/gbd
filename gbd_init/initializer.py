@@ -34,11 +34,6 @@ class Initializer:
         self.initfunc = initfunc
         self.rlimits = rlimits
 
-    def prep_data(self, rec, hash):
-        return [
-            (key, hash, int(value) if isinstance(value, float) and value.is_integer() else value) for key, value in rec.items() if self.api.feature_exists(key)
-        ]
-
     def create_features(self):
         for name, default in self.features:
             self.api.database.create_feature(name, default, self.target_db, True)
@@ -80,6 +75,5 @@ class Initializer:
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
                 except Exception as e:
                     import traceback
-
                     traceback.print_exc()
                     util.eprint("{}: {}".format(e.__class__.__name__, e))
