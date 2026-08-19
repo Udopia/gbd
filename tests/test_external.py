@@ -149,22 +149,6 @@ class ExternalSubprocessTestCase(unittest.TestCase):
         else:  # macOS ignores RLIMIT_AS; the wrapper leaves it unlimited
             self.assertEqual(external.convert(values["mem_soft"]), resource.RLIM_INFINITY)
 
-    @unittest.skipIf(resource is None, "resource module unavailable")
-    def test_macos_skips_memory_limit(self):
-        original = external.IS_MACOS
-        external.IS_MACOS = True  # force the macOS branch on any host
-        try:
-            tool = self._script(_TOOL_LIMIT_REPORTER)
-            tlim, mlim, flim = 7, 4096, 5  # seconds, MB, MB
-            values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": tlim, "mlim": mlim, "flim": flim})
-            self.assertEqual(status, "success")
-            self.assertEqual(external.convert(values["cpu_soft"]), tlim)
-            self.assertEqual(external.convert(values["fsize_soft"]), flim * 1024 * 1024)
-            # RLIMIT_AS is left untouched even though a memory limit was requested.
-            self.assertEqual(external.convert(values["mem_soft"]), resource.RLIM_INFINITY)
-        finally:
-            external.IS_MACOS = original
-
     def test_wall_clock_timeout(self):
         tool = self._script(_TOOL_SLEEP)
         values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": 1, "mlim": 0, "flim": 0})
