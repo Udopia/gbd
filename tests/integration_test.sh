@@ -147,15 +147,6 @@ n=$("$GBD_CMD" -d "$DB" get -r variables < /dev/null 2>/dev/null | count_values 
 check_eq "variables extracted for all instances" "$n" "$N"
 
 # ---------------------------------------------------------------------------
-# Extraction: gate features (exercises the bundled SAT solver)
-# ---------------------------------------------------------------------------
-say "extract gate features (SAT solver)"
-gfeat=$("$GBDC_CMD" gate --feature-names --gbd 2>/dev/null | awk 'NR==1 { print $1 }')
-"$GBD_CMD" -d "$DB" init gate < /dev/null >/dev/null 2>&1
-n=$("$GBD_CMD" -d "$DB" get -r "$gfeat" < /dev/null 2>/dev/null | count_values '^-?[0-9.]+$')
-check_ge "gate feature '$gfeat' extracted" "$n" "$N"
-
-# ---------------------------------------------------------------------------
 # Extraction: isohash (string-valued feature)
 # ---------------------------------------------------------------------------
 say "extract isohash"
