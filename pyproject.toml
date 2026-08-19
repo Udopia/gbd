@@ -16,7 +16,7 @@ dependencies = ["flask", "tatsu", "polars", "waitress", "pebble", "tomli; python
 scripts = { gbd = "gbd:main" }
 
 [project.optional-dependencies]
-gbdc = ["gbdc>=0.4.0"]
+gbdc = ["gbdc>=0.4.1"]
 interactive = ["ipython"]
 
 [tool.setuptools]
