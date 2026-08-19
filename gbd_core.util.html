@@ -181,6 +181,16 @@
         
 
         
+            <div class="itemName"><code><a href="#resource_limits_help_note" class="internal-link" title="gbd_core.util.resource_limits_help_note">resource<wbr></wbr>_limits<wbr></wbr>_help<wbr></wbr>_note</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
             <div class="itemName"><code><a href="#slice_iterator" class="internal-link" title="gbd_core.util.slice_iterator">slice<wbr></wbr>_iterator</a></code>
             </div>
         
@@ -201,8 +211,21 @@
         
          
 
+        <div class="childrenKindTitle">Variables</div>
+        <ul>
+    
+    <li class="">
         
-         
+        
+        
+
+        
+            <div class="itemName"><code><a href="#IS_MACOS" class="internal-link" title="gbd_core.util.IS_MACOS">IS<wbr></wbr>_MACOS</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
 
         
          
@@ -359,7 +382,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <a href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py" class="sourceLink">(source)</a>
+          <a href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py" class="sourceLink">(source)</a>
           <p></p>
         </div>
 
@@ -399,12 +422,22 @@
   </tr><tr class="function">
     
     <td>Function</td>
+    <td><code><a href="#resource_limits_help_note" class="internal-link" title="gbd_core.util.resource_limits_help_note">resource<wbr></wbr>_limits<wbr></wbr>_help<wbr></wbr>_note</a></code></td>
+    <td>Describe which per-instance resource limits gbd can enforce on this system.</td>
+  </tr><tr class="function">
+    
+    <td>Function</td>
     <td><code><a href="#slice_iterator" class="internal-link" title="gbd_core.util.slice_iterator">slice<wbr></wbr>_iterator</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr><tr class="function">
     
     <td>Function</td>
     <td><code><a href="#stdout_redirected" class="internal-link" title="gbd_core.util.stdout_redirected">stdout<wbr></wbr>_redirected</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="constant">
+    
+    <td>Constant</td>
+    <td><code><a href="#IS_MACOS" class="internal-link" title="gbd_core.util.IS_MACOS">IS<wbr></wbr>_MACOS</a></code></td>
     <td><span class="undocumented">Undocumented</span></td>
   </tr>
 </table>
@@ -427,7 +460,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">confirm</span><span class="function-signature">(prompt=<span class="rst-variable-quote">'</span><span class="rst-variable-string">Confirm</span><span class="rst-variable-quote">'</span>, resp=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L98">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L119">
       
       (source)
     </a>
@@ -455,7 +488,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">eprint</span><span class="function-signature">(*args, **kwargs)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L80">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L101">
       
       (source)
     </a>
@@ -482,7 +515,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">fileno</span><span class="function-signature">(file_or_fd)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L23">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L44">
       
       (source)
     </a>
@@ -509,7 +542,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">is_number</span><span class="function-signature">(s)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L70">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L91">
       
       (source)
     </a>
@@ -536,7 +569,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">read_hashes</span><span class="function-signature">()</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L84">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L105">
       
       (source)
     </a>
@@ -553,6 +586,37 @@
 </div><div class="basefunction">
   
   
+  <a name="gbd_core.util.resource_limits_help_note">
+    
+  </a>
+  <a name="resource_limits_help_note">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">resource_limits_help_note</span><span class="function-signature">()</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L26">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#resource_limits_help_note" title="gbd_core.util.resource_limits_help_note">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Describe which per-instance resource limits gbd can enforce on this system.</p>
+<p>gbd enforces the limits itself when it runs external tools; the platform decides
+which take effect (macOS ignores the memory limit; without the POSIX <tt class="rst-docutils rst-literal">resource</tt>
+module only the wall-clock time limit applies).</p>
+</div>
+  </div>
+</div><div class="basefunction">
+  
+  
   <a name="gbd_core.util.slice_iterator">
     
   </a>
@@ -563,7 +627,7 @@
     
     
     <span class="py-keyword">def</span> <span class="py-defname">slice_iterator</span><span class="function-signature">(data, slice_len)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L54">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L75">
       
       (source)
     </a>
@@ -590,7 +654,7 @@
     
     @<a href="https://docs.python.org/3/library/contextlib.html#contextlib.contextmanager" class="intersphinx-link">contextmanager</a><br />
     <span class="py-keyword">def</span> <span class="py-defname">stdout_redirected</span><span class="function-signature">(to=<a href="https://docs.python.org/3/library/os.html#os.devnull" class="intersphinx-link">os.devnull</a>, stdout=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/2b512c3ea733cfbc9cd3981a843f524beb448b7e/gbd_core/util.py#L30">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L51">
       
       (source)
     </a>
@@ -604,6 +668,33 @@
     
     <div><p class="undocumented">Undocumented</p></div>
   </div>
+</div><div class="baseconstant">
+  
+  
+  <a name="gbd_core.util.IS_MACOS">
+    
+  </a>
+  <a name="IS_MACOS">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">IS_MACOS</span> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/d5da85ebd67c69906a20170f280b94964b10a363/gbd_core/util.py#L23">
+      
+      (source)
+    </a>
+    <a class="headerLink" href="#IS_MACOS" title="gbd_core.util.IS_MACOS">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    <table class="valueTable"><tr class="fieldStart"><td class="fieldName">Value</td></tr><tr><td><pre class="constant-value"><code>(sys.platform == 'darwin')</code></pre></td></tr></table>
+  </div>
 </div>
         </div>
       
@@ -616,7 +707,7 @@
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-08-19 14:00:55.
+    24.11.2 at 2026-08-19 15:38:33.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
