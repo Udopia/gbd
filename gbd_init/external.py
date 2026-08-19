@@ -18,10 +18,26 @@ External tools follow the GBD external-tool contract: invoked with ``--gbd`` the
 emit a stream of ``<feature> <value>`` lines on stdout, plus two reserved lines
 ``status <success|timeout|memout>`` and ``runtime <seconds>``. ``--feature-names
 --gbd`` prints ``<feature> [default]`` per line (a default marks a unique feature).
+
+Resource limits are no longer part of the contract: gbd does not pass ``-t/-m/-f``
+to tools and tools need not implement their own resource guards. Instead this wrapper
+enforces the limits externally via ``resource.setrlimit`` in a ``preexec_fn`` callback
+(CPU time, virtual memory, file size) plus a ``subprocess`` wall-clock timeout, and
+maps limit breaches to the reserved ``status`` values (``timeout``/``memout``/
+``fileout``).
+
+Platform support: Linux enforces all three limits; macOS enforces CPU and file-size
+limits but not the address-space (memory) limit; platforms without the ``resource``
+module (e.g. Windows) get only the wall-clock timeout. Which limits take effect on the
+current system is reported in ``gbd init``/``gbd transform`` ``--help`` (see
+``gbd_core.util.resource_limits_help_note``).
 """
 
 import shlex
+import signal
 import subprocess
+
+from gbd_core.util import resource
 
 
 class ExternalToolException(Exception):
@@ -40,11 +56,34 @@ def convert(value):
             return value
 
 
-def _limit_args(limits):
-    return ["-t", str(limits.get("tlim", 0)), "-m", str(limits.get("mlim", 0)), "-f", str(limits.get("flim", 0))]
+def _make_preexec_fn(limits):
+    """Return a preexec_fn that applies rlimits in the child process before exec.
+
+    Returns ``None`` when the platform has no ``resource`` module, so the caller
+    spawns the tool without a preexec hook (only the wall-clock timeout applies).
+    On macOS the address-space (memory) limit is skipped because the kernel ignores
+    it. Which limits take effect per platform is surfaced in ``gbd``'s ``--help``
+    (see ``gbd_core.util.resource_limits_help_note``).
+    """
+    if resource is None:
+        return None
+    tlim = limits.get("tlim", 0)
+    mlim = limits.get("mlim", 0)
+    flim = limits.get("flim", 0)
+    def apply():
+        if tlim > 0:
+            resource.setrlimit(resource.RLIMIT_CPU, (tlim, tlim))
+        if mlim > 0:
+            mem_bytes = mlim * 1024 * 1024
+            resource.setrlimit(resource.RLIMIT_AS, (mem_bytes, mem_bytes))
+        if flim > 0:
+            file_bytes = flim * 1024 * 1024
+            resource.setrlimit(resource.RLIMIT_FSIZE, (file_bytes, file_bytes))
+    return apply
 
 
 def _run(cmd):
+    """Run cmd without resource limits (used for metadata queries like --feature-names)."""
     try:
         proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except FileNotFoundError:
@@ -52,6 +91,44 @@ def _run(cmd):
     if proc.returncode != 0:
         raise ExternalToolException("{} failed (exit {}): {}".format(cmd[0], proc.returncode, proc.stderr.strip()))
     return proc.stdout
+
+
+# Maps OS signal numbers to status strings returned to callers. Built defensively so
+# the module stays importable on platforms lacking these POSIX signals.
+_SIGNAL_STATUS = {}
+for _signame, _status in (("SIGXCPU", "timeout"), ("SIGXFSZ", "fileout"), ("SIGKILL", "memout")):
+    _sig = getattr(signal, _signame, None)
+    if _sig is not None:
+        _SIGNAL_STATUS[int(_sig)] = _status
+
+
+def _run_limited(cmd, limits):
+    """Run cmd under resource limits; returns ``(stdout, kill_status_or_None)``.
+
+    Returns ``("", status)`` on resource-limit kills so callers can propagate the
+    status without raising.  Raises ``ExternalToolException`` for tool-not-found or
+    unexpected non-zero exits.
+    """
+    tlim = limits.get("tlim", 0)
+    try:
+        proc = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            preexec_fn=_make_preexec_fn(limits),
+            timeout=tlim if tlim > 0 else None,
+        )
+    except FileNotFoundError:
+        raise ExternalToolException("External tool not found: {}".format(cmd[0]))
+    except subprocess.TimeoutExpired:
+        return "", "timeout"
+    if proc.returncode < 0:
+        status = _SIGNAL_STATUS.get(-proc.returncode, "killed")
+        return "", status
+    if proc.returncode != 0:
+        raise ExternalToolException("{} failed (exit {}): {}".format(cmd[0], proc.returncode, proc.stderr.strip()))
+    return proc.stdout, None
 
 
 def _parse(stdout):
@@ -91,14 +168,20 @@ def feature_names(tool):
 
 def run_extractor(tool, path, limits):
     """Run an extractor on ``path`` and return ``(values, status)``."""
-    return _parse(_run([*shlex.split(tool), "--gbd", *_limit_args(limits), path]))
+    stdout, kill_status = _run_limited([*shlex.split(tool), "--gbd", path], limits)
+    if kill_status is not None:
+        return {}, kill_status
+    return _parse(stdout)
 
 
 def run_transformer(tool, path, output, compress, limits):
     """Run a transformer on ``path``, writing the instance to ``output`` (optionally
     compressed), and return the produced ``(values, status)`` metadata."""
-    cmd = [*shlex.split(tool), "--gbd", *_limit_args(limits), "-o", output]
+    cmd = [*shlex.split(tool), "--gbd", "-o", output]
     if compress and compress != "none":
         cmd += ["-z", compress]
     cmd.append(path)
-    return _parse(_run(cmd))
+    stdout, kill_status = _run_limited(cmd, limits)
+    if kill_status is not None:
+        return {}, kill_status
+    return _parse(stdout)
