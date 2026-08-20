@@ -1,6 +1,6 @@
-import unittest
-import random
 import os
+import random
+import unittest
 
 from gbd_core.contexts import identify
 from tests import util
@@ -37,10 +37,10 @@ class TestGBDHash(unittest.TestCase):
         return ''.join([self.get_random_whitespace_character() for _ in range(random.randint(min_length, max_length))])
     
     def get_random_header(self, p=0.5):
-        return "p cnf {} {}\n".format(random.randint(1, 100), random.randint(1, 100)) if random.random() < p else ""
+        return f"p cnf {random.randint(1, 100)} {random.randint(1, 100)}\n" if random.random() < p else ""
 
     def get_random_comment(self, p=0.5):
-        return "c {}\n".format(self.get_random_string()) if random.random() < p else ""
+        return f"c {self.get_random_string()}\n" if random.random() < p else ""
 
     def test_randomized_variants(self):
         for _ in range(100):

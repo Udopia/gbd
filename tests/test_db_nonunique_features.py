@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
 import sqlite3
+import unittest
 
-from gbd_core.query import GBDQuery
 from gbd_core.database import Database, DatabaseException
+from gbd_core.query import GBDQuery
 from gbd_core.schema import Schema
 from tests import util
 
@@ -32,7 +32,7 @@ class DatabaseTestCase(unittest.TestCase):
         return super().tearDown()
 
     def query(self, feat, val):
-        qb = GBDQuery(self.db, "{}={}".format(feat, val))
+        qb = GBDQuery(self.db, f"{feat}={val}")
         q = qb.build_query()
         return [ hash for (hash, ) in self.db.query(q) ]
 
@@ -97,7 +97,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.assertNotIn(self.feat, self.db.get_features())
         self.assertRaises(DatabaseException, self.db.find, self.feat)
         # new name queryable
-        qb = GBDQuery(self.db, "renamed_feat={}".format(self.val1))
+        qb = GBDQuery(self.db, f"renamed_feat={self.val1}")
         q = qb.build_query()
         res = [h for (h,) in self.db.query(q)]
         self.assertEqual(len(res), 3)
@@ -142,7 +142,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.db.delete(self.feat, [self.val1], ["c"])
         # a: val1 + val2;  b: val2 only;  c: val2 only
         # feat != val1 → hashes with NO val1 → {b, c}
-        qb = GBDQuery(self.db, "{} != {}".format(self.feat, self.val1))
+        qb = GBDQuery(self.db, f"{self.feat} != {self.val1}")
         q = qb.build_query()
         res = [h for (h,) in self.db.query(q)]
         self.assertSetEqual(set(res), {"b", "c"})

@@ -87,9 +87,9 @@ def _run(cmd):
     try:
         proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except FileNotFoundError:
-        raise ExternalToolException("External tool not found: {}".format(cmd[0]))
+        raise ExternalToolException(f"External tool not found: {cmd[0]}")
     if proc.returncode != 0:
-        raise ExternalToolException("{} failed (exit {}): {}".format(cmd[0], proc.returncode, proc.stderr.strip()))
+        raise ExternalToolException(f"{cmd[0]} failed (exit {proc.returncode}): {proc.stderr.strip()}")
     return proc.stdout
 
 
@@ -120,14 +120,14 @@ def _run_limited(cmd, limits):
             timeout=tlim if tlim > 0 else None,
         )
     except FileNotFoundError:
-        raise ExternalToolException("External tool not found: {}".format(cmd[0]))
+        raise ExternalToolException(f"External tool not found: {cmd[0]}")
     except subprocess.TimeoutExpired:
         return "", "timeout"
     if proc.returncode < 0:
         status = _SIGNAL_STATUS.get(-proc.returncode, "killed")
         return "", status
     if proc.returncode != 0:
-        raise ExternalToolException("{} failed (exit {}): {}".format(cmd[0], proc.returncode, proc.stderr.strip()))
+        raise ExternalToolException(f"{cmd[0]} failed (exit {proc.returncode}): {proc.stderr.strip()}")
     return proc.stdout, None
 
 

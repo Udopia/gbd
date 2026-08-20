@@ -122,7 +122,7 @@ class ExternalSubprocessTestCase(unittest.TestCase):
         with os.fdopen(fd, "w") as f:
             f.write(body)
         self._scripts.append(path)
-        return "{} {}".format(sys.executable, path)
+        return f"{sys.executable} {path}"
 
     def test_feature_names(self):
         tool = self._script(_TOOL_ECHO)

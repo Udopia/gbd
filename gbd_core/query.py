@@ -15,8 +15,6 @@
 
 from gbd_core.database import Database, DatabaseException
 from gbd_core.grammar import Parser
-from gbd_core import contexts
-from gbd_core.schema import Schema
 
 
 class GBDQuery:
@@ -85,10 +83,10 @@ class GBDQuery:
 
         sql_where = self.build_where(hashes, group)
 
-        sql_groupby = "GROUP BY {}".format(self.db.faddr(group)) if collapse else ""
-        sql_orderby = "ORDER BY {}".format(self.db.faddr(group))
+        sql_groupby = f"GROUP BY {self.db.faddr(group)}" if collapse else ""
+        sql_orderby = f"ORDER BY {self.db.faddr(group)}"
 
-        return "{} {} WHERE {} {} {}".format(sql_select, sql_from, sql_where, sql_groupby, sql_orderby)
+        return f"{sql_select} {sql_from} WHERE {sql_where} {sql_groupby} {sql_orderby}"
 
     def determine_group_by(self, resolve):
         """Return the default ``context:hash`` column used as the GROUP BY key.
@@ -130,7 +128,7 @@ class GBDQuery:
         """
         result = [self.db.faddr(f) for f in [group_by] + resolve]
         if collapse and collapse != "none":
-            result = ["{}(DISTINCT {})".format(collapse, r) for r in result]
+            result = [f"{collapse}(DISTINCT {r})" for r in result]
         return "SELECT DISTINCT " + ", ".join(result)
 
     def find_translator_feature(self, source_context, target_context):
@@ -161,7 +159,7 @@ class GBDQuery:
             if "to_" + source_context in self.db.get_features([dbname]):
                 return self.db.find("to_" + source_context, dbname)
 
-        raise DatabaseException("No translator feature found for contexts {} and {}".format(source_context, target_context))
+        raise DatabaseException(f"No translator feature found for contexts {source_context} and {target_context}")
 
     def build_from(self, group, features, join_type="LEFT"):
         """Build the FROM / JOIN clause.
@@ -193,7 +191,7 @@ class GBDQuery:
         gtable = self.db.find(group).table
         gcontext = self.db.dcontext(gdatabase)
         gaddress = gdatabase + "." + gtable
-        result[gaddress] = "FROM {}".format(gaddress)
+        result[gaddress] = f"FROM {gaddress}"
 
         tables = set([(finfo.database, finfo.table) for finfo in [self.db.find(f) for f in features]])
         for fdatabase, ftable in tables:
@@ -203,21 +201,21 @@ class GBDQuery:
                 fcontext = self.db.dcontext(fdatabase)
                 if fcontext == gcontext:
                     if faddress == ffeatures_address:  # join features table directly
-                        result[faddress] = "{j} JOIN {t} ON {t}.hash = {g}.hash".format(j=join_type, t=ffeatures_address, g=gaddress)
+                        result[faddress] = f"{join_type} JOIN {ffeatures_address} ON {ffeatures_address}.hash = {gaddress}.hash"
                     else:  # join non-unique features table via features table
                         fname = ftable
                         if not ffeatures_address in result:
-                            result[ffeatures_address] = "{j} JOIN {t} ON {t}.hash = {g}.hash".format(j=join_type, t=ffeatures_address, g=gaddress)
-                        result[faddress] = "{j} JOIN {t} ON {t}.hash = {ft}.{n}".format(j=join_type, t=faddress, ft=ffeatures_address, n=fname)
+                            result[ffeatures_address] = f"{join_type} JOIN {ffeatures_address} ON {ffeatures_address}.hash = {gaddress}.hash"
+                        result[faddress] = f"{join_type} JOIN {faddress} ON {faddress}.hash = {ffeatures_address}.{fname}"
                 else:
                     tfeat = self.find_translator_feature(gcontext, fcontext)
                     direction = ("hash", "value") if self.db.dcontext(tfeat.database) == gcontext else ("value", "hash")
 
                     taddress = tfeat.database + "." + tfeat.table
                     if not taddress in result:
-                        result[taddress] = "INNER JOIN {trans} ON {group}.hash = {trans}.{dir0}".format(trans=taddress, group=gaddress, dir0=direction[0])
+                        result[taddress] = f"INNER JOIN {taddress} ON {gaddress}.hash = {taddress}.{direction[0]}"
 
-                    result[faddress] = "INNER JOIN {feat} ON {trans}.{dir1} = {feat}.hash".format(feat=faddress, trans=taddress, dir1=direction[1])
+                    result[faddress] = f"INNER JOIN {faddress} ON {taddress}.{direction[1]} = {faddress}.hash"
 
         return " ".join(result.values())
 
@@ -243,5 +241,6 @@ class GBDQuery:
         group_table = self.db.faddr_table(group_by)
         result = group_column + " != 'None' AND " + self.parser.get_sql(self.db)
         if len(hashes):
-            result = result + " AND {}.hash in ('{}')".format(group_table, "', '".join(hashes))
+            joined = "', '".join(hashes)
+            result = result + f" AND {group_table}.hash in ('{joined}')"
         return result

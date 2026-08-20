@@ -12,35 +12,36 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-import os
 import glob
-import polars as pl
+import os
 from functools import partial
 
-from gbd_core.contexts import suffixes, identify
+import polars as pl
+
 from gbd_core.api import GBD
-from gbd_core.util import eprint, confirm
-from gbd_init.initializer import Initializer, InitializerException
+from gbd_core.contexts import identify, suffixes
+from gbd_core.util import confirm, eprint
 from gbd_init import external
+from gbd_init.initializer import Initializer, InitializerException
 
 
 ## GBDHash (local paths): computed in-process, does not require an external tool.
 def compute_hash(hash, path, limits):
-    eprint("Hashing {}".format(path))
+    eprint(f"Hashing {path}")
     hash = identify(path)
     return [("local", hash, path), ("filename", hash, os.path.basename(path))]
 
 
 ## Generic external-tool extractor
 def _compute_extractor(hash, path, limits, tool):
-    eprint("Running {} on {}".format(tool, path))
+    eprint(f"Running {tool} on {path}")
     try:
         values, status = external.run_extractor(tool, path, limits)
     except external.ExternalToolException as e:
         eprint(str(e))
         return []
     if status != "success":
-        eprint("{}: {} {}".format(status, tool, path))
+        eprint(f"{status}: {tool} {path}")
         return []
     return [(key, hash, external.convert(value)) for key, value in values.items()]
 
@@ -61,7 +62,7 @@ def init_features_generic(key: str, api: GBD, rlimits, df: pl.DataFrame, target_
     einfo = registry[key]
     context = api.database.dcontext(target_db)
     if context not in einfo["contexts"]:
-        raise InitializerException("Target database context must be in {}".format(einfo["contexts"]))
+        raise InitializerException(f"Target database context must be in {einfo['contexts']}")
     features = external.feature_names(einfo["tool"])
     compute = partial(_compute_extractor, tool=einfo["tool"])
     extractor = Initializer(api, rlimits, target_db, features, compute)
@@ -92,7 +93,7 @@ def init_local(api: GBD, rlimits, root, target_db):
     if len(missing) and api.verbose:
         for path in missing["local"].to_list():
             eprint(path)
-    if len(missing) and confirm("{} files not found. Remove stale entries from local table?".format(len(missing))):
+    if len(missing) and confirm(f"{len(missing)} files not found. Remove stale entries from local table?"):
         api.reset_values("local", values=missing["local"].to_list())
 
     # Create df with paths not yet in local table

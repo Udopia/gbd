@@ -1,12 +1,11 @@
-import unittest
-import sqlite3
 import os
-
-from gbd_core.schema import Schema
-from gbd_core.database import Database
-from gbd_core.query import GBDQuery
+import sqlite3
+import unittest
 
 import tests.util as util
+from gbd_core.database import Database
+from gbd_core.query import GBDQuery
+from gbd_core.schema import Schema
 
 class QueryNonUniqueTestCase(unittest.TestCase):
 
@@ -52,9 +51,9 @@ class QueryNonUniqueTestCase(unittest.TestCase):
     
     def simple_query(self, feat, val, dbname=None):
         if dbname is None:
-            return self.query("{}={}".format(feat, val))
+            return self.query(f"{feat}={val}")
         else:
-            return self.query("{}:{}={}".format(dbname, feat, val))
+            return self.query(f"{dbname}:{feat}={val}")
     
     def query(self, query):
         q = GBDQuery(self.db, query).build_query()
@@ -79,17 +78,17 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         self.assertEqual(len(res), 3)
 
     def test_string_inequality(self):
-        res = self.query("{} < {}".format(self.feat, self.val2))
+        res = self.query(f"{self.feat} < {self.val2}")
         self.assertEqual(len(res), 3)
-        res = self.query("{} > {}".format(self.feat, self.val1))
+        res = self.query(f"{self.feat} > {self.val1}")
         self.assertEqual(len(res), 0)
 
     def test_numeric_inequality(self):
-        res = self.query("{} < 2".format(self.feat3))
+        res = self.query(f"{self.feat3} < 2")
         self.assertEqual(len(res), 1)
         
     def test_multivalued_subselect(self):
-        res = self.query("{db}:{f} != {v1} and {db}:{f} = {v2}".format(f=self.feat, v1=self.val1, v2=self.val2, db=self.dbname2))
+        res = self.query(f"{self.dbname2}:{self.feat} != {self.val1} and {self.dbname2}:{self.feat} = {self.val2}")
         self.assertEqual(len(res), 2)
 
     def test_feature_accessible(self):
@@ -105,12 +104,12 @@ class QueryNonUniqueTestCase(unittest.TestCase):
 
     def test_or_operator(self):
         # feat3 is 1:1 with values a=1, b=10, c=100
-        res = self.query("{f} = 1 or {f} = 10".format(f=self.feat3))
+        res = self.query(f"{self.feat3} = 1 or {self.feat3} = 10")
         self.assertSetEqual(set(res), {"a", "b"})
 
     def test_not_operator(self):
         # "not feat3 = 1" should return b and c
-        res = self.query("not {f} = 1".format(f=self.feat3))
+        res = self.query(f"not {self.feat3} = 1")
         self.assertSetEqual(set(res), {"b", "c"})
 
     def test_empty_query_returns_all_hashes(self):
@@ -124,22 +123,22 @@ class QueryNonUniqueTestCase(unittest.TestCase):
 
     def test_hash_filter_with_condition(self):
         # Filter to hashes ["a", "b"] AND feat3 > 5 → only "b" (feat3=10)
-        q = GBDQuery(self.db, "{f} > 5".format(f=self.feat3)).build_query(hashes=["a", "b"])
+        q = GBDQuery(self.db, f"{self.feat3} > 5").build_query(hashes=["a", "b"])
         res = [h for (h,) in self.db.query(q)]
         self.assertEqual(res, ["b"])
 
     def test_numeric_eq_1to1(self):
-        res = self.query("{f} = 10".format(f=self.feat3))
+        res = self.query(f"{self.feat3} = 10")
         self.assertEqual(res, ["b"])
 
     def test_collapse_none_returns_multiple_rows_for_multivalued_hash(self):
         # In db2, hash "a" has both val1 and val2; collapse=None must return 2 rows for "a"
-        rows = self.build_and_run("", resolve=["{}:{}".format(self.dbname2, self.feat)], collapse=None)
+        rows = self.build_and_run("", resolve=[f"{self.dbname2}:{self.feat}"], collapse=None)
         hash_a_rows = [r for r in rows if r[0] == "a"]
         self.assertEqual(len(hash_a_rows), 2)
 
     def test_collapse_group_concat_returns_one_row_per_hash(self):
-        rows = self.build_and_run("", resolve=["{}:{}".format(self.dbname2, self.feat)], collapse="group_concat")
+        rows = self.build_and_run("", resolve=[f"{self.dbname2}:{self.feat}"], collapse="group_concat")
         # One aggregated row per hash
         self.assertEqual(len(rows), 3)
         # hash "a" row should contain both values concatenated
