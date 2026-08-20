@@ -17,15 +17,16 @@
 import os
 import sys
 import traceback
+
 import polars as pl
 
-from gbd_core.api import GBD, GBDException
+from gbd_core import config, contexts, schema, util
+from gbd_core.api import GBD
 from gbd_core.grammar import ParserException
-from gbd_core import util, contexts, schema, config
 from gbd_core.util_argparse import *
+from gbd_init.external import ExternalToolException
 from gbd_init.feature_extractors import build_extractors
 from gbd_init.instance_transformers import build_transformers
-from gbd_init.external import ExternalToolException
 
 
 ### Command-Line Interface Entry Points
@@ -74,9 +75,8 @@ def cli_delete(api: GBD, args):
 
 
 def cli_cleanup(api: GBD, args):
-    if args.hashes and len(args.hashes):
-        if args.force or util.confirm("Delete attributes of given hashes from all features?"):
-            api.delete_hashes(args.hashes, args.target)
+    if args.hashes and len(args.hashes) and (args.force or util.confirm("Delete attributes of given hashes from all features?")):
+        api.delete_hashes(args.hashes, args.target)
 
 
 def cli_rename(api: GBD, args):

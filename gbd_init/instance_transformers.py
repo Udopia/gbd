@@ -18,12 +18,11 @@ from functools import partial, reduce
 
 import polars as pl
 
-from gbd_core import contexts
-from gbd_core import util
+from gbd_core import contexts, util
 from gbd_core.api import GBD
+from gbd_core.util import convert
 from gbd_init import external
 from gbd_init.initializer import Initializer, InitializerException
-
 
 _COMPRESSION_SUFFIX = {"xz": ".xz", "gz": ".gz", "bz2": ".bz2"}
 
@@ -54,7 +53,7 @@ def _compute_transformer(hash, path, limits, tool, source_context, output_suffix
     final = _final_path(output, compress)
     util.eprint(f"Transforming {path} -> {final}")
     try:
-        values, status = external.run_transformer(tool, path, output, compress, limits)
+        values, status = external.run_external_tool(tool, path, limits, output, compress)
     except external.ExternalToolException as e:
         util.eprint(str(e))
         _remove(final)
@@ -68,7 +67,7 @@ def _compute_transformer(hash, path, limits, tool, source_context, output_suffix
         util.eprint(f"Transformer {tool} produced no hash for {path}")
         _remove(final)
         return []
-    return [(key, newhash, external.convert(value)) for key, value in values.items()]
+    return [(key, newhash, convert(value)) for key, value in values.items()]
 
 
 def build_transformers(gbdconfig):
