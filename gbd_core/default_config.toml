@@ -27,20 +27,20 @@ wecnf = { suffix = ".wecnf", idfunc = "cnf_hash", description = "Weighted Extend
 # e.g. "gbdc base"). Entries may be defined inline (as below) or offloaded to a
 # separate file via `file = "extractors.toml"` (inline entries win on a name clash).
 [extractors]
-base = { tool = "gbdc base", contexts = ["cnf", "sancnf"], description = "Extract base features from CNF files." }
-checksani = { tool = "gbdc checksani", contexts = ["cnf", "sancnf"], description = "Check sanitation status of CNF files." }
-isohash = { tool = "gbdc isohash", contexts = ["cnf", "wcnf", "sancnf"], description = "Compute the ISOHash of CNF or WCNF files." }
-isohash2 = { tool = "gbdc isohash2", contexts = ["cnf", "sancnf"], description = "Compute the ISOHash2 of CNF files." }
-wcnfbase = { tool = "gbdc wcnfbase", contexts = ["wcnf"], description = "Extract base features from WCNF files." }
-opbbase = { tool = "gbdc opbbase", contexts = ["opb"], description = "Extract base features from OPB files." }
+base = { tool = "gbdc base --gbd", contexts = ["cnf", "sancnf"], description = "Extract base features from CNF files." }
+checksani = { tool = "gbdc checksani --gbd", contexts = ["cnf", "sancnf"], description = "Check sanitation status of CNF files." }
+isohash = { tool = "gbdc isohash --gbd", contexts = ["cnf", "wcnf", "sancnf"], description = "Compute the ISOHash of CNF or WCNF files." }
+isohash2 = { tool = "gbdc isohash2 --gbd", contexts = ["cnf", "sancnf"], description = "Compute the ISOHash2 of CNF files." }
+wcnfbase = { tool = "gbdc wcnfbase --gbd", contexts = ["wcnf"], description = "Extract base features from WCNF files." }
+opbbase = { tool = "gbdc opbbase --gbd", contexts = ["opb"], description = "Extract base features from OPB files." }
 
 # Instance transformers: external command-line tools that derive a new instance
 # from an existing one. Entries may be inline or offloaded via `file = "..."`.
 # `output_suffix` overrides the target context's suffix for the produced file;
 # `compress` (none|xz|gz|bz2) requests compressed output.
 [transformers]
-sanitise = { tool = "gbdc sanitize", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", description = "Sanitise CNF files." }
-normalise = { tool = "gbdc normalize", source = ["cnf"], target = ["cnf"], output_suffix = ".normalised.cnf", description = "Normalise CNF files." }
-cnf2kis = { tool = "gbdc cnf2kis", source = ["cnf"], target = ["kis"], description = "Transform CNF files to k-Independent Set instances." }
+sanitise = { tool = "gbdc sanitize --gbd", source = ["cnf"], target = ["sancnf"], output_suffix = ".sanitized.cnf", description = "Sanitise CNF files." }
+normalise = { tool = "gbdc normalize --gbd", source = ["cnf"], target = ["cnf"], output_suffix = ".normalised.cnf", description = "Normalise CNF files." }
+cnf2kis = { tool = "gbdc cnf2kis --gbd", source = ["cnf"], target = ["kis"], description = "Transform CNF files to k-Independent Set instances." }
 
 

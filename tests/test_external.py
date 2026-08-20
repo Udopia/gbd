@@ -18,6 +18,7 @@ import sys
 import tempfile
 import unittest
 
+from gbd_core.util import convert
 from gbd_init import external
 
 try:
@@ -26,7 +27,7 @@ except ImportError:
     resource = None
 
 # Fake external tool: prints gbd feature-name metadata for --feature-names, otherwise
-# emits a gbd-format value stream. Serves both feature_names() and run_extractor().
+# emits a gbd-format value stream. Serves both feature_names() and run_external_tool().
 _TOOL_ECHO = """
 import sys
 if "--feature-names" in sys.argv:
@@ -35,8 +36,6 @@ if "--feature-names" in sys.argv:
 else:
     print("alpha 42")
     print("beta 7")
-    print("status success")
-    print("runtime 1")
 """
 
 # Fake external tool: reports the soft resource limits it was launched with, so tests
@@ -46,8 +45,6 @@ import resource
 print("cpu_soft", resource.getrlimit(resource.RLIMIT_CPU)[0])
 print("mem_soft", resource.getrlimit(resource.RLIMIT_AS)[0])
 print("fsize_soft", resource.getrlimit(resource.RLIMIT_FSIZE)[0])
-print("status success")
-print("runtime 0")
 """
 
 # Fake external tool: sleeps far longer than any test time limit (triggers wall-clock).
@@ -74,19 +71,10 @@ class ExternalPureTestCase(unittest.TestCase):
     """Platform-independent tests for the pure helpers."""
 
     def test_convert(self):
-        self.assertEqual(external.convert("42"), 42)
-        self.assertEqual(external.convert("3.5"), 3.5)
-        self.assertEqual(external.convert("4.0"), 4)
-        self.assertEqual(external.convert("foo"), "foo")
-
-    def test_parse_extracts_status_and_skips_runtime(self):
-        values, status = external._parse("a 1\nruntime 12\nb hello\nstatus timeout\n")
-        self.assertEqual(values, {"a": "1", "b": "hello"})
-        self.assertEqual(status, "timeout")
-
-    def test_parse_defaults_to_success(self):
-        values, status = external._parse("a 1\n")
-        self.assertEqual(status, "success")
+        self.assertEqual(convert("42"), 42)
+        self.assertEqual(convert("3.5"), 3.5)
+        self.assertEqual(convert("4.0"), 4)
+        self.assertEqual(convert("foo"), "foo")
 
     def test_signal_status_mapping(self):
         if hasattr(signal, "SIGXCPU"):
@@ -130,7 +118,7 @@ class ExternalSubprocessTestCase(unittest.TestCase):
 
     def test_run_extractor_success(self):
         tool = self._script(_TOOL_ECHO)
-        values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": 5, "mlim": 100, "flim": 100})
+        values, status = external.run_external_tool(tool, "dummy.cnf", {"tlim": 5, "mlim": 100, "flim": 100})
         self.assertEqual(status, "success")
         self.assertEqual(values, {"alpha": "42", "beta": "7"})
 
@@ -140,18 +128,18 @@ class ExternalSubprocessTestCase(unittest.TestCase):
         # mlim must exceed the child interpreter's own address-space footprint; the
         # limit is virtual (a ceiling), so a large value allocates nothing.
         tlim, mlim, flim = 7, 4096, 5  # seconds, MB, MB
-        values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": tlim, "mlim": mlim, "flim": flim})
+        values, status = external.run_external_tool(tool, "dummy.cnf", {"tlim": tlim, "mlim": mlim, "flim": flim})
         self.assertEqual(status, "success")
-        self.assertEqual(external.convert(values["cpu_soft"]), tlim)
-        self.assertEqual(external.convert(values["fsize_soft"]), flim * 1024 * 1024)
+        self.assertEqual(convert(values["cpu_soft"]), tlim)
+        self.assertEqual(convert(values["fsize_soft"]), flim * 1024 * 1024)
         if sys.platform == "linux":
-            self.assertEqual(external.convert(values["mem_soft"]), mlim * 1024 * 1024)
+            self.assertEqual(convert(values["mem_soft"]), mlim * 1024 * 1024)
         else:  # macOS ignores RLIMIT_AS; the wrapper leaves it unlimited
-            self.assertEqual(external.convert(values["mem_soft"]), resource.RLIM_INFINITY)
+            self.assertEqual(convert(values["mem_soft"]), resource.RLIM_INFINITY)
 
     def test_wall_clock_timeout(self):
         tool = self._script(_TOOL_SLEEP)
-        values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": 1, "mlim": 0, "flim": 0})
+        values, status = external.run_external_tool(tool, "dummy.cnf", {"tlim": 1, "mlim": 0, "flim": 0})
         self.assertEqual(status, "timeout")
         self.assertEqual(values, {})
 
@@ -162,7 +150,7 @@ class ExternalSubprocessTestCase(unittest.TestCase):
         os.close(fd)
         os.environ["FAKE_OUT"] = out
         try:
-            values, status = external.run_extractor(tool, "dummy.cnf", {"tlim": 30, "mlim": 0, "flim": 1})
+            values, status = external.run_external_tool(tool, "dummy.cnf", {"tlim": 30, "mlim": 0, "flim": 1})
             self.assertEqual(status, "fileout")
             self.assertEqual(values, {})
         finally:

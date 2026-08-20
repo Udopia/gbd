@@ -20,7 +20,7 @@ import polars as pl
 
 from gbd_core.api import GBD
 from gbd_core.contexts import identify, suffixes
-from gbd_core.util import confirm, eprint
+from gbd_core.util import confirm, convert, eprint
 from gbd_init import external
 from gbd_init.initializer import Initializer, InitializerException
 
@@ -36,14 +36,14 @@ def compute_hash(hash, path, limits):
 def _compute_extractor(hash, path, limits, tool):
     eprint(f"Running {tool} on {path}")
     try:
-        values, status = external.run_extractor(tool, path, limits)
+        values, status = external.run_external_tool(tool, path, limits)
     except external.ExternalToolException as e:
         eprint(str(e))
         return []
     if status != "success":
         eprint(f"{status}: {tool} {path}")
         return []
-    return [(key, hash, external.convert(value)) for key, value in values.items()]
+    return [(key, hash, convert(value)) for key, value in values.items()]
 
 
 def build_extractors(gbdconfig):

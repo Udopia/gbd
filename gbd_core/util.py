@@ -88,6 +88,18 @@ def slice_iterator(data, slice_len):
         yield items
 
 
+def convert(value):
+    """Convert a textual feature value to int/float when numeric, else leave as str."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        try:
+            number = float(value)
+            return int(number) if number.is_integer() else number
+        except (TypeError, ValueError):
+            return value
+
+
 def is_number(s):
     try:
         if s is not None:
