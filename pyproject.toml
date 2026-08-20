@@ -40,3 +40,6 @@ gbd_server = [
 # Put the repository root on sys.path so the `tests` package (tests/util.py) imports.
 pythonpath = ["."]
 testpaths = ["tests"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["gbd_core", "gbd_init", "gbd_server"]

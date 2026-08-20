@@ -13,12 +13,13 @@
 # copies or substantial portions of the Software.
 
 import multiprocessing
-import pebble
 from concurrent.futures import as_completed
+
+import pebble
 import polars as pl
 
-from gbd_core.api import GBD, GBDException
 from gbd_core import util
+from gbd_core.api import GBD, GBDException
 
 
 class InitializerException(Exception):
@@ -70,10 +71,10 @@ class Initializer:
                     self.save_features(result)
                 except pebble.ProcessExpired as e:
                     f.cancel()
-                    util.eprint("{}: {}".format(e.__class__.__name__, e))
+                    util.eprint(f"{e.__class__.__name__}: {e}")
                 except GBDException as e:  # might receive special handling in the future
-                    util.eprint("{}: {}".format(e.__class__.__name__, e))
+                    util.eprint(f"{e.__class__.__name__}: {e}")
                 except Exception as e:
                     import traceback
                     traceback.print_exc()
-                    util.eprint("{}: {}".format(e.__class__.__name__, e))
+                    util.eprint(f"{e.__class__.__name__}: {e}")

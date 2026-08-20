@@ -51,31 +51,31 @@ def add_resource_limits_arguments(parser: argparse.ArgumentParser):
 ### Argument Types for Input Sanitation in ArgParse Library
 def directory_type(path):
     if not os.path.isdir(path):
-        raise argparse.ArgumentTypeError("{0} is not a directory".format(path))
+        raise argparse.ArgumentTypeError(f"{path} is not a directory")
     if os.access(path, os.R_OK):
         return os.path.abspath(path)
     else:
-        raise argparse.ArgumentTypeError("{0} is not readable".format(path))
+        raise argparse.ArgumentTypeError(f"{path} is not readable")
 
 
 def file_type(path):
     if not os.path.isfile(path):
-        raise argparse.ArgumentTypeError("{0} is not a regular file".format(path))
+        raise argparse.ArgumentTypeError(f"{path} is not a regular file")
     if os.access(path, os.R_OK):
         return os.path.abspath(path)
     else:
-        raise argparse.ArgumentTypeError("{0} is not readable".format(path))
+        raise argparse.ArgumentTypeError(f"{path} is not readable")
 
 
 def column_type(s):
     pat = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]*$")
     if not pat.match(s):
-        raise argparse.ArgumentTypeError('Column "{0}" does not match regular expression {1}'.format(s, pat.pattern))
+        raise argparse.ArgumentTypeError(f'Column "{s}" does not match regular expression {pat.pattern}')
     return s
 
 
 def key_value_type(s):
     tup = s.split("=", 1)
     if len(tup) != 2:
-        raise argparse.ArgumentTypeError("key-value type: {0} must be separated by exactly one = ".format(s))
+        raise argparse.ArgumentTypeError(f"key-value type: {s} must be separated by exactly one = ")
     return (column_type(tup[0]), tup[1])

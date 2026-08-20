@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
 import sqlite3
+import unittest
 
-from gbd_core.query import GBDQuery
 from gbd_core.database import Database, DatabaseException
+from gbd_core.query import GBDQuery
 from gbd_core.schema import Schema
-
 from tests import util
 
 class DatabaseTestCase(unittest.TestCase):
@@ -33,7 +32,7 @@ class DatabaseTestCase(unittest.TestCase):
         return super().tearDown()
 
     def query(self, feat, val):
-        qb = GBDQuery(self.db, "{}={}".format(feat, val))
+        qb = GBDQuery(self.db, f"{feat}={val}")
         q = qb.build_query()
         return [ hash for (hash, ) in self.db.query(q) ]
 
@@ -106,7 +105,7 @@ class DatabaseTestCase(unittest.TestCase):
         self.assertRaises(DatabaseException, self.db.find, self.feat)
 
     def test_find_by_database_prefix(self):
-        finfo = self.db.find("{}:{}".format(self.name, self.feat))
+        finfo = self.db.find(f"{self.name}:{self.feat}")
         self.assertEqual(finfo.database, self.name)
         self.assertEqual(finfo.name, self.feat)
 

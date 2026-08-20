@@ -14,14 +14,15 @@
 
 
 import os
-import polars as pl
 from functools import partial, reduce
 
+import polars as pl
+
 from gbd_core import contexts
-from gbd_core.api import GBD
 from gbd_core import util
-from gbd_init.initializer import Initializer, InitializerException
+from gbd_core.api import GBD
 from gbd_init import external
+from gbd_init.initializer import Initializer, InitializerException
 
 
 _COMPRESSION_SUFFIX = {"xz": ".xz", "gz": ".gz", "bz2": ".bz2"}
@@ -51,7 +52,7 @@ def _remove(path):
 def _compute_transformer(hash, path, limits, tool, source_context, output_suffix, compress):
     output = _output_path(path, source_context, output_suffix)
     final = _final_path(output, compress)
-    util.eprint("Transforming {} -> {}".format(path, final))
+    util.eprint(f"Transforming {path} -> {final}")
     try:
         values, status = external.run_transformer(tool, path, output, compress, limits)
     except external.ExternalToolException as e:
@@ -59,12 +60,12 @@ def _compute_transformer(hash, path, limits, tool, source_context, output_suffix
         _remove(final)
         return []
     if status != "success":
-        util.eprint("{}: {} {}".format(status, tool, path))
+        util.eprint(f"{status}: {tool} {path}")
         _remove(final)
         return []
     newhash = values.pop("hash", None)
     if not newhash:
-        util.eprint("Transformer {} produced no hash for {}".format(tool, path))
+        util.eprint(f"Transformer {tool} produced no hash for {path}")
         _remove(final)
         return []
     return [(key, newhash, external.convert(value)) for key, value in values.items()]
@@ -89,9 +90,9 @@ def transform_instances_generic(key: str, api: GBD, rlimits, query, hashes, targ
     einfo = registry[key]
     target_context = api.database.dcontext(target_db)
     if target_context not in einfo["target"]:
-        raise InitializerException("Target database context must be in {}".format(einfo["target"]))
+        raise InitializerException(f"Target database context must be in {einfo['target']}")
     if source not in einfo["source"]:
-        raise InitializerException("Source context must be in {}".format(einfo["source"]))
+        raise InitializerException(f"Source context must be in {einfo['source']}")
 
     # Output filename: source path with its context suffix replaced by the target suffix
     # (a per-transformer `output_suffix` overrides the target context's suffix).

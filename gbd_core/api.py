@@ -14,16 +14,16 @@
 
 
 import sqlite3
-import tatsu
-import polars as pl
-
-from contextlib import ExitStack
 import traceback
+from contextlib import ExitStack
 
-from gbd_core.query import GBDQuery
+import polars as pl
+import tatsu
+
+from gbd_core import util
 from gbd_core.database import Database
 from gbd_core.database import Schema
-from gbd_core import util
+from gbd_core.query import GBDQuery
 
 
 class GBDException(Exception):
@@ -82,13 +82,13 @@ class GBD:
         except tatsu.exceptions.FailedParse as err:
             if self.verbose:
                 util.eprint(traceback.format_exc())
-            raise GBDException("Parser Error with Query '{}': {}".format(gbd_query, str(err)))
+            raise GBDException(f"Parser Error with Query '{gbd_query}': {err}")
         try:
             result = self.database.query(sql)
         except sqlite3.OperationalError as err:
             if self.verbose:
                 util.eprint(traceback.format_exc())
-            raise GBDException("Database Operational Error: {}".format(str(err)))
+            raise GBDException(f"Database Operational Error: {err}")
         group = group_by or query_builder.determine_group_by(resolve)
         cols = [p.split(":") for p in [group] + resolve]
         cols = [c[0] if len(c) == 1 else c[1] for c in cols]
@@ -107,7 +107,7 @@ class GBD:
         GBDException, if feature does not exist
         """
         if not self.feature_exists(name, target_db):
-            raise GBDException("Feature '{}' does not exist".format(name))
+            raise GBDException(f"Feature '{name}' does not exist")
         if not len(hashes):
             raise GBDException("No hashes given")
         self.database.set_values({name: value}, hashes, target_db)
@@ -126,7 +126,7 @@ class GBD:
         GBDException, if feature does not exist
         """
         if not self.feature_exists(feature, target_db):
-            raise GBDException("Feature '{}' does not exist".format(feature))
+            raise GBDException(f"Feature '{feature}' does not exist")
         if len(values) and len(hashes):
             for values_slice in util.slice_iterator(values, 10):
                 for hashes_slice in util.slice_iterator(hashes, 10):
@@ -257,7 +257,7 @@ class GBD:
         if not self.feature_exists(name, target_db):
             self.database.create_feature(name, default_value, target_db, False)
         else:
-            raise GBDException("Feature '{}' does already exist".format(name))
+            raise GBDException(f"Feature '{name}' does already exist")
 
     def delete_feature(self, name, target_db=None):
         """Deletes feature with given name
@@ -275,7 +275,7 @@ class GBD:
         if self.feature_exists(name, target_db):
             self.database.delete_feature(name, target_db)
         else:
-            raise GBDException("Feature '{}' does not exist".format(name))
+            raise GBDException(f"Feature '{name}' does not exist")
 
     def rename_feature(self, old_name, new_name, target_db=None):
         """Renames feature with given name
@@ -294,9 +294,9 @@ class GBD:
         - if feature 'new_name' already exists in target_db
         """
         if not self.feature_exists(old_name, target_db):
-            raise GBDException("Feature '{}' does not exist".format(old_name))
+            raise GBDException(f"Feature '{old_name}' does not exist")
         elif self.feature_exists(new_name, target_db):
-            raise GBDException("Feature '{}' does already exist".format(new_name))
+            raise GBDException(f"Feature '{new_name}' does already exist")
         else:
             self.database.rename_feature(old_name, new_name, target_db)
 
@@ -312,7 +312,7 @@ class GBD:
         Returns: None
         """
         if not self.feature_exists(old_name):
-            raise GBDException("Feature '{}' does not exist".format(old_name))
+            raise GBDException(f"Feature '{old_name}' does not exist")
 
         if not self.feature_exists(new_name, target_db):
             self.create_feature(new_name, target_db=target_db)

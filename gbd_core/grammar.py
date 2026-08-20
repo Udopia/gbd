@@ -12,8 +12,9 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-import tatsu
 import json
+
+import tatsu
 
 from gbd_core.database import Database, DatabaseException
 
@@ -212,21 +213,19 @@ class Parser:
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "=" else "NOT IN"
-                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} = '{s}')".format(o=setop, t=table, f=feat, s=ast["str"])
+                        return f"{table}.hash {setop} (SELECT {table}.hash FROM {table} WHERE {feat} = '{ast['str']}')"
                     return f"{feat} {operator} '{ast['str']}'"
                 if "num" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
-                        return "{t}.hash IN (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {o} {s})".format(o=operator, t=table, f=feat, s=ast["num"])
+                        return f"{table}.hash IN (SELECT {table}.hash FROM {table} WHERE CAST({feat} AS FLOAT) {operator} {ast['num']})"
                     return f"CAST({feat} AS FLOAT) {operator} {ast['num']}"
                 if "lik" in ast:  # cop:("like" | "unlike")
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "like" else "NOT IN"
                         s = (ast.get("pre") or "") + ast["lik"] + (ast.get("suf") or "")
-                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE {f} like '{s}')".format(
-                            o=setop, t=table, f=feat, s=s
-                        )
+                        return f"{table}.hash {setop} (SELECT {table}.hash FROM {table} WHERE {feat} like '{s}')"
                     s = (ast.get("pre") or "") + ast["lik"] + (ast.get("suf") or "")
                     return f"{feat} {operator} '{s}'"
                 if "ter" in ast:  # cop:("=" | "!=" | "<=" | ">=" | "<" | ">" )
@@ -234,9 +233,7 @@ class Parser:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "NOT IN" if ast["cop"] == "!=" else "IN"
                         cop = "=" if ast["cop"] == "!=" else ast["cop"]
-                        return "{t}.hash {o} (SELECT {t}.hash FROM {t} WHERE CAST({f} AS FLOAT) {c} {s})".format(
-                            o=setop, c=cop, t=table, f=feat, s=self.get_sql(db, ast["ter"])
-                        )
+                        return f"{table}.hash {setop} (SELECT {table}.hash FROM {table} WHERE CAST({feat} AS FLOAT) {cop} {self.get_sql(db, ast['ter'])})"
                     return f"CAST({feat} AS FLOAT) {operator} {self.get_sql(db, ast['ter'])}"
                 raise ParserException("Missing right-hand side of constraint")
             if "col" in ast:

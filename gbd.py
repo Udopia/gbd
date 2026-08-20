@@ -64,12 +64,12 @@ def cli_create(api: GBD, args):
 
 def cli_delete(api: GBD, args):
     if (args.hashes and len(args.hashes) or args.values and len(args.values)) and args.name:
-        if args.force or util.confirm("Delete attributes of given hashes and/or values from '{}'?".format(args.name)):
+        if args.force or util.confirm(f"Delete attributes of given hashes and/or values from '{args.name}'?"):
             api.reset_values(args.name, args.values, args.hashes)
     elif args.hashes and not args.name:
-        if args.force or util.confirm("Delete given hashes entirely?".format(args.name)):
+        if args.force or util.confirm("Delete given hashes entirely?"):
             api.delete_hashes(args.hashes)
-    elif args.force or util.confirm("Delete feature '{}' and all associated attributes?".format(args.name)):
+    elif args.force or util.confirm(f"Delete feature '{args.name}' and all associated attributes?"):
         api.delete_feature(args.name)
 
 
@@ -143,13 +143,13 @@ def cli_info(api: GBD, args):
     else:
         info = api.get_feature_info(args.name)
         for key in info:
-            print("{}: {}".format(key, info[key]))
+            print(f"{key}: {info[key]}")
 
 
 def cli_server(api: GBD, args):
     from gbd_server import server
 
-    util.eprint("Starting GBD Server on port {}...".format(args.port))
+    util.eprint(f"Starting GBD Server on port {args.port}...")
     util.eprint(r"""
 Warning: All files referenced in the configured databases are now accessible on the specified port.
 If you do not trust the source of the databases, do not run the server.
@@ -346,7 +346,7 @@ def main():
         util.eprint("Ensure the required external GBD tools are installed and on your PATH (e.g. pip install 'gbd-tools[gbdc]').")
         sys.exit(1)
     except ModuleNotFoundError as e:
-        util.eprint("Module '{}' not found. Please install it.".format(e.name))
+        util.eprint(f"Module '{e.name}' not found. Please install it.")
         sys.exit(1)
     except ParserException as e:
         util.eprint("Failed to parse query: " + args.query)
@@ -356,7 +356,7 @@ def main():
     except pl.exceptions.DataOrientationWarning as e:
         util.eprint(traceback.format_exc())
     except Exception as e:
-        util.eprint("{}: {}".format(type(e), str(e)))
+        util.eprint(f"{type(e)}: {e}")
         if args.verbose:
             util.eprint(traceback.format_exc())
         sys.exit(1)

@@ -15,11 +15,8 @@
 import sqlite3
 import typing
 
-from pprint import pprint
-
+from gbd_core.schema import FeatureInfo, Schema
 from gbd_core.util import eprint
-from gbd_core.schema import Schema, FeatureInfo
-from gbd_core import contexts
 
 
 class DatabaseException(Exception):
@@ -89,9 +86,9 @@ class Database:
         schema: Schema
         for schema in self.schemas.values():
             if not schema.is_in_memory():
-                self.execute("ATTACH DATABASE '{}' AS {}".format(schema.path, schema.dbname))
+                self.execute(f"ATTACH DATABASE '{schema.path}' AS {schema.dbname}")
             else:
-                self.execute("ATTACH DATABASE 'file:{}?mode=memory&cache=shared' AS {}".format(schema.dbname, schema.dbname))
+                self.execute(f"ATTACH DATABASE 'file:{schema.dbname}?mode=memory&cache=shared' AS {schema.dbname}")
             # first database is the default database:
             if not self.maindb:
                 self.maindb = schema.dbname
@@ -209,7 +206,7 @@ class Database:
             DatabaseException: If *dbname* is not attached.
         """
         if not dbname in self.schemas:
-            raise DatabaseException("Database '{}' not found".format(dbname))
+            raise DatabaseException(f"Database '{dbname}' not found")
         return self.schemas[dbname].path
 
     def dcontext(self, dbname):
@@ -219,7 +216,7 @@ class Database:
             DatabaseException: If *dbname* is not attached.
         """
         if not dbname in self.schemas:
-            raise DatabaseException("Database '{}' not found".format(dbname))
+            raise DatabaseException(f"Database '{dbname}' not found")
         return self.schemas[dbname].context
 
     def dtables(self, dbname):
@@ -229,7 +226,7 @@ class Database:
             DatabaseException: If *dbname* is not attached.
         """
         if not dbname in self.schemas:
-            raise DatabaseException("Database '{}' not found".format(dbname))
+            raise DatabaseException(f"Database '{dbname}' not found")
         return self.schemas[dbname].get_tables()
 
     def finfo(self, fname, db=None):
@@ -251,10 +248,10 @@ class Database:
             else:
                 infos = [info for info in self.features[fname] if info.database == db]
                 if len(infos) == 0:
-                    raise DatabaseException("Feature '{}' does not exists in database {}".format(fname, db))
+                    raise DatabaseException(f"Feature '{fname}' does not exists in database {db}")
                 return infos[0]
         else:
-            raise DatabaseException("Feature '{}' does not exists".format(fname))
+            raise DatabaseException(f"Feature '{fname}' does not exists")
 
     def faddr_column(self, feature):
         """Return the fully-qualified column address ``database.table.column`` for *feature*.
@@ -266,7 +263,7 @@ class Database:
             str: e.g. ``"cnf_sc2021.local.value"``
         """
         finfo = self.find(feature)
-        return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
+        return f"{finfo.database}.{finfo.table}.{finfo.column}"
 
     def faddr_table(self, feature):
         """Return the fully-qualified table address ``database.table`` for *feature*.
@@ -281,7 +278,7 @@ class Database:
             str: e.g. ``"cnf_sc2021.local"``
         """
         finfo = self.find(feature)
-        return "{}.{}".format(finfo.database, finfo.table)
+        return f"{finfo.database}.{finfo.table}"
 
     def find(self, fid: str, db: str = None):
         """Find a feature by name or qualified identifier.
@@ -304,7 +301,7 @@ class Database:
         if db is not None:
             if len(parts) > 1:
                 if parts[0] != db:
-                    raise DatabaseException("Ambiguous database identifiers: '{}' and '{}'".format(parts[0], db))
+                    raise DatabaseException(f"Ambiguous database identifiers: '{parts[0]}' and '{db}'")
                 else:
                     return self.finfo(parts[1], parts[0])
             return self.finfo(fid, db)
@@ -316,7 +313,7 @@ class Database:
             db = self.get_databases(parts[0])[0]
             return self.finfo(parts[1], db)
         else:
-            raise DatabaseException("Feature '{}' not found".format(fid))
+            raise DatabaseException(f"Feature '{fid}' not found")
 
     def faddr(self, fid: str, with_column=True):
         """Return the fully-qualified SQL address for *fid*.
@@ -332,9 +329,9 @@ class Database:
         finfo = self.find(fid)
 
         if with_column:
-            return "{}.{}.{}".format(finfo.database, finfo.table, finfo.column)
+            return f"{finfo.database}.{finfo.table}.{finfo.column}"
         else:
-            return "{}.{}".format(finfo.database, finfo.table)
+            return f"{finfo.database}.{finfo.table}"
 
     def get_databases(self, context: str = None):
         """Return all attached database names, optionally filtered by *context*.
@@ -440,11 +437,11 @@ class Database:
         """
         Schema.valid_feature_or_raise(new_fname)
         finfo = self.finfo(fname, target_db)
-        self.execute("ALTER TABLE {}.features RENAME COLUMN {} TO {}".format(finfo.database, fname, new_fname))
+        self.execute(f"ALTER TABLE {finfo.database}.features RENAME COLUMN {fname} TO {new_fname}")
         if finfo.default is None:
             con = sqlite3.connect(self.schemas[finfo.database].path)
             with con as cursor:
-                cursor.execute("ALTER TABLE {} RENAME TO {}".format(fname, new_fname))
+                cursor.execute(f"ALTER TABLE {fname} RENAME TO {new_fname}")
             con.close()
         self.features[fname].remove(finfo)
         if not len(self.features[fname]):
@@ -482,11 +479,11 @@ class Database:
         """
         finfo = self.finfo(fname, target_db)
         if finfo.default is None:
-            self.execute("DROP TABLE IF EXISTS {}.{}".format(finfo.database, fname))
+            self.execute(f"DROP TABLE IF EXISTS {finfo.database}.{fname}")
         elif Database.sqlite3_version() >= 3.35:
-            self.execute("ALTER TABLE {}.{} DROP COLUMN {}".format(finfo.database, finfo.table, fname))
+            self.execute(f"ALTER TABLE {finfo.database}.{finfo.table} DROP COLUMN {fname}")
         else:
-            raise DatabaseException("Cannot delete unique feature {} with SQLite versions < 3.35".format(fname))
+            raise DatabaseException(f"Cannot delete unique feature {fname} with SQLite versions < 3.35")
         self.features[fname].remove(finfo)
         if not len(self.features[fname]):
             del self.features[fname]
@@ -506,25 +503,30 @@ class Database:
             target_db (str | None): Restrict to this database when ambiguous.
         """
         finfo = self.finfo(fname, target_db)
-        w1 = "{cl} IN ('{v}')".format(cl=finfo.column, v="', '".join(values))
-        w2 = "hash IN ('{h}')".format(h="', '".join(hashes))
-        where = "{} AND {}".format(w1 if len(values) else "1=1", w2 if len(hashes) else "1=1")
+        v_joined = "', '".join(values)
+        h_joined = "', '".join(hashes)
+        w1 = f"{finfo.column} IN ('{v_joined}')"
+        w2 = f"hash IN ('{h_joined}')"
+        where = f"{w1 if len(values) else '1=1'} AND {w2 if len(hashes) else '1=1'}"
         db = finfo.database
         if finfo.default is None:
-            hashlist = [r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))]
-            self.execute("DELETE FROM {d}.{tab} WHERE {w}".format(d=db, tab=fname, w=where))
+            hashlist = [r[0] for r in self.query(f"SELECT DISTINCT(hash) FROM {db}.{fname} WHERE {where}")]
+            self.execute(f"DELETE FROM {db}.{fname} WHERE {where}")
+            hl_joined = "', '".join(hashlist)
             remaining = [
-                r[0] for r in self.query("SELECT DISTINCT(hash) FROM {d}.{tab} WHERE hash in ('{h}')".format(d=db, tab=fname, h="', '".join(hashlist)))
+                r[0] for r in self.query(f"SELECT DISTINCT(hash) FROM {db}.{fname} WHERE hash in ('{hl_joined}')")
             ]
             setnone = [h for h in hashlist if not h in remaining]
-            self.execute("UPDATE {d}.features SET {col} = 'None' WHERE hash IN ('{h}')".format(d=db, col=fname, h="', '".join(setnone)))
+            sn_joined = "', '".join(setnone)
+            self.execute(f"UPDATE {db}.features SET {fname} = 'None' WHERE hash IN ('{sn_joined}')")
         else:
-            self.execute("UPDATE {d}.features SET {col} = '{default}' WHERE {w}".format(d=db, col=fname, default=finfo.default, w=where))
+            self.execute(f"UPDATE {db}.features SET {fname} = '{finfo.default}' WHERE {where}")
 
     def delete_hashes_entirely(self, hashes, target_db=None):
         tables = self.get_tables([target_db])
+        h_joined = "', '".join(hashes)
         for table in tables:
-            self.execute("DELETE FROM {}.{} WHERE hash IN ('{h}')".format(target_db, table, h="', '".join(hashes)))
+            self.execute(f"DELETE FROM {target_db}.{table} WHERE hash IN ('{h_joined}')")
 
     def copy_feature(self, old_name, new_name, target_db, hashlist=[]):
         """Copy values from *old_name* into *new_name* for the given hashes.
@@ -538,10 +540,9 @@ class Database:
             hashlist (list[str]): Restrict the copy to these hashes.
         """
         old_finfo = self.find(old_name)
+        hl_joined = "', '".join(hashlist)
         data = self.query(
-            "SELECT hash, {col} FROM {d}.{tab} WHERE hash IN ('{h}')".format(
-                d=old_finfo.database, col=old_finfo.column, tab=old_finfo.table, h="', '".join(hashlist)
-            )
+            f"SELECT hash, {old_finfo.column} FROM {old_finfo.database}.{old_finfo.table} WHERE hash IN ('{hl_joined}')"
         )
         for hash, value in data:
             self.set_values(new_name, value, [hash], target_db)
