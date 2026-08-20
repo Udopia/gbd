@@ -36,7 +36,7 @@ Extractors and transformers are registered in gbd's configuration, so you can al
 
 ## GBD Interfaces
 
-GBD provides the command-line tool `gbd`, the web interface `gbd serve`, and the Python interface `gbd_core.api.GBD`.
+GBD provides the command-line tool `gbd`, the web interface `gbd serve`, and the Python interface class `GBD`.
 
 ### GBD Command-Line Interface
 
@@ -64,7 +64,7 @@ You can download benchmark instances and prebuilt feature databases from there.
 The GBD Python interface is used by all programs in the GBD ecosystem. Important here is the query command, which returns GBD data in the form of a Polars dataframe for further analysis, as shown in the following example.
 
 ```Python
-from gbd_core.api import GBD
+from gbd import GBD
 with GBD(['path/to/database1', 'path/to/database2']) as gbd:
     df = gbd.query("family = hardware-bmc", resolve=['verified-result', 'runtime-kissat'])
 ```
