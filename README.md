@@ -75,6 +75,10 @@ The [prediction demo](https://udopia.github.io/gbdeval/demo_prediction.html) dem
 
 ## Release Notes
 
+### GBD 5.3
+
+In GBD 5.3, the integration between `gbd-tools` and `gbdc` has been hardened and refined. `gbdc` is now a mandatory dependency and ships with pre-built wheels across a wider selection of systems and platform versions. To keep `gbdc` lightweight, experimental features with heavy dependencies have been factored out into standalone packages. Specifically, the gate feature extractor and its CaDiCaL dependency are no longer part of `gbdc`. As a separate tool, they can still be manually linked via the configuration system introduced in GBD 5.1. Moving forward, `gbdc` focuses strictly on core instance and equivalence class identifier algorithms, alongside basic feature extractors and instance transformers.
+
 ### GBD 5.2
 
 GBD 5.2 adds the `gbd interactive` command, which opens an IPython shell with the result of a query available as a Polars dataframe for exploratory analysis (install via `pip install 'gbd-tools[interactive]'`).
