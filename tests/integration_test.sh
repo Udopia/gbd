@@ -185,7 +185,7 @@ cat > "$CONFIG" <<EOF
 paths = ["$DB", "$KDB"]
 
 [transformers.kisxz]
-tool = "gbdc cnf2kis"
+tool = "gbdc cnf2kis --gbd"
 source = ["cnf"]
 target = ["kis"]
 compress = "xz"
@@ -251,8 +251,6 @@ elif mode == "file":
             f.flush()
 
 print("stress 1")                      # only reached when no limit was hit
-print("status success")
-print("runtime 0")
 PY
 
     SSRC="$WORKDIR/scnf"

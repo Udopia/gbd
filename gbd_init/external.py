@@ -121,9 +121,10 @@ def run_external_tool(tool, path, limits=None, output=None, compress=None):
     
     Raises ``ExternalToolException`` for tool-not-found or unexpected non-zero exits.
     """
-    cmd = [*shlex.split(tool), path]
+    cmd = [*shlex.split(tool)]
     if output is not None:
         cmd += ["-o", output]
     if compress is not None and compress != "none":
         cmd += ["-z", compress]
+    cmd.append(path)
     return _run(cmd, limits)
