@@ -154,6 +154,21 @@ class ParserGetSqlTest(unittest.TestCase):
         self.assertIn("foo%", s)
         self.assertNotIn("SELECT", s)
 
+    def test_none_constant_matches_sql_null_and_sentinel(self):
+        sql = self.sql("ufeat = None")
+        self.assertIn("IS NULL", sql)
+        self.assertIn("= 'None'", sql)
+
+        sql = self.sql("ufeat != None")
+        self.assertIn("IS NOT NULL", sql)
+        self.assertIn("!= 'None'", sql)
+
+        sql = self.sql("ufeat = Null")
+        self.assertIn("'Null'", sql)
+        self.assertNotIn("IS NULL", sql)
+        with self.assertRaises(ParserException):
+            self.sql("ufeat < None")
+
     def test_1to1_unlike_is_inline_not_like(self):
         s = self.sql("ufeat unlike foo%")
         self.assertIn("not like", s.lower())
@@ -166,6 +181,12 @@ class ParserGetSqlTest(unittest.TestCase):
         self.assertIn("IN", s.upper())
         self.assertIn("SELECT", s)
         self.assertIn("'foo'", s)
+
+    def test_none_constant_on_1ton_checks_joined_value(self):
+        s = self.sql("mfeat = None")
+        self.assertIn("IS NULL", s)
+        self.assertIn("= 'None'", s)
+        self.assertNotIn("SELECT", s)
 
     def test_1ton_neq_string_uses_not_in_subquery(self):
         s = self.sql("mfeat != foo")

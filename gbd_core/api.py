@@ -202,15 +202,15 @@ class GBD:
         finfo = self.database.find(fname)
         df: pl.DataFrame = self.query(resolve=[fname], collapse=None)
         
-        min_value = sorted(pl.Series(df[fname]).to_list())[0]
-        max_value = sorted(pl.Series(df[fname]).to_list(), reverse=True)[0]
+        values = sorted(pl.Series(df[fname]).unique().to_list(), key=lambda x: (x is None, x))
+        
         return {
             "feature": fname,
             "count": len(df),
             "default": finfo.default,
-            "num-min": min_value,
-            "num-max": max_value,
-            "strings": " ".join(sorted([val for val in df[fname].unique() if val and not util.is_number(val)])),
+            "num-min": values[0],
+            "num-max": values[-1],
+            "strings": " ".join([val for val in values if val is not None and not util.is_number(val)]),
         }
 
     def get_features(self, dbname: str = None):

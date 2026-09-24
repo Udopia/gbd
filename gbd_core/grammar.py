@@ -48,6 +48,9 @@ class Parser:
       inline comparison, meaning "at least one value satisfies the condition".
       See ``Issues.md`` #2 and #3.
 
+    The unquoted constant ``None`` matches both the stored 1:n sentinel value
+    ``'None'`` and SQL ``NULL`` values produced by missing rows in outer joins.
+
     String values are interpolated directly into the SQL string without escaping.
     See ``Issues.md`` #1; SQL injection risk.
     """
@@ -210,6 +213,12 @@ class Parser:
                 feat = db.faddr("".join(ast["col"]))
                 feat_is_1_n = db.find("".join(ast["col"])).default is None
                 if "str" in ast:  # cop:("=" | "!=")
+                    if ast["str"].lower() == "none":
+                        if ast["cop"] == "=":
+                            return f"({feat} IS NULL OR {feat} = 'None')"
+                        if ast["cop"] == "!=":
+                            return f"({feat} IS NOT NULL AND {feat} != 'None')"
+                        raise ParserException("None can only be used with = or !=")
                     if feat_is_1_n:
                         table = db.faddr_table("".join(ast["col"]))
                         setop = "IN" if ast["cop"] == "=" else "NOT IN"

@@ -146,6 +146,55 @@ class QueryNonUniqueTestCase(unittest.TestCase):
         self.assertIn(self.val1, hash_a_row[1])
         self.assertIn(self.val2, hash_a_row[1])
 
+class MissingOuterJoinTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.file1 = util.get_random_unique_filename('testmissing1', '.db')
+        self.file2 = util.get_random_unique_filename('testmissing2', '.db')
+        sqlite3.connect(self.file1).close()
+        sqlite3.connect(self.file2).close()
+        self.dbname1 = Schema.dbname_from_path(self.file1)
+        self.dbname2 = Schema.dbname_from_path(self.file2)
+        self.db = Database([self.file1, self.file2], verbose=False)
+
+        self.db.create_feature("base", default_value=None, target_db=self.dbname1)
+        self.db.set_values({"base": "present"}, ["a", "b", "c"], target_db=self.dbname1)
+        self.db.create_feature("optionalunique", default_value="empty", target_db=self.dbname2)
+        self.db.set_values({"optionalunique": "present"}, ["a"], target_db=self.dbname2)
+        self.db.create_feature("optionalmulti", default_value=None, target_db=self.dbname2)
+        self.db.set_values({"optionalmulti": "present"}, ["a"], target_db=self.dbname2)
+        self.db.set_values({"optionalmulti": "None"}, ["b"], target_db=self.dbname2)
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        if os.path.exists(self.file1):
+            os.remove(self.file1)
+        if os.path.exists(self.file2):
+            os.remove(self.file2)
+        return super().tearDown()
+
+    def build_and_run(self, query_str, **kwargs):
+        q = GBDQuery(self.db, query_str).build_query(**kwargs)
+        return self.db.query(q)
+
+    def test_none_matches_missing_1to1_rows_from_outer_join(self):
+        feature = f"{self.dbname2}:optionalunique"
+
+        rows = self.build_and_run(f"{feature} = None", resolve=[feature], collapse=None)
+        self.assertEqual(rows, [("c", "None")])
+
+        rows = self.build_and_run(f"{feature} != None", resolve=[feature], collapse=None)
+        self.assertEqual(rows, [("a", "present"), ("b", "empty")])
+
+    def test_none_matches_stored_and_missing_1ton_rows(self):
+        feature = f"{self.dbname2}:optionalmulti"
+
+        rows = self.build_and_run(f"{feature} = None", resolve=[feature], collapse=None)
+        self.assertSetEqual(set(rows), {("b", "None"), ("c", "None")})
+
+        rows = self.build_and_run(f"{feature} != None", resolve=[feature], collapse=None)
+        self.assertEqual(rows, [("a", "present")])
+
 
 class LikeQueryTestCase(unittest.TestCase):
     """Tests for 'like' / 'unlike' query operators on a 1:n (multi-valued) feature.
