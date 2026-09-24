@@ -70,7 +70,7 @@ def init_features_generic(key: str, api: GBD, rlimits, df: pl.DataFrame, target_
     extractor.run(df)
 
 
-def init_local(api: GBD, rlimits, root, target_db):
+def init_local(api: GBD, rlimits, root, target_db, force=False):
     context = api.database.dcontext(target_db)
 
     features = [("local", None), ("filename", None)]
@@ -93,7 +93,7 @@ def init_local(api: GBD, rlimits, root, target_db):
     if len(missing) and api.verbose:
         for path in missing["local"].to_list():
             eprint(path)
-    if len(missing) and confirm(f"{len(missing)} files not found. Remove stale entries from local table?"):
+    if len(missing) and (force or confirm(f"{len(missing)} files not found. Remove stale entries from local table?")):
         api.reset_values("local", values=missing["local"].to_list())
 
     # Create df with paths not yet in local table

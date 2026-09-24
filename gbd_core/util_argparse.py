@@ -29,6 +29,7 @@ def get_gbd_argparser():
         "(default: value of the GBD or GBD_DB environment variable)",
     )
     parser.add_argument("-v", "--verbose", action="store_true", help="Print additional (or diagnostic) information to stderr")
+    parser.add_argument("-f", "--force", action="store_true", help="Assume yes for all confirmation prompts")
     return parser
 
 
@@ -45,7 +46,7 @@ def add_resource_limits_arguments(parser: argparse.ArgumentParser):
     limits = parser.add_argument_group("resource limits (per instance)", util.resource_limits_help_note())
     limits.add_argument("-t", "--tlim", default=5000, type=int, help="Time limit (sec)")
     limits.add_argument("-m", "--mlim", default=2000, type=int, help="Memory limit (MB)")
-    limits.add_argument("-f", "--flim", default=1000, type=int, help="Output file size limit (MB)")
+    limits.add_argument("--flim", default=1000, type=int, help="Output file size limit (MB)")
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
