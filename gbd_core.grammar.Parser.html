@@ -282,7 +282,7 @@
         </div>
 
         <div class="extrasDocstring">
-          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Parser</span>: <a href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L28" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.grammar.Parser.__init__">Parser(query, verbose)</a></code></p>
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Parser</span>: <a href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L28" class="sourceLink">(source)</a></code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="gbd_core.grammar.Parser.__init__">Parser(query, verbose)</a></code></p>
           <p><a href="classIndex.html#gbd_core.grammar.Parser">View In Hierarchy</a></p>
         </div>
 
@@ -308,6 +308,8 @@ Numeric inequality and arithmetic-term comparisons on 1:n features fall through 
 inline comparison, meaning "at least one value satisfies the condition".
 See <tt class="rst-docutils rst-literal">Issues.md</tt> #2 and #3.</li>
 </ul>
+<p>The unquoted constant <tt class="rst-docutils rst-literal">None</tt> matches both the stored 1:n sentinel value
+<tt class="rst-docutils rst-literal">'None'</tt> and SQL <tt class="rst-docutils rst-literal">NULL</tt> values produced by missing rows in outer joins.</p>
 <p>String values are interpolated directly into the SQL string without escaping.
 See <tt class="rst-docutils rst-literal">Issues.md</tt> #1; SQL injection risk.</p>
 </div>
@@ -367,8 +369,8 @@ See <tt class="rst-docutils rst-literal">Issues.md</tt> #1; SQL injection risk.<
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, query, verbose=<a href="https://docs.python.org/3/library/constants.html#False" class="intersphinx-link">False</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L109">
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, query, verbose=<a href="https://docs.python.org/3/builtins/constants.html#False" class="intersphinx-link">False</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L112">
       
       (source)
     </a>
@@ -383,7 +385,7 @@ See <tt class="rst-docutils rst-literal">Issues.md</tt> #1; SQL injection risk.<
     <div><p>Parse <em>query</em> into an internal AST.</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">query:</span>str|<blockquote>
 None</blockquote>
 </td><td class="fieldArgDesc">GBD query string, e.g. <tt class="rst-docutils rst-literal">"filename like foo% and vars &gt; 100"</tt>.
-Pass <tt class="rst-docutils rst-literal">None</tt> or an empty string for an unconditional (match-all) query.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">verbose:</span><code><a href="https://docs.python.org/3/library/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">If <tt class="rst-docutils rst-literal">True</tt>, print the raw query and its JSON AST to stdout.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If <em>query</em> is syntactically invalid.</td></tr></table></div>
+Pass <tt class="rst-docutils rst-literal">None</tt> or an empty string for an unconditional (match-all) query.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">verbose:</span><code><a href="https://docs.python.org/3/builtins/functions.html#bool" class="intersphinx-link">bool</a></code></td><td class="fieldArgDesc">If <tt class="rst-docutils rst-literal">True</tt>, print the raw query and its JSON AST to stdout.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If <em>query</em> is syntactically invalid.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
   
@@ -397,8 +399,8 @@ Pass <tt class="rst-docutils rst-literal">None</tt> or an empty string for an un
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, ast=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L128">
+    <span class="py-keyword">def</span> <span class="py-defname">get_features</span><span class="function-signature">(self, ast=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L131">
       
       (source)
     </a>
@@ -416,7 +418,7 @@ are used by <code><a href="gbd_core.query.GBDQuery.html" class="internal-link" t
 features exist before executing a query.</p>
 <table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">ast:</span>dict|<blockquote>
 None</blockquote>
-</td><td class="fieldArgDesc">Sub-tree to walk; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#set" class="intersphinx-link">set</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Feature names, possibly qualified as <tt class="rst-docutils rst-literal">"context:feature"</tt> or
+</td><td class="fieldArgDesc">Sub-tree to walk; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/builtins/stdtypes.html#set" class="intersphinx-link">set</a>[<a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a>]</code></td><td class="fieldArgDesc">Feature names, possibly qualified as <tt class="rst-docutils rst-literal">"context:feature"</tt> or
 <tt class="rst-docutils rst-literal">"database:feature"</tt> if the query uses such prefixes.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>On unexpected AST structure.</td></tr></table></div>
   </div>
 </div><div class="basemethod">
@@ -431,8 +433,8 @@ None</blockquote>
   <div class="functionHeader">
     
     
-    <span class="py-keyword">def</span> <span class="py-defname">get_sql</span><span class="function-signature">(self, db: <code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code>, ast=<a href="https://docs.python.org/3/library/constants.html#None" class="intersphinx-link">None</a>)</span>:
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L165">
+    <span class="py-keyword">def</span> <span class="py-defname">get_sql</span><span class="function-signature">(self, db: <code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code>, ast=<a href="https://docs.python.org/3/builtins/constants.html#None" class="intersphinx-link">None</a>)</span>:
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L168">
       
       (source)
     </a>
@@ -464,7 +466,7 @@ None</blockquote>
 </ul>
 <table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">db:</span><code><a href="gbd_core.database.Database.html" class="internal-link" title="gbd_core.database.Database">Database</a></code></td><td class="fieldArgDesc">Used to resolve feature addresses and determine cardinality.</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">ast:</span>dict|<blockquote>
 None</blockquote>
-</td><td class="fieldArgDesc">Sub-tree to compile; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL expression fragment suitable for embedding in a WHERE clause.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If the AST is malformed or a feature cannot be resolved.</td></tr></table></div>
+</td><td class="fieldArgDesc">Sub-tree to compile; defaults to the root AST.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code></td><td class="fieldArgDesc">SQL expression fragment suitable for embedding in a WHERE clause.</td></tr><tr class="fieldStart"><td class="fieldName" colspan="2">Raises</td></tr><tr><td class="fieldArgContainer"><code><a href="gbd_core.grammar.ParserException.html" class="internal-link" title="gbd_core.grammar.ParserException">ParserException</a></code></td><td>If the AST is malformed or a feature cannot be resolved.</td></tr></table></div>
   </div>
 </div><div class="baseconstant">
   
@@ -477,8 +479,8 @@ None</blockquote>
   </a>
   <div class="functionHeader">
     
-    <span class="py-defname">GRAMMAR</span>: <code><a href="https://docs.python.org/3/library/stdtypes.html#str" class="intersphinx-link">str</a></code> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L54">
+    <span class="py-defname">GRAMMAR</span>: <code><a href="https://docs.python.org/3/builtins/stdtypes.html#str" class="intersphinx-link">str</a></code> =
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L57">
       
       (source)
     </a>
@@ -512,7 +514,7 @@ None</blockquote>
   <div class="functionHeader">
     
     <span class="py-defname">model</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L107">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L110">
       
       (source)
     </a>
@@ -539,7 +541,7 @@ None</blockquote>
   <div class="functionHeader">
     
     <span class="py-defname">ast</span> =
-    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/922d8ff2ad1f8eb311114ec25f1131e6bb1b0620/gbd_core/grammar.py#L121">
+    <a class="sourceLink" href="https://github.com/Udopia/gbd/tree/5570efe0aabcf75d58ef0664c5941163d7010657/gbd_core/grammar.py#L124">
       
       (source)
     </a>
@@ -566,7 +568,7 @@ None</blockquote>
   <div class="container-fluid">
     <a href="index.html">API Documentation</a> for <a href="https://github.com/Udopia/gbd" class="projecthome">gbd</a>,
   generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
-    24.11.2 at 2026-08-20 15:40:10.
+    24.11.2 at 2026-09-24 11:53:43.
   </div>
 
   <!-- Search related scripts needs to be loaded at the end of HTML 
