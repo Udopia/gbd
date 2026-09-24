@@ -171,8 +171,8 @@ class GBDQuery:
         2. **Same-context, 1:n feature** (separate table):
            ensures ``db.features`` is joined first, then
            ``{join_type} JOIN db.{name} ON db.{name}.hash = db.features.{name}``
-          3. **Cross-context**: joins through the translator feature table using
-              the requested join mode.
+        3. **Cross-context**: 
+            joins through the translator feature table using the requested join mode.
 
         Args:
             group (str): Feature identifier of the group-by column; its database is the
