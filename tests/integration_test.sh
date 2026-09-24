@@ -140,7 +140,7 @@ check_eq "all instances registered in local table" "$n" "$N"
 # Extraction: base features (gbd runs 'gbdc base' per instance)
 # ---------------------------------------------------------------------------
 say "extract base features"
-"$GBD_CMD" -d "$DB" init base < /dev/null >/dev/null 2>&1
+"$GBD_CMD" -f -d "$DB" init base < /dev/null >/dev/null 2>&1
 n=$("$GBD_CMD" -d "$DB" get -r clauses < /dev/null 2>/dev/null | count_values '^[0-9]+$')
 check_eq "clauses extracted for all instances" "$n" "$N"
 n=$("$GBD_CMD" -d "$DB" get -r variables < /dev/null 2>/dev/null | count_values '^[0-9]+$')
@@ -150,7 +150,7 @@ check_eq "variables extracted for all instances" "$n" "$N"
 # Extraction: isohash (string-valued feature)
 # ---------------------------------------------------------------------------
 say "extract isohash"
-"$GBD_CMD" -d "$DB" init isohash < /dev/null >/dev/null 2>&1
+"$GBD_CMD" -f -d "$DB" init isohash < /dev/null >/dev/null 2>&1
 n=$("$GBD_CMD" -d "$DB" get -r isohash < /dev/null 2>/dev/null | count_values '^[0-9a-f]+$')
 check_eq "isohash set for all instances" "$n" "$N"
 
@@ -158,7 +158,7 @@ check_eq "isohash set for all instances" "$n" "$N"
 # Parallel extraction (-j2): checksani (yes/no flags)
 # ---------------------------------------------------------------------------
 say "parallel extraction (-j2 checksani)"
-"$GBD_CMD" -d "$DB" init -j2 checksani < /dev/null >/dev/null 2>&1
+"$GBD_CMD" -f -d "$DB" init -j2 checksani < /dev/null >/dev/null 2>&1
 n=$("$GBD_CMD" -d "$DB" get -r no_empty_clause < /dev/null 2>/dev/null | count_values '^(yes|no)$')
 check_eq "checksani (parallel) set for all instances" "$n" "$N"
 
@@ -167,7 +167,7 @@ check_eq "checksani (parallel) set for all instances" "$n" "$N"
 # ---------------------------------------------------------------------------
 say "transform cnf2kis"
 echo y | "$GBD_CMD" -d "$KDB" info >/dev/null 2>&1
-"$GBD_CMD" -d "$DB:$KDB" transform --source cnf --target kis_test cnf2kis < /dev/null >/dev/null 2>&1
+"$GBD_CMD" -f -d "$DB:$KDB" transform --source cnf --target kis_test cnf2kis < /dev/null >/dev/null 2>&1
 check_eq "kis instances produced on disk" "$(ls "$CNFDIR"/*.kis 2>/dev/null | nlines)" "$N"
 # query the kis database on its own so the primary context is 'kis'
 n=$("$GBD_CMD" -d "$KDB" get -r k < /dev/null 2>/dev/null | count_values '^[0-9]+$')
@@ -192,7 +192,7 @@ compress = "xz"
 description = "cnf2kis with xz-compressed output"
 EOF
 rm -f "$CNFDIR"/*.kis "$CNFDIR"/*.kis.xz
-"$GBD_CMD" -d "$CONFIG" transform --source cnf --target kis_test kisxz < /dev/null >/dev/null 2>&1
+"$GBD_CMD" -f -d "$CONFIG" transform --source cnf --target kis_test kisxz < /dev/null >/dev/null 2>&1
 xzc=$(ls "$CNFDIR"/*.kis.xz 2>/dev/null | nlines)
 check_eq "xz-compressed kis instances produced" "$xzc" "$N"
 if have xz && [[ "$xzc" -gt 0 ]]; then
@@ -271,24 +271,24 @@ EOF
     sget() { "$GBD_CMD" -d "$SCONFIG" get -r stress < /dev/null 2>/dev/null | count_values '^1$'; }
 
     # time limit (enforced on Linux and macOS): gbd kills the sleeping tool at -t seconds
-    STRESS_MODE=time "$GBD_CMD" -d "$SCONFIG" init -t 2 stress < /dev/null >/dev/null 2>&1
+    STRESS_MODE=time "$GBD_CMD" -f -d "$SCONFIG" init -t 2 stress < /dev/null >/dev/null 2>&1
     check_eq "time limit prevents extraction (Linux/macOS)" "$(sget)" "0"
 
     # output file-size limit (enforced on Linux and macOS): RLIMIT_FSIZE kills the writer
-    STRESS_OUT="$WORKDIR/huge.bin" STRESS_MODE=file "$GBD_CMD" -d "$SCONFIG" init -flim 1 stress < /dev/null >/dev/null 2>&1
+    STRESS_OUT="$WORKDIR/huge.bin" STRESS_MODE=file "$GBD_CMD" -f -d "$SCONFIG" init -flim 1 stress < /dev/null >/dev/null 2>&1
     check_eq "file-size limit prevents extraction (Linux/macOS)" "$(sget)" "0"
     rm -f "$WORKDIR/huge.bin"
 
     # memory limit (enforced on Linux only; macOS ignores RLIMIT_AS)
     if [[ "$OS" == "Linux" ]]; then
-        STRESS_MODE=mem "$GBD_CMD" -d "$SCONFIG" init -m 200 stress < /dev/null >/dev/null 2>&1
+        STRESS_MODE=mem "$GBD_CMD" -f -d "$SCONFIG" init -m 200 stress < /dev/null >/dev/null 2>&1
         check_eq "memory limit prevents extraction (Linux)" "$(sget)" "0"
     else
         ok "memory limit skipped on $OS (RLIMIT_AS not enforced)"
     fi
 
     # baseline last: without a tight limit the same tool succeeds (guards false positives)
-    STRESS_MODE=ok "$GBD_CMD" -d "$SCONFIG" init stress < /dev/null >/dev/null 2>&1
+    STRESS_MODE=ok "$GBD_CMD" -f -d "$SCONFIG" init stress < /dev/null >/dev/null 2>&1
     check_eq "baseline: extraction succeeds without tight limits" "$(sget)" "1"
 fi
 
