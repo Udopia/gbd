@@ -246,7 +246,7 @@ def main():
         help="Specify a function for the handling of multiple feature values",
     )
     parser_get.add_argument("-g", "--group_by", default=None, help="Group by the specified feature as the key, rather than by the primary key")
-    parser_get.add_argument("--join-type", help="Join Type: treatment of missing values", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
+    parser_get.add_argument("--join-type", help="Join Type: treatment of missing values", choices=["INNER", "LEFT"], default="LEFT")
     parser_get.add_argument("-d", "--delimiter", default=" ", help="CSV delimiter to use in output")
     parser_get.add_argument("-H", "--header", action="store_true", help="Include header information in output")
     parser_get.set_defaults(func=cli_get)
@@ -263,7 +263,7 @@ def main():
         help="Specify a function for the handling of multiple feature values",
     )
     parser_interactive.add_argument("-g", "--group_by", default=None, help="Group by the specified feature as the key, rather than by the primary key")
-    parser_interactive.add_argument("--join-type", help="Join Type: treatment of missing values", choices=["INNER", "OUTER", "LEFT"], default="LEFT")
+    parser_interactive.add_argument("--join-type", help="Join Type: treatment of missing values", choices=["INNER", "LEFT"], default="LEFT")
     parser_interactive.set_defaults(func=cli_interactive)
 
     # GBD SET

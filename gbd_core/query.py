@@ -63,9 +63,8 @@ class GBDQuery:
             resolve (list[str]): Features to include as output columns.
             group_by (str | None): Group results by this feature instead of the default
                 ``context:hash`` column; inferred from *resolve* when ``None``.
-            join_type (str): ``"LEFT"`` (default, include unmatched hashes) or
+            join_type (str): ``"LEFT"`` (include unmatched hashes) or
                 ``"INNER"`` (exclude them).
-                Cross-context joins are always ``INNER`` (see ``Issues.md`` #4).
             collapse (str | None): Aggregate function for resolved columns; one of
                 ``"group_concat"``, ``"min"``, ``"max"``, ``"avg"``, ``"count"``,
                 ``"sum"``.  ``None`` returns one raw row per join result.
@@ -126,7 +125,7 @@ class GBDQuery:
             str: SQL SELECT clause, e.g.
                 ``"SELECT DISTINCT cnf_db.features.hash, cnf_db.local.value"``.
         """
-        result = [self.db.faddr(f) for f in [group_by] + resolve]
+        result = [self.db.faddr(group_by)] + [f"COALESCE({self.db.faddr(f)}, 'None')" for f in resolve]
         if collapse and collapse != "none":
             result = [f"{collapse}(DISTINCT {r})" for r in result]
         return "SELECT DISTINCT " + ", ".join(result)
@@ -172,15 +171,15 @@ class GBDQuery:
         2. **Same-context, 1:n feature** (separate table):
            ensures ``db.features`` is joined first, then
            ``{join_type} JOIN db.{name} ON db.{name}.hash = db.features.{name}``
-        3. **Cross-context**: always ``INNER JOIN`` via the translator feature table
-           regardless of *join_type* (see ``Issues.md`` #4).
+          3. **Cross-context**: joins through the translator feature table using
+              the requested join mode.
 
         Args:
             group (str): Feature identifier of the group-by column; its database is the
                 base ``FROM`` table.
             features (set[str]): All features that must appear in the clause
                 (filter features + resolved features).
-            join_type (str): ``"LEFT"`` or ``"INNER"`` applied to same-context joins.
+            join_type (str): ``"LEFT"`` or ``"INNER"``.
 
         Returns:
             str: SQL FROM / JOIN clause.
@@ -213,9 +212,9 @@ class GBDQuery:
 
                     taddress = tfeat.database + "." + tfeat.table
                     if not taddress in result:
-                        result[taddress] = f"INNER JOIN {taddress} ON {gaddress}.hash = {taddress}.{direction[0]}"
+                        result[taddress] = f"{join_type} JOIN {taddress} ON {gaddress}.hash = {taddress}.{direction[0]}"
 
-                    result[faddress] = f"INNER JOIN {faddress} ON {taddress}.{direction[1]} = {faddress}.hash"
+                    result[faddress] = f"{join_type} JOIN {faddress} ON {taddress}.{direction[1]} = {faddress}.hash"
 
         return " ".join(result.values())
 
