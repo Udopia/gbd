@@ -14,6 +14,7 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
+import argparse
 import os
 import sys
 import traceback
@@ -40,7 +41,7 @@ def cli_init_local(api: GBD, args):
     from gbd_init.feature_extractors import init_local
 
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
-    init_local(api, rlimits, args.path, args.target)
+    init_local(api, rlimits, args.path, args.target, args.force)
 
 
 def cli_init_generic(api: GBD, args):
@@ -49,14 +50,18 @@ def cli_init_generic(api: GBD, args):
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
     context = api.database.dcontext(args.target)
     df = api.query(args.query, args.hashes, [context + ":local"], collapse="MIN", group_by=context + ":hash")
-    init_features_generic(args.initfuncname, api, rlimits, df, args.target, args.extractors)
+    tool = args.extractors[args.initfuncname]["tool"]
+    if args.force or util.confirm(f"Run initializer '{args.initfuncname}' mapped to external tool '{tool}'?"):
+        init_features_generic(args.initfuncname, api, rlimits, df, args.target, args.extractors)
 
 
 def cli_trans_generic(api: GBD, args):
     from gbd_init.instance_transformers import transform_instances_generic
 
     rlimits = {"jobs": args.jobs, "tlim": args.tlim, "mlim": args.mlim, "flim": args.flim}
-    transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source, args.transformers, args.collapse)
+    tool = args.transformers[args.transfuncname]["tool"]
+    if args.force or util.confirm(f"Run transformer '{args.transfuncname}' mapped to external tool '{tool}'?"):
+        transform_instances_generic(args.transfuncname, api, rlimits, args.query, args.hashes, args.target, args.source, args.transformers, args.collapse)
 
 
 def cli_create(api: GBD, args):
@@ -159,26 +164,11 @@ If you do not trust the source of the databases, do not run the server.
 
 ### Define Command-Line Interface and Map Sub-Commands to Methods
 def _preparse_db_arg():
-    """Extract the top-level ``-d/--db`` value from the leading options (before the
-    subcommand), without argparse, so the configuration can be resolved before the
-    config-driven subcommands are built. Scanning only the leading options avoids
-    clashing with subcommand-level ``-d`` flags (e.g. ``get -d`` is a delimiter)."""
-    argv = sys.argv[1:]
-    i = 0
-    db = None
-    while i < len(argv):
-        tok = argv[i]
-        if tok in ("-d", "--db"):
-            db = argv[i + 1] if i + 1 < len(argv) else None
-            i += 2
-        elif tok.startswith("--db="):
-            db = tok.split("=", 1)[1]
-            i += 1
-        elif tok in ("-v", "--verbose", "-h", "--help"):
-            i += 1
-        else:
-            break  # first token that is not a leading top-level option: the subcommand
-    return db
+    """Parse the global database option before config-driven subcommands exist."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("-d", "--db")
+    parser.add_argument("command", nargs=argparse.REMAINDER)
+    return parser.parse_known_args()[0].db
 
 
 def main():
@@ -288,12 +278,10 @@ def main():
     parser_delete.add_argument("--hashes", help="Hashes for which to delete values", nargs="*", default=[])
     parser_delete.add_argument("--values", help="Values to delete", nargs="*", default=[])
     parser_delete.add_argument("name", type=column_type, help="Name of feature (default: all)", nargs="?")
-    parser_delete.add_argument("-f", "--force", action="store_true", help="Do not ask for confirmation")
     parser_delete.set_defaults(func=cli_delete)
 
     parser_cleanup = subparsers.add_parser("cleanup", help="Delete given hashes from all features")
     parser_cleanup.add_argument("--hashes", help="Hashes for which to delete values", nargs="*", default=[])
-    parser_cleanup.add_argument("-f", "--force", action="store_true", help="Do not ask for confirmation")
     parser_cleanup.add_argument("--target", help="Target database (default: first in list)", default=None)
     parser_cleanup.set_defaults(func=cli_cleanup)
 
