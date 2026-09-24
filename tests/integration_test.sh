@@ -275,7 +275,7 @@ EOF
     check_eq "time limit prevents extraction (Linux/macOS)" "$(sget)" "0"
 
     # output file-size limit (enforced on Linux and macOS): RLIMIT_FSIZE kills the writer
-    STRESS_OUT="$WORKDIR/huge.bin" STRESS_MODE=file "$GBD_CMD" -d "$SCONFIG" init -f 1 stress < /dev/null >/dev/null 2>&1
+    STRESS_OUT="$WORKDIR/huge.bin" STRESS_MODE=file "$GBD_CMD" -d "$SCONFIG" init -flim 1 stress < /dev/null >/dev/null 2>&1
     check_eq "file-size limit prevents extraction (Linux/macOS)" "$(sget)" "0"
     rm -f "$WORKDIR/huge.bin"
 
