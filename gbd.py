@@ -187,7 +187,7 @@ def main():
     # INITIALIZATION
     parser_init = subparsers.add_parser("init", help="Initialize database features (extractors require external tools)")
     add_resource_limits_arguments(parser_init)
-    parser_init.add_argument("--target", help="Target database for new features (default: first db in list); also determines target context", default=None)
+    parser_init.add_argument("-t", "--target", help="Target database for new features (default: first db in list); also determines target context", default=None)
 
     parser_init_subparsers = parser_init.add_subparsers(help="Select Initialization Procedure:", required=True, dest="init what?")
 
@@ -205,8 +205,8 @@ def main():
     # TRANSFORMATION
     parser_trans = subparsers.add_parser("transform", help="Transform benchmark instances (requires external tools)")
     add_resource_limits_arguments(parser_trans)
-    parser_trans.add_argument("--source", help="Source context", default=contexts.default_context())
-    parser_trans.add_argument("--target", help="Target database; determines target context (default: first db in list)", default=None)
+    parser_trans.add_argument("-s", "--source", help="Source context", default=contexts.default_context())
+    parser_trans.add_argument("-t", "--target", help="Target database; determines target context (default: first db in list)", default=None)
 
     parser_trans_subparsers = parser_trans.add_subparsers(help="Select Transformation Procedure:", required=True, dest="transform how?")
 

@@ -18,6 +18,15 @@ import re
 
 from gbd_core import util
 
+_original_init = argparse.ArgumentParser.__init__
+
+def _patched_init(self, *args, **kwargs):
+  kwargs.setdefault('formatter_class', argparse.ArgumentDefaultsHelpFormatter)
+  _original_init(self, *args, **kwargs)
+
+# patch ArgumentParser to use ArgumentDefaultsHelpFormatter by default
+argparse.ArgumentParser.__init__ = _patched_init
+
 
 def get_gbd_argparser():
     parser = argparse.ArgumentParser(description="GBD Benchmark Database")
@@ -44,9 +53,9 @@ def add_resource_limits_arguments(parser: argparse.ArgumentParser):
     parser.add_argument("-j", "--jobs", default=1, type=int, help="Set number of parallel jobs")
     # Group description reports which limits actually take effect on the current system.
     limits = parser.add_argument_group("resource limits (per instance)", util.resource_limits_help_note())
-    limits.add_argument("-t", "--tlim", default=5000, type=int, help="Time limit (sec)")
-    limits.add_argument("-m", "--mlim", default=2000, type=int, help="Memory limit (MB)")
-    limits.add_argument("--flim", default=1000, type=int, help="Output file size limit (MB)")
+    limits.add_argument("--tlim", default=5000, type=int, help="Time limit (sec)")
+    limits.add_argument("--mlim", default=2000, type=int, help="Memory limit (MB)")
+    limits.add_argument("--flim", default=1000, type=int, help="Output-file limit (MB)")
 
 
 ### Argument Types for Input Sanitation in ArgParse Library
