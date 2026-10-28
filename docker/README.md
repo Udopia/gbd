@@ -23,6 +23,13 @@ flowchart LR
 Both images are built locally (not pulled from a registry) via [build.sh](build.sh)
 and referenced by name in [docker-compose.yml](docker-compose.yml).
 
+The gbd image uses `python:3.14-slim` to match the published `gbdc` wheels on
+PyPI. Installation requires a prebuilt wheel for `gbdc` (`--only-binary=gbdc`),
+so no C++ toolchain or libarchive development headers are needed. If no wheel
+matches the platform, the build fails explicitly instead of compiling from
+source. Before updating the Python minor version, check that `gbdc` publishes
+wheels for it.
+
 ## Host layout (`GBD_ROOT`)
 
 Every host path in the compose file derives from a single variable,
