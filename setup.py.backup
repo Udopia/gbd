@@ -7,7 +7,7 @@ setup(name='gbd_tools',
   long_description_content_type="text/markdown",
   url='https://github.com/Udopia/gbd',
   author='Ashlin Iser',
-  author_email='markus.iser@kit.edu',
+  author_email='ashlin.iser@gmail.com',
   packages=[
     "gbd_core", 
     "gbd_init",
